@@ -1,0 +1,59 @@
+<meta charset="UTF-8">
+<head>
+	<title>Supernatet</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" src="svg.js"></script>
+	<script type="text/javascript" src="data.js"></script>
+	<script type="text/javascript" src="main.js"></script>
+</head>
+<body>
+	<h2>The Islands of Supernatet</h2>
+	<div id="mapbox">
+
+	</div>
+	<div id="infobox">
+		<h3 id="info-name" class="info-name"></h3>
+		<div id="inner-infobox">
+			<div id="info-chancery" class="info-col">
+				<div id="info-desc" class="info-desc"></div>
+				<div class="info-name"><b>Notable People</b></div>
+				<div id="info-people-list"></div>
+				<div class="info-buttons">
+					<button class="info-button">Full Size</button>
+				</div>
+			</div>
+			<div id="info-people" class="info-col">
+				<h4 class="info-name">
+					<span id="info-people-title"></span>
+					<span id="info-people-name"></span>
+				</h4>
+				<div id="info-people-desc" class="info-desc"></div>
+				<div id="info-items-list"></div>
+				<div class="info-buttons">
+					<button class="info-button" onclick="colselect()">Back</button>
+				</div>
+			</div>
+			<div id="info-items" class="info-col">
+				<h4 class="info-name">
+					<span id="info-items-name"></span>
+				</h4>
+				<div id="info-items-desc" class="info-desc"></div>
+				<div class="info-buttons">
+					<button class="info-button" onclick="colselect()">Back</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="templates">
+		<div id="template-person" class="person list-item">
+			<span class="person-name list-element"></span>
+			<span class="person-title list-element"></span>
+			<button class="person-button list-button">View</button>
+		</div>
+		<div id="template-item" class="item list-item">
+			<span class="item-name list-element"></span>
+			<span class="item-price list-element"></span>
+			<button class="item-button list-button">View</button>
+		</div>
+	</div>
+</body>
