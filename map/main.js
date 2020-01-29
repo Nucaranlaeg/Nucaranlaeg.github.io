@@ -1,4 +1,4 @@
-UserPermission = Permission.ANY;
+UserPermission = Permission.PLAYER;
 
 setTimeout(() => {
 	mapbox = document.querySelector("#mapbox");
