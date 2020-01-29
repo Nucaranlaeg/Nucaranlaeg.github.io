@@ -4,7 +4,7 @@ body {
 }
 
 #mapbox {
-	width: 1000px;
+	width: 750px;
 	height: 750px;
 	background-color: #ebd5b3;
 	position: relative;
@@ -13,10 +13,16 @@ body {
 
 #mapbox svg {
 	position: absolute;
-	pointer-events: all;
+	transform: scale(2);
+}
+
+svg,
+svg * {
+	pointer-events: none;
 }
 
 .mapisland path {
+	pointer-events: all;
 	fill: #ffffff00;
 	stroke: #000000;
 	stroke-width: 0.25;
@@ -25,10 +31,10 @@ body {
 	stroke-opacity: 1;
 }
 
-g:hover path {
+path:hover {
 	stroke: #005500;
-	stroke-width: 0.5;
-	fill: #ffffff33;
+	stroke-width: 0.75;
+	fill: #99ff9977;
 }
 
 #infobox {

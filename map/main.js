@@ -1,10 +1,11 @@
-UserPermission = Permission.PLAYER;
+UserPermission = Permission.ANY;
 
 setTimeout(() => {
 	mapbox = document.querySelector("#mapbox");
 	
 	mapbox.addEventListener("click", e => {
 		islandNumber = e.target.parentNode.parentNode.id.replace("island", "");
+		console.log(islandNumber);
 		if (islandNumber) loadIslandInfo(chanceries[islandNumber]);
 	});
 }, 0);
@@ -51,7 +52,7 @@ function loadPersonInfo(person) {
 		itemDiv = document.querySelector("#template-item").cloneNode(true);
 		itemDiv.id = "item" + item.id;
 		itemDiv.querySelector(".item-name").innerHTML = item.name;
-		itemDiv.querySelector(".item-price").innerHTML = item.buy;
+		itemDiv.querySelector(".item-price").innerHTML = item.price;
 		itemDiv.querySelector(".item-button").addEventListener("click", e => {
 			itemNumber = e.target.parentNode.id.replace("item", "");
 			loadItemInfo(allitems[itemNumber]);
