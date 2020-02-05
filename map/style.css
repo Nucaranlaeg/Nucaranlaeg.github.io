@@ -9,11 +9,15 @@ body {
 	background-color: #ebd5b3;
 	position: relative;
 	display: inline-block;
+	overflow: hidden;
 }
 
 #mapbox svg {
 	position: absolute;
-	transform: scale(2);
+	transition: all 1s;
+	top: 0px;
+	left: 0px;
+	transform: scale(1);
 }
 
 svg,
@@ -21,7 +25,7 @@ svg * {
 	pointer-events: none;
 }
 
-.mapisland path {
+path {
 	pointer-events: all;
 	fill: #ffffff00;
 	stroke: #000000;

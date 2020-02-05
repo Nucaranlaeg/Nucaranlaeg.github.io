@@ -4,9 +4,18 @@ setTimeout(() => {
 	mapbox = document.querySelector("#mapbox");
 	
 	mapbox.addEventListener("click", e => {
-		islandNumber = e.target.parentNode.parentNode.id.replace("island", "");
+		islandNumber = e.target.id;
 		console.log(islandNumber);
-		if (islandNumber) loadIslandInfo(chanceries[islandNumber]);
+		if (islandNumber.includes("island")){
+			loadIslandInfo(chanceries[islandNumber.replace("island", "")]);
+		} else if (islandNumber == "mapbox"){
+			// Unzoom map
+			map = document.querySelector("#mapbox svg");
+			map.style.top = `0px`;
+			map.style.left = `0px`;
+			map.style.transform = `scale(1)`;
+			// Clear sidebar.
+		}
 	});
 }, 0);
 
@@ -33,6 +42,11 @@ function loadIslandInfo(chancery) {
 		});
 		peopleDiv.append(personDiv);
 	});
+	// Zoom map to correct coordinates.
+	map = document.querySelector("#mapbox svg");
+	map.style.top = `${chancery.zoomcoords[0]}px`;
+	map.style.left = `${chancery.zoomcoords[1]}px`;
+	map.style.transform = `scale(${chancery.zoomcoords[2]})`;
 	document.querySelector("#inner-infobox").style.left = "0";
 }
 
