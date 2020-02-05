@@ -68,16 +68,17 @@ path:hover:not(.selected) {
 
 #inner-infobox {
 	position: absolute;
-	transition: left 0.5s;
+	transition: left 0.3s;
 	left: 0;
 	width: 301%;
 }
 
 .info-col {
-	width: 400px;
+	width: 396px;
 	height: 100%;
 	vertical-align: top;
 	display: inline-block;
+	padding: 2px;
 }
 
 #infobox.active {
@@ -86,10 +87,6 @@ path:hover:not(.selected) {
 
 .info-name {
 	text-align: center;
-}
-
-.info-col:not(:first-of-type) {
-	margin-left: -5px;
 }
 
 .info-col .info-name {
@@ -101,10 +98,6 @@ path:hover:not(.selected) {
 	margin: 0px 5px;
 	text-align: justify;
 	overflow-y: auto;
-}
-
-#info-people {
-	display: none;
 }
 
 .info-buttons {
