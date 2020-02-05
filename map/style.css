@@ -6,7 +6,7 @@ body {
 #mapbox {
 	width: 750px;
 	height: 750px;
-	background-color: #ebd5b3;
+	background-color: #25003e;
 	position: relative;
 	display: inline-block;
 	overflow: hidden;
@@ -27,7 +27,7 @@ svg * {
 
 path {
 	pointer-events: all;
-	fill: #ffffff00;
+	fill: #ebd5b3;
 	stroke: #000000;
 	stroke-width: 0.25;
 	stroke-miterlimit: 4;
@@ -35,10 +35,24 @@ path {
 	stroke-opacity: 1;
 }
 
-path:hover {
+path:hover:not(.selected) {
 	stroke: #005500;
 	stroke-width: 0.75;
 	fill: #99ff9977;
+}
+
+.location-wrapper {
+	opacity: 0;
+	pointer-events: none;
+	transition: all 1s;
+}
+
+.location-wrapper.visible {
+	opacity: 1;
+}
+
+.location-wrapper.visible path {
+	pointer-events: all;
 }
 
 #infobox {

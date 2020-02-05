@@ -7,8 +7,10 @@ setTimeout(() => {
 		islandNumber = e.target.id;
 		console.log(islandNumber);
 		if (islandNumber.includes("island")){
+			setAllIslandsInactive();
 			loadIslandInfo(chanceries[islandNumber.replace("island", "")]);
 		} else if (islandNumber == "mapbox"){
+			setAllIslandsInactive();
 			// Unzoom map
 			map = document.querySelector("#mapbox svg");
 			map.style.top = `0px`;
@@ -18,6 +20,15 @@ setTimeout(() => {
 		}
 	});
 }, 0);
+
+function setAllIslandsInactive() {
+	document.querySelectorAll(".visible").forEach(node => {
+		node.classList.remove("visible");
+	});
+	document.querySelectorAll(".selected").forEach(node => {
+		node.classList.remove("selected");
+	});
+}
 
 function loadIslandInfo(chancery) {
 	if (!(chancery.permission & UserPermission)) return;
@@ -48,6 +59,10 @@ function loadIslandInfo(chancery) {
 	map.style.left = `${chancery.zoomcoords[1]}px`;
 	map.style.transform = `scale(${chancery.zoomcoords[2]})`;
 	document.querySelector("#inner-infobox").style.left = "0";
+	// Stop hover from modifying how the island looks.
+	document.querySelector(`#island${chancery.id}`).classList.add("selected");
+	// Set island locations to visible.
+	document.querySelector(`#i${chancery.id}locations`).classList.add("visible");
 }
 
 function loadPersonInfo(person) {
