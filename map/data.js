@@ -86,10 +86,11 @@ function parseDesc(desc) {
 
 allitems = [
 	new Item("Ring of Protection +1", Permission.DM, "1000gp", "Grants +1 AC"),
-]
+	new Item("Long Chain of the Law", Permission.Player, "80000gp", "The Long Chain of the Law is a thin silver chain three feet long.  A creature holding it may use it to attack; it deals no damage but any creature struck may not leave the city.  If it attempts to, a thin unbreakable chain appears wrapped around its wrist.  Only when the chain appears can it be subject to Dispel Magic.\nAdditionally, when a creature is struck by the chain that creature treats any official of the city as though they were under a sanctuary spell.  Both of these effects last for 24 hours."),
+];
 allpeople = [
 	new Person("Eldin Fountainhead", "Chancellor", Permission.PLAYER, ""),
-	new Person("Soren Steel", "Guard Captain", Permission.PLAYER, "Soren is the captain of the guard in Burst, the Chancery of the Eternal Fountain's biggest city.", ["Ring of Protection +1"]),
+	new Person("Soren Steel", "Guard Captain", Permission.PLAYER, "Soren is the captain of the guard in Burst, the Chancery of the Eternal Fountain's biggest city.\nHe is a tall man, nearly six and half feet tall.", ["Ring of Protection +1"]),
 	new Person("Exothith", "Lich", Permission.DM, "Exothith is the cause of the blight on the Chancery of the Dead.  He is a very powerful lich, and he has skeleton brigades buried all across the island ready to waylay any interlopers.  When he became a lich, he was motivated by his hatred of his enemies in the Chancery of the Golden Flower, and was willing to sacrifice his chancery for his wrath.\nUnfortunately for him, his power was not enough to bring down a chancery.  Once becoming a lich, he found that his goals became less and less important.  He still desires to destroy the Chancery of the Golden Flower, and continues research on a spell that would disrupt the levitation effect, causing it to plunge into the sea far below.\nIn the meantime, he is content to rule his kingdom undisturbed by mortal concerns.")
 ];
 alllocations = [
