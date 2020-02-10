@@ -1,4 +1,4 @@
-UserPermission = Permission.PLAYER;
+UserPermission = Permission.ANY;
 
 setTimeout(() => {
 	mapbox = document.querySelector("#mapbox");
@@ -33,14 +33,14 @@ function setAllIslandsInactive() {
 
 function loadIslandInfo(chancery) {
 	if (!(chancery.permission & UserPermission)) return;
-	colselect(0)
+	colselect(0);
 	infobox = document.querySelector("#infobox");
 	infobox.classList.add("active");
 	infobox.querySelector(".info-name").innerHTML = chancery.name;
 	innerInfobox = document.querySelector("#inner-infobox");
 	infoCol = document.querySelector("#template-chancery").cloneNode(true);
 	infoCol.id = "";
-	infoCol.querySelector(".info-desc").innerHTML = chancery.description + (Permission.DM & UserPermission ? chancery.DMdesc : "");
+	infoCol.querySelector(".info-desc").innerHTML = chancery.description.get_desc(UserPermission);
 
 	peopleDiv = infoCol.querySelector(".info-people-list");
 	chancery.people.forEach(person => {
@@ -74,7 +74,7 @@ function loadPersonInfo(person) {
 	peoplebox.id = "";
 	peoplebox.querySelector(".info-people-title").innerHTML = person.title;
 	peoplebox.querySelector(".info-people-name").innerHTML = person.name;
-	peoplebox.querySelector(".info-people-desc").innerHTML = person.description;
+	peoplebox.querySelector(".info-people-desc").innerHTML = person.description.get_desc(UserPermission);
 
 	itemsDiv = peoplebox.querySelector(".info-items-list");
 	person.items.forEach(item => {
@@ -97,7 +97,7 @@ function loadItemInfo(item) {
 	innerInfobox = document.querySelector("#inner-infobox");
 	itembox = document.querySelector("#template-items").cloneNode(true);
 	itembox.querySelector(".info-items-name").innerHTML = item.name;
-	itembox.querySelector(".info-items-desc").innerHTML = item.description;
+	itembox.querySelector(".info-items-desc").innerHTML = item.description.get_desc(UserPermission);
 	innerInfobox.append(itembox);
 	colselect(1);
 }
@@ -106,7 +106,7 @@ function loadLocationInfo(location) {
 	innerInfobox = document.querySelector("#inner-infobox");
 	locationbox = document.querySelector("#template-location").cloneNode(true);
 	locationbox.querySelector(".info-name").innerHTML = location.name;
-	locationbox.querySelector(".info-desc").innerHTML = location.description;
+	locationbox.querySelector(".info-desc").innerHTML = location.description.get_desc(UserPermission);
 	innerInfobox.append(locationbox);
 	
 	peopleDiv = locationbox.querySelector(".info-people-list");
@@ -144,11 +144,9 @@ function colselect(column){
 	transitionTime = 300;
 	if (column === 0){
 		document.querySelector("#inner-infobox").style.left = "0";
-		infoboxDiv.childNodes.forEach(node => {
-			setTimeout(() => {
-				infoboxDiv.removeChild(node);
-			}, transitionTime);
-		});
+		while (infoboxDiv.firstChild){
+			infoboxDiv.removeChild(infoboxDiv.firstChild);
+		}
 		setTimeout(() => {
 			infoboxDiv.style.width = "101%";
 		}, transitionTime);
