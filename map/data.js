@@ -122,6 +122,12 @@ allpeople = [
 			["Exothith is the cause of the blight on the Chancery of the Dead.  He is a very powerful lich, and he has skeleton brigades buried all across the island ready to waylay any interlopers.  When he became a lich, he was motivated by his hatred of his enemies in the Chancery of the Golden Flower, and was willing to sacrifice his chancery for his wrath.\nUnfortunately for him, his power was not enough to bring down a chancery.  Once becoming a lich, he found that his goals became less and less important.  He still desires to destroy the Chancery of the Golden Flower, and continues research on a spell that would disrupt the levitation effect, causing it to plunge into the sea far below.\nIn the meantime, he is content to rule his kingdom undisturbed by mortal concerns.", Permission.DM],
 		])
 	),
+	new Person("Aiden Illthan IV", "Chancellor", Permission.PLAYER,
+		new Description([["", Permission.PLAYER]])
+	),
+	new Person("Chadwick Carpenter", "Chancellor", Permission.PLAYER,
+		new Description([["Chadwick is the only man to have claimed a new chancery in living memory.  Now over 80 years old, few remember the true story of how he accomplished such a feat, but only repeat the story his government proclaims.  He is ailing and likely to be succeeded by one of his daughters in the next few years.", Permission.PLAYER]])
+	),
 ];
 alllocations = [
 	new Location("Sixfold Maze", Permission.PLAYER,
@@ -168,19 +174,23 @@ chanceries = [
 		[], [], [280, 1750, 7]
 	),
 	new Chancery("Chancery of the Eternal Present", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
-		[], [], [-95, 900, 3]
+		new Description([["The seat of the Chancery of the Eternal Present is a single room.  Within it lives Chancellor Illthan IV, eternally.  It is believed that if he stepped outside his chamber he would immediately wither and die, and the chancery would fall into the sea.  The previous chancellor, Aiden Illthan III, reportedly did so two hundred years ago when he grew tired of living.\nWhile he cannot leave his chamber, he still performs many important functions.  Chief among them is his ability to grant an extended life to those who please him.  His detractors maintain that the only reason he holds on to power is the desire of his nobles for his blessings.", Permission.PLAYER]]),
+		[
+			"Aiden Illthan IV",
+		], [], [-95, 900, 3]
 	),
-	new Chancery("", Permission.PLAYER,
+	new Chancery("Chancery of the Great Tree", Permission.PLAYER,
 		new Description([["", Permission.PLAYER]]),
 		[], [], [-400, 190, 2]
 	),
-	new Chancery("", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
-		[], [], [-450, -400, 5]
+	new Chancery("Chancery of the Ashen Chair", Permission.PLAYER,
+		new Description([["The Ashen Chair is the throne of this chancery, the youngest of all Supernatet.  When it arose, Chadwick the carpenter took a tree from the chancery of the Great Tree and fashioned it into a chair.  When he arrived on Ashen Chair he placed it in the centre and refused to move from it for weeks, eating hardtack that he had brought with him and drinking from the pond he had sat down beside.  Finally, fed up with him, his wife lit the chair on fire while he slept.  It burned for hours but never collapsed.  When the fire finally went out, it was as solid as ever.", Permission.PLAYER]]),
+		[
+			"Chadwick Carpenter",
+		], [], [-450, -400, 5]
 	),
-	new Chancery("", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
+	new Chancery("Chancery of the Endless Migration", Permission.PLAYER,
+		new Description([["The Chancery of the Eternal Migration is constantly rolling.  Despite its unusual shape on a map, the layout of the land never changes overmuch.  But if a town is on the North-East edge in the spring, come fall it will be nearing the South-West edge.  No person has a permanent residence, but most homes are well-built enough that they survive the long months on the underside of Migration and are ready to accept new residents when they return the following year.\nMigration is primarily home to elves, largely because the other races refuse to live in the palace.  The chancellor lives in the palace year round, preferring to build it so that it is as comfortable living in it upside-down as right-side-up.  Only a few retainers and the wealthier lords stay with the chancellor, and it is considered a great honour for them.", Permission.PLAYER]]),
 		[], [], [1200, -1000, 7]
 	),
 	new Chancery("", Permission.PLAYER,
