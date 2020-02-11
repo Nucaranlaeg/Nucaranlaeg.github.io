@@ -93,13 +93,19 @@ class Description{
 }
 
 allitems = [
-	new Item("Ring of Protection +1", Permission.DM, "1000gp",
+	new Item("Ring of Protection +1", Permission.PLAYER, "1000gp",
 		new Description([["Grants +1 AC", Permission.PLAYER]])
 	),
 	new Item("Long Chain of the Law", Permission.PLAYER, "80000gp",
 		new Description([
-			["The Long Chain of the Law is a thin silver chain three feet long.  It serves to bind any creature struck by it.\n", Permission.PLAYER],
-			["A creature holding it may use it to attack; it deals no damage but any creature struck may not leave the city.  If it attempts to, a thin unbreakable chain appears wrapped around its wrist.  Only when the chain appears can it be subject to Dispel Magic.\nAdditionally, when a creature is struck by the chain that creature treats any official of the city as though they were under a sanctuary spell.  Both of these effects last for 24 hours.", Permission.DM],
+			["The Long Chain of the Law is a thin silver chain three feet long.  It serves to bind any creature struck by it.", Permission.PLAYER],
+			["\nA creature holding it may use it to attack; it deals no damage but any creature struck may not leave the city.  If it attempts to, a thin unbreakable chain appears wrapped around its wrist.  Only when the chain appears can it be subject to Dispel Magic.\nAdditionally, when a creature is struck by the chain that creature treats any official of the city as though they were under a sanctuary spell.  Both of these effects last for 24 hours.", Permission.DM],
+		])
+	),
+	new Item("Shield of Walls", Permission.PLAYER, "30000gp",
+		new Description([
+			["This shield appears to be comprised of bricks, making its edge non-uniform.  Two such shields fit together nicely.", Permission.PLAYER],
+			["\nThe Shield of Walls is a +0 magical shield.  When a creature wields a Shield of Walls, he gets a +1 bonus to AC per adjacent creature also wielding a Shield of Walls.", Permission.DM],
 		])
 	),
 ];
@@ -150,19 +156,19 @@ chanceries = [
 			"Soren Steel",
 		], [], [550, -300, 2.5]
 	),
-	new Chancery("", Permission.PLAYER,
+	new Chancery("Chancery of the Immolating Flame", Permission.PLAYER,
 		new Description([["", Permission.PLAYER]]),
 		[], [], [220, -750, 3]
 	),
-	new Chancery("", Permission.PLAYER,
+	new Chancery("Chancery of the Broken Shield", Permission.PLAYER,
 		new Description([["", Permission.PLAYER]]),
 		[], [], [100, 1570, 7]
 	),
-	new Chancery("", Permission.PLAYER,
+	new Chancery("Chancery of the Living Stone", Permission.PLAYER,
 		new Description([["", Permission.PLAYER]]),
 		[], [], [280, 1750, 7]
 	),
-	new Chancery("", Permission.PLAYER,
+	new Chancery("Chancery of the Eternal Present", Permission.PLAYER,
 		new Description([["", Permission.PLAYER]]),
 		[], [], [-95, 900, 3]
 	),
