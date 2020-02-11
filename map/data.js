@@ -12,10 +12,10 @@ class Person {
 		this.permission = permission;
 		this.description = description;
 		this.items = [];
-		items.forEach(name => {
-			let item = allitems.find(p => p.name == name);
-			if (!item) throw "No item " + name;
-			this.items.push(item);
+		items.forEach(item_owned => {
+			let item = allitems.find(p => p.name == item_owned[0]);
+			if (!item) throw "No item " + item_owned[0];
+			this.items.push([item, item_owned[1]]);
 		});
 	}
 }
@@ -46,9 +46,8 @@ class Chancery {
 
 class Item {
 	id;
-	constructor(name, permission, price, description){
+	constructor(name, price, description){
 		this.name = name;
-		this.permission = permission;
 		this.price = price; // Represents what it would cost for the players, on an average day.
 		this.description = description;
 	}
@@ -67,10 +66,10 @@ class Location {
 			this.people.push(person);
 		});
 		this.items = [];
-		items.forEach(name => {
-			let item = allitems.find(p => p.name == name);
-			if (!item) throw "No item " + name;
-			this.items.push(item);
+		items.forEach(item_owned => {
+			let item = allitems.find(p => p.name == item_owned[0]);
+			if (!item) throw "No item " + item_owned[0];
+			this.items.push([item, item_owned[1]]);
 		});
 	}
 }
@@ -93,16 +92,16 @@ class Description{
 }
 
 allitems = [
-	new Item("Ring of Protection +1", Permission.PLAYER, "1000gp",
+	new Item("Ring of Protection +1", "1000gp",
 		new Description([["Grants +1 AC", Permission.PLAYER]])
 	),
-	new Item("Long Chain of the Law", Permission.PLAYER, "80000gp",
+	new Item("Long Chain of the Law", "80000gp",
 		new Description([
 			["The Long Chain of the Law is a thin silver chain three feet long.  It serves to bind any creature struck by it.", Permission.PLAYER],
 			["\nA creature holding it may use it to attack; it deals no damage but any creature struck may not leave the city.  If it attempts to, a thin unbreakable chain appears wrapped around its wrist.  Only when the chain appears can it be subject to Dispel Magic.\nAdditionally, when a creature is struck by the chain that creature treats any official of the city as though they were under a sanctuary spell.  Both of these effects last for 24 hours.", Permission.DM],
 		])
 	),
-	new Item("Shield of Walls", Permission.PLAYER, "30000gp",
+	new Item("Shield of Walls", "30000gp",
 		new Description([
 			["This shield appears to be comprised of bricks, making its edge non-uniform.  Two such shields fit together nicely.", Permission.PLAYER],
 			["\nThe Shield of Walls is a +0 magical shield.  When a creature wields a Shield of Walls, he gets a +1 bonus to AC per adjacent creature also wielding a Shield of Walls.", Permission.DM],
@@ -115,7 +114,7 @@ allpeople = [
 	),
 	new Person("Soren Steel", "Guard Captain", Permission.PLAYER,
 		new Description([["Soren is the captain of the guard in Burst, the Chancery of the Eternal Fountain's biggest city.\nHe is a tall man, nearly six and half feet tall.  Most notable about him, though, is his intimidating presence - even unclad in mail he projects such a fearsome aura that few resist any order he might give.", Permission.PLAYER]]),
-		["Ring of Protection +1"]
+		[["Ring of Protection +1", Permission.DM]]
 	),
 	new Person("Exothith", "Lich", Permission.DM,
 		new Description([

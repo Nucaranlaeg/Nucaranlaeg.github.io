@@ -1,4 +1,4 @@
-UserPermission = Permission.ANY;
+UserPermission = Permission.PLAYER;
 
 setTimeout(() => {
 	mapbox = document.querySelector("#mapbox");
@@ -78,11 +78,11 @@ function loadPersonInfo(person) {
 
 	itemsDiv = peoplebox.querySelector(".info-items-list");
 	person.items.forEach(item => {
-		if (!(item.permission & UserPermission)) return;
+		if (!(item[1] & UserPermission)) return;
 		itemDiv = document.querySelector("#template-item").cloneNode(true);
-		itemDiv.id = "item" + item.id;
-		itemDiv.querySelector(".item-name").innerHTML = item.name;
-		itemDiv.querySelector(".item-price").innerHTML = item.price;
+		itemDiv.id = "item" + item[0].id;
+		itemDiv.querySelector(".item-name").innerHTML = item[0].name;
+		itemDiv.querySelector(".item-price").innerHTML = item[0].price;
 		itemDiv.querySelector(".item-button").addEventListener("click", e => {
 			itemNumber = e.target.parentNode.id.replace("item", "");
 			loadItemInfo(allitems[itemNumber]);
@@ -125,11 +125,11 @@ function loadLocationInfo(location) {
 
 	itemsDiv = locationbox.querySelector(".info-items-list");
 	location.items.forEach(item => {
-		if (!(item.permission & UserPermission)) return;
+		if (!(item[1] & UserPermission)) return;
 		itemDiv = document.querySelector("#template-item").cloneNode(true);
-		itemDiv.id = "item" + item.id;
-		itemDiv.querySelector(".item-name").innerHTML = item.name;
-		itemDiv.querySelector(".item-price").innerHTML = item.price;
+		itemDiv.id = "item" + item[0].id;
+		itemDiv.querySelector(".item-name").innerHTML = item[0].name;
+		itemDiv.querySelector(".item-price").innerHTML = item[0].price;
 		itemDiv.querySelector(".item-button").addEventListener("click", e => {
 			itemNumber = e.target.parentNode.id.replace("item", "");
 			loadItemInfo(allitems[itemNumber]);
