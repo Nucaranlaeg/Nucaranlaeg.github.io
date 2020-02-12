@@ -78,4 +78,4 @@ islandSVG = `<svg
 setTimeout(() => {
     mapbox = document.querySelector("#mapbox");
     mapbox.innerHTML += islandSVG;
-}, 0);
+}, 50);

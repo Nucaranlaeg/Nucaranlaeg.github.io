@@ -107,6 +107,12 @@ allitems = [
 			["\nThe Shield of Walls is a +0 magical shield.  When a creature wields a Shield of Walls, he gets a +1 bonus to AC per adjacent creature also wielding a Shield of Walls.", Permission.DM],
 		])
 	),
+	new Item("Glimmerstone", "Unknown",
+		new Description([
+			["This small stone floats in the air.  It is unbreakable.  It constantly lets off a dim light.  When a creature sees it, they are transfixed and cannot look away.", Permission.PLAYER],
+			["The DC for looking away from the Glimmerstone is 30, decreased by 1 for every minute the creature has been looking at it that day.  A creature may attempt a save once per minute.  Once a creature succeeds, that creature is immune to the effect until the next dawn.", Permission.DM],
+		])
+	)
 ];
 allpeople = [
 	new Person("Eldin Fountainhead", "Chancellor", Permission.PLAYER,
@@ -173,8 +179,8 @@ chanceries = [
 		new Description([["In all of Supernatet, the only place to find dwarves is in the Chancery of the Living Stone.  Nowhere in the chancery is there any dirt, for any dirt which touches the stone there immediately also turns to stone.  The dwarves grow strange crops there, which grow despite lack of dirt.\nPlump helmets, a kind of mushroom which brews into a strong wine.  Quarry bushes, whose rock-hard leaves soften when cooked into a delicious (so they say) flatbread.  Sweet pods, which provide a molasses-like syrup when opened.  Nether caps, a much larger mushroom whose continually freezing flesh makes a decent wood.  Others, too, but their appeal to the other races is even less and barely traded.\nThe dwarves make many stone tools which are highly prized in other chanceries, but the dwarves themselves are unwelcome.  That is partly due to their reputation for wanting to steal the dirt of other lands or create stones, a reputation which the dwarves claim is based on nothing.  While the dwarves have some magic in their own halls, their techniques are a closely kept secret and very few artifacts of theirs ever leave Living Stone.", Permission.PLAYER]]),
 		[], [], [280, 1750, 7]
 	),
-	new Chancery("Chancery of the Eternal Present", Permission.PLAYER,
-		new Description([["The seat of the Chancery of the Eternal Present is a single room.  Within it lives Chancellor Illthan IV, eternally.  It is believed that if he stepped outside his chamber he would immediately wither and die, and the chancery would fall into the sea.  The previous chancellor, Aiden Illthan III, reportedly did so two hundred years ago when he grew tired of living.\nWhile he cannot leave his chamber, he still performs many important functions.  Chief among them is his ability to grant an extended life to those who please him.  His detractors maintain that the only reason he holds on to power is the desire of his nobles for his blessings.", Permission.PLAYER]]),
+	new Chancery("Chancery of the Perpetual Present", Permission.PLAYER,
+		new Description([["The seat of the Chancery of the Perpetual Present is a single room.  Within it lives Chancellor Illthan IV, eternally.  It is believed that if he stepped outside his chamber he would immediately wither and die, and the chancery would fall into the sea.  The previous chancellor, Aiden Illthan III, reportedly did so two hundred years ago when he grew tired of living.\nWhile he cannot leave his chamber, he still performs many important functions.  Chief among them is his ability to grant an extended life to those who please him.  His detractors maintain that the only reason he holds on to power is the desire of his nobles for his blessings.", Permission.PLAYER]]),
 		[
 			"Aiden Illthan IV",
 		], [], [-95, 900, 3]
@@ -190,19 +196,19 @@ chanceries = [
 		], [], [-450, -400, 5]
 	),
 	new Chancery("Chancery of the Endless Migration", Permission.PLAYER,
-		new Description([["The Chancery of the Eternal Migration is constantly rolling.  Despite its unusual shape on a map, the layout of the land never changes overmuch.  But if a town is on the North-East edge in the spring, come fall it will be nearing the South-West edge.  No average person has a permanent residence, but most homes are well-built enough that they survive the long months on the underside of Migration and are ready to accept new residents when they return the following year.\nMigration is primarily home to elves, largely because the other races refuse to live in the palace.  The chancellor lives in the palace year round, preferring to build it so that it is as comfortable living in it upside-down as right-side-up.  Only a few retainers and the wealthier lords stay with the chancellor, and it is considered a great honour for them.", Permission.PLAYER]]),
+		new Description([["The Chancery of the Endless Migration is constantly rolling.  Despite its unusual shape on a map, the layout of the land never changes overmuch.  But if a town is on the North-East edge in the spring, come fall it will be nearing the South-West edge.  No average person has a permanent residence, but most homes are well-built enough that they survive the long months on the underside of Migration and are ready to accept new residents when they return the following year.\nMigration is primarily home to elves, largely because the other races refuse to live in the palace.  The chancellor lives in the palace year round, preferring to build it so that it is as comfortable living in it upside-down as right-side-up.  Only a few retainers and the wealthier lords stay with the chancellor, and it is considered a great honour for them.", Permission.PLAYER]]),
 		[], [], [1200, -1000, 7]
 	),
-	new Chancery("", Permission.PLAYER,
+	new Chancery("Chancery of the Storm", Permission.PLAYER,
 		new Description([["", Permission.PLAYER]]),
 		[], [], [-1200, -800, 7]
 	),
-	new Chancery("", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
+	new Chancery("Chancery of the Fertile Thicket", Permission.PLAYER,
+		new Description([["This chancery is nearly not fit for habitation.  All across Thicket, plants grow incredibly rapidly.  It can be dangerous to stand still for more than a few seconds, as tree roots (or more aggressive plants) can easily grow over a foot, trapping unfortunate creatures underneath.  Some druids have made it their home, and cleared stone paths do allow for limited travel.\nStrange and wonderful things grow here, and many adventurers have returned home with some great treasure pried from the grasp of the plants.  Many more have never returned, and there are some who speak of burning the bridges.", Permission.PLAYER]]),
 		[], [], [-980, -1200, 7]
 	),
-	new Chancery("", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
+	new Chancery("Chancery of the Glimmerstone", Permission.PLAYER,
+		new Description([["The Glimmerstone, from which this chancery gets its name, is a small gemstone.  It attracts the gaze of any who look upon it, and is rumoured to have many other powers.  The chancellor of Glimmerstone is a brutal tyrant, levying no taxes but taking whatever he wills.  He denies any kind of government other than his own, even killing any who would claim to be mayor of a small village.\nDespite the chancellor, Glimmerstone is not extremely poor.  When the chancellor is around, people hide any wealth they might have.  Banditry is not uncommon, but because criminals are executed without mercy, it's not exactly common either.", Permission.PLAYER]]),
 		[], [], [-200, -1700, 7]
 	),
 	new Chancery("", Permission.PLAYER,
