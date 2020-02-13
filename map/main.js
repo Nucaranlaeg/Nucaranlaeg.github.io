@@ -11,16 +11,17 @@ setTimeout(() => {
 		} else if (islandNumber == "mapbox"){
 			setAllIslandsInactive();
 			// Unzoom map
-			map = document.querySelector("#mapbox svg");
-			map.style.top = `0px`;
-			map.style.left = `0px`;
-			map.style.transform = `scale(1)`;
+			zoommap(0, 0, 1);
+			colselect(0);
+			document.querySelector("#infobox .info-name").innerHTML = "Supernatet";
 			// Clear sidebar.
 		} else if (islandNumber.includes("location")){
 			loadLocationInfo(alllocations[islandNumber.replace("location", "")]);
 		}
 	});
-}, 0);
+
+	mapbox.click();
+}, 20);
 
 function setAllIslandsInactive() {
 	document.querySelectorAll(".visible").forEach(node => {
@@ -35,7 +36,6 @@ function loadIslandInfo(chancery) {
 	if (!(chancery.permission & UserPermission)) return;
 	colselect(0);
 	infobox = document.querySelector("#infobox");
-	infobox.classList.add("active");
 	infobox.querySelector(".info-name").innerHTML = chancery.name;
 	innerInfobox = document.querySelector("#inner-infobox");
 	infoCol = document.querySelector("#template-chancery").cloneNode(true);
@@ -57,15 +57,23 @@ function loadIslandInfo(chancery) {
 	});
 	innerInfobox.append(infoCol);
 	// Zoom map to correct coordinates.
-	map = document.querySelector("#mapbox svg");
-	map.style.top = `${chancery.zoomcoords[0]}px`;
-	map.style.left = `${chancery.zoomcoords[1]}px`;
-	map.style.transform = `scale(${chancery.zoomcoords[2]})`;
+	zoommap(...chancery.zoomcoords);
 	document.querySelector("#inner-infobox").style.left = "0";
 	// Stop hover from modifying how the island looks.
 	document.querySelector(`#island${chancery.id}`).classList.add("selected");
 	// Set island locations to visible.
 	document.querySelector(`#i${chancery.id}locations`).classList.add("visible");
+}
+
+function zoommap(top, left, scale) {
+	map = document.querySelector("#mapbox svg");
+	map.style.transform = `scale(${scale})`;
+	map.style.top = `${top}px`;
+	map.style.left = `${left}px`;
+	// Transition doesn't work properly with stroke-width.
+	// Also, I can't figure out accessing stylesheets with FF to adjust pseudoclasses properly.
+	styleEl = document.querySelector("#svg-width-style");
+	styleEl.innerHTML = `#mapbox svg{stroke-width:${0.25 / scale}px;}path:hover:not(.selected){stroke-width:${0.75 / scale}px;}`;
 }
 
 function loadPersonInfo(person) {

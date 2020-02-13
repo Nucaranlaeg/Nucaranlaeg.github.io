@@ -211,8 +211,8 @@ chanceries = [
 		new Description([["The Glimmerstone, from which this chancery gets its name, is a small gemstone.  It attracts the gaze of any who look upon it, and is rumoured to have many other powers.  The chancellor of Glimmerstone is a brutal tyrant, levying no taxes but taking whatever he wills.  He denies any kind of government other than his own, even killing any who would claim to be mayor of a small village.\nDespite the chancellor, Glimmerstone is not extremely poor.  When the chancellor is around, people hide any wealth they might have.  Banditry is not uncommon, but because criminals are executed without mercy, it's not exactly common either.", Permission.PLAYER]]),
 		[], [], [-200, -1700, 7]
 	),
-	new Chancery("", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
+	new Chancery("Chancery of the Plain", Permission.PLAYER,
+		new Description([["The Chancery of the Plain is flat.  Over time, any deviation from the flatness is smoothed out, leaving once again a featureless plain.  It's so flat that you can see all the way across it.  As the palace is the tallest structure in the land, it can be seen from every other point in the chancery.\nPlain is the safest chancery, as it's impossible for bandits to hide.  Guards with the Farsight spell watch from towers, not even needing to patrol.  Because of this, the chancery is also one of the wealthiest.", Permission.PLAYER]]),
 		[], [], [1200, -1800, 7]
 	),
 	new Chancery("", Permission.PLAYER,
