@@ -1,6 +1,7 @@
 "use strict";
 
 async function runGame(setup = false){
+	loadBots();
 	let botcount = bots.length;
 
 	let gridSize = Math.ceil(Math.sqrt(botcount));
@@ -207,16 +208,18 @@ function shuffle(a){
 function loadBots(){
 	let botlistnode = document.querySelector("#bot-list");
 	let bottemplate = document.querySelector("#template-bot");
+	while (botlistnode.childNodes.length > 2){
+		botlistnode.removeChild(botlistnode.childNodes[2]);
+	}
 	for (let i = 0; i < bots.length; i++){
-		bottemplate.cloneNode(true);
-		bottemplate.id = bots[i].name;
-		bottemplate.querySelector(".bot-name").innerHTML = bots[i].name;
-		bottemplate.querySelector(".bot-score").innerHTML = 0;
-		botlistnode.append(bottemplate);
+		let newbotnode = bottemplate.cloneNode(true);
+		newbotnode.id = bots[i].name;
+		newbotnode.querySelector(".bot-name").innerHTML = bots[i].name;
+		newbotnode.querySelector(".bot-score").innerHTML = 0;
+		botlistnode.append(newbotnode);
 	}
 }
 
 setTimeout(() => {
-	loadBots();
 	runGame(true);
 }, 0);
