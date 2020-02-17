@@ -98,10 +98,12 @@ function writeCellCounts(grid){
 		c2[cell]++;
 		return c2;
 	}, c), []);
+	livingPlayers = 0;
 	for (let i = 0; i < bots.length; i++){
 		document.querySelector(`#${bots[i].name} .bot-cells`).innerHTML = cellCount[i+1] || 0;
+		if (cellCount[i+1] > 0) livingPlayers++;
 	}
-	if (cellCount[0] + cellCount[-1] == Math.pow(grid.length, 2)) return false;
+	if (livingPlayers <= 1) return false;
 	return true;
 }
 
