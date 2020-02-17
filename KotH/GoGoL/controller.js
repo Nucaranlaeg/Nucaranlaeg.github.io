@@ -98,7 +98,7 @@ function writeCellCounts(grid){
 		c2[cell]++;
 		return c2;
 	}, c), []);
-	livingPlayers = 0;
+	let livingPlayers = 0;
 	for (let i = 0; i < bots.length; i++){
 		document.querySelector(`#${bots[i].name} .bot-cells`).innerHTML = cellCount[i+1] || 0;
 		if (cellCount[i+1] > 0) livingPlayers++;
