@@ -1,7 +1,7 @@
 "use strict";
 
-let botscores = Array(bots.length).fill(0);
-let bottime = Array(bots.length).fill(0).map(t => [0, 0]);
+let botscores = {};
+let bottime = {};
 
 async function runGame(setup = false){
 	let gamesToRun = +document.querySelector("#games-to-run").value;
@@ -60,9 +60,10 @@ async function runGame(setup = false){
 					alert(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
 					throw(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
 				}
-				bottime[i][0] += time;
-				bottime[i][1]++;
-				document.querySelector(`#${bots[i].name} .bot-time`).innerHTML = Math.floor(bottime[i][0] / bottime[i][1]);
+				if (!bottime[bots[i].name]) bottime[bots[i].name] = [0,0];
+				bottime[bots[i].name][0] += time;
+				bottime[bots[i].name][1]++;
+				document.querySelector(`#${bots[i].name} .bot-time`).innerHTML = Math.floor(bottime[bots[i].name][0] / bottime[bots[i].name][1]);
 			}
 			for (let i = 0; i < thisMoves.length; i++){
 				if (!isLegalMove(i+1, thisMoves[i], grid)){
