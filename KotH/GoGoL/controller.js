@@ -95,13 +95,13 @@ async function runGame(setup = false){
 
 			grid = nextGeneration(grid);
 
-			drawGrid(grid);
-
 			let isComplete = false;
 			[cellCount, isComplete] = writeCellCounts(grid);
 			if (isComplete){
 				break;
 			}
+
+			drawGrid(grid);
 
 			if (!no_display.checked){
 				// Sleep for 0 ms to guarantee drawing is possible.
@@ -183,9 +183,11 @@ function isLegalMove(bot, move, grid){
 
 function resetBots(){
 	// Remove any data that might be stored on the this of the bot.
+	let newbots = [];
 	for (let i = 0; i < bots.length; i++){
-		bots[i] = new Function("return " + bots[i].toString())();
+		newbots[i] = new Function("return " + bots[i].toString())();
 	}
+	bots = newbots;
 }
 
 function drawGrid(grid){
