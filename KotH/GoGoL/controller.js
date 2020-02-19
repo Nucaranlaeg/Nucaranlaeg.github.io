@@ -116,7 +116,7 @@ function nextGeneration(grid){
 			let neighbours = [];
 			for (let k = -1; k < 2; k++){
 				for (let l = -1; l < 2; l++){
-					if (k == l) continue;
+					if (!k && !l) continue;
 					let cell = grid[(size + i + k) % size][(size + j + l) % size];
 					if (cell != 0){
 						neighbours.push(cell);
