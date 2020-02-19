@@ -9,6 +9,11 @@ function rgs_do_nothing(some_really_important_argument, my_moniker, wtv) {
 	return [-1, -1];
 }
 
+// By RGS, https://codegolf.stackexchange.com/questions/199658/game-of-game-of-life/199739#199739
+function rgs_do_nothing2(some_really_important_argument, my_moniker, wtv) {
+	return [-1, -1];
+}
+
 // By Nucaranlaeg, https://codegolf.stackexchange.com/questions/199658/game-of-game-of-life/199772#199772
 function BestNowBot(grid, botId, lastMoves){
 	let wrap = coord => coord < 0 ? coord + grid.length : coord >= grid.length ? coord - grid.length : coord;
@@ -181,4 +186,4 @@ function planBot(grid, botId, lastMoves) {
     return best_cell;
 }
 
-let bots = [randomMovesBot, rgs_do_nothing, BestNowBot, planBot];
+let bots = [randomMovesBot, rgs_do_nothing, BestNowBot, planBot, rgs_do_nothing2];

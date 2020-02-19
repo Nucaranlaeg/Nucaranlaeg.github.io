@@ -1,6 +1,7 @@
 "use strict";
 
-let botscores = {};
+let botscores = Array(bots.length).fill(0);
+let bottime = Array(bots.length).fill(0).map(t => [0, 0]);
 
 async function runGame(setup = false){
 	let gamesToRun = +document.querySelector("#games-to-run").value;
@@ -43,7 +44,7 @@ async function runGame(setup = false){
 
 		resetBots();
 
-		let lastMoves = [], thisMoves = [], bottime = Array(bots.length).fill(0);
+		let lastMoves = [], thisMoves = [];
 		let cellCount = Array(bots.length + 1).fill(1);
 		let turnCounter = document.querySelector("#turn-counter");
 		for (let turn = 0; turn < 1000; turn++){
@@ -59,10 +60,9 @@ async function runGame(setup = false){
 					alert(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
 					throw(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
 				}
-				bottime[i] += time;
-				if (turn % 50 == 49) {
-					document.querySelector(`#${bots[i].name} .bot-time`).innerHTML = Math.floor(bottime[i] / (turn + 1));
-				}
+				bottime[i][0] += time;
+				bottime[i][1]++;
+				document.querySelector(`#${bots[i].name} .bot-time`).innerHTML = Math.floor(bottime[i][0] / bottime[i][1]);
 			}
 			for (let i = 0; i < thisMoves.length; i++){
 				if (!isLegalMove(i+1, thisMoves[i], grid)){
