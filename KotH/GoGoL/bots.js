@@ -66,4 +66,119 @@ function BestNowBot(grid, botId, lastMoves){
 	return good_moves[Math.floor(Math.random() * good_moves.length)].slice(0, 2);
 }
 
-let bots = [randomMovesBot, rgs_do_nothing, BestNowBot];
+function advance(hash_grid, old_grid, new_grid){
+    let hash = 0;
+    let size = old_grid.length;
+    let neighbours = [];
+    for (let x = 0; x < size; x++) {
+        for (let y = 0; y < size; y++) {
+            neighbours.length = 0;
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    if ((dx == 0) && (dy == 0)) {
+                        continue;
+                    }
+                    let cell = old_grid[(size + x + dx) % size][(size + y + dy) % size];
+                    if (cell != 0) {
+                        neighbours.push(cell);
+                    }
+                }
+            }
+            if (neighbours.length < 2 || neighbours.length > 3) {
+                new_grid[x][y] = 0;
+            } else if (neighbours.length == 3 && old_grid[x][y] == 0) {
+                if (neighbours[0] == neighbours[1] || neighbours[0] == neighbours[2]) {
+                    new_grid[x][y] = neighbours[0];
+                } else if (neighbours[1] == neighbours[2]) {
+                    new_grid[x][y] = neighbours[1];
+                } else {
+                    new_grid[x][y] = -1;
+                }
+            } else {
+                new_grid[x][y] = old_grid[x][y];
+            }
+            hash += hash_grid[x][y] * new_grid[x][y];
+        }
+    }
+    return hash;
+}
+
+// By user1502040, https://codegolf.stackexchange.com/questions/199658/game-of-game-of-life/199778#199778
+function planBot(grid, botId, lastMoves) {
+    let size = grid.length;
+    let possible_moves = new Set();
+    let count = 0;
+    for (let x = 0; x < size; x++) {
+        for (let y = 0; y < size; y++) {
+            if (grid[x][y] == botId) {
+                count++;
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        let x1 = (size + x + dx) % size;
+                        let y1 = (size + y + dy) % size;
+                        if ((grid[x1][y1] == 0) || (grid[x1][y1] == botId)) {
+                            possible_moves.add([x1, y1]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    let possible_move_array = Array.from(possible_moves);
+    if (possible_move_array.length == 0) {
+        return [0,0];
+    }
+    let neighbor_scores = function(n) {
+        if ((n >= 2) && (n <= 3)) {
+            return 0;
+        }
+        return -1;
+    }
+    let best_cell = [0, 0];
+    let max_score = -10000;
+    let memo = new Map();
+    let hash_grid = Array(size).fill(0).map(() => new Array(size).fill(0).map(() => Math.random()));
+    let new_grid = Array(size).fill(0).map(() => new Array(size).fill(0));
+    let iters = 4;
+    for (cell of possible_move_array) {
+        let old_grid = grid.map(x => x.slice());
+        old_grid[cell[0]][cell[1]] = botId - old_grid[cell[0]][cell[1]];
+        let hashes = []
+        let score = 0;
+        let hit = false;
+        for (let i = 0; i < iters; i++) {
+            let hash = advance(hash_grid, old_grid, new_grid);
+            hashes.push(hash);
+            if (memo.has(hash)) {
+                score = memo[hash];
+                hit = true;
+                break;
+            }
+            let tmp = new_grid;
+            new_grid = old_grid;
+            old_grid = tmp;
+        }
+        if (!hit) {
+            for (let x = 0; x < size; x++) {
+                for (let y = 0; y < size; y++) {
+                    if (old_grid[x][y] == botId) {
+                        score++;
+                    } else if (old_grid[x][y] > 0) {
+                        score -= 1e-7;
+                    }
+                }
+            }
+        }
+        for (hash of hashes) {
+            memo.set(hash, score);
+        }
+        score += 1e-9 * Math.random();
+        if (score >= max_score) {
+            max_score = score;
+            best_cell = cell;
+        }
+    }
+    return best_cell;
+}
+
+let bots = [randomMovesBot, rgs_do_nothing, BestNowBot, planBot];
