@@ -22,6 +22,11 @@ td.bot-score {
 	font-weight: bold;
 }
 
+#games-to-run,
+#max-tick-speed {
+	width: 50px;
+}
+
 .colour--1 {
 	background-color: black;
 }

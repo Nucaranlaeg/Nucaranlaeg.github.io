@@ -1,95 +1,115 @@
 "use strict";
 
+let botscores = {};
+
 async function runGame(setup = false){
-	loadBots();
-	let botcount = bots.length;
+	let gamesToRun = +document.querySelector("#games-to-run").value;
+	document.querySelector("#game-total").innerHTML = gamesToRun;
+	let gamesRun = 0;
+	let no_display = document.querySelector("#no-output");
+	let max_tick_speed = document.querySelector("#max-tick-speed");
+	while (gamesRun < gamesToRun){
+		gamesRun++;
+		document.querySelector("#game-count").innerHTML = gamesRun;
+		loadBots();
+		let botcount = bots.length;
 
-	let gridSize = Math.ceil(Math.sqrt(botcount));
-	if (gridSize < 2) gridSize = 2;
+		let gridSize = Math.ceil(Math.sqrt(botcount));
+		if (gridSize < 2) gridSize = 2;
 
-	// Determine the numbers we need to use on the grid.
-	let botlist = [];
-	while (botlist.length < botcount){
-		botlist.push(botlist.length + 1);
-	}
-	while (botlist.length < Math.pow(gridSize, 2)){
-		botlist.push(-1);
-	}
-	// Put the bots in a random order.
-	shuffle(bots);
-	colourBots();
-	// Place them in random places on the grid.
-	shuffle(botlist);
-
-	gridSize *= 6;
-	let grid = Array(gridSize).fill(0).map(() => new Array(gridSize).fill(0));
-
-	grid = buildGrid(grid, botlist);
-
-	drawGrid(grid);
-
-	// Draw the grid on loading the page, but don't run immediately.
-	if (setup) return;
-
-	resetBots();
-
-	let lastMoves = [], thisMoves = [], bottime = Array(bots.length).fill(0);
-	let turnCounter = document.querySelector("#turn-counter");
-	for (let turn = 0; turn < 1000; turn++){
-		turnCounter.innerHTML = turn + 1;
-		lastMoves = thisMoves;
-		thisMoves = [];
-		for (let i = 0; i < bots.length; i++){
-			let start = performance.now();
-			thisMoves[i] = bots[i](grid, i+1, lastMoves);
-			let time = performance.now() - start;
-			if (!thisMoves[i] || thisMoves[i].length != 2 || !Number.isInteger(+thisMoves[i][0]) || !Number.isInteger(+thisMoves[i][1])){
-				alert(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
-				throw(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
-			}
-			bottime[i] += time;
-			if (turn % 50 == 49) {
-				document.querySelector(`#${bots[i].name} .bot-time`).innerHTML = Math.floor(bottime[i] / (turn + 1));
-			}
+		// Determine the numbers we need to use on the grid.
+		let botlist = [];
+		while (botlist.length < botcount){
+			botlist.push(botlist.length + 1);
 		}
-		for (let i = 0; i < thisMoves.length; i++){
-			if (!isLegalMove(i+1, thisMoves[i], grid)){
-				thisMoves[i] = [-1, -1];
-				continue;
-			}
-			// Perform removals - they have to happen first.
-			if (grid[thisMoves[i][0]][thisMoves[i][1]] == i + 1){
-				grid[thisMoves[i][0]][thisMoves[i][1]] = 0;
-			}
+		while (botlist.length < Math.pow(gridSize, 2)){
+			botlist.push(-1);
 		}
-		// Remove moves where there are already living cells.
-		for (let i = 0; i < thisMoves.length; i++){
-			if (thisMoves[i][0] == -1 && thisMoves[i][1] == -1) continue;
-			if (grid[thisMoves[i][0]][thisMoves[i][1]] != 0){
-				thisMoves[i] = [-1, -1];
-			}
-		}
-		// Make all other moves.
-		for (let i = 0; i < thisMoves.length; i++){
-			if (thisMoves[i][0] == -1 && thisMoves[i][1] == -1) continue;
-			if (grid[thisMoves[i][0]][thisMoves[i][1]] == 0){
-				grid[thisMoves[i][0]][thisMoves[i][1]] = i + 1;
-			} else {
-				// If it's non-zero, someone else tried to move there.
-				grid[thisMoves[i][0]][thisMoves[i][1]] = -1;
-			}
-		}
+		// Put the bots in a random order.
+		shuffle(bots);
+		colourBots();
+		// Place them in random places on the grid.
+		shuffle(botlist);
 
-		grid = nextGeneration(grid);
+		gridSize *= 6;
+		let grid = Array(gridSize).fill(0).map(() => new Array(gridSize).fill(0));
+
+		grid = buildGrid(grid, botlist);
 
 		drawGrid(grid);
 
-		if (!writeCellCounts(grid)){
-			break;
+		// Draw the grid on loading the page, but don't run immediately.
+		if (setup) return;
+
+		resetBots();
+
+		let lastMoves = [], thisMoves = [], bottime = Array(bots.length).fill(0);
+		let cellCount = Array(bots.length + 1).fill(1);
+		let turnCounter = document.querySelector("#turn-counter");
+		for (let turn = 0; turn < 1000; turn++){
+			turnCounter.innerHTML = turn + 1;
+			lastMoves = thisMoves;
+			thisMoves = [];
+			for (let i = 0; i < bots.length; i++){
+				if (!cellCount[i + 1]) continue;
+				let start = performance.now();
+				thisMoves[i] = bots[i](grid, i+1, lastMoves);
+				let time = performance.now() - start;
+				if (!thisMoves[i] || thisMoves[i].length != 2 || !Number.isInteger(+thisMoves[i][0]) || !Number.isInteger(+thisMoves[i][1])){
+					alert(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
+					throw(`${bots[i].name} failed to give a legal response: ${thisMoves[i]}`);
+				}
+				bottime[i] += time;
+				if (turn % 50 == 49) {
+					document.querySelector(`#${bots[i].name} .bot-time`).innerHTML = Math.floor(bottime[i] / (turn + 1));
+				}
+			}
+			for (let i = 0; i < thisMoves.length; i++){
+				if (!isLegalMove(i+1, thisMoves[i], grid)){
+					thisMoves[i] = [-1, -1];
+					continue;
+				}
+				// Perform removals - they have to happen first.
+				if (grid[thisMoves[i][0]][thisMoves[i][1]] == i + 1){
+					grid[thisMoves[i][0]][thisMoves[i][1]] = 0;
+				}
+			}
+			// Remove moves where there are already living cells.
+			for (let i = 0; i < thisMoves.length; i++){
+				if (thisMoves[i][0] == -1 && thisMoves[i][1] == -1) continue;
+				if (grid[thisMoves[i][0]][thisMoves[i][1]] != 0){
+					thisMoves[i] = [-1, -1];
+				}
+			}
+			// Make all other moves.
+			for (let i = 0; i < thisMoves.length; i++){
+				if (thisMoves[i][0] == -1 && thisMoves[i][1] == -1) continue;
+				if (grid[thisMoves[i][0]][thisMoves[i][1]] == 0){
+					grid[thisMoves[i][0]][thisMoves[i][1]] = i + 1;
+				} else {
+					// If it's non-zero, someone else tried to move there.
+					grid[thisMoves[i][0]][thisMoves[i][1]] = -1;
+				}
+			}
+
+			grid = nextGeneration(grid);
+
+			drawGrid(grid);
+
+			let isComplete = false;
+			[cellCount, isComplete] = writeCellCounts(grid);
+			if (isComplete){
+				break;
+			}
+
+			if (!no_display.checked){
+				// Sleep for 0 ms to guarantee drawing is possible.
+				await new Promise(r => setTimeout(r, max_tick_speed.value));
+			}
 		}
 
-		// Sleep for 1 ms to guarantee drawing is possible.
-		await new Promise(r => setTimeout(r, 1));
+		await new Promise(r => setTimeout(r, 0));
+		saveScore(cellCount);
 	}
 }
 
@@ -104,8 +124,19 @@ function writeCellCounts(grid){
 		document.querySelector(`#${bots[i].name} .bot-cells`).innerHTML = cellCount[i+1] || 0;
 		if (cellCount[i+1] > 0) livingPlayers++;
 	}
-	if (livingPlayers <= 1) return false;
-	return true;
+	if (livingPlayers <= 1) return [cellCount, true];
+	return [cellCount, false];
+}
+
+function saveScore(cellCount){
+	let totalLiving = cellCount.slice(1).reduce((a, c) => a + c, 0);
+	for (let i = 0; i < bots.length; i++){
+		if (!cellCount[i + 1]) continue;
+		if (!botscores[bots[i].name]) botscores[bots[i].name] = 0;
+		botscores[bots[i].name] += cellCount[i + 1] / totalLiving;
+		let scoreEl = document.querySelector(`#${bots[i].name} .bot-score`);
+		scoreEl.innerHTML = botscores[bots[i].name];
+	}
 }
 
 function nextGeneration(grid){
@@ -140,6 +171,7 @@ function nextGeneration(grid){
 }
 
 function isLegalMove(bot, move, grid){
+	if (!move || move[0] < 0 || move[0] > grid.length || move[1] < 0 || move[1] > grid.length) return false;
 	for (let i = Math.max(0, move[0] - 2); i < Math.min(move[0] + 2, grid.length - 1); i++){
 		for (let j = Math.max(0, move[1] - 2); j < Math.min(move[1] + 2, grid.length - 1); j++){
 			if (grid[i][j] == bot) return true;
@@ -170,6 +202,7 @@ function drawGrid(grid){
 		gridNode.style.width = 22 * grid.length + "px";
 		gridNode.style.height = 22 * grid.length + "px";
 	}
+	if (document.querySelector("#no-output").checked) return
 	// Colour the cells appropriately.
 	for (let i = 0; i < grid.length; i++){
 		for (let j = 0; j < grid.length; j++){
@@ -211,11 +244,13 @@ function loadBots(){
 	while (botlistnode.childNodes.length > 2){
 		botlistnode.removeChild(botlistnode.childNodes[2]);
 	}
+	// For consistent output - does not affect bot IDs.
+	bots.sort();
 	for (let i = 0; i < bots.length; i++){
 		let newbotnode = bottemplate.cloneNode(true);
 		newbotnode.id = bots[i].name;
 		newbotnode.querySelector(".bot-name").innerHTML = bots[i].name;
-		newbotnode.querySelector(".bot-score").innerHTML = 0;
+		newbotnode.querySelector(".bot-score").innerHTML = botscores[bots[i].name] || 0;
 		botlistnode.append(newbotnode);
 	}
 }

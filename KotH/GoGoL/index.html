@@ -12,7 +12,21 @@
 		<div id="grid">
 
 		</div>
-		<button onclick="runGame()">Run Game</button> Turn <span id="turn-counter"></span>
+		<div>
+			<button onclick="runGame()">Run Game(s)</button> Turn <span id="turn-counter"></span> Game <span id="game-count"></span>/<span id="game-total"></span>
+		</div>
+		<div>
+			Games to run:
+			<input type="number" id="games-to-run" value="1">
+		</div>
+		<div>
+			<input type="checkbox" id="no-output" name="no-output">
+			<label for="no-output">Don't draw game (faster)</label>
+		</div>
+		<div>
+			Max tick speed (ms):
+			<input type="number" id="max-tick-speed" value="0">
+		</div>
 	</div>
 	<div class="col">
 		<div id="info">
