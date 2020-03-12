@@ -91,6 +91,12 @@ class Description{
 	}
 }
 
+class HouseRule{
+	constructor(text){
+		this.text = text;
+	}
+}
+
 allitems = [
 	new Item("Ring of Protection +1", "1000gp",
 		new Description([["Grants +1 AC", Permission.PLAYER]])
@@ -219,6 +225,11 @@ chanceries = [
 		new Description([["", Permission.PLAYER]]),
 		[], [], [1600, 250, 7]
 	),
+];
+const allrules = [
+	new HouseRule("Stacking Advantage", "Whenever you have multiple sources of Advantage/Disadvantage, subtract your Disadvantage from your Advantage.  If you have at least +1, roll two dice and take the higher one.  If you have at least +2, add the value to your roll.  Do likewise for Disadvantage, but take the lower roll and subtract the difference from your roll."),
+	new HouseRule("Oppressive Advantage", "This is a feat available to all characters.  If you have at least one source of Advantage on a roll and more Disadvantages than Advantages, subtract 2 from the number of disadvantages you are suffering.  This cannot cause you to gain Advantage.  If a creature is making any roll, you have imposed Disadvantage on that roll, and that creature has more Advantages than Disadvantages, subtract 2 from the number of Advantages they have.  This cannot cause them to suffer Disadvantage."),
+	new HouseRule(""),
 ];
 
 allitems.forEach((item, i) => item.id = i);
