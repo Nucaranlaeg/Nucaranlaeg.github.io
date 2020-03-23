@@ -128,3 +128,9 @@ button {
 .no-transition {
 	transition: none !important;
 }
+
+.link {
+	color: blue;
+	text-decoration: underline;
+	cursor: pointer;
+}

@@ -1,3 +1,7 @@
+// Make fade in-out work properly for island locations.
+
+// Ensure clicking on the same location doesn't reopen it.
+
 UserPermission = Permission.PLAYER;
 
 setTimeout(() => {
@@ -6,7 +10,6 @@ setTimeout(() => {
 	mapbox.addEventListener("click", e => {
 		islandNumber = e.target.id;
 		if (islandNumber.includes("island")){
-			setAllIslandsInactive();
 			loadIslandInfo(chanceries[islandNumber.replace("island", "")]);
 		} else if (islandNumber == "mapbox"){
 			setAllIslandsInactive();
@@ -33,6 +36,9 @@ function setAllIslandsInactive() {
 }
 
 function loadIslandInfo(chancery) {
+	setAllIslandsInactive();
+	let wholemap = document.querySelector("#wholemap");
+	wholemap.parentNode.append(wholemap);
 	if (!(chancery.permission & UserPermission)) return;
 	colselect(0);
 	infobox = document.querySelector("#infobox");
@@ -61,8 +67,10 @@ function loadIslandInfo(chancery) {
 	document.querySelector("#inner-infobox").style.left = "0";
 	// Stop hover from modifying how the island looks.
 	document.querySelector(`#island${chancery.id}`).classList.add("selected");
-	// Set island locations to visible.
-	document.querySelector(`#i${chancery.id}locations`).classList.add("visible");
+	// Set island locations to visible by moving the appropriate element to be painted last.
+	let locations = document.querySelector(`#i${chancery.id}locations`);
+	locations.classList.add("visible");
+	locations.parentNode.append(locations);
 }
 
 function zoommap(top, left, scale) {
@@ -193,6 +201,16 @@ function clean(node) {
 			clean(child);
 		}
 	}
+}
+
+function selectByName(type, name) {
+	let [list, viewFunc] = {
+		"Chancery": [chanceries, loadIslandInfo],
+		"Location": [alllocations, loadLocationInfo],
+		"Person": [allpeople, loadPersonInfo],
+		"Item": [allitems, loadItemInfo],
+	}[type];
+	viewFunc(list.find(x => x.name.includes(name)));
 }
 
 setTimeout(() => {

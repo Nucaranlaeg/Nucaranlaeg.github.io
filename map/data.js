@@ -4,6 +4,13 @@ const Permission = Object.freeze({
 	"DM": 0b10,
 });
 
+const ItemClass = Object.freeze({
+	"LEGENDARY": 0,
+	"UNIQUE": 1,
+	"CONSUMABLE": 2,
+	"GENERAL": 3,
+});
+
 class Person {
 	id;
 	constructor(name, title, permission, description, items = []){
@@ -46,10 +53,11 @@ class Chancery {
 
 class Item {
 	id;
-	constructor(name, price, description){
+	constructor(name, price, description, item_class){
 		this.name = name;
 		this.price = price; // Represents what it would cost for the players, on an average day.
 		this.description = description;
+		this.item_class = item_class;
 	}
 }
 
@@ -87,37 +95,61 @@ class Description{
 			}
 		});
 		if (!desc) return "";
+		let link_body;
+		while (link_body = desc.match(/\\(\w+)\{(.+)\}/)){
+			desc = desc.replace(link_body[0], `<a class="link" onclick="selectByName('${link_body[1]}', '${link_body[2]}')">${link_body[2]}</a>`)
+		}
 		return "&nbsp;&nbsp;" + desc.replace("\n", "<br>&nbsp;&nbsp;");
 	}
 }
 
 class HouseRule{
-	constructor(text){
-		this.text = text;
+	constructor(name, description){
+		this.name = name;
+		this.description = description;
 	}
 }
 
 allitems = [
 	new Item("Ring of Protection +1", "1000gp",
-		new Description([["Grants +1 AC", Permission.PLAYER]])
+		new Description([["Grants +1 AC", Permission.PLAYER]]),
+		ItemClass.GENERAL
 	),
 	new Item("Long Chain of the Law", "80000gp",
 		new Description([
 			["The Long Chain of the Law is a thin silver chain three feet long.  It serves to bind any creature struck by it.", Permission.PLAYER],
 			["\nA creature holding it may use it to attack; it deals no damage but any creature struck may not leave the city.  If it attempts to, a thin unbreakable chain appears wrapped around its wrist.  Only when the chain appears can it be subject to Dispel Magic.\nAdditionally, when a creature is struck by the chain that creature treats any official of the city as though they were under a sanctuary spell.  Both of these effects last for 24 hours.", Permission.DM],
-		])
+		]), ItemClass.LEGENDARY
 	),
 	new Item("Shield of Walls", "30000gp",
 		new Description([
-			["This shield appears to be comprised of bricks, making its edge non-uniform.  Two such shields fit together nicely.", Permission.PLAYER],
+			["This shield appears to be comprised of bricks, making its edge somewhat jagged.  Two such shields fit together nicely.", Permission.PLAYER],
 			["\nThe Shield of Walls is a +0 magical shield.  When a creature wields a Shield of Walls, he gets a +1 bonus to AC per adjacent creature also wielding a Shield of Walls.", Permission.DM],
-		])
+		]), ItemClass.GENERAL
 	),
 	new Item("Glimmerstone", "Unknown",
 		new Description([
 			["This small stone floats in the air.  It is unbreakable.  It constantly lets off a dim light.  When a creature sees it, they are transfixed and cannot look away.", Permission.PLAYER],
 			["The DC for looking away from the Glimmerstone is 30, decreased by 1 for every minute the creature has been looking at it that day.  A creature may attempt a save once per minute.  Once a creature succeeds, that creature is immune to the effect until the next dawn.", Permission.DM],
-		])
+		]), ItemClass.LEGENDARY
+	),
+	new Item("Immovable Might", "50000gp",
+		new Description([
+			["This foot long leather rod is unassuming, but weighs more than one might expect.", Permission.PLAYER],
+			["The Immovable Might deals (10+Str)d6 damage when used to strike a creature.  It then acts as an immovable rod for 1d100 minutes, except that it has no button to deactivate it.  It requires a DC30 Strength check to move it once it has become stationary, but no creature can attempt more than once per activation.  It never becomes fixed unless it strikes a creature.", Permission.DM],
+		]), ItemClass.UNIQUE
+	),
+	new Item("Amulet of Temporary Petrification", "8000gp",
+		new Description([
+			["A silver amulet on a long chain.  It has a small stone figurine in the centre of a ring of silver.", Permission.PLAYER],
+			["This amulet has no effect unless the creature wearing it would take lethal damage.  If they would, instead it petrifies them for 1 hour, returning the creature to life after the hour has passed.  The amulet crumbles to dust upon activation.", Permission.DM],
+		]), ItemClass.GENERAL
+	),
+	new Item("Elixir of Incredible Gravity", "500gp",
+		new Description([
+			["A potion in a black steel flask.  It feels weighty.", Permission.PLAYER],
+			["An elixir of incredible gravity causes a creature to be unable to be lifted if they do not will it.  In addition, any time a creature is under the effects of the elixir falls, the fall is completed instantly and they take no damage.", Permission.DM],
+		]), ItemClass.CONSUMABLE
 	)
 ];
 allpeople = [
@@ -144,6 +176,30 @@ allpeople = [
 alllocations = [
 	new Location("Sixfold Maze", Permission.PLAYER,
 		new Description([["The Sixfold Maze is an ancient structure.  When the Chancery ascended, the first explorers found six entrances.  The maze itself extends all across the chancery, and from time to time new entrances are uncovered.\nIt's not always possible to navigate through the maze, as its non-linear geometry and strange inhabitants make travel perilous.  It is rumoured that creatures appear out of the darkness, even from corridors that had been previously cleared.  It is also rumoured that deep in the maze there are incredible treasures, available for any to find.", Permission.PLAYER]]),
+		[], []
+	),
+	new Location("Salt Sea", Permission.PLAYER,
+		new Description([["The Salt sea is the only one of its type in Supernatet, if you don't count the enormous ocean that the islands all float over.", Permission.PLAYER]]),
+		[], []
+	),
+	new Location("Still River", Permission.PLAYER,
+		new Description([["The surface of the Still river is almost perfectly still, appearing as smooth as a small lake on a day with no breeze.  However, the river itself flows incredibly rapidly and it is nearly impossible to ford.  If something enters the water (a person, or even just a thrown rock) the entire river briefly shows its true nature: a raging torrent.  In part because of this, the region to the north-west of the river is very sparsely inhabited.", Permission.PLAYER]]),
+		[], []
+	),
+	new Location("Orthol River", Permission.PLAYER,
+		new Description([["", Permission.PLAYER]]),
+		[], []
+	),
+	new Location("Sigthul River", Permission.PLAYER,
+		new Description([["", Permission.PLAYER]]),
+		[], []
+	),
+	new Location("Athul River", Permission.PLAYER,
+		new Description([["", Permission.PLAYER]]),
+		[], []
+	),
+	new Location("Corothul", Permission.PLAYER,
+		new Description([["Corothul is the capital of the Chancery of the Sea.  While it is not on the coast, it sits along the easiest trade route from \\Chancery{Fountain}.", Permission.PLAYER]]),
 		[], []
 	),
 ];
@@ -221,15 +277,18 @@ chanceries = [
 		new Description([["The Chancery of the Plain is flat.  Over time, any deviation from the flatness is smoothed out, leaving once again a featureless plain.  It's so flat that you can see all the way across it.  As the palace is the tallest structure in the land, it can be seen from every other point in the chancery.\nPlain is the safest chancery, as it's impossible for bandits to hide.  Guards with the Farsight spell watch from towers, not even needing to patrol.  Because of this, the chancery is also one of the wealthiest.", Permission.PLAYER]]),
 		[], [], [1200, -1800, 7]
 	),
-	new Chancery("", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
+	new Chancery("Chancery of the Sea", Permission.PLAYER,
+		new Description([["The Chancery of the Sea is unique in that it contains a large body of water, taking up nearly the entire chancery.  There ", Permission.PLAYER]]),
 		[], [], [1600, 250, 7]
 	),
 ];
 const allrules = [
-	new HouseRule("Stacking Advantage", "Whenever you have multiple sources of Advantage/Disadvantage, subtract your Disadvantage from your Advantage.  If you have at least +1, roll two dice and take the higher one.  If you have at least +2, add the value to your roll.  Do likewise for Disadvantage, but take the lower roll and subtract the difference from your roll."),
-	new HouseRule("Oppressive Advantage", "This is a feat available to all characters.  If you have at least one source of Advantage on a roll and more Disadvantages than Advantages, subtract 2 from the number of disadvantages you are suffering.  This cannot cause you to gain Advantage.  If a creature is making any roll, you have imposed Disadvantage on that roll, and that creature has more Advantages than Disadvantages, subtract 2 from the number of Advantages they have.  This cannot cause them to suffer Disadvantage."),
-	new HouseRule(""),
+	new HouseRule("Stacking Advantage",
+		new Description([["Whenever you have multiple sources of Advantage/Disadvantage, subtract your Disadvantage from your Advantage.  If you have at least +1, roll two dice and take the higher one.  If you have at least +2, add the value to your roll.  Do likewise for Disadvantage, but take the lower roll and subtract the difference from your roll.", Permission.PLAYER]])
+	),
+	new HouseRule("Oppressive Advantage",
+		new Description([["This is a feat available to all characters.  If you have at least one source of Advantage on a roll and more Disadvantages than Advantages, subtract 2 from the number of disadvantages you are suffering.  This cannot cause you to gain Advantage.  If a creature is making any roll, you have imposed Disadvantage on that roll, and that creature has more Advantages than Disadvantages, subtract 2 from the number of Advantages they have.  This cannot cause them to suffer Disadvantage.", Permission.PLAYER]])
+	),
 ];
 
 allitems.forEach((item, i) => item.id = i);
