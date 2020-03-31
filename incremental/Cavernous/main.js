@@ -568,7 +568,7 @@ function setMined(x, y, icon){
 let queues = [];
 let selectedQueue = [];
 let savedQueues = [];
-let possibleActionIcons = ["★", "🡄", "🡆", "🡅", "🡇", "🞇", "✣", "✦", "♣", "♠"];
+let possibleActionIcons = ["★", "✣", "✦", "♣", "♠", "⚑", "🗙", "⬈", "⬉", "⬊", "⬋"];
 
 function addActionToQueue(action, queue = null){
 	if (document.querySelector(".saved-queue:focus, .saved-name:focus")) return addActionToSavedQueue(action);
@@ -675,7 +675,9 @@ function redrawQueues(){
 function saveQueue(el){
 	let queue = el.parentNode.parentNode.id.replace("queue", "");
 	savedQueues.push(queues[queue].map(q => [q[0]]).filter(q => isNaN(+q)));
-	savedQueues[savedQueues.length - 1].icon = "🡄";
+	savedQueues[savedQueues.length - 1].icon = possibleActionIcons[0];
+	// Generate random colour.
+	savedQueues[savedQueues.length - 1].colour = '#'+Math.floor(Math.random()*16777215).toString(16);
 	drawSavedQueues();
 }
 
