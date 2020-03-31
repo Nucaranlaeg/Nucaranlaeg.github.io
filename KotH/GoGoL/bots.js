@@ -298,4 +298,119 @@ function planBbot(grid, botId, lastMoves) {
     return best_cell;
 }
 
+// By Nucaranlaeg, https://codegolf.stackexchange.com/questions/199658/game-of-game-of-life/199772#199772
+function SafetyBot(grid, botId, lastMoves){
+	if (!this.turn_count) this.turn_count = 0;
+	this.turn_count++;
+	let wrap = coord => coord < 0 ? coord + grid.length : coord >= grid.length ? coord - grid.length : coord;
+	let adj_life = (x, y) => {
+		let sum = 0, sum_mine = 0;
+		for (let i = -1; i <= 1; i++){
+			for (let j = -1; j <= 1; j++){
+				if (!i && !j) continue;
+				if (grid[wrap(x+i)][wrap(y+j)]) sum++;
+				if (grid[wrap(x+i)][wrap(y+j)] == botId) sum_mine++;
+			}
+		}
+		return [sum, sum_mine];
+	}
+	let cell_counts = grid.reduce((acc, row) => row.reduce((count, cell) => {
+		if (cell > 0){
+			count[cell] = count[cell] ? count[cell] + 1 : 1;
+		}
+		return count;
+	}, acc), []);
+	// Target the strongest bot
+	let targets = cell_counts.map(c => 1 + cell_counts.reduce((a, r) => a + Boolean(r != undefined && r < c), 0));
+	let min_current_cells = Math.max(targets) == targets[botId];
+	if (!this.prev_counts){
+		this.prev_counts = cell_counts;
+	} else {
+		for (let i = 0; i < cell_counts.length; i++){
+			if (!cell_counts[i]){
+				this.prev_counts[i] = 0;
+			} else {
+				this.prev_counts[i] += cell_counts[i] * cell_counts[i];
+			}
+		}
+		targets = this.prev_counts.map(c => 1 + this.prev_counts.reduce((a, r) => a + Boolean(r != undefined && r < c), 0));
+	}
+	let my_cells = [];
+	for (let i = 0; i < grid.length; i++){
+		for (let j = 0; j < grid.length; j++){
+			if (grid[i][j] == botId){
+				my_cells.push([i, j]);
+			}
+		}
+	}
+	// Find all of my cells that will die but I can save.
+	let in_danger = my_cells.filter(cell => {
+		let adj = adj_life(...cell)[0];
+		return adj == 1 || adj == 4;
+	});
+	let move_options = [];
+	in_danger.forEach(cell => {
+		if (adj_life(...cell)[0] > 3) return;
+		for (let i = -1; i <= 1; i++){
+			for (let j = -1; j <= 1; j++){
+				if (!i && !j) continue;
+				let x = wrap(cell[0] + i),
+					y = wrap(cell[1] + j);
+				if (grid[x][y] == 0) move_options.push([x, y]);
+			}
+		}
+	});
+	// If I can't save any, look for any other legal moves.
+	if (!move_options.length) {
+		move_options = my_cells.slice();
+		my_cells.forEach(cell => {
+			for (let i = -2; i <= 2; i++){
+				for (let j = -2; j <= 2; j++){
+					let x = wrap(cell[0] + i),
+						y = wrap(cell[1] + j);
+					if (grid[x][y] == 0 && !move_options.some(m => m[0] == x && m[1] == y)){
+						move_options.push([x, y]);
+					}
+				}
+			}
+		});
+	}
+	move_options.forEach(move => {
+		let move_score = 0;
+		let adj = adj_life(...move);
+		if (grid[move[0]][move[1]] == botId){
+			move_score--; // -1 point if I'm killing one of my cells.
+		} else if (adj[0] == 2){
+			move_score += 3.5 + adj[1]; // +3.5 points if a single enemy cell won't kill it
+		} else if (adj[0] == 3){
+			move_score += 1 + adj[1]; // +1 point if it'll live in other cases.
+		}
+		for (let i = -1; i <= 1; i++){
+			for (let j = -1; j <= 1; j++){
+				let x = wrap(move[0] + i),
+					y = wrap(move[1] + j);
+				let [adj, adj_mine] = adj_life(x, y);
+				if (grid[x][y] == botId && adj == 3){
+					move_score--; // -1 point if it kills one of my cells.
+				} else if (grid[x][y] == 0 && adj == 2 && adj_mine > 0){
+					move_score++; // +1 point if it would cause a new cell of mine to come to life.
+				} else if (grid[x][y] > 0 && grid[x][y] != botId && adj == 3 && cell_counts[botId] > grid.length && !min_current_cells && this.turn_count < 975){
+					move_score += targets[grid[x][y]] + 1; // + points based on how tempting a target it is, but only if I have more living cells than some other bot (and a minimum threshold).
+				} else if (adj < 2){
+					move_score += 0.5; // +0.5 points if it's into an open area.
+				}
+			}
+		}
+		move.push(move_score);
+	});
+	let best = Math.max(...move_options.map(m => m[2]));
+	let good_moves = move_options.filter(m => m[2] == best);
+	window.move_options = move_options;
+	window.good_moves = good_moves;
+	window.grid = grid;
+	window.adj_life = adj_life;
+	window.botId = botId;
+	return good_moves[Math.floor(Math.random() * good_moves.length)].slice(0, 2);
+}
+
 let bots = [randomMovesBot, rgs_do_nothing, BestNowBot, planBot, planBbot];
