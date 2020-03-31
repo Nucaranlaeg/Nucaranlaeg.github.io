@@ -568,7 +568,7 @@ function setMined(x, y, icon){
 let queues = [];
 let selectedQueue = [];
 let savedQueues = [];
-let possibleActionIcons = ["🡄","🡆","🡅","🡇","🞇"];
+let possibleActionIcons = ["★", "🡄", "🡆", "🡅", "🡇", "🞇", "✣", "✦", "♣", "♠"];
 
 function addActionToQueue(action, queue = null){
 	if (document.querySelector(".saved-queue:focus, .saved-name:focus")) return addActionToSavedQueue(action);
@@ -625,6 +625,7 @@ function createQueueActionNode(queue){
 	actionNode.removeAttribute("id");
 	actionNode.style.color = savedQueues[queue].colour;
 	actionNode.querySelector(".character").innerHTML = savedQueues[queue].icon;
+	actionNode.classList.add(`action${queue}`);
 	return actionNode;
 }
 
@@ -700,12 +701,21 @@ function setSavedQueueName(el){
 function setSavedQueueIcon(el){
 	let queue = el.parentNode.id.replace("saved-queue", "");
 	savedQueues[queue].icon = el.value;
+	updateSavedIcon(queue);
 }
 
 function setSavedQueueColour(el){
 	let queue = el.parentNode.id.replace("saved-queue", "");
 	savedQueues[queue].colour = el.value;
 	el.parentNode.querySelector(".icon-select").style.color = el.value;
+	updateSavedIcon(queue);
+}
+
+function updateSavedIcon(queue){
+	document.querySelectorAll(`.action${queue}`).forEach(node => {
+		node.style.color = savedQueues[queue].colour;
+		node.querySelector(".character").innerHTML = savedQueues[queue].icon;
+	});
 }
 
 function addActionToSavedQueue(action){
@@ -1038,7 +1048,9 @@ window.ondrop = e => e.preventDefault();
 /******************************************** Prestiges ********************************************/
 
 function resetLoop() {
-	getMessage("Time Travel").display(getStat("Mana").base == 5);
+	let mana = getStat("Mana");
+	getMessage("Time Travel").display(mana.base == 5);
+	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
 	queues.forEach((q, i) => {
 		q.forEach(a => {
@@ -1125,6 +1137,7 @@ let messages = [
 	new Message("Time Travel", "You're back in the room you first found yourself in.\n" +
 	            "This time, you feel slightly more competent than last time, and you know a little of the cave you're in.  Given time, you're sure you can find a way out.\n" +
 	            "If you haven't, it would be good to use the spacebar to extract mana from those rocks."),
+	new Message("Strip Mining", "It's getting harder to extract mana from that rock.  You'll have to go out and find another rock to extract mana from."),
 	new Message("First Clone", "You've created your first clone!  It can carry out actions in exactly the same way you can.\n" +
 	            "You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs."),
 	new Message("Goblin", "A strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought."),
