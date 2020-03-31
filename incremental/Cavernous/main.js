@@ -830,7 +830,7 @@ function stopHovering(){
 function showFinalLocation(isDraw = false){
 	document.querySelectorAll(".final-location").forEach(e => e.classList.remove("final-location"));
 	if (hovering) return;
-	if (selectedQueue[0]){
+	if (selectedQueue[0] !== undefined){
 		showLocationAfterSteps(queues[selectedQueue[0]].length - 1, selectedQueue[0], isDraw);
 	}
 }
