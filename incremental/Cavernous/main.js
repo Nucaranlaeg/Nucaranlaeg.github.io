@@ -93,12 +93,13 @@ let stats = [
 /******************************************** Actions ********************************************/
 
 class Action {
-	constructor(name, baseDuration, stats, complete, canStart = null){
+	constructor(name, baseDuration, stats, complete, canStart = null, tickExtra = null){
 		this.name = name;
 		this.baseDuration = baseDuration;
 		this.stats = stats.map(s => [getStat(s[0]), s[1]]);
 		this.complete = complete || (() => {});
 		this.canStart = canStart;
+		this.tickExtra = tickExtra;
 	}
 
 	start(completions, priorCompletions){
@@ -110,9 +111,12 @@ class Action {
 		return this.getDuration(durationMult);
 	}
 
-	tick(usedTime){
+	tick(usedTime, creature){
 		for (let i = 0; i < this.stats.length; i++){
 			this.stats[i][0].gainSkill(usedTime / 1000 * this.stats[i][1]);
+		}
+		if (this.tickExtra){
+			this.tickExtra(usedTime, creature);
 		}
 	}
 
@@ -206,12 +210,15 @@ function completeCrossPit(x, y){
 	completeMove(x, y);
 }
 
+function tickFight(usedTime, creature){
+	clones[currentClone].takeDamage(Math.max(creature.attack - getStat("Defense").current, 0) * usedTime / 1000);
+}
+
 function completeFight(x, y, creature){
 	if (creature.health){
 		creature.health = Math.max(creature.health - Math.max(getStat("Attack").current - creature.defense, 0), 0);
 	}
 	if (!creature.health) return completeMove(x, y);
-	clones[currentClone].takeDamage(Math.max(creature.attack - getStat("Defense").current, 0));
 	return true;
 }
 
@@ -230,7 +237,7 @@ let actions = [
 	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), simpleRequire("Iron Bar", 3)),
 	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), simpleRequire("Iron Bar", 5)),
 	new Action("Create Armour", 17500, [["Smithing", 1]], simpleConvert([["Iron Bar", 7]], [["Iron Armour", 1]]), simpleRequire("Iron Bar", 7)),
-	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight),
+	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 ];
 
 /****************************************** Creatures ********************************************/
@@ -375,7 +382,7 @@ class Location {
 			percent = this.remainingPresent / (this.presentDuration || 1);
 		} else {
 			usedTime = Math.min(time, this.remainingEnter);
-			this.type.getEnterAction(this.entered).tick(usedTime);
+			this.type.getEnterAction(this.entered).tick(usedTime, this.creature);
 			this.remainingEnter -= usedTime;
 			if (this.remainingEnter == 0){
 				if (this.type.getEnterAction(this.entered).complete(this.x, this.y, this.creature)){
@@ -438,18 +445,18 @@ function viewCell(e){
 /********************************************** Map **********************************************/
 
 let map = ['██████████████████████████████████████████',
-           '████¤#%█¤█████████###██)#+████##%#████████',
+           '█+██¤#%█¤█████████###██)#+████+#%#████████',
            '█#█+#####███%%%¤██#█#██####█%██%█%#███████',
-           '█#█ #%#█# #######█#█#██¤█####█# #+████████',
-           '█#█%██#████#██#+#█#█#%███#█###%██%████████',
-           '█%█#█%#█+###█¤#█###█#█████##%█%███████████',
+           '█#█ +%#█# #######█#█#██¤█####█# #+████████',
+           '█#█%██#████#██#+#█#█#%███+█###%██%████████',
+           '█%█#█%#█+###█¤#█###█#█████##%█%+██████████',
            '█##%█+[██#████ █████#█###█%#██████████████',
            '█%██████████♥###+### ##█#██#¤█████████████',
            '█#+█%# #+███##█##+█████##██ ██████████████',
            '██████+███¤██#+##█████##██##██████████████',
            '██████#█.##█¤#####%%# ##+####█████████████',
            '██████#██######█╬⎶████#¤███##█████████████',
-           '██████##██#¤████████###%█%█%#█████████████',
+           '██████##██#¤████████###%█%█%#+████████████',
            '███████##█#█¤#██#¤█+#%#██#████████████████',
            '████████#█###%=█#███%#####¤███████████████',
            '███████#%███████##███g████████████████████',
