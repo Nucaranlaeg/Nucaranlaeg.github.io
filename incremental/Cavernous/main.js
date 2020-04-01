@@ -447,8 +447,8 @@ function viewCell(e){
 let map = ['██████████████████████████████████████████',
            '█+██¤#%█¤█████████###██)#+████+#%#████████',
            '█#█+#####███%%%¤██#█#██####█%██%█%#███████',
-           '█#█ +%#█# #######█#█#██¤█####█# #+████████',
-           '█#█%██#████#██#+#█#█#%███+█###%██%████████',
+           '█#█ +%#█# #######█#█#██¤█+###█# #+████████',
+           '█#█%██#████#██#+#█#█#%███#█###%██%████████',
            '█%█#█%#█+###█¤#█###█#█████##%█%+██████████',
            '█##%█+[██#████ █████#█###█%#██████████████',
            '█%██████████♥###+### ##█#██#¤█████████████',
@@ -519,7 +519,7 @@ function getMapLocation(x, y, adj = false){
 	return mapLocations[y][x];
 }
 
-function drawMap() {
+function drawNewMap() {
 	let mapNode = document.querySelector("#map-inner");
 	while (mapNode.firstChild){
 		mapNode.removeChild(mapNode.lastChild);
@@ -550,6 +550,31 @@ function drawMap() {
 			}
 		}
 	}
+	isDrawn = true;
+	for (let i = 0; i < clones.length; i++){
+		mapNode.childNodes[clones[i].y + yOffset].childNodes[clones[i].x + xOffset].classList.add("occupied");
+	}
+}
+
+let isDrawn = false;
+
+function drawMap() {
+	if (!isDrawn) drawNewMap();
+	let mapNode = document.querySelector("#map-inner");
+	mapNode.childNodes.forEach((row, y) => {
+		if (!mapLocations[y]) return;
+		row.childNodes.forEach((cell, x) => {
+			if (!mapLocations[y][x]) return;
+			cell.className = "";
+			let [className, descriptor] = classMapping[map[y][x]];
+			className = className.split(" ");
+			for (let i = 0; i < className.length; i++){
+				cell.classList.add(className[i]);
+			}
+			cell.setAttribute("data-content", descriptor);
+		});
+	});
+	document.querySelectorAll(".occupied").forEach(el => el.classList.remove("occupied"));
 	for (let i = 0; i < clones.length; i++){
 		mapNode.childNodes[clones[i].y + yOffset].childNodes[clones[i].x + xOffset].classList.add("occupied");
 	}
@@ -625,6 +650,9 @@ function clearQueue(queue = null){
 		return;
 	}
 	queues[queue] = [];
+	if (cursor[0] == queue){
+		cursor[1] = null;
+	}
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
 	while (queueNode.firstChild) {
 		queueNode.removeChild(queueNode.lastChild);
@@ -661,12 +689,13 @@ function resetQueueHighlight(queue){
 
 function selectQueueAction(queue, action, percent){
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
+	this.width = this.width || queueNode.parentNode.clientWidth;
 	let nodes = queueNode.querySelectorAll(`.action`);
 	let node = nodes[action];
 	node.classList.add("started");
 	node.querySelector(".progress").style.width = percent + "%";
-	if (nodes.length * 16 > queueNode.parentNode.clientWidth - 50){
-		queueNode.style.marginLeft = Math.min((queueNode.parentNode.clientWidth - 60 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
+	if (nodes.length * 16 > this.width - 50){
+		queueNode.style.marginLeft = Math.min((this.width - 60 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
 	} else {
 		queueNode.style.marginLeft = 0;
 	}
