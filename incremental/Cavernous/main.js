@@ -1240,7 +1240,7 @@ function load(){
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
-	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows) toggleUseAlternateArrows();
+	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
 	selectClone(0);
 	redrawQueues();
 	resetLoop();
