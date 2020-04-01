@@ -1321,7 +1321,7 @@ setInterval(() => {
 	timeBanked += Math.max(unusedTime - usedBank, 0) / 2 + Math.min(usedBank, unusedTime);
 	queueTime += time - unusedTime;
 	mana.spendMana((time - unusedTime) / 1000);
-	if (unusedTime && settings.autoRestart) resetLoop();
+	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)) resetLoop();
 	document.querySelector("#queue0 .queue-time .time").innerHTML = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
 }, 10);
