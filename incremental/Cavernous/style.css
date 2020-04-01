@@ -242,7 +242,8 @@ td.occupied:before {
 	content: " ";
 }
 
-td.final-location:before {
+td.final-location:before,
+td.hover-location:before {
 	border: 2px solid #0000ff;
 	width: 10px;
 	height: 10px;
@@ -251,6 +252,10 @@ td.final-location:before {
 	left: 1px;
 	z-index: 10;
 	content: " ";
+}
+
+td.hover-location:before {
+	border-color: #ff00ff;
 }
 
 td.wall {

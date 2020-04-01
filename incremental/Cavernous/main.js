@@ -257,6 +257,7 @@ let baseCreatures = [
 
 class Creature {
 	constructor(creature, x, y){
+		this.creature = creature;
 		this.name = creature.name;
 		this.attack = creature.attack;
 		this.defense = creature.defense;
@@ -693,6 +694,11 @@ function selectQueueAction(queue, action, percent){
 	let nodes = queueNode.querySelectorAll(`.action`);
 	let node = nodes[action];
 	node.classList.add("started");
+	if (queues[queue][action][2]){
+		let complete = queues[queue][action][2].findIndex(q => q[`${queue}_${action}`] === undefined);
+		percent /= queues[queue][action][2].length;
+		percent += (complete / queues[queue][action][2].length) * 100;
+	}
 	node.querySelector(".progress").style.width = percent + "%";
 	if (nodes.length * 16 > this.width - 50){
 		queueNode.style.marginLeft = Math.min((this.width - 60 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
@@ -867,30 +873,28 @@ function drawSavedQueues(){
 
 /******************************************* Highlights ******************************************/
 
-let hovering = false;
-
 function showIntermediateLocation(e){
-	hovering = true;
 	let queueNode = e.target.parentNode.parentNode;
 	let index = Array.from(queueNode.children).findIndex(node => node == e.target.parentNode);
 	let queueNumber = queueNode.parentNode.id.replace("queue", "");
 	if (isNaN(+queueNumber)){
-		hovering = false;
 		return;
 	}
-	showLocationAfterSteps(index, queueNumber);
+	showLocationAfterSteps(index, queueNumber, false, true);
 }
 
-function showLocationAfterSteps(index, queueNumber, isDraw = false){
+function showLocationAfterSteps(index, queueNumber, isDraw = false, isHover = false){
 	if (index == -1) return;
 	let x = xOffset; y = yOffset;
 	[x, y] = getQueueOffset(x, y, queues[queueNumber], index);
 	if (x === undefined) return;
 	let target = document.querySelector(`#map-inner`);
+	if (!target) return;
 	target = target.children[y];
+	if (!target) return;
 	target = target.children[x];
-	document.querySelectorAll(".final-location").forEach(e => e.classList.remove("final-location"));
-	target.classList.add("final-location");
+	document.querySelectorAll(`.${isHover ? 'hover' : 'final'}-location`).forEach(e => e.classList.remove(`${isHover ? 'hover' : 'final'}-location`));
+	target.classList.add(`${isHover ? 'hover' : 'final'}-location`);
 	if (!isDraw) viewCell({"target": target});
 }
 
@@ -920,13 +924,11 @@ function getActionOffset(x, y, action){
 }
 
 function stopHovering(){
-	hovering = false;
-	showFinalLocation();
+	document.querySelectorAll(".hover-location").forEach(e => e.classList.remove("hover-location"));
 }
 
 function showFinalLocation(isDraw = false){
 	document.querySelectorAll(".final-location").forEach(e => e.classList.remove("final-location"));
-	if (hovering) return;
 	if (selectedQueue[0] !== undefined){
 		showLocationAfterSteps(queues[selectedQueue[0]].length - 1, selectedQueue[0], isDraw);
 	}
@@ -1173,6 +1175,11 @@ function resetLoop() {
 		q.colour = colour;
 		return q;
 	});
+	creatures.forEach(c => {
+		c.attack = c.creature.attack;
+		c.defense = c.creature.defense;
+		c.health = c.creature.health;
+	});
 	map = originalMap.slice();
 	drawMap();
 	save();
@@ -1308,9 +1315,8 @@ function load(){
 	while (clones.length < saveGame.cloneData.count){
 		clones.push(new Clone());
 	}
+	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
 	queues = [];
-	// Prevent draws while we build the queues
-	hovering = true;
 	for (let i = 0; i < saveGame.cloneData.queues.length; i++){
 		queues.push(saveGame.cloneData.queues[i].map(q => [q, true]));
 	}
@@ -1333,14 +1339,12 @@ function load(){
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
-	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
 
 	ensureLegalQueues();
 
 	selectClone(0);
 	redrawQueues();
 	resetLoop();
-	hovering = false;
 }
 
 function ensureLegalQueues(){
