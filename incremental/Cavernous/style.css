@@ -51,6 +51,7 @@ body {
 	min-width: 16px;
 	user-select: none;
 	position: relative;
+	text-align: center;
 }
 
 .progress {

@@ -568,7 +568,7 @@ function setMined(x, y, icon){
 let queues = [];
 let selectedQueue = [];
 let savedQueues = [];
-let possibleActionIcons = ["★", "✣", "✦", "♣", "♠", "⚑", "🗙", "⬈", "⬉", "⬊", "⬋"];
+let possibleActionIcons = ["★", "✣", "✦", "♣", "♠", "⚑", "×", "⬈", "⬉", "⬊", "⬋"];
 
 function addActionToQueue(action, queue = null){
 	if (document.querySelector(".saved-queue:focus, .saved-name:focus")) return addActionToSavedQueue(action);
@@ -611,11 +611,11 @@ function createActionNode(action){
 	let actionNode = document.querySelector("#action-template").cloneNode(true);
 	actionNode.removeAttribute("id");
 	actionNode.querySelector(".character").innerHTML = {
-		"L": "🡄",
-		"R": "🡆",
-		"U": "🡅",
-		"D": "🡇",
-		"I": "🞇",
+		"L": settings.useAlternateArrows ? "←" : "🡄",
+		"R": settings.useAlternateArrows ? "→" : "🡆",
+		"U": settings.useAlternateArrows ? "↑" : "🡅",
+		"D": settings.useAlternateArrows ? "↓" : "🡇",
+		"I": settings.useAlternateArrows ? "○" : "🞇",
 	}[action];
 	return actionNode;
 }
@@ -1240,6 +1240,7 @@ function load(){
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
+	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows) toggleUseAlternateArrows();
 	selectClone(0);
 	redrawQueues();
 	resetLoop();
@@ -1258,6 +1259,7 @@ let settings = {
 	usingBankedTime: true,
 	running: true,
 	autoRestart: 0,
+	useAlternateArrows: false,
 }
 
 function toggleBankedTime() {
@@ -1273,6 +1275,11 @@ function toggleRunning() {
 function toggleAutoRestart() {
 	settings.autoRestart = (settings.autoRestart + 1) % 4;
 	document.querySelector("#auto-restart-toggle").innerHTML = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"][settings.autoRestart];
+}
+
+function toggleUseAlternateArrows() {
+	settings.useAlternateArrows = !settings.useAlternateArrows;
+	document.querySelector("#use-alternate-arrows-toggle").innerHTML = settings.useAlternateArrows ? "Use default arrows" : "Use alternate arrows";
 }
 
 /******************************************** Game loop ********************************************/
