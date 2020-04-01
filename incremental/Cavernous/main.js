@@ -1540,9 +1540,10 @@ setTimeout(() => {
 	document.body.onkeydown = e => {
 		hideMessages();
 		if (!document.querySelector("input:focus")){
-			if (keyFunctions[e.key]){
+			let key = e.key.length == 1 ? e.key.toLowerCase() : e.key;
+			if (keyFunctions[key]){
 				e.preventDefault();
-				keyFunctions[e.key](e);
+				keyFunctions[key](e);
 			}
 		}
 	};
