@@ -443,7 +443,7 @@ let map = ['██████████████████████�
            '█#█ #%#█# #######█#█#██¤█####█# #+████████',
            '█#█%██#████#██#+#█#█#%███#█###%██%████████',
            '█%█#█%#█+###█¤#█###█#█████##%█%███████████',
-           '█##%█+]██#████ █████#█###█%#██████████████',
+           '█##%█+[██#████ █████#█###█%#██████████████',
            '█%██████████♥###+### ##█#██#¤█████████████',
            '█#+█%# #+███##█##+█████##██ ██████████████',
            '██████+███¤██#+##█████##██##██████████████',
@@ -569,6 +569,7 @@ let queues = [];
 let selectedQueue = [];
 let savedQueues = [];
 let possibleActionIcons = ["★", "✣", "✦", "♣", "♠", "⚑", "×", "⬈", "⬉", "⬊", "⬋"];
+let cursor = [0, null];
 
 function addActionToQueue(action, queue = null){
 	if (document.querySelector(".saved-queue:focus, .saved-name:focus")) return addActionToSavedQueue(action);
@@ -581,14 +582,31 @@ function addActionToQueue(action, queue = null){
 	}
 	if (queues[queue] === undefined) return;
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
-	if (action == "B") {
-		if (queues[queue].length == 0) return;
-		queues[queue].pop();
-		queueNode.removeChild(queueNode.lastChild);
+	if (cursor[1] == null){
+		if (action == "B") {
+			if (queues[queue].length == 0) return;
+			queues[queue].pop();
+			queueNode.removeChild(queueNode.lastChild);
+			scrollQueue(queue);
+		} else if ("UDLRI".includes(action)) {
+			queues[queue].push([action, true]);
+			queueNode.append(createActionNode(action));
+		}
+	} else {
+		if (action == "B") {
+			if (queues[queue].length == 0 || cursor[1] == -1) return;
+			queues[queue].splice(cursor[1], 1);
+			cursor[1]--;
+		} else if ("UDLRI".includes(action)) {
+			queues[queue].splice(cursor[1] + 1, 0, [action, queues[queue][cursor[1]][1]]);
+			cursor[1]++;
+		} else {
+			// Avoid expensive draws if it somehow got here.
+			return;
+		}
+		redrawQueues();
 		scrollQueue(queue);
-	} else if ("UDLRI".includes(action)) {
-		queues[queue].push([action, true]);
-		queueNode.append(createActionNode(action));
+		showCursor();
 	}
 }
 
@@ -653,8 +671,8 @@ function scrollQueue(queue, action = null){
 	}
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
 	let nodes = queueNode.querySelectorAll(`.action`);
-	if (nodes.length * 16 > queueNode.parentNode.clientWidth - 50){
-		queueNode.style.marginLeft = Math.min((queueNode.parentNode.clientWidth - 60 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
+	if (nodes.length * 16 > queueNode.parentNode.clientWidth - 100){
+		queueNode.style.marginLeft = Math.min((queueNode.parentNode.clientWidth - 110 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
 	} else {
 		queueNode.style.marginLeft = 0;
 	}
@@ -664,13 +682,42 @@ function redrawQueues(){
 	for (let i = 0; i < queues.length; i++){
 		let queueNode = document.querySelector(`#queue${i} .queue-inner`);
 		while (queueNode.firstChild) {
-			queueNode.remove(queueNode.lastChild);
+			queueNode.removeChild(queueNode.lastChild);
 		}
 		for (let j = 0; j < queues[i].length; j++){
-			queueNode.append(createActionNode(queues[i][j][0]));
+			let node = createActionNode(queues[i][j][0]);
+			queueNode.append(node);
+			if (!queues[i][j][1]){
+				node.classList.add("started");
+				node.querySelector(".progress").style.width = "100%";
+			}
 		}
 	}
 }
+
+function setCursor(event, el){
+	let nodes = Array.from(el.parentNode.children);
+	cursor[1] = nodes.findIndex(e => e == el) - (event.layerX < 8);
+	if (nodes.length - 1 == cursor[1]) cursor[1] = null;
+	cursor[0] = el.parentNode.parentNode.id.replace("queue", "");
+	showCursor();
+}
+
+function maybeClearCursor(event, el){
+	if (event.target == el){
+		cursor[1] = null;
+	}
+}
+
+function showCursor(){
+	document.querySelectorAll(".cursor.visible").forEach(el => el.classList.remove("visible"));
+	if (cursor[1] == null) return;
+	let cursorNode = document.querySelector(`#queue${cursor[0]} .cursor`);
+	cursorNode.classList.add("visible");
+	cursorNode.style.left = (cursor[1] * 16 + 17) + "px";
+}
+
+/****************************************** Saved Queues ******************************************/
 
 function saveQueue(el){
 	let queue = el.parentNode.parentNode.id.replace("queue", "");
@@ -781,6 +828,8 @@ function drawSavedQueues(){
 	}
 	node.style.display = savedQueues.length ? "block" : "none";
 }
+
+/******************************************* Highlights ******************************************/
 
 let hovering = false;
 
@@ -950,8 +999,12 @@ class Clone {
 
 function selectClone(target, event){
 	if (target.id) {
+		let selection = target.id.replace("queue", "");
+		if (cursor[0] != selection){
+			cursor = [selection, null];
+		}
 		if (event && event.ctrlKey) {
-			let selection = target.id.replace("queue", "");
+			cursor = [0, null];
 			if (selectedQueue.includes(selection)){
 				selectedQueue = selectedQueue.filter(q => q != selection) || [selection];
 				target.classList.remove("selected-clone");
@@ -965,10 +1018,14 @@ function selectClone(target, event){
 			target.classList.add("selected-clone");
 		}
 	} else {
+		if (cursor[0] != target){
+			cursor = [target, null];
+		}
 		document.querySelectorAll(".selected-clone").forEach(el => el.classList.remove("selected-clone"));
 		selectedQueue = [target];
 		document.querySelector(`#queue${target}`).classList.add("selected-clone");
 	}
+	showCursor();
 	showFinalLocation();
 }
 
@@ -1241,10 +1298,21 @@ function load(){
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
 	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
+
+	ensureLegalQueues();
+
 	selectClone(0);
 	redrawQueues();
 	resetLoop();
 	hovering = false;
+}
+
+function ensureLegalQueues(){
+	for (let i = 0; i < queues.length; i++){
+		if (queues[i].some(q => !isNaN(+q[0]) && q[0] >= savedQueues.length)){
+			queues[i] = [];
+		}
+	}
 }
 
 function deleteSave(){
@@ -1260,6 +1328,7 @@ let settings = {
 	running: true,
 	autoRestart: 0,
 	useAlternateArrows: false,
+	useWASD: false,
 }
 
 function toggleBankedTime() {
@@ -1280,6 +1349,12 @@ function toggleAutoRestart() {
 function toggleUseAlternateArrows() {
 	settings.useAlternateArrows = !settings.useAlternateArrows;
 	document.querySelector("#use-alternate-arrows-toggle").innerHTML = settings.useAlternateArrows ? "Use default arrows" : "Use alternate arrows";
+}
+
+function toggleUseWASD() {
+	settings.useWASD = !settings.useWASD;
+	document.querySelector("#use-wasd-toggle").innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
+	document.querySelector("#auto-restart-key").innerHTML = settings.useWASD ? "C" : "W";
 }
 
 /******************************************** Game loop ********************************************/
@@ -1383,6 +1458,77 @@ function setup(){
 	getMessage("Welcome to Cavernous!").display();
 }
 
+/****************************************** Key Bindings ******************************************/
+
+let keyFunctions = {
+	"ArrowLeft": () => {
+		addActionToQueue("L");
+	},
+	"ArrowUp": () => {
+		addActionToQueue("U");
+	},
+	"ArrowRight": () => {
+		addActionToQueue("R");
+	},
+	"ArrowDown": () => {
+		addActionToQueue("D");
+	},
+	" ": e => {
+		addActionToQueue("I");
+	},
+	"Backspace": e => {
+		addActionToQueue("B");
+		if (e.ctrlKey){
+			clearQueue();
+		}
+	},
+	"w": () => {
+		if (settings.useWASD){
+			addActionToQueue("U");
+		} else {
+			toggleAutoRestart();
+		}
+	},
+	"a": () => {
+		if (settings.useWASD){
+			addActionToQueue("L");
+		}
+	},
+	"s": () => {
+		if (settings.useWASD){
+			addActionToQueue("D");
+		}
+	},
+	"d": () => {
+		if (settings.useWASD){
+			addActionToQueue("R");
+		}
+	},
+	"r": () => {
+		resetLoop();
+	},
+	"p": () => {
+		toggleRunning();
+	},
+	"b": () => {
+		toggleBankedTime();
+	},
+	"Tab": e => {
+		if (e.shiftKey){
+			selectClone((clones.length + selectedQueue[selectedQueue.length - 1] - 1) % clones.length);
+		} else {
+			selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
+		}
+		e.preventDefault();
+		e.stopPropagation();
+	},
+	"c": () => {
+		if (settings.useWASD){
+			toggleAutoRestart();
+		}
+	},
+};
+
 setTimeout(() => {
 	let templateSelect = document.querySelector("#saved-queue-template .icon-select");
 	for (let i = 0; i < possibleActionIcons.length; i++){
@@ -1393,32 +1539,11 @@ setTimeout(() => {
 	}
 	document.body.onkeydown = e => {
 		hideMessages();
-		if (e.key == "Backspace"){
-			if (!document.querySelector("input:focus")) e.preventDefault();
-			addActionToQueue("B");
-			if (e.ctrlKey){
-				clearQueue();
+		if (!document.querySelector("input:focus")){
+			if (keyFunctions[e.key]){
+				e.preventDefault();
+				keyFunctions[e.key](e);
 			}
-		} else if (e.key.includes("Arrow")){
-			addActionToQueue(e.key.slice(5,6));
-		} else if (e.key == " "){
-			addActionToQueue("I");
-		} else if (e.key == "w"){
-			toggleAutoRestart();
-		} else if (e.key == "r"){
-			resetLoop();
-		} else if (e.key == "p"){
-			toggleRunning();
-		} else if (e.key == "b"){
-			toggleBankedTime();
-		} else if (e.key == "Tab"){
-			if (e.shiftKey){
-				selectClone((clones.length + selectedQueue[selectedQueue.length - 1] - 1) % clones.length);
-			} else {
-				selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
-			}
-			e.preventDefault();
-			e.stopPropagation();
 		}
 	};
 	load();

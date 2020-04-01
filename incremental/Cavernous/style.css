@@ -88,7 +88,7 @@ body {
 	display: none;
 	position: absolute;
 	top: 2px;
-	right: 56px;
+	right: 100px;
 	background-color: #aaccccd0;
 }
 
@@ -326,8 +326,9 @@ td.sword:before {
 
 td.shield:before {
 	content: "⛨";
-	top: -1px;
+	top: 0px;
 	left: 0px;
+	font-size: 11px;
 }
 
 td.armour:before {
@@ -422,7 +423,14 @@ td:hover:after {
 	right: 4px;
 }
 
-.save-queue button {
+.clear-queue {
+	position: absolute;
+	top: 4px;
+	right: 50px;
+}
+
+.save-queue button,
+.clear-queue button {
 	border-radius: 5px;
 	border: none;
 }
@@ -476,4 +484,25 @@ td:hover:after {
 	border: none;
 	padding: 0;
 	vertical-align: top;
+}
+
+.cursor {
+	display: none;
+	height: 100%;
+	width: 2px;
+	background-color: black;
+	position: absolute;
+	top: 0;
+}
+
+.cursor.visible {
+	display: block;
+	animation-name: blink;
+	animation-duration: 2s;
+	animation-iteration-count: infinite;
+}
+
+@keyframes blink {
+	from {opacity: 0.75;}
+	to {opacity: 0.25;}
 }
