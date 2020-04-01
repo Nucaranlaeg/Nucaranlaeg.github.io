@@ -998,6 +998,7 @@ function completeNextAction(clone = currentClone) {
 	}
 	let nextAction = action[2].find(a => a[`${clone}_${index}`] === undefined);
 	nextAction[`${clone}_${index}`] = false;
+	if (action[2].every(a => a[`${clone}_${index}`] === false)) action[1] = false;
 }
 
 function getAction(name) {
@@ -1270,8 +1271,8 @@ function toggleRunning() {
 }
 
 function toggleAutoRestart() {
-	settings.autoRestart = (settings.autoRestart + 1) % 3;
-	document.querySelector("#auto-restart-toggle").innerHTML = ["Wait when complete", "Restart when complete", "Restart always"][settings.autoRestart];
+	settings.autoRestart = (settings.autoRestart + 1) % 4;
+	document.querySelector("#auto-restart-toggle").innerHTML = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"][settings.autoRestart];
 }
 
 /******************************************** Game loop ********************************************/
@@ -1292,7 +1293,7 @@ setInterval(() => {
 			resetLoop();
 		}
 	}
-	if (!settings.running || mana.current == 0 || (queues.some((q, i) => getNextAction(i)[0] === undefined) && !settings.autoRestart)){
+	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
 		timeBanked += time / 2;
 		redrawOptions();
 		return;
@@ -1386,7 +1387,7 @@ setTimeout(() => {
 	document.body.onkeydown = e => {
 		hideMessages();
 		if (e.key == "Backspace"){
-			e.preventDefault();
+			if (!document.querySelector("input:focus")) e.preventDefault();
 			addActionToQueue("B");
 			if (e.ctrlKey){
 				clearQueue();
