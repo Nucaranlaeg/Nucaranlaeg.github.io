@@ -150,6 +150,11 @@ function completeIronMine(x, y){
 	completeMove(x, y);
 }
 
+function completeCoalMine(x, y){
+	getStuff("Coal").update(1);
+	completeMove(x, y);
+}
+
 function completeCollectMana(x, y) {
 	getStat("Mana").base += 0.1;
 	getStat("Mana").current += 0.1;
@@ -247,8 +252,8 @@ function completeTeleport(){
 	for (let y = 0; y < map.length; y++){
 		for (let x = 0; x < map[y].length; x++){
 			if (map[y][x] == "T"){
-				clones[currentClone].x = x;
-				clones[currentClone].y = y;
+				clones[currentClone].x = x - xOffset;
+				clones[currentClone].y = y - yOffset;
 			}
 		}
 	}
@@ -259,9 +264,11 @@ let actions = [
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Gold", 1000, [["Mining", 1], ["Speed", 0.2]], completeGoldMine),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
+	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana),
 	new Action("Create Clone", 1000, [], completeCreateClone, startCreateClone),
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire([["Iron Ore", 1]])),
+	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),
 	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]])),
 	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, simpleRequire([["Iron Bridge", 1]])),
 	new Action("Create Bridge", 5000, [["Smithing", 1]], simpleConvert([["Iron Bar", 2]], [["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
@@ -286,6 +293,7 @@ class BaseCreature {
 
 let baseCreatures = [
 	new BaseCreature("Goblin", 5, 0, 10),
+	new BaseCreature("Goblin Chieftain", 7, 3, 20),
 ];
 
 class Creature {
@@ -352,6 +360,7 @@ let locationTypes = [
 	new LocationType("Mana Spring", "*", "Pure mana, flowing out of the rock.  Each time you absorb the mana, the cost to do so next time increases.", "Walk", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Clone Machine", "♥", "A strange machine labelled 'Clone Machine'.  What could it do?", "Walk", "Create Clone", storeCompletions, getNextCloneAmountCost),
 	new LocationType("Furnace", "╬", "A large box full of fire.", "Walk", "Make Iron Bars", null),
+	new LocationType("Steel Furnace", "▣", "A large box full of fire.  This one has a slot for coal and a slot for iron bars.", "Walk", "Make Steel Bars", null),
 	new LocationType("Vaporizer", "=", "A machine for extracting the magic right out of gold.", "Walk", "Turn Gold to Mana", null),
 	new LocationType("Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
 	new LocationType("Anvil - Bridge", "⎶", "An anvil on which you can make a bridge out of 2 iron.", "Walk", "Create Bridge", null),
@@ -360,6 +369,11 @@ let locationTypes = [
 	new LocationType("Anvil - Shield", "[", "An anvil on which you can make a shield out of 5 iron.", "Walk", "Create Shield", null),
 	new LocationType("Anvil - Armour", "]", "An anvil on which you can make a suit of armour out of 7 iron.", "Walk", "Create Armour", null),
 	new LocationType("Goblin", "g", "An ugly humanoid more likely to try and kill you than to let you by.\n{STATS}", "Attack Creature", null, null),
+	new LocationType("Goblin Chieftain", "c", "This one is uglier than the last two.  Probably meaner, too.\n{STATS}", "Attack Creature", null, null),
+	new LocationType("Coal", "○", "Bituminous coal is present in these rocks.", "Mine Coal", null, null),
+	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
+	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
+	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to place.", "Walk", null, null),
 ];
 
 /******************************************* Locations *******************************************/
@@ -488,33 +502,34 @@ function viewCell(e){
 
 /********************************************** Map **********************************************/
 
-let map = ['██████████████████████████████████████████',
-           '█+██¤#%█¤█████████###██)#+████+#%#████████',
-           '█#█+#####███%%%¤██#█#██####█%██%█%#███████',
-           '█#█ +%#█# #######█#█#██¤█+###█# #+████████',
-           '█#█%██#████#██#+#█#█#%███#█###%██%████████',
-           '█%█#█%#█+###█¤#█###█#█████##%█%+██████████',
-           '█##%█+[██#████ █████#█###█%#██████████████',
-           '█%██████████♥###+### ##█#██#¤█████████████',
-           '█#+█%# #+███##█##+█████##██ ██████████████',
-           '████%█+███¤██#+##█████##██##██████████████',
-           '██████#█.##█¤#####%%# ##+####█████████████',
-           '██████#██######█╬⎶████#¤███##█████████████',
-           '██████##██#¤████████###%█%█%#+████████████',
-           '███████##█#█¤#██#¤█+#%#██#████████████████',
-           '████████#█###%=█#███%#####¤███████████████',
-           '███████#%███████##███g████████████████████',
-           '████████##+###g##██¤##]███+%██████████████',
-           '████████████████%+██%###█¤#███████████████',
-           '████████████████#####█####%%██████████████',
-           '█████████████████+#███"███████████████████',
-           '██████████████████████████████████████████',
-           '██████████████████████████████████████████',
+let map = ['███████████████████████████████████████████',
+           '███████████████▣███████████████████████████',
+           '██+██¤#%█¤█████ ███###██)#+████+#%#████████',
+           '██#█+#####███%%%¤██#█#██####█%██%█%#███████',
+           '██#█ +%#█# #######█#█#██¤█+###█# #+████████',
+           '██#█%██#████#██#+#█#█#%███#█###%██%████████',
+           '██%█#█%#█+###█¤#█###█#█████##%█%+██████████',
+           '██##%█+[██#████ █████#█###█%#██████████████',
+           '██%██████████♥###+### ##█#██#¤█████████████',
+           '██#+█%# #+███##█##+█████##██ ██████████████',
+           '█████%█+███¤██#+##█████##██##██████████████',
+           '███%█#█#█.##█¤#####%%# ##+####█████████████',
+           '███###█#██######█╬⎶████#¤███##█████████████',
+           '██████###██#¤████████###%█%█%#+████████████',
+           '████%##█##█#█¤#██#¤█+#%#██#████████████████',
+           '██##%##██#█###%=█#███%#####¤███████████████',
+           '██##c%#█#%███████##███g████████████████████',
+           '████#█#██##+###g##██¤##]███+%██████████████',
+           '███○#████████████%+██%###█¤#███████████████',
+           '███○##%#○%#██████#####█####%%██████████████',
+           '█████○#█#+%%██████+#███"███████████████████',
+           '██████+#○██████████████████████████████████',
+           '███████████████████████████████████████████',
 ]
 
 let originalMap = map.slice();
 
-let xOffset = 8, yOffset = 10;
+let xOffset = 9, yOffset = 11;
 
 let mapLocations = [];
 
@@ -528,6 +543,7 @@ let classMapping = {
 	"+": ["gold", "Gold Ore"],
 	"%": ["iron", "Iron Ore"],
 	"╬": ["furnace", "Furnace"],
+	"▣": ["furnace", "Steel Furnace"],
 	"=": ["vaporizer", "Vaporizer"],
 	"⎶": ["bridge", "Anvil - Bridge"], //⎶
 	" ": ["pit", "Bottomless Pit"],
@@ -539,6 +555,8 @@ let classMapping = {
 	"W": ["rune-weak", "Weaken Rune"],
 	"T": ["rune-to", "Teleport To Rune"],
 	"F": ["rune-from", "Teleport From Rune"],
+	"○": ["coal", "Coal"],
+	"c": ["chieftain", "Goblin Chieftain"],
 };
 
 while (mapLocations.length < map.length){
@@ -641,6 +659,7 @@ function setMined(x, y, icon){
 		"%": ".",
 		" ": ".",
 		"g": ".",
+		"○": ".",
 	}[map[y][x]] || map[y][x];
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
 }
@@ -830,6 +849,11 @@ function deleteSavedQueue(el){
 		return;
 	}
 	savedQueues.splice(queue, 1);
+	for (let i = 0; i < queues.length; i++){
+		for (let j = 0; j < queues[i].length; j++){
+			if (queues[i][j][0] > queue) queues[i][j][0]--;
+		}
+	}
 	drawSavedQueues();
 }
 
@@ -1050,6 +1074,8 @@ let stuff = [
 	new Stuff("Iron Sword", ")", "An iron sword.  Sharp! (+1 attack)", "#777777", 0, calcCombatStats),
 	new Stuff("Iron Shield", "[", "An iron shield.  This should help you not die. (+1 defense)", "#777777", 0, calcCombatStats),
 	new Stuff("Iron Armour", "]", "An suit of iron armour.  This should help you take more hits. (+3 health)", "#777777", 0, calcCombatStats),
+	new Stuff("Steel Bar", "❚", "A steel rod.", "#333333", 0),
+	new Stuff("Coal", "○", "A chunk of coal.  Burns hot.", "#222222", 0),
 ];
 
 /********************************************* Runes ***********************************************/
@@ -1087,7 +1113,7 @@ class Rune {
 
 	create(x, y){
 		if (map[y + yOffset][x + xOffset] != ".") return true;
-		if (this.isInscribable()){
+		if (this.isInscribable() > 0){
 			this.isInscribable(true);
 		} else {
 			return false;
@@ -1383,7 +1409,8 @@ let messages = [
 	            "If you haven't, it would be good to use the spacebar to extract mana from those rocks."),
 	new Message("Strip Mining", "It's getting harder to extract mana from that rock.  You'll have to go out and find another rock to extract mana from."),
 	new Message("First Clone", "You've created your first clone!  It can carry out actions in exactly the same way you can.\n" +
-	            "You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs."),
+	            "You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs." +
+	            "Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out."),
 	new Message("Goblin", "A strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought."),
 	new Message("Runic Lore", "You've mastered the basics of runic lore!  A new action is available to you: Inscribe Rune.\n" +
 	            "To use it, press the number corresponding to the desired rune in the runes section of the Stuff panel."),

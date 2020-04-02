@@ -389,15 +389,32 @@ td.rune-from:before {
 	font-size: 12px;
 }
 
+td.chieftain {
+	background-color: #cc0000;
+}
+
 td.goblin {
 	background-color: #ff0000;
 }
 
+td.chieftain:before,
 td.goblin:before {
 	content: "웃";
 	top: 0px;
 	left: 0px;
 	font-size: 11px;
+}
+
+td.coal {
+	background-color: #222222;
+}
+
+td.coal:before {
+	content: "○";
+	top: -1px;
+	left: 1px;
+	font-size: 14px;
+	color: #ffffff;
 }
 
 td::before {
