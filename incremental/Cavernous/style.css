@@ -37,6 +37,10 @@ body {
 	float: right;
 }
 
+.stat > .index {
+	float: right;
+}
+
 .option {
 	height: 20px;
 	width: 194px;
@@ -358,6 +362,33 @@ td.book:before {
 	font-size: 10px;
 }
 
+td.rune-weak,
+td.rune-to,
+td.rune-from {
+	background-color: #c99868;
+}
+
+td.rune-weak:before {
+	content: "W";
+	top: 0px;
+	left: 0px;
+	font-size: 12px;
+}
+
+td.rune-to:before {
+	content: "T";
+	top: 0px;
+	left: 2px;
+	font-size: 12px;
+}
+
+td.rune-from:before {
+	content: "F";
+	top: 0px;
+	left: 2px;
+	font-size: 12px;
+}
+
 td.goblin {
 	background-color: #ff0000;
 }
@@ -385,7 +416,7 @@ td:after {
 	background-color: #fef4c5;
 	border: 1px solid #d4b943;
 	border-radius: 2px;
-	z-index: 1;
+	z-index: 15;
 	pointer-events: none;
 	content: attr(data-content)
 }
@@ -446,6 +477,7 @@ td:hover:after {
 	top: 0;
 	bottom: 0;
 	right: 0;
+	pointer-events: none;
 }
 
 #saved-queues {
@@ -510,4 +542,12 @@ td:hover:after {
 @keyframes blink {
 	from {opacity: 0.75;}
 	to {opacity: 0.25;}
+}
+
+#runes {
+	display: none;
+}
+
+.not-available {
+	background-color: #ff000055;
 }

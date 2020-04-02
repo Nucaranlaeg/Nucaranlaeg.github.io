@@ -12,6 +12,12 @@
 			<span class="effect"></span>
 			<div class="description"></div>
 		</div>
+		<div id="rune-template" class="stat block">
+			<span class="name"></span>
+			<span class="icon"></span>
+			<span class="index"></span>
+			<div class="description"></div>
+		</div>
 		<div id="stuff-template" class="stuff block">
 			<div class="name"></div>
 			<span class="count"></span>
@@ -64,7 +70,7 @@
 				<div class="description">Pause the game to more easily adjust your queue.</div>
 			</div>
 			<div class="option block clickable" onclick="toggleAutoRestart()">
-				<span id="auto-restart-toggle">Wait when all complete</span> (<span id="auto-restart-key">W</span>)
+				<span id="auto-restart-toggle">Wait when any complete</span> (<span id="auto-restart-key">W</span>)
 				<div class="description">Restart to improve your skills when the queue is empty.</div>
 			</div>
 			<div class="option block clickable" onclick="resetLoop()">
@@ -102,7 +108,7 @@
 		</div>
 		<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
 			<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-			Version 0.0.8<br>
+			Version 0.0.9<br>
 			©2020 Nucaranlaeg
 		</div>
 	</div>
@@ -112,6 +118,10 @@
 	<div id="stuff" class="vertical-block">
 		<h3>Stuff</h3>
 		<div id="stuff-inner"></div>
+		<div id="runes">
+			<hr>
+			<h3>Runes</h3>
+		</div>
 	</div>
 	<div id="map" class="vertical-block wide" onclick="viewCell(event)">
 		<h3>Map</h3>

@@ -33,6 +33,9 @@ class Stat {
 	update() {
 		this.updateValue();
 		if (this.current === 0 && this.name !== "Mana") return;
+		if (this.name == "Runic Lore"){
+			updateRunes(this.current);
+		}
 		if (!this.node){
 			this.createNode();
 		}
@@ -54,18 +57,20 @@ class Stat {
 		this.node.querySelector(".icon").innerHTML = this.icon;
 		this.node.querySelector(".description").innerHTML = this.description;
 		document.querySelector("#stats").appendChild(this.node);
+		if (this.name == "Runic Lore"){
+			document.querySelector("#runes").style.display = "block";
+		}
 	}
 
 	reset() {
-		if (this.learnable){
-			this.base = this.getNextLoopValue();
-		}
+		this.base = this.getNextLoopValue();
 		this.current = this.base;
 		this.bonus = 0;
 		this.update();
 	}
 
 	getNextLoopValue() {
+		if (!this.learnable) return this.base;
 		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / 100
 		return this.base + (increase > 0 ? increase : 0);
 	}
@@ -189,9 +194,14 @@ function simpleConvert(source, target){
 }
 
 function simpleRequire(requirement, count){
-	function haveEnough(){
-		let stuff = getStuff(requirement);
-		return stuff.count >= count ? 1 : -1;
+	function haveEnough(spend){
+		for (let i = 0; i < requirement.length; i++){
+			let stuff = getStuff(requirement[i][0]);
+			if (stuff.count < requirement[i][1]) return -1;
+			// In other functions it's (x, y, creature), so just check that it's exactly true
+			if (spend === true) stuff.update(-requirement[i][1]);
+		}
+		return 1;
 	}
 	return haveEnough;
 }
@@ -229,14 +239,14 @@ let actions = [
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana),
 	new Action("Create Clone", 1000, [], completeCreateClone, startCreateClone),
-	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire("Iron Ore", 1)),
-	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire("Gold Nugget", 1)),
-	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, simpleRequire("Iron Bridge", 1)),
-	new Action("Create Bridge", 5000, [["Smithing", 1]], simpleConvert([["Iron Bar", 2]], [["Iron Bridge", 1]]), simpleRequire("Iron Bar", 2)),
-	new Action("Read", 10000, [["Runic Lore", 4]], null),
-	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), simpleRequire("Iron Bar", 3)),
-	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), simpleRequire("Iron Bar", 5)),
-	new Action("Create Armour", 17500, [["Smithing", 1]], simpleConvert([["Iron Bar", 7]], [["Iron Armour", 1]]), simpleRequire("Iron Bar", 7)),
+	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire([["Iron Ore", 1]])),
+	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]])),
+	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, simpleRequire([["Iron Bridge", 1]])),
+	new Action("Create Bridge", 5000, [["Smithing", 1]], simpleConvert([["Iron Bar", 2]], [["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
+	new Action("Read", 10000, [["Runic Lore", 2]], null),
+	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), simpleRequire([["Iron Bar", 3]])),
+	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), simpleRequire([["Iron Bar", 5]])),
+	new Action("Create Armour", 17500, [["Smithing", 1]], simpleConvert([["Iron Bar", 7]], [["Iron Armour", 1]]), simpleRequire([["Iron Bar", 7]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 ];
 
@@ -306,7 +316,7 @@ function getNextCloneAmountCost(completions, priorCompletions){
 }
 
 function startCollectManaCost(completions, priorCompletions){
-	return `${writeNumber(this.presentAction.getDuration(startCollectMana(completions, priorCompletions)) / 1000, 2)}s`
+	return `${writeNumber(this.presentAction.getDuration(startCollectMana(completions, priorCompletions)) / 1000, 2)}s`;
 }
 
 let locationTypes = [
@@ -322,7 +332,7 @@ let locationTypes = [
 	new LocationType("Vaporizer", "=", "A machine for extracting the magic right out of gold.", "Walk", "Turn Gold to Mana", null),
 	new LocationType("Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
 	new LocationType("Anvil - Bridge", "⎶", "An anvil on which you can make a bridge out of 2 iron.", "Walk", "Create Bridge", null),
-	new LocationType("Runic Book", '"', "A large book sitting open on a pedestal.  <b>The information in the book is not yet useful</b>", "Walk", "Read", null),
+	new LocationType("Runic Book", '"', "A large book sitting open on a pedestal.", "Walk", "Read", null),
 	new LocationType("Anvil - Sword", ")", "An anvil on which you can make a sword out of 3 iron.", "Walk", "Create Sword", null),
 	new LocationType("Anvil - Shield", "[", "An anvil on which you can make a shield out of 5 iron.", "Walk", "Create Shield", null),
 	new LocationType("Anvil - Armour", "]", "An anvil on which you can make a suit of armour out of 7 iron.", "Walk", "Create Armour", null),
@@ -399,9 +409,9 @@ class Location {
 		return [time - usedTime, percent];
 	}
 
-	setTemporaryPresent(action){
+	setTemporaryPresent(rune){
 		if (this.type.presentAction) return false;
-		this.temporaryPresent = getAction(action);
+		this.temporaryPresent = getAction(rune.activateAction);
 		return true;
 	}
 
@@ -454,7 +464,7 @@ let map = ['██████████████████████�
            '█##%█+[██#████ █████#█###█%#██████████████',
            '█%██████████♥###+### ##█#██#¤█████████████',
            '█#+█%# #+███##█##+█████##██ ██████████████',
-           '██████+███¤██#+##█████##██##██████████████',
+           '████%█+███¤██#+##█████##██##██████████████',
            '██████#█.##█¤#####%%# ##+####█████████████',
            '██████#██######█╬⎶████#¤███##█████████████',
            '██████##██#¤████████###%█%█%#+████████████',
@@ -493,6 +503,9 @@ let classMapping = {
 	"[": ["shield", "Anvil - Shield"],
 	"]": ["armour", "Anvil - Armour"],
 	"g": ["goblin", "Goblin"],
+	"W": ["rune-weak", "Weaken Rune"],
+	"T": ["rune-to", "Teleport To Rune"],
+	"F": ["rune-from", "Teleport From Rune"],
 };
 
 while (mapLocations.length < map.length){
@@ -572,6 +585,9 @@ function drawMap() {
 			for (let i = 0; i < className.length; i++){
 				cell.classList.add(className[i]);
 			}
+			if (descriptor == "Mana Spring" || descriptor == "Mana-infused Rock"){
+				descriptor += " " + mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions);
+			}
 			cell.setAttribute("data-content", descriptor);
 		});
 	});
@@ -621,7 +637,7 @@ function addActionToQueue(action, queue = null){
 			queues[queue].pop();
 			queueNode.removeChild(queueNode.lastChild);
 			scrollQueue(queue);
-		} else if ("UDLRI".includes(action)) {
+		} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 			queues[queue].push([action, true]);
 			queueNode.append(createActionNode(action));
 		}
@@ -630,7 +646,7 @@ function addActionToQueue(action, queue = null){
 			if (queues[queue].length == 0 || cursor[1] == -1) return;
 			queues[queue].splice(cursor[1], 1);
 			cursor[1]--;
-		} else if ("UDLRI".includes(action)) {
+		} else if ("UDLRI".includes(action) || action[0] == "N" && !isNaN(+action[1])) {
 			queues[queue].splice(cursor[1] + 1, 0, [action, queues[queue][cursor[1]][1]]);
 			cursor[1]++;
 		} else {
@@ -664,13 +680,17 @@ function createActionNode(action){
 	if (!isNaN(+action)) return createQueueActionNode(action);
 	let actionNode = document.querySelector("#action-template").cloneNode(true);
 	actionNode.removeAttribute("id");
-	actionNode.querySelector(".character").innerHTML = {
+	let character = {
 		"L": settings.useAlternateArrows ? "←" : "🡄",
 		"R": settings.useAlternateArrows ? "→" : "🡆",
 		"U": settings.useAlternateArrows ? "↑" : "🡅",
 		"D": settings.useAlternateArrows ? "↓" : "🡇",
 		"I": settings.useAlternateArrows ? "○" : "🞇",
 	}[action];
+	if (!character){
+		character = runes[action[1]].icon;
+	}
+	actionNode.querySelector(".character").innerHTML = character;
 	return actionNode;
 }
 
@@ -701,7 +721,7 @@ function selectQueueAction(queue, action, percent){
 	}
 	node.querySelector(".progress").style.width = percent + "%";
 	if (nodes.length * 16 > this.width - 50){
-		queueNode.style.marginLeft = Math.min((this.width - 60 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
+		queueNode.style.marginLeft = Math.min((this.width - 120 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
 	} else {
 		queueNode.style.marginLeft = 0;
 	}
@@ -999,6 +1019,89 @@ let stuff = [
 	new Stuff("Iron Armour", "]", "An suit of iron armour.  This should help you take more hits. (+3 health)", "#777777", 0, calcCombatStats),
 ];
 
+/********************************************* Runes ***********************************************/
+
+class Rune {
+	constructor(name, icon, skill, isInscribable, manaCost, description, createEvent, activateAction){
+		this.name = name;
+		this.icon = icon;
+		this.skill = skill;
+		this.isInscribable = isInscribable;
+		this.manaCost = manaCost;
+		this.description = description;
+		this.createEvent = createEvent;
+		this.activateAction = activateAction;
+	}
+
+	createNode(index) {
+		if (this.node){
+			this.node.classList.remove("not-available");
+			return;
+		}
+		let runeTemplate = document.querySelector("#rune-template");
+		this.node = runeTemplate.cloneNode(true);
+		this.node.id = "rune_" + this.name;
+		this.node.querySelector(".index").innerHTML = (index + 1) % 10;
+		this.node.querySelector(".name").innerHTML = this.name;
+		this.node.querySelector(".icon").innerHTML = this.icon;
+		this.node.querySelector(".description").innerHTML = this.description;
+		document.querySelector("#runes").appendChild(this.node);
+	}
+
+	notAvailable() {
+		if (this.node) this.node.classList.add("not-available");
+	}
+
+	create(x, y){
+		if (map[y + yOffset][x + xOffset] != ".") return true;
+		if (this.isInscribable()){
+			this.isInscribable(true);
+		} else {
+			return false;
+		}
+		let location = getMapLocation(x, y);
+		location.setTemporaryPresent(this);
+		setMined(x, y, this.icon);
+		if (this.createEvent) this.createEvent(x, y);
+		drawMap();
+		return true;
+	}
+}
+
+function updateRunes(current){
+	if (current > 5){
+		getMessage("Runic Lore").display();
+	}
+	for (let i = 0; i < runes.length; i++){
+		if (runes[i].skill < current){
+			runes[i].createNode(i);
+		} else {
+			runes[i].notAvailable();
+		}
+	}
+}
+
+function weakenCreatures(x, y){
+	let locations = [
+		getMapLocation(x-1, y, true),
+		getMapLocation(x+1, y, true),
+		getMapLocation(x, y-1, true),
+		getMapLocation(x, y+1, true),
+	];
+	for (let i = 0; i < locations.length; i++){
+		if (locations[i].creature){
+			locations[i].creature.attack = Math.max(locations[i].creature.attack - 1, 0);
+			locations[i].creature.defense = Math.max(locations[i].creature.defense - 1, 0);
+		}
+	}
+}
+
+let runes = [
+	new Rune("Weaken", "W", 5, simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, "This rune weakens any orthogonally adjacent enemies, decreasing their attack and defense by 1.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget<br>Runic Lore 5", weakenCreatures),
+	new Rune("Teleport To", "T", 10, simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, "This rune allows someone or something to come through from another place.  If there are multiple, the top-most one will be selected.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget<br>Runic Lore 10"),
+	new Rune("Teleport From", "F", 15, simpleRequire([["Iron Ore", 2], ["Gold Nugget", 1]]), 1000, "This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>2 Iron Ore<br>1 Gold Nugget<br>Runic Lore 15", null, "Teleport"),
+];
+
 /********************************************* Clones **********************************************/
 
 class Clone {
@@ -1244,6 +1347,8 @@ let messages = [
 	new Message("First Clone", "You've created your first clone!  It can carry out actions in exactly the same way you can.\n" +
 	            "You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs."),
 	new Message("Goblin", "A strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought."),
+	new Message("Runic Lore", "You've mastered the basics of runic lore!  A new action is available to you: Inscribe Rune.\n" +
+	            "To use it, press the number corresponding to the desired rune in the runes section of the Stuff panel."),
 ];
 
 /********************************************* Saving *********************************************/
@@ -1344,6 +1449,11 @@ function load(){
 
 	selectClone(0);
 	redrawQueues();
+
+	// Fix attack and defense
+	getStat("Attack").base = 0;
+	getStat("Defense").base = 0;
+
 	resetLoop();
 }
 
@@ -1459,6 +1569,14 @@ function performAction(time) {
 			"U": -1,
 			"D": 1
 		}[nextAction[0]] || 0;
+		if (nextAction[0][0] == "N"){
+			if (runes[nextAction[0][1]].create(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset)){
+				completeNextAction();
+				continue;
+			} else {
+				return 0;
+			}
+		}
 		let location = getMapLocation(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset);
 		if (!xOffset && !yOffset && clones[currentClone].currentProgress && (clones[currentClone].currentProgress < location.remainingPresent || location.remainingPresent == 0)){
 			completeNextAction();
@@ -1566,6 +1684,19 @@ let keyFunctions = {
 		if (settings.useWASD){
 			toggleAutoRestart();
 		}
+	},
+	"End": () => {
+		cursor[1] = null;
+		showCursor();
+	},
+	"1": () => {
+		addActionToQueue("N0");
+	},
+	"2": () => {
+		addActionToQueue("N1");
+	},
+	"3": () => {
+		addActionToQueue("N2");
 	},
 };
 
