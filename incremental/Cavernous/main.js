@@ -208,14 +208,14 @@ function simpleRequire(requirement, count){
 
 function completeGoldMana(){
 	let gold = getStuff("Gold Nugget");
-	if (gold.count < 1) return;
+	if (gold.count < 1) return true;
 	gold.update(-1);
 	getStat("Mana").current += 5;
 }
 
 function completeCrossPit(x, y){
 	let bridge = getStuff("Iron Bridge");
-	if (bridge.count < 1) return;
+	if (bridge.count < 1) return true;
 	bridge.update(-1);
 	completeMove(x, y);
 }
@@ -230,6 +230,28 @@ function completeFight(x, y, creature){
 	}
 	if (!creature.health) return completeMove(x, y);
 	return true;
+}
+
+function startTeleport(){
+	for (let y = 0; y < map.length; y++){
+		for (let x = 0; x < map[y].length; x++){
+			if (map[y][x] == "T"){
+				return 1;
+			}
+		}
+	}
+	return -1;
+}
+
+function completeTeleport(){
+	for (let y = 0; y < map.length; y++){
+		for (let x = 0; x < map[y].length; x++){
+			if (map[y][x] == "T"){
+				clones[currentClone].x = x;
+				clones[currentClone].y = y;
+			}
+		}
+	}
 }
 
 let actions = [
@@ -248,6 +270,7 @@ let actions = [
 	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), simpleRequire([["Iron Bar", 5]])),
 	new Action("Create Armour", 17500, [["Smithing", 1]], simpleConvert([["Iron Bar", 7]], [["Iron Armour", 1]]), simpleRequire([["Iron Bar", 7]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
+	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
 ];
 
 /****************************************** Creatures ********************************************/
@@ -387,8 +410,13 @@ class Location {
 			(this.type.presentAction || this.temporaryPresent).tick(usedTime);
 			this.remainingPresent -= usedTime;
 			if (this.remainingPresent == 0){
-				(this.type.presentAction || this.temporaryPresent).complete(this.x, this.y);
-				this.completions++;
+				if ((this.type.presentAction || this.temporaryPresent).complete(this.x, this.y)){
+					// Something got taken away in the middle of completing this.
+					this.remainingPresent = 1;
+					this.usedTime = time;
+				} else {
+					this.completions++;
+				}
 			}
 			percent = this.remainingPresent / (this.presentDuration || 1);
 		} else {
@@ -398,8 +426,13 @@ class Location {
 			if (this.remainingEnter == 0){
 				if (this.type.getEnterAction(this.entered).complete(this.x, this.y, this.creature)){
 					if (this.type == "Goblin") getMessage("Goblin").display();
-					// It was a fight, and it's not over.
-					this.remainingEnter = this.start();
+					// If it was a fight it's not over.
+					if (this.creature){
+						this.remainingEnter = this.start();
+					} else {
+						this.remainingEnter = 1;
+						this.usedTime = time;
+					}
 				} else {
 					this.entered++;
 				}
@@ -1096,10 +1129,15 @@ function weakenCreatures(x, y){
 	}
 }
 
+function canPlaceTeleport(){
+	if (startTeleport() > 0) return false;
+	return simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]])();
+}
+
 let runes = [
 	new Rune("Weaken", "W", 5, simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, "This rune weakens any orthogonally adjacent enemies, decreasing their attack and defense by 1.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget<br>Runic Lore 5", weakenCreatures),
-	new Rune("Teleport To", "T", 10, simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, "This rune allows someone or something to come through from another place.  If there are multiple, the top-most one will be selected.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget<br>Runic Lore 10"),
-	new Rune("Teleport From", "F", 15, simpleRequire([["Iron Ore", 2], ["Gold Nugget", 1]]), 1000, "This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>2 Iron Ore<br>1 Gold Nugget<br>Runic Lore 15", null, "Teleport"),
+	new Rune("Teleport To", "T", 10, canPlaceTeleport, 0, "This rune allows someone or something to come through from another place.  Only one can be placed.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget<br>Runic Lore 10"),
+	new Rune("Teleport From", "F", 15, simpleRequire([["Iron Ore", 2]]), 1000, "This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>2 Iron Ore<br>Runic Lore 15", null, "Teleport"),
 ];
 
 /********************************************* Clones **********************************************/
