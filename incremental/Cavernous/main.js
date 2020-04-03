@@ -368,7 +368,7 @@ let locationTypes = [
 	new LocationType("Runic Book", '"', "A large book sitting open on a pedestal.", "Walk", "Read", null),
 	new LocationType("Anvil - Sword", ")", "An anvil on which you can make a sword out of 3 iron.", "Walk", "Create Sword", null),
 	new LocationType("Anvil - Shield", "[", "An anvil on which you can make a shield out of 5 iron.", "Walk", "Create Shield", null),
-	new LocationType("Anvil - Armour", "]", "An anvil on which you can make a suit of armour out of 7 iron.", "Walk", "Create Armour", null),
+	new LocationType("Anvil - Armour", "]", "An anvil on which you can make a suit of armour out of 4 iron.", "Walk", "Create Armour", null),
 	new LocationType("Goblin", "g", "An ugly humanoid more likely to try and kill you than to let you by.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Goblin Chieftain", "c", "This one is uglier than the last two.  Probably meaner, too.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Coal", "○", "Bituminous coal is present in these rocks.", "Mine Coal", null, null),
