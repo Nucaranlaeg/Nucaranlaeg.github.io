@@ -91,9 +91,9 @@ let stats = [
 	new Stat("Smithing", "🛠", "Your skill at turning raw ores into usable objects."),
 	new Stat("Runic Lore", "🕮", "A measure of your understanding of magical runes."),
 	new Stat("Combat", "", "Your ability to kill things.", 0),
-	new Stat("Attack", "", "How much damage your wild flailing does.", 0, false),
-	new Stat("Defense", "", "How well you avoid taking damage.", 0, false),
-	new Stat("Health", "", "How many hits you can take until you're nothing more than meat.", 10, false),
+	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all clones' stats)", 0, false),
+	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),
+	new Stat("Health", "", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false),
 ]
 
 /******************************************** Actions ********************************************/
@@ -1114,7 +1114,7 @@ let stuff = [
 	new Stuff("Iron Ore", "•", "A chunck of iron ore.  Not useful in its current form.", "#777777", 0),
 	new Stuff("Iron Bar", "❚", "An iron rod.  Has a faint smell of bacon.", "#777777", 0),
 	new Stuff("Iron Bridge", "⎶", "A small iron bridge.", "#777777", 0),
-	new Stuff("Iron Sword", ")", "An iron sword.  Sharp! (+1 attack)  Max 1 weapon per clone, but.", "#777777", 0, calcCombatStats),
+	new Stuff("Iron Sword", ")", "An iron sword.  Sharp! (+1 attack)  Max 1 weapon per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Iron Shield", "[", "An iron shield.  This should help you not die. (+1 defense)  Max 1 shield per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Iron Armour", "]", "An suit of iron armour.  This should help you take more hits. (+5 health)  Max 1 armour per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Steel Bar", "❚", "A steel rod.", "#333333", 0),
