@@ -774,7 +774,7 @@ function selectQueueAction(queue, action, percent){
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
 	node.querySelector(".progress").style.width = percent + "%";
-	queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
+	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
 function scrollQueue(queue, action = null){
