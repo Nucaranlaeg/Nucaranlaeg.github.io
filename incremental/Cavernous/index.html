@@ -40,20 +40,31 @@
 		</table>
 		<div id="queue-template" class="bottom-block" onclick="selectClone(this, event)" ondrop="savedQueueDrop(event, this)" ondragover="queueDragOver(event)">
 			<div class="queue-inner" onclick="maybeClearCursor(event, this)"></div>
-			<div class="save-queue"><button onclick="saveQueue(this)">Save</button></div>
-			<div class="clear-queue"><button onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</button></div>
 			<div class="queue-time">
 				Time spent: <span class="time">0</span>s
+			</div>
+			<div class="queue-buttons">
+				<button onclick="saveQueue(this)">Save</button>
+				<button onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</button>
 			</div>
 			<div class="damage"></div>
 			<div class="cursor"></div>
 		</div>
-		<div id="saved-queue-template" class="bottom-block saved-queue" tabindex="-1" onclick="selectSavedQueue(event, this)" draggable="true" ondragstart="startSavedQueueDrag(event, this)">
+		<div id="saved-queue-template"
+			 class="bottom-block saved-queue"
+			 tabindex="-1"
+			 draggable="true"
+			 onclick="selectSavedQueue(event, this)"
+			 ondragstart="startSavedQueueDrag(event, this)"
+			 ondrop="savedQueueMove(event, this)"
+			 ondragover="savedQueueDragOver(event, this)"
+			 ondragleave="savedQueueDragOut(this)"
+			 >
 			<input class="saved-name" onchange="setSavedQueueName(this)">
 			<select class="icon-select" onchange="setSavedQueueIcon(this)"></select>
 			<input type="color" class="colour-select" onchange="setSavedQueueColour(this)">
 			<div class="queue-inner"></div>
-			<div class="save-queue"><button onclick="deleteSavedQueue(this)">Delete</button></div>
+			<div class="queue-buttons"><button onclick="deleteSavedQueue(this)">Delete</button></div>
 		</div>
 		<div id="message-link-template" class="message-link" onclick="viewMessage(event, this)"></div>
 	</div>
@@ -105,10 +116,18 @@
 				<span class="name">Clear Save (double click)</span>
 				<div class="description">Are you sure you want to restart the game?</div>
 			</div>
+			<div class="option block clickable half-width" onclick="exportGame()">
+				<span class="name">Export</span>
+				<div class="description">This will put your save on your clipboard.</div>
+			</div>
+			<div class="option block clickable half-width" onclick="importGame()">
+				<span class="name">Import</span>
+				<div class="description">Paste your save in the box.</div>
+			</div>
 		</div>
 		<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
 			<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-			Version 0.0.11<br>
+			Version 0.0.12<br>
 			©2020 Nucaranlaeg
 		</div>
 	</div>

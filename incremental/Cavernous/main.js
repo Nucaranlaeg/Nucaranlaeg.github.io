@@ -30,9 +30,9 @@ class Stat {
 		this.update();
 	}
 
-	update() {
+	update(updateZero) {
 		this.updateValue();
-		if (this.current === 0 && this.name !== "Mana") return;
+		if ((this.current === 0 && !updateZero) && this.name !== "Mana") return;
 		if (this.name == "Runic Lore"){
 			updateRunes(this.current);
 		}
@@ -64,9 +64,10 @@ class Stat {
 
 	reset() {
 		this.base = this.getNextLoopValue();
+		let isDecreasing = this.current > 0;
 		this.current = this.base;
 		this.bonus = 0;
-		this.update();
+		this.update(isDecreasing);
 	}
 
 	getNextLoopValue() {
@@ -275,7 +276,7 @@ let actions = [
 	new Action("Read", 10000, [["Runic Lore", 2]], null),
 	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), simpleRequire([["Iron Bar", 3]])),
 	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), simpleRequire([["Iron Bar", 5]])),
-	new Action("Create Armour", 17500, [["Smithing", 1]], simpleConvert([["Iron Bar", 7]], [["Iron Armour", 1]]), simpleRequire([["Iron Bar", 7]])),
+	new Action("Create Armour", 10000, [["Smithing", 1]], simpleConvert([["Iron Bar", 4]], [["Iron Armour", 1]]), simpleRequire([["Iron Bar", 4]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
 ];
@@ -660,6 +661,7 @@ function setMined(x, y, icon){
 		" ": ".",
 		"g": ".",
 		"○": ".",
+		"c": ".",
 	}[map[y][x]] || map[y][x];
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
 }
@@ -688,11 +690,11 @@ function addActionToQueue(action, queue = null){
 			if (queues[queue].length == 0) return;
 			queues[queue].pop();
 			queueNode.removeChild(queueNode.lastChild);
-			scrollQueue(queue);
 		} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 			queues[queue].push([action, true]);
 			queueNode.append(createActionNode(action));
 		}
+		scrollQueue(queue, queues[queue].length);
 	} else {
 		if (action == "B") {
 			if (queues[queue].length == 0 || cursor[1] == -1) return;
@@ -706,7 +708,7 @@ function addActionToQueue(action, queue = null){
 			return;
 		}
 		redrawQueues();
-		scrollQueue(queue);
+		scrollQueue(queue, cursor[1]);
 		showCursor();
 	}
 }
@@ -772,11 +774,7 @@ function selectQueueAction(queue, action, percent){
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
 	node.querySelector(".progress").style.width = percent + "%";
-	if (nodes.length * 16 > this.width - 50){
-		queueNode.style.marginLeft = Math.min((this.width - 120 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
-	} else {
-		queueNode.style.marginLeft = 0;
-	}
+	queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
 function scrollQueue(queue, action = null){
@@ -784,12 +782,8 @@ function scrollQueue(queue, action = null){
 		action = queues[queue].findIndex(a => !a[1]);
 	}
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
-	let nodes = queueNode.querySelectorAll(`.action`);
-	if (nodes.length * 16 > queueNode.parentNode.clientWidth - 100){
-		queueNode.style.marginLeft = Math.min((queueNode.parentNode.clientWidth - 110 - (queue == 0 ? 120 : 0)) / (2 - (action / nodes.length)) - action * 16, 0) + "px";
-	} else {
-		queueNode.style.marginLeft = 0;
-	}
+	this.width = this.width || queueNode.parentNode.clientWidth;
+	queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
 function redrawQueues(){
@@ -811,7 +805,7 @@ function redrawQueues(){
 
 function setCursor(event, el){
 	let nodes = Array.from(el.parentNode.children);
-	cursor[1] = nodes.findIndex(e => e == el) - (event.layerX < 8);
+	cursor[1] = nodes.findIndex(e => e == el) - (event.offsetX < 8);
 	if (nodes.length - 1 == cursor[1]) cursor[1] = null;
 	cursor[0] = el.parentNode.parentNode.id.replace("queue", "");
 	showCursor();
@@ -851,7 +845,7 @@ function deleteSavedQueue(el){
 	savedQueues.splice(queue, 1);
 	for (let i = 0; i < queues.length; i++){
 		for (let j = 0; j < queues[i].length; j++){
-			if (queues[i][j][0] > queue) queues[i][j][0]--;
+			if (!isNaN(+queues[i][j][0]) && queues[i][j][0] > queue) queues[i][j][0]--;
 		}
 	}
 	drawSavedQueues();
@@ -905,12 +899,37 @@ function addActionToSavedQueue(action){
 function startSavedQueueDrag(event, el){
 	event.dataTransfer.setDragImage(el.querySelector(".icon-select"), 0, 0);
 	event.dataTransfer.setData("text/plain", el.id.replace("saved-queue", ""));
-	event.dataTransfer.effectAllowed = "copy";
+	event.dataTransfer.effectAllowed = "copymove";
 }
 
 function queueDragOver(event){
 	event.preventDefault();
 	event.dataTransfer.dropEffect = "copy";
+}
+
+function savedQueueDragOver(event, el){
+	event.preventDefault();
+	if (el.id.replace("saved-queue", "") == event.dataTransfer.getData("text/plain")){
+		event.dataTransfer.dropEffect = "none";
+		return;
+	}
+	if (isDropTopHalf(event)){
+		el.closest(".bottom-block").style.borderTop = "2px solid";
+		el.closest(".bottom-block").style.borderBottom = "";
+	} else {
+		el.closest(".bottom-block").style.borderTop = "";
+		el.closest(".bottom-block").style.borderBottom = "2px solid";
+	}
+	event.dataTransfer.dropEffect = "move";
+}
+
+function savedQueueDragOut(el){
+	el.closest(".bottom-block").style.borderTop = "";
+	el.closest(".bottom-block").style.borderBottom = "";
+}
+
+function isDropTopHalf(event){
+	return event.offsetY < 14;
 }
 
 function savedQueueDrop(event, el){
@@ -919,6 +938,30 @@ function savedQueueDrop(event, el){
 	queues[target].push([source, true, savedQueues[source]]);
 	let queueNode = el.querySelector(".queue-inner");
 	queueNode.append(createQueueActionNode(source));
+}
+
+function savedQueueMove(event, el){
+	savedQueueDragOut(el);
+	let source = event.dataTransfer.getData("text/plain");
+	let target = +el.id.replace("saved-queue", "") + (isDropTopHalf(event) ? -1 : 0);
+	if (source > target) target++;
+	for (let i = 0; i < queues.length; i++){
+		for (let j = 0; j < queues[i].length; j++){
+			let value = +queues[i][j][0];
+			if (!isNaN(value)){
+				if (value > source && value <= target){
+					queues[i][j][0]--;
+				} else if (value < source && value >= target){
+					queues[i][j][0]++;
+				} else if (value == source){
+					queues[i][j][0] = target;
+				}
+			}
+		}
+	}
+	let oldQueue = savedQueues.splice(source, 1)[0];
+	savedQueues.splice(target, 0, oldQueue);
+	drawSavedQueues();
 }
 
 function drawSavedQueues(){
@@ -1060,7 +1103,7 @@ class Stuff {
 function calcCombatStats() {
 	let attack = Math.min(getStuff("Iron Sword").count, clones.length);
 	let defense = Math.min(getStuff("Iron Shield").count, clones.length);
-	let health = Math.min(getStuff("Iron Armour").count, clones.length);
+	let health = Math.min(getStuff("Iron Armour").count, clones.length) * 5;
 	getStat("Attack").setStat(attack);
 	getStat("Defense").setStat(defense);
 	getStat("Health").setStat(health);
@@ -1069,11 +1112,11 @@ function calcCombatStats() {
 let stuff = [
 	new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
 	new Stuff("Iron Ore", "•", "A chunck of iron ore.  Not useful in its current form.", "#777777", 0),
-	new Stuff("Iron Bar", "❚", "An iron rod.", "#777777", 0),
+	new Stuff("Iron Bar", "❚", "An iron rod.  Has a faint smell of bacon.", "#777777", 0),
 	new Stuff("Iron Bridge", "⎶", "A small iron bridge.", "#777777", 0),
-	new Stuff("Iron Sword", ")", "An iron sword.  Sharp! (+1 attack)", "#777777", 0, calcCombatStats),
-	new Stuff("Iron Shield", "[", "An iron shield.  This should help you not die. (+1 defense)", "#777777", 0, calcCombatStats),
-	new Stuff("Iron Armour", "]", "An suit of iron armour.  This should help you take more hits. (+3 health)", "#777777", 0, calcCombatStats),
+	new Stuff("Iron Sword", ")", "An iron sword.  Sharp! (+1 attack)  Max 1 weapon per clone, but.", "#777777", 0, calcCombatStats),
+	new Stuff("Iron Shield", "[", "An iron shield.  This should help you not die. (+1 defense)  Max 1 shield per clone.", "#777777", 0, calcCombatStats),
+	new Stuff("Iron Armour", "]", "An suit of iron armour.  This should help you take more hits. (+5 health)  Max 1 armour per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Steel Bar", "❚", "A steel rod.", "#333333", 0),
 	new Stuff("Coal", "○", "A chunk of coal.  Burns hot.", "#222222", 0),
 ];
@@ -1533,6 +1576,24 @@ function ensureLegalQueues(){
 function deleteSave(){
 	if (localStorage["saveGame"]) localStorage["saveGameBackup"] = localStorage["saveGame"];
 	localStorage.removeItem("saveGame");
+	window.location.reload();
+}
+
+function exportGame(){
+	navigator.clipboard.writeText(localStorage["saveGame"]);
+}
+
+function importGame(){
+	let saveString = prompt("Input your save");
+	save();
+	let temp = localStorage["saveGame"];
+	localStorage["saveGame"] = saveString;
+	try {
+		load();
+	} catch {
+		localStorage["saveGame"] = temp;
+		load();
+	}
 	window.location.reload();
 }
 

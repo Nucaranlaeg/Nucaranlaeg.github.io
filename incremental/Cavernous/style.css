@@ -75,29 +75,37 @@ body {
 	display: inline-block;
 	vertical-align: top;
 	width: 100%;
-	height: 20px;
+	height: 28px;
 	border: 1px solid #00000077;
 	border-radius: 5px;
 	padding: 2px;
 	position: relative;
+	overflow-x: scroll;
+	scrollbar-width: thin;
+	scrollbar-color: #88aaaa #aacccc;
+	white-space: nowrap;
 }
 
 .queue-inner {
-	display: flex;
+	display: inline-flex;
 	flex-direction: row;
-	overflow-x: hidden;
+	min-width: calc(100% - 96px);
 }
 
 .queue-time {
 	display: none;
-	position: absolute;
-	top: 2px;
+	position: sticky;
+	margin-top: -3px;
 	right: 100px;
 	background-color: #aaccccd0;
 }
 
 #queue0 .queue-time {
-	display: block;
+	display: inline-block;
+}
+
+#queue0 .queue-inner {
+	min-width: calc(100% - 194px);
 }
 
 .queue {
@@ -197,6 +205,10 @@ body {
 
 .clickable {
 	cursor: pointer;
+}
+
+.half-width {
+	width: 46%;
 }
 
 #add-count {
@@ -470,31 +482,27 @@ td:hover:after {
 	cursor: pointer;
 }
 
-.save-queue {
-	position: absolute;
-	top: 4px;
-	right: 4px;
+.queue-buttons {
+	position: sticky;
+	display: inline-block;
+	right: 2px;
+	z-index: 15;
 }
 
-.clear-queue {
-	position: absolute;
-	top: 4px;
-	right: 50px;
-}
-
-.save-queue button,
-.clear-queue button {
+.queue-buttons button {
 	border-radius: 5px;
 	border: none;
+	margin-top: -3px;
 }
 
 .damage {
 	background-color: #ff000055;
-	position: absolute;
-	top: 0;
-	bottom: 0;
+	position: fixed;
 	right: 0;
 	pointer-events: none;
+	height: 34px;
+	margin-top: -23px;
+	margin-right: 13px;
 }
 
 #saved-queues {
@@ -507,8 +515,7 @@ td:hover:after {
 }
 
 .saved-queue .queue-inner {
-	width: calc(100% - 160px);
-	display: inline-flex;
+	min-width: calc(100% - 208px);
 }
 
 .saved-name {
@@ -557,8 +564,8 @@ td:hover:after {
 }
 
 @keyframes blink {
-	from {opacity: 0.75;}
-	to {opacity: 0.25;}
+	from {opacity: 1;}
+	to {opacity: 0.5;}
 }
 
 #runes {
