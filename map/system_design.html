@@ -34,7 +34,19 @@
         <hr>
         <h4>Stacking Advantage</h4>
         <p>
-            Advantage now stacks!
+            Advantage now stacks!  To determine your total Advantage, add the number of sources
+            of Advantage you have and subtract the sources of Disadvantage.  If the total is +2
+            or more, add the total to your roll.  If the total is -2 or less, subtract the total
+            from your roll.
+        </p>
+        <h4>Feat - Overwhelming Advantage</h4>
+        <p>
+            If you have at least one source of Advantage on a roll and more Disadvantages than
+            Advantages, subtract 2 from the number of Disadvantages you are suffering.  This
+            cannot cause you to gain Advantage.  If a creature is making any roll, you have
+            imposed Disadvantage on that roll, and that creature has more Advantages than
+            Disadvantages, subtract 2 from the number of Advantages they have.  This cannot
+            cause them to suffer Disadvantage.
         </p>
     </div>
 </body>
@@ -59,10 +71,14 @@
 
     .section {
         background-color: #c99868;
-        width: 500px;
         overflow: hidden;
         padding: 10px;
         margin-bottom: 10px;
         display: inline-block;
+    }
+
+    body {
+        column-count: 3;
+        column-gap: 10px;
     }
 </style>
