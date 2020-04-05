@@ -43,10 +43,12 @@ path:hover:not(.selected) {
 	opacity: 0;
 	pointer-events: none;
 	transition: all 1s;
+	display: none;
 }
 
 .location-wrapper.visible {
 	opacity: 1;
+	display: block;
 }
 
 .location-wrapper.visible path {

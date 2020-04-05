@@ -99,14 +99,7 @@ class Description{
 		while (link_body = desc.match(/\\(\w+)\{(.+)\}/)){
 			desc = desc.replace(link_body[0], `<a class="link" onclick="selectByName('${link_body[1]}', '${link_body[2]}')">${link_body[2]}</a>`)
 		}
-		return "&nbsp;&nbsp;" + desc.replace("\n", "<br>&nbsp;&nbsp;");
-	}
-}
-
-class HouseRule{
-	constructor(name, description){
-		this.name = name;
-		this.description = description;
+		return "&nbsp;&nbsp;" + desc.replace(/\n/g, "<br>&nbsp;&nbsp;");
 	}
 }
 
@@ -172,6 +165,12 @@ allpeople = [
 	new Person("Chadwick Carpenter", "Chancellor", Permission.PLAYER,
 		new Description([["Chadwick is the only man to have claimed a new chancery in living memory.  Now over 80 years old, few remember the true story of how he accomplished such a feat, but only repeat the story his government proclaims.  He is ailing and likely to be succeeded by one of his daughters in the next few years.", Permission.PLAYER]])
 	),
+	new Person("Astorn Trillth", "Chancellor", Permission.DM,
+		new Description([
+			["Astorn is the chancellor of the Storm.  She rules from a large carriage which is enchanted to move very fast, and moves to follow the eye of the storm.  It is difficult to enter or exit the chancellor's carriage, but it is possible with fast horses.\nShe frequently travels her chancery, and the locals hold her in high regard.  She is incredibly ruthless, killing outsiders who threaten the stability of her realm with extreme prejudice.", Permission.PLAYER],
+			["\nAstorn has the ability to control the storm - she can Call Lightning as a bonus action for 4d10 damage on any turn, targetting any creature she can see.", Permission.DM],
+		])
+	),
 ];
 alllocations = [
 	new Location("Sixfold Maze", Permission.PLAYER,
@@ -195,7 +194,7 @@ alllocations = [
 		[], []
 	),
 	new Location("Athul River", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
+		new Description([["Athul is a raging river, carrying the majority of the water that leaves the Salt sea.  Fortunately, it is rather narrow at points and a number of bridges have been built across it.  While there are very few fish in the Athul, its incredible force means that there is a small wizard academy attempting to harness the power of the current.\nThey occasionally do favours for the Chancery, but are not generally for hire.", Permission.PLAYER]]),
 		[], []
 	),
 	new Location("Corothul", Permission.PLAYER,
@@ -262,8 +261,12 @@ chanceries = [
 		[], [], [1200, -1000, 7]
 	),
 	new Chancery("Chancery of the Storm", Permission.PLAYER,
-		new Description([["", Permission.PLAYER]]),
-		[], [], [-1200, -800, 7]
+		new Description([
+			["A massive storm blasts the surface of this chancery at nearly all times.  It is thus not suitable for the cultivation of normal plants and animals, but hardier breeds can survive.  Large stands of ironwood trees shelter small farms, and massive bison roam the windswept planes.\nInstead of grass, long vines trail across the ground, and creatures caught in particularly strong gales can tie themselves down.  While the locals know who and where their ruler is, it is considered bad luck to give any information about their ruler to outsiders.", Permission.PLAYER],
+		]),
+		[
+			"Astorn Trillth",
+		], [], [-1200, -800, 7]
 	),
 	new Chancery("Chancery of the Fertile Thicket", Permission.PLAYER,
 		new Description([["This chancery is nearly not fit for habitation.  All across Thicket, plants grow incredibly rapidly.  It can be dangerous to stand still for more than a few seconds, as tree roots (or more aggressive plants) can easily grow over a foot, trapping unfortunate creatures underneath.  Some druids have made it their home, and cleared stone paths do allow for limited travel.\nStrange and wonderful things grow here, and many adventurers have returned home with some great treasure pried from the grasp of the plants.  Many more have never returned, and there are some who speak of burning the bridges.", Permission.PLAYER]]),
