@@ -113,7 +113,7 @@ body {
 }
 
 #queue0 .queue-inner {
-	min-width: calc(100% - 194px);
+	min-width: calc(100% - 214px);
 }
 
 .queue {
@@ -159,8 +159,13 @@ body {
 	color: #000000;
 }
 
+.block .big-description {
+	width: 360px;
+}
+
 .stuff .description {
 	top: calc(100% + 3px);
+	backface-visibility: hidden;
 }
 
 .action .description {

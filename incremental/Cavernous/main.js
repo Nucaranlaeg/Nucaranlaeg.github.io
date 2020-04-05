@@ -585,7 +585,10 @@ function getMapLocation(x, y, adj = false){
 	return mapLocations[y][x];
 }
 
+let mapNodes = [];
+
 function drawNewMap() {
+	mapNodes = [];
 	let mapNode = document.querySelector("#map-inner");
 	while (mapNode.firstChild){
 		mapNode.removeChild(mapNode.lastChild);
@@ -593,6 +596,7 @@ function drawNewMap() {
 	let rowTemplate = document.querySelector("#row-template");
 	let cellTemplate = document.querySelector("#cell-template");
 	for (let y = 0; y < map.length; y++){
+		mapNodes[y] = [];
 		let rowNode = rowTemplate.cloneNode(true);
 		rowNode.removeAttribute("id");
 		mapNode.append(rowNode);
@@ -613,6 +617,7 @@ function drawNewMap() {
 					cellNode.classList.add("blank");
 				}
 				rowNode.append(cellNode);
+				mapNodes[y][x] = cellNode;
 			}
 		}
 	}
@@ -624,25 +629,35 @@ function drawNewMap() {
 
 let isDrawn = false;
 
+function drawCell(x, y) {
+	if (!mapLocations[y][x]) return;
+	let cell = mapNodes[y][x];
+	let [className, descriptor] = classMapping[map[y][x]];
+	if (cell.className != className){
+		cell.className = "";
+		className = className.split(" ");
+		for (let i = 0; i < className.length; i++){
+			cell.classList.add(className[i]);
+		}
+		if (descriptor == "Mana Spring" || descriptor == "Mana-infused Rock"){
+			descriptor += " " + mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions);
+		}
+		cell.setAttribute("data-content", descriptor);
+	} else if (descriptor == "Mana Spring" || descriptor == "Mana-infused Rock"){
+		descriptor += " " + mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions);
+		cell.setAttribute("data-content", descriptor);
+	}
+}
+
 function drawMap() {
 	if (!isDrawn) drawNewMap();
+	for (let y = 0; y < mapNodes.length; y++){
+		if (!mapLocations[y]) continue;
+		for (let x = 0; x < mapNodes[y].length; x++){
+			drawCell(x, y);
+		}
+	}
 	let mapNode = document.querySelector("#map-inner");
-	mapNode.childNodes.forEach((row, y) => {
-		if (!mapLocations[y]) return;
-		row.childNodes.forEach((cell, x) => {
-			if (!mapLocations[y][x]) return;
-			cell.className = "";
-			let [className, descriptor] = classMapping[map[y][x]];
-			className = className.split(" ");
-			for (let i = 0; i < className.length; i++){
-				cell.classList.add(className[i]);
-			}
-			if (descriptor == "Mana Spring" || descriptor == "Mana-infused Rock"){
-				descriptor += " " + mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions);
-			}
-			cell.setAttribute("data-content", descriptor);
-		});
-	});
 	document.querySelectorAll(".occupied").forEach(el => el.classList.remove("occupied"));
 	for (let i = 0; i < clones.length; i++){
 		mapNode.childNodes[clones[i].y + yOffset].childNodes[clones[i].x + xOffset].classList.add("occupied");
@@ -701,7 +716,11 @@ function addActionToQueue(action, queue = null){
 			queues[queue].splice(cursor[1], 1);
 			cursor[1]--;
 		} else if ("UDLRI".includes(action) || action[0] == "N" && !isNaN(+action[1])) {
-			queues[queue].splice(cursor[1] + 1, 0, [action, queues[queue][cursor[1]][1]]);
+			if (cursor[1] >= 0){
+				queues[queue].splice(cursor[1] + 1, 0, [action, queues[queue][cursor[1]][1]]);
+			} else {
+				queues[queue].unshift([action, queues[0][1]])
+			}
 			cursor[1]++;
 		} else {
 			// Avoid expensive draws if it somehow got here.
@@ -720,6 +739,7 @@ function clearQueue(queue = null){
 		}
 		return;
 	}
+	if (!confirm("Really clear queue?")) return;
 	queues[queue] = [];
 	if (cursor[0] == queue){
 		cursor[1] = null;
@@ -753,6 +773,7 @@ function createQueueActionNode(queue){
 	actionNode.removeAttribute("id");
 	actionNode.style.color = savedQueues[queue].colour;
 	actionNode.querySelector(".character").innerHTML = savedQueues[queue].icon;
+	actionNode.setAttribute("title", savedQueues[queue].name);
 	actionNode.classList.add(`action${queue}`);
 	return actionNode;
 }
@@ -858,6 +879,7 @@ function selectSavedQueue(event, el){
 function setSavedQueueName(el){
 	let queue = el.parentNode.id.replace("saved-queue", "");
 	savedQueues[queue].name = el.value;
+	updateSavedIcon(queue);
 }
 
 function setSavedQueueIcon(el){
@@ -877,6 +899,7 @@ function updateSavedIcon(queue){
 	document.querySelectorAll(`.action${queue}`).forEach(node => {
 		node.style.color = savedQueues[queue].colour;
 		node.querySelector(".character").innerHTML = savedQueues[queue].icon;
+		node.setAttribute("title", savedQueues[queue].name);
 	});
 }
 
@@ -935,9 +958,16 @@ function isDropTopHalf(event){
 function savedQueueDrop(event, el){
 	let source = event.dataTransfer.getData("text/plain");
 	let target = el.id.replace("queue", "");
-	queues[target].push([source, true, savedQueues[source]]);
 	let queueNode = el.querySelector(".queue-inner");
-	queueNode.append(createQueueActionNode(source));
+	if (event.ctrlKey){
+		for (let i = 0; i < savedQueues[source].length; i++){
+			queues[target].push([savedQueues[source][i], true]);
+			queueNode.append(createActionNode(savedQueues[source][i]));
+		}
+	} else {
+		queues[target].push([source, true, savedQueues[source]]);
+		queueNode.append(createQueueActionNode(source));
+	}
 }
 
 function savedQueueMove(event, el){
@@ -1165,7 +1195,7 @@ class Rune {
 		location.setTemporaryPresent(this);
 		setMined(x, y, this.icon);
 		if (this.createEvent) this.createEvent(x, y);
-		drawMap();
+		drawCell(x, y);
 		return true;
 	}
 }
@@ -1540,6 +1570,7 @@ function load(){
 		savedQueues[i].icon = possibleActionIcons[saveGame.stored[i].icon];
 		savedQueues[i].colour = saveGame.stored[i].colour;
 	}
+	ensureLegalQueues();
 	drawSavedQueues();
 	lastAction = saveGame.time.saveTime;
 	timeBanked = saveGame.time.timeBanked;
@@ -1553,7 +1584,6 @@ function load(){
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
 
-	ensureLegalQueues();
 
 	selectClone(0);
 	redrawQueues();
@@ -1569,6 +1599,11 @@ function ensureLegalQueues(){
 	for (let i = 0; i < queues.length; i++){
 		if (queues[i].some(q => !isNaN(+q[0]) && q[0] >= savedQueues.length)){
 			queues[i] = [];
+		}
+	}
+	for (let i = 0; i < savedQueues.length; i++){
+		if (savedQueues[i].some(q => !isNaN(+q[0]) && (q[0] >= savedQueues.length || q[0] === null))){
+			savedQueues[i].queue = [];
 		}
 	}
 }
@@ -1605,6 +1640,7 @@ let settings = {
 	autoRestart: 0,
 	useAlternateArrows: false,
 	useWASD: false,
+	repeatLast: false,
 }
 
 function toggleBankedTime() {
@@ -1631,6 +1667,11 @@ function toggleUseWASD() {
 	settings.useWASD = !settings.useWASD;
 	document.querySelector("#use-wasd-toggle").innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
 	document.querySelector("#auto-restart-key").innerHTML = settings.useWASD ? "C" : "W";
+}
+
+function toggleRepeatLast() {
+	settings.repeatLast = !settings.repeatLast;
+	document.querySelector("#repeat-last-toggle").innerHTML = settings.useWASD ? "Repeat last action" : "Don't repeat last action";
 }
 
 /******************************************** Game loop ********************************************/
@@ -1672,7 +1713,7 @@ setInterval(() => {
 	}
 	let unusedTime = time;
 	for (let i = 0; i < clones.length; i++){
-		if (clones[i].damage == Infinity) continue
+		if (clones[i].damage == Infinity) continue;
 		currentClone = i;
 		unusedTime = Math.min(performAction(time), unusedTime);
 	}
@@ -1684,7 +1725,7 @@ setInterval(() => {
 	redrawOptions();
 }, 10);
 
-function performAction(time) {
+function performAction(time, startTime = null) {
 	let nextAction, actionIndex;
 	while (time > 0 && ([nextAction, actionIndex] = getNextAction())[0] !== undefined){
 		let xOffset = {
@@ -1729,6 +1770,12 @@ function performAction(time) {
 			completeNextAction();
 			clones[currentClone].currentProgress = 0;
 			drawMap();
+		}
+	}
+	if (settings.repeatLast){
+		if (queues[currentClone].length && time != startTime){
+			queues[currentClone][queues[currentClone].length - 1][1] = true;
+			return performAction(time, time);
 		}
 	}
 	return time;
