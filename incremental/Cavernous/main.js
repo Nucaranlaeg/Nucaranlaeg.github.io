@@ -205,11 +205,17 @@ function simpleRequire(requirement){
 			let stuff = getStuff(requirement[i][0]);
 			if (stuff.count < requirement[i][1]) return -1;
 			// In other functions it's (x, y, creature), so just check that it's exactly true
+			// spend is used for placing runes.
 			if (spend === true) stuff.update(-requirement[i][1]);
 		}
 		return 1;
 	}
 	return haveEnough;
+}
+
+function haveBridge(){
+	if (getStuff("Iron Bridge").count || getStuff("Steel Bridge").count) return 1;
+	return -1;
 }
 
 function completeGoldMana(){
@@ -221,21 +227,53 @@ function completeGoldMana(){
 
 function completeCrossPit(x, y){
 	let bridge = getStuff("Iron Bridge");
-	if (bridge.count < 1) return true;
+	if (bridge.count < 1){
+		bridge = getStuff("Steel Bridge");
+		if (bridge.count < 1 || !settings.useDifferentBridges) return true;
+	}
 	bridge.update(-1);
+	completeMove(x, y);
+}
+
+function completeCrossLava(x, y){
+	let bridge = getStuff("Steel Bridge");
+	if (bridge.count < 1){
+		bridge = getStuff("Iron Bridge");
+		if (bridge.count < 1 || !settings.useDifferentBridges) return true;
+		bridge.update(-1);
+		completeMove(x, y);
+		getMessage("Lava Can't Melt Steel Bridges").display();
+		return;
+	}
+	bridge.update(-1);
+	setMined(x, y, ".");
 	completeMove(x, y);
 }
 
 function tickFight(usedTime, creature){
 	clones[currentClone].takeDamage(Math.max(creature.attack - getStat("Defense").current, 0) * usedTime / 1000);
+	if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current){
+		clones[currentClone].takeDamage(usedTime / 1000);
+	}
 }
 
 function completeFight(x, y, creature){
 	if (creature.health){
+		if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current){
+			creature.health = Math.max(creature.health - 1, 0);
+		}
 		creature.health = Math.max(creature.health - Math.max(getStat("Attack").current - creature.defense, 0), 0);
 	}
 	if (!creature.health) return completeMove(x, y);
 	return true;
+}
+
+function tickHeal(usedTime){
+	clones[currentClone].takeDamage(-Math.max(clones[currentClone].damage - (usedTime / 1000 / getStat("Runic Lore").value), 0));
+}
+
+function completeHeal(){
+	if (clones[currentClone].damage > 0) return true;
 }
 
 function startTeleport(){
@@ -271,15 +309,26 @@ let actions = [
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire([["Iron Ore", 1]])),
 	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),
 	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]])),
-	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, simpleRequire([["Iron Bridge", 1]])),
+	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, haveBridge),
+	new Action("Cross Lava", 6000, [["Smithing", 1], ["Speed", 0.3]], completeCrossLava, haveBridge),
 	new Action("Create Bridge", 5000, [["Smithing", 1]], simpleConvert([["Iron Bar", 2]], [["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
+	new Action("Upgrade Bridge", 12500, [["Smithing", 1]], simpleConvert([["Steel Bar", 1], ["Iron Bridge", 1]], [["Steel Bridge", 1]]), simpleRequire([["Steel Bar", 1], ["Iron Bridge", 1]])),
 	new Action("Read", 10000, [["Runic Lore", 2]], null),
 	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), simpleRequire([["Iron Bar", 3]])),
+	new Action("Upgrade Sword", 22500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Sword", 1]], [["Steel Sword", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Sword", 1]])),
 	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), simpleRequire([["Iron Bar", 5]])),
+	new Action("Upgrade Shield", 27500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Shield", 1]], [["Steel Shield", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Shield", 1]])),
 	new Action("Create Armour", 10000, [["Smithing", 1]], simpleConvert([["Iron Bar", 4]], [["Iron Armour", 1]]), simpleRequire([["Iron Bar", 4]])),
+	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
+	new Action("Heal", 1000, [["Runic Lore", 1]], completeHeal, null, tickHeal)
 ];
+
+// General smithing costs:
+// Iron: 2500/bar
+// Steel: 7500/bar + cost of iron item
+// Bar: Double base
 
 /****************************************** Creatures ********************************************/
 
@@ -295,6 +344,7 @@ class BaseCreature {
 let baseCreatures = [
 	new BaseCreature("Goblin", 5, 0, 10),
 	new BaseCreature("Goblin Chieftain", 7, 3, 20),
+	new BaseCreature("Hobgoblin", 8, 4, 15),
 ];
 
 class Creature {
@@ -360,21 +410,28 @@ let locationTypes = [
 	new LocationType("Mana-infused Rock", "¤", "A whole bunch of rock.  But this time, it glows!", "Mine", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Mana Spring", "*", "Pure mana, flowing out of the rock.  Each time you absorb the mana, the cost to do so next time increases.", "Walk", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Clone Machine", "♥", "A strange machine labelled 'Clone Machine'.  What could it do?", "Walk", "Create Clone", storeCompletions, getNextCloneAmountCost),
-	new LocationType("Furnace", "╬", "A large box full of fire.", "Walk", "Make Iron Bars", null),
-	new LocationType("Steel Furnace", "▣", "A large box full of fire.  This one has a slot for coal and a slot for iron bars.", "Walk", "Make Steel Bars", null),
 	new LocationType("Vaporizer", "=", "A machine for extracting the magic right out of gold.", "Walk", "Turn Gold to Mana", null),
+	new LocationType("Fountain", "^", "A healing fountain, activated by the runes around its base.", "Walk", "Heal", null),
 	new LocationType("Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
-	new LocationType("Anvil - Bridge", "⎶", "An anvil on which you can make a bridge out of 2 iron.", "Walk", "Create Bridge", null),
+	new LocationType("Lava", "~", "A bottomless pit full of lava.  At least, you're not going to be walking on the bottom, so it's bottomless enough for you.  Your bridges might not last very long here.", "Cross Lava", null, null),
 	new LocationType("Runic Book", '"', "A large book sitting open on a pedestal.", "Walk", "Read", null),
-	new LocationType("Anvil - Sword", ")", "An anvil on which you can make a sword out of 3 iron.", "Walk", "Create Sword", null),
-	new LocationType("Anvil - Shield", "[", "An anvil on which you can make a shield out of 5 iron.", "Walk", "Create Shield", null),
-	new LocationType("Anvil - Armour", "]", "An anvil on which you can make a suit of armour out of 4 iron.", "Walk", "Create Armour", null),
 	new LocationType("Goblin", "g", "An ugly humanoid more likely to try and kill you than to let you by.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Goblin Chieftain", "c", "This one is uglier than the last two.  Probably meaner, too.\n{STATS}", "Attack Creature", null, null),
-	new LocationType("Coal", "○", "Bituminous coal is present in these rocks.", "Mine Coal", null, null),
+	new LocationType("Hobgoblin", "h", "A large creature looking something like the goblins.  It looks ready to fight.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
 	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
 	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to another place.", "Walk", null, null),
+	new LocationType("Coal", "○", "Bituminous coal is present in these rocks.", "Mine Coal", null, null),
+	new LocationType("Furnace", "╬", "A large box full of fire.", "Walk", "Make Iron Bars", null),
+	new LocationType("Anvil - Bridge", "⎶", "An anvil on which you can make a bridge out of 2 iron.", "Walk", "Create Bridge", null),
+	new LocationType("Anvil - Sword", ")", "An anvil on which you can make a sword out of 3 iron.", "Walk", "Create Sword", null),
+	new LocationType("Anvil - Shield", "[", "An anvil on which you can make a shield out of 5 iron.", "Walk", "Create Shield", null),
+	new LocationType("Anvil - Armour", "]", "An anvil on which you can make a suit of armour out of 4 iron.", "Walk", "Create Armour", null),
+	new LocationType("Steel Furnace", "▣", "A large box full of fire.  This one has a slot for coal and a slot for iron bars.", "Walk", "Make Steel Bars", null),
+	new LocationType("Anvil - Upgrade Bridge", "&", "An anvil on which you can upgrade an iron bridge into a steel bridge using 1 steel bar.", "Walk", "Upgrade Bridge", null),
+	new LocationType("Anvil - Upgrade Sword", "(", "An anvil on which you can upgrade an iron sword into a steel sword using 2 steel bars.", "Walk", "Upgrade Sword", null),
+	new LocationType("Anvil - Upgrade Shield", "{", "An anvil on which you can upgrade an iron shield into a steel shield using 2 steel bars.", "Walk", "Upgrade Shield", null),
+	new LocationType("Anvil - Upgrade Armour", "}", "An anvil on which you can upgrade an iron suit of armour into a steel suit of armour using 2 steel bars.", "Walk", "Upgrade Armour", null),
 ];
 
 /******************************************* Locations *******************************************/
@@ -504,29 +561,32 @@ function viewCell(e){
 /********************************************** Map **********************************************/
 
 let map = ['███████████████████████████████████████████',
-           '███████████████▣███████████████████████████',
-           '██+██¤#%█¤█████ ███###██)#+████+#%#████████',
+           '███████████████▣&██████████████████████████',
+           '██+██¤#%█¤█████~███###██)#+████+#%#████████',
            '██#█+#####███%%%¤██#█#██####█%██%█%#███████',
            '██#█ +%#█# #######█#█#██¤█+###█# #+████████',
            '██#█%██#████#██#+#█#█#%███#█###%██%████████',
            '██%█#█%#█+###█¤#█###█#█████##%█%+██████████',
            '██##%█+[██#████ █████#█###█%#██████████████',
-           '██%██████████♥###+### ##█#██#¤█████████████',
-           '██#+█%# #+███##█##+█████##██ ██████████████',
-           '█████%█+███¤██#+##█████##██##██████████████',
-           '███%█#█#█.##█¤#####%%# ##+####█████████████',
-           '███###█#██######█╬⎶████#¤███##█████████████',
-           '██████###██#¤████████###%█%█%#+████████████',
-           '████%##█##█#█¤#██#¤█+#%#██#████████████████',
-           '██##%##██#█###%=█#███%#####¤███████████████',
-           '██##c%#█#%███████##███g████████████████████',
-           '████#█#██##+###g##██¤##]███+%██████████████',
-           '███○#████████████%+██%###█¤#███████████████',
-           '███○##%#○%#██████#####█####%%██████████████',
-           '█████○#█#+%%██████+#███"███████████████████',
-           '██████+#○██████████████████████████████████',
+           '██%██████████♥###+### ##█#██#¤██+%%##██████',
+           '█{#+█%# #+███##█##+█████##██ ██%#███%██████',
+           '█████%█+███¤██#+##█████##██##████%%##¤█████',
+           '███%█#█#█.##█¤#####%%# ##+####█¤###████████',
+           '███###█#██######█╬⎶████#¤███##████ ████████',
+           '██████###██#¤████████###%█%█%#+███¤████████',
+           '████%##█##█#█¤#██#¤█+#%#██#█████%%##%██████',
+           '██##%##██#█###%=█#███%#####¤█¤#%#███%██████',
+           '██##c%#█#%███████##███g███████#███(#+██████',
+           '████#█#██##+###g##██¤##]███+%~c#███#███████',
+           '███○#████████████%+██%###█¤#███##█%#███████',
+           '███○##%#○%#██████#####█####%%███#+##%███████',
+           '█████○#█#+%%██████+#███"██h████████%███████',
+           '██████+#○██}██████████████%%#%█████████████',
+           '█████████████████████████+####¤███████████',
+           '███████████████████████████#^#+████████████',
+           '██████████████████████████¤###%████████████',
            '███████████████████████████████████████████',
-]
+];
 
 let originalMap = map.slice();
 
@@ -546,18 +606,25 @@ let classMapping = {
 	"╬": ["furnace", "Furnace"],
 	"▣": ["furnace", "Steel Furnace"],
 	"=": ["vaporizer", "Vaporizer"],
-	"⎶": ["bridge", "Anvil - Bridge"], //⎶
+	"⎶": ["bridge", "Anvil - Bridge"],
+	"&": ["bridge2", "Anvil - Upgrade Bridge"],
 	" ": ["pit", "Bottomless Pit"],
+	"~": ["lava", "Bottomless Lava"],
 	'"': ["book", "Book"],
 	")": ["sword", "Anvil - Sword"],
 	"[": ["shield", "Anvil - Shield"],
 	"]": ["armour", "Anvil - Armour"],
-	"g": ["goblin", "Goblin"],
+	"(": ["sword2", "Anvil - Upgrade Sword"],
+	"{": ["shield2", "Anvil - Upgrade Shield"],
+	"}": ["armour2", "Anvil - Upgrade Armour"],
+	"^": ["fountain", "Fountain"],
 	"W": ["rune-weak", "Weaken Rune"],
 	"T": ["rune-to", "Teleport To Rune"],
 	"F": ["rune-from", "Teleport From Rune"],
 	"○": ["coal", "Coal"],
+	"g": ["goblin", "Goblin"],
 	"c": ["chieftain", "Goblin Chieftain"],
+	"h": ["hobgoblin", "Hobgoblin"],
 };
 
 while (mapLocations.length < map.length){
@@ -677,6 +744,7 @@ function setMined(x, y, icon){
 		"g": ".",
 		"○": ".",
 		"c": ".",
+		"h": ".",
 	}[map[y][x]] || map[y][x];
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
 }
@@ -1131,9 +1199,18 @@ class Stuff {
 }
 
 function calcCombatStats() {
-	let attack = Math.min(getStuff("Iron Sword").count, clones.length);
-	let defense = Math.min(getStuff("Iron Shield").count, clones.length);
-	let health = Math.min(getStuff("Iron Armour").count, clones.length) * 5;
+	let attack = [];
+	attack.push(...Array(getStuff("Steel Sword").count).fill(2));
+	attack.push(...Array(getStuff("Iron Sword").count).fill(1));
+	attack = attack.slice(0, clones.length).reduce((a, c) => a + c, 0);
+	let defense = [];
+	defense.push(...Array(getStuff("Steel Shield").count).fill(2));
+	defense.push(...Array(getStuff("Iron Shield").count).fill(1));
+	defense = defense.slice(0, clones.length).reduce((a, c) => a + c, 0);
+	let health = [];
+	health.push(...Array(getStuff("Steel Armour").count).fill(15));
+	health.push(...Array(getStuff("Iron Armour").count).fill(5));
+	health = health.slice(0, clones.length).reduce((a, c) => a + c, 0);
 	getStat("Attack").setStat(attack);
 	getStat("Defense").setStat(defense);
 	getStat("Health").setStat(health);
@@ -1149,6 +1226,10 @@ let stuff = [
 	new Stuff("Iron Armour", "]", "An suit of iron armour.  This should help you take more hits. (+5 health)  Max 1 armour per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Steel Bar", "❚", "A steel rod.", "#333333", 0),
 	new Stuff("Coal", "○", "A chunk of coal.  Burns hot.", "#222222", 0),
+	new Stuff("Steel Bridge", "⎶", "A small steel bridge.", "#222222", 0),
+	new Stuff("Steel Sword", ")", "A steel sword.  Sharp! (+2 attack)  Max 1 weapon per clone.", "#222222", 0, calcCombatStats),
+	new Stuff("Steel Shield", "[", "A steel shield.  This should help you not die. (+2 defense)  Max 1 shield per clone.", "#222222", 0, calcCombatStats),
+	new Stuff("Steel Armour", "]", "A suit of steel armour.  This should help you take more hits. (+15 health)  Max 1 armour per clone.", "#222222", 0, calcCombatStats),
 ];
 
 /********************************************* Runes ***********************************************/
@@ -1488,6 +1569,8 @@ let messages = [
 	new Message("Goblin", "A strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought."),
 	new Message("Runic Lore", "You've mastered the basics of runic lore!  A new action is available to you: Inscribe Rune.\n" +
 	            "To use it, press the number corresponding to the desired rune in the runes section of the Stuff panel."),
+	new Message("Lava Can't Melt Steel Bridges", "You worked so hard on that bridge, and to see it quickly turn to slag after crossing that lava is sad.\n" +
+	            "At least one of your clones made it across."),
 ];
 
 /********************************************* Saving *********************************************/
@@ -1642,6 +1725,7 @@ let settings = {
 	useAlternateArrows: false,
 	useWASD: false,
 	repeatLast: false,
+	useDifferentBridges: true,
 }
 
 function toggleBankedTime() {
@@ -1672,7 +1756,8 @@ function toggleUseWASD() {
 
 function toggleRepeatLast() {
 	settings.repeatLast = !settings.repeatLast;
-	document.querySelector("#repeat-last-toggle").innerHTML = settings.useWASD ? "Repeat last action" : "Don't repeat last action";
+	console.log(settings.repeatLast)
+	document.querySelector("#repeat-last-toggle").innerHTML = settings.repeatLast ? "Don't repeat last action" : "Repeat last action";
 }
 
 /******************************************** Game loop ********************************************/

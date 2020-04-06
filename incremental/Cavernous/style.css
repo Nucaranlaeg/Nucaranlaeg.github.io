@@ -339,33 +339,52 @@ td.vaporizer:before {
 	top: -1px;
 }
 
+td.fountain {
+	background-color: #008000;
+}
+
+td.fountain:before {
+	content: "+";
+	top: -1px;
+	left: 1px;
+	font-weight: bolder;
+}
+
 td.bridge,
+td.bridge2,
 td.sword,
+td.sword2,
 td.shield,
-td.armour {
+td.shield2,
+td.armour,
+td.armour2 {
 	background-color: #444444;
 }
 
-td.bridge:before {
+td.bridge:before,
+td.bridge2:before {
 	content: "⎶";
 	top: -1px;
 	left: 0px;
 }
 
-td.sword:before {
+td.sword:before,
+td.sword2:before {
 	content: "⚔";
 	top: -1px;
 	left: 0px;
 }
 
-td.shield:before {
+td.shield:before,
+td.shield2:before {
 	content: "⛨";
 	top: 0px;
 	left: 0px;
 	font-size: 11px;
 }
 
-td.armour:before {
+td.armour:before,
+td.armour2:before {
 	content: "]";
 	top: -1px;
 	left: 4px;
@@ -374,6 +393,18 @@ td.armour:before {
 
 td.pit {
 	background-color: #000000;
+}
+
+td.lava {
+	background-color: #ff0000;
+}
+
+td.lava:before {
+	content: "~";
+	top: 1px;
+	left: 1px;
+	font-size: 17px;
+	text-shadow: 0px -4px 0px black;
 }
 
 td.book {
@@ -422,12 +453,21 @@ td.goblin {
 	background-color: #ff0000;
 }
 
+td.hobgoblin {
+	background-color: #cc0000;
+}
+
 td.chieftain:before,
+td.hobgoblin:before,
 td.goblin:before {
 	content: "웃";
 	top: 0px;
 	left: 0px;
 	font-size: 11px;
+}
+
+td.hobgoblin:before {
+	text-shadow: 0 0 1px;
 }
 
 td.coal {
