@@ -277,7 +277,7 @@ chanceries = [
 		[], [], [-200, -1700, 7]
 	),
 	new Chancery("Chancery of the Plain", Permission.PLAYER,
-		new Description([["The Chancery of the Plain is flat.  Over time, any deviation from the flatness is smoothed out, leaving once again a featureless plain.  It's so flat that you can see all the way across it.  As the palace is the tallest structure in the land, it can be seen from every other point in the chancery.\nPlain is the safest chancery, as it's impossible for bandits to hide.  Guards with the Farsight spell watch from towers, not even needing to patrol.  Because of this, the chancery is also one of the wealthiest.", Permission.PLAYER]]),
+		new Description([["The Chancery of the Plain is flat.  Over time, any deviation from the flatness is smoothed out, leaving once again a featureless plain.  It's so flat that you can see all the way across it.  As the palace is the tallest structure in the land, it can be seen from every other point in the chancery.\nPlain is arguably the safest chancery, as it's impossible for bandits to hide.  Guards with the Farsight spell watch from towers, not even needing to patrol.  Because of this, the chancery is also one of the wealthiest, as wealthy merchants like to store their wealth in great vaults here.", Permission.PLAYER]]),
 		[], [], [1200, -1800, 7]
 	),
 	new Chancery("Chancery of the Sea", Permission.PLAYER,

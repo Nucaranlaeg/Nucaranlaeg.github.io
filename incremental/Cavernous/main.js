@@ -199,7 +199,7 @@ function simpleConvert(source, target){
 	return convert;
 }
 
-function simpleRequire(requirement, count){
+function simpleRequire(requirement){
 	function haveEnough(spend){
 		for (let i = 0; i < requirement.length; i++){
 			let stuff = getStuff(requirement[i][0]);
@@ -374,7 +374,7 @@ let locationTypes = [
 	new LocationType("Coal", "○", "Bituminous coal is present in these rocks.", "Mine Coal", null, null),
 	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
 	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
-	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to place.", "Walk", null, null),
+	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to another place.", "Walk", null, null),
 ];
 
 /******************************************* Locations *******************************************/
@@ -1326,6 +1326,7 @@ function getNextAction(clone = currentClone) {
 function completeNextAction(clone = currentClone) {
 	let index = queues[clone].findIndex(a => a[1]);
 	let action = queues[clone][index];
+	clones[clone].currentCompletions = null;
 	if (!action) return;
 	if (isNaN(+action[0])){
 		action[1] = false;
@@ -1745,7 +1746,9 @@ function performAction(time, startTime = null) {
 			}
 		}
 		let location = getMapLocation(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset);
-		if (!xOffset && !yOffset && clones[currentClone].currentProgress && (clones[currentClone].currentProgress < location.remainingPresent || location.remainingPresent == 0)){
+		if (clones[currentClone].currentCompletions === null) clones[currentClone].currentCompletions = location.completions;
+		if ((!xOffset && !yOffset && clones[currentClone].currentProgress && (clones[currentClone].currentProgress < location.remainingPresent || location.remainingPresent == 0))
+			|| (clones[currentClone].currentCompletions !== null && clones[currentClone].currentCompletions < location.completions)){
 			completeNextAction();
 			clones[currentClone].currentProgress = 0;
 			selectQueueAction(currentClone, actionIndex, 100);

@@ -44,8 +44,8 @@
 				Time spent: <span class="time">0</span>s
 			</div>
 			<div class="queue-buttons">
-				<button onclick="saveQueue(this)">Save</button>
-				<button onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</button>
+				<span class="button" onclick="saveQueue(this)">Save</span>
+				<span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</span>
 			</div>
 			<div class="damage"></div>
 			<div class="cursor"></div>
@@ -64,7 +64,7 @@
 			<select class="icon-select" onchange="setSavedQueueIcon(this)"></select>
 			<input type="color" class="colour-select" onchange="setSavedQueueColour(this)">
 			<div class="queue-inner"></div>
-			<div class="queue-buttons"><button onclick="deleteSavedQueue(this)">Delete</button></div>
+			<div class="queue-buttons"><span class="button" onclick="deleteSavedQueue(this)">Delete</span></div>
 		</div>
 		<div id="message-link-template" class="message-link" onclick="viewMessage(event, this)"></div>
 	</div>
@@ -136,7 +136,7 @@
 		</div>
 		<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
 			<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-			Version 0.1.0<br>
+			Version 0.1.1<br>
 			©2020 Nucaranlaeg
 		</div>
 	</div>
