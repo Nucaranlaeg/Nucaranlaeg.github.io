@@ -924,7 +924,13 @@ function selectQueueAction(queue, action, percent){
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
 	node.querySelector(".progress").style.width = percent + "%";
-	node.closest('.bottom-block').querySelector('.work-progress').style.width = percent + "%";
+	let workProgressBar = node.closest('.bottom-block').querySelector('.work-progress');
+	let lastProgess = workProgressBar.style.width.replace("%", "");
+	if (percent - lastProgess > 10){
+		workProgressBar.style.width = "0%";
+	} else {
+		workProgressBar.style.width = percent + "%";
+	}
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
