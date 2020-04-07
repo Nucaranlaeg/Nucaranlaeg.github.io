@@ -1365,7 +1365,8 @@ class Clone {
 
 	styleDamage() {
 		if (!this.el) return;
-		this.el.querySelector(".damage").style.width = Math.min((this.damage / getStat("Health").current) * 100, 100) + "%";
+		let hp = 1 - Math.min((this.damage / getStat("Health").current));
+		this.el.querySelector(".damage").style.width = hp == 1 ? "0" : (hp * 100) + "%";
 	}
 
 	createQueue() {

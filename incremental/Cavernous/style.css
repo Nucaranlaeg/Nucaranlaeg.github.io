@@ -568,12 +568,14 @@ td:hover:after {
 
 .damage {
 	background-color: #ff000055;
-	position: fixed;
-	right: 0;
+	position: absolute;
+	left: 0;
+	top: 0px;
 	pointer-events: none;
-	height: 34px;
-	margin-top: -23px;
-	margin-right: 13px;
+	height: 5px;
+	/* margin-top: -23px; */
+	/* margin-right: 13px; */
+	z-index: 30;
 }
 
 #saved-queues {
