@@ -777,7 +777,7 @@ function addActionToQueue(action, queue = null){
 			if (queues[queue].length == 0) return;
 			queues[queue].pop();
 			queueNode.removeChild(queueNode.lastChild);
-		} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
+		} else if ("UDLRI<".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 			queues[queue].push([action, true]);
 			queueNode.append(createActionNode(action));
 		}
@@ -833,6 +833,7 @@ function createActionNode(action){
 		"U": settings.useAlternateArrows ? "↑" : "🡅",
 		"D": settings.useAlternateArrows ? "↓" : "🡇",
 		"I": settings.useAlternateArrows ? "○" : "🞇",
+		"<": settings.useAlternateArrows ? "⟲" : "⟲",
 	}[action];
 	if (!character){
 		character = runes[action[1]].icon;
@@ -1843,8 +1844,9 @@ function toggleUseWASD() {
 }
 
 function toggleRepeatLast() {
-	settings.repeatLast = !settings.repeatLast;
+	settings.repeatLast = !1;// settings.repeatLast;
 	document.querySelector("#repeat-last-toggle").innerHTML = settings.repeatLast ? "Don't repeat last action" : "Repeat last action";
+	addActionToQueue("<")
 }
 
 /******************************************** Game loop ********************************************/
@@ -1919,6 +1921,17 @@ function performAction(time, startTime = null) {
 			} else {
 				return 0;
 			}
+		}
+		if (nextAction[0] == "<") {
+			let prevAction = queues[currentClone].find((e,i,a)=>a[i+1] && a[i+1][0] == "<")
+			prevAction[1] = true
+			if (prevAction[2]){
+				let index = queues[currentClone].indexOf(prevAction);
+				for (let inner of prevAction[2]) {
+					delete inner[`${currentClone}_${index}`]
+				}
+			}
+			return 0;
 		}
 		let location = getMapLocation(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset);
 		if (clones[currentClone].currentCompletions === null) clones[currentClone].currentCompletions = location.completions;
