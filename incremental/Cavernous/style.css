@@ -568,15 +568,17 @@ td:hover:after {
 	padding: 2px 6px;
 }
 
-.damage {
-	background-color: #ff0000bb;
+.damage, .work-progress {
+	background-color: #ff0000aa;
 	position: sticky;
 	left: 0;
-	margin-top: -5px;
+	top: 0px;
 	pointer-events: none;
-	height: 5px;
+	height: 3px;
 	z-index: 30;
-	transform: translateY(2px);
+}
+.work-progress {
+	background-color: #0000ff55;
 }
 
 .dead-clone {
