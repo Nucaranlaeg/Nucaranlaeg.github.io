@@ -868,6 +868,7 @@ function selectQueueAction(queue, action, percent){
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
 	node.querySelector(".progress").style.width = percent + "%";
+	node.closest('.bottom-block').querySelector('.work-progress').style.width = percent + "%";
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
@@ -1859,10 +1860,13 @@ setInterval(() => {
 	let mana = getStat("Mana");
 	lastAction = Date.now();
 	if (mana.current == 0){
+		document.querySelector("#queues").classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2){
 			resetLoop();
 		}
+	} else {
+		document.querySelector("#queues").classList.remove("out-of-mana")
 	}
 	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
 		timeBanked += time / 2;

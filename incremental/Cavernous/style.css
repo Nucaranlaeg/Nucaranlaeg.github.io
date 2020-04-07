@@ -78,7 +78,7 @@ body {
 	height: auto;
 	border: 1px solid #00000077;
 	border-radius: 5px;
-	padding: 2px;
+	padding: 0 2px;
 	position: relative;
 	overflow-x: auto;
 	overflow-y: hidden;
@@ -133,7 +133,7 @@ body {
 
 .selected-clone,
 .saved-queue:focus {
-	border-color: #ff0000;
+	border-color: #008000aa;
 	background-color: #00ff0056;
 }
 
@@ -568,15 +568,17 @@ td:hover:after {
 	padding: 2px 6px;
 }
 
-.damage {
-	background-color: #ff0000bb;
+.damage, .work-progress {
+	background-color: #ff0000aa;
 	position: sticky;
 	left: 0;
-	margin-top: -5px;
+	top: 0px;
 	pointer-events: none;
-	height: 5px;
+	height: 3px;
 	z-index: 30;
-	transform: translateY(2px);
+}
+.work-progress {
+	background-color: #0000ff55;
 }
 
 .dead-clone {
@@ -585,6 +587,11 @@ td:hover:after {
 
 .dead-clone.selected-clone {
 	background-color: #ff450055;
+}
+
+.out-of-mana {
+	background-color: #607d8b55;
+	transition: background-color 0.4s;
 }
 
 #saved-queues {
@@ -608,6 +615,7 @@ td:hover:after {
 	border-top-left-radius: 3px;
 	border-bottom-left-radius: 5px;
 	margin-left: -2px;
+	text-align: center;
 }
 
 .icon-select {
