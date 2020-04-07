@@ -78,7 +78,7 @@ body {
 	height: auto;
 	border: 1px solid #00000077;
 	border-radius: 5px;
-	padding: 2px;
+	padding: 0 2px;
 	position: relative;
 	overflow-x: auto;
 	overflow-y: hidden;
@@ -133,7 +133,7 @@ body {
 
 .selected-clone,
 .saved-queue:focus {
-	border-color: #ff0000;
+	border-color: #008000aa;
 	background-color: #00ff0056;
 }
 
@@ -615,6 +615,7 @@ td:hover:after {
 	border-top-left-radius: 3px;
 	border-bottom-left-radius: 5px;
 	margin-left: -2px;
+	text-align: center;
 }
 
 .icon-select {
