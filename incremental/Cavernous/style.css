@@ -87,6 +87,14 @@ body {
 	white-space: nowrap;
 }
 
+#saved-queues .bottom-block > *,
+#saved-queues .bottom-block > *,
+#saved-queues .bottom-block > *,
+#saved-queues .bottom-block > * {
+	height: 16px;
+	vertical-align: bottom;
+}
+
 .bottom-block::-webkit-scrollbar {
 	height: 8px;
 }
@@ -98,7 +106,7 @@ body {
 .queue-inner {
 	display: inline-flex;
 	flex-direction: row;
-	min-width: calc(100% - 100px);
+	min-width: calc(100% - 106px);
 }
 
 .queue-time {
