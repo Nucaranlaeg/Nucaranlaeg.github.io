@@ -1913,7 +1913,7 @@ let keyFunctions = {
 	"ArrowDown": () => {
 		addActionToQueue("D");
 	},
-	" ": e => {
+	"Space": e => {
 		addActionToQueue("I");
 	},
 	"Backspace": e => {
@@ -1922,35 +1922,35 @@ let keyFunctions = {
 			clearQueue();
 		}
 	},
-	"w": () => {
+	"KeyW": () => {
 		if (settings.useWASD){
 			addActionToQueue("U");
 		} else {
 			toggleAutoRestart();
 		}
 	},
-	"a": () => {
+	"KeyA": () => {
 		if (settings.useWASD){
 			addActionToQueue("L");
 		}
 	},
-	"s": () => {
+	"KeyS": () => {
 		if (settings.useWASD){
 			addActionToQueue("D");
 		}
 	},
-	"d": () => {
+	"KeyD": () => {
 		if (settings.useWASD){
 			addActionToQueue("R");
 		}
 	},
-	"r": () => {
+	"KeyR": () => {
 		resetLoop();
 	},
-	"p": () => {
+	"KeyP": () => {
 		toggleRunning();
 	},
-	"b": () => {
+	"KeyB": () => {
 		toggleBankedTime();
 	},
 	"Tab": e => {
@@ -1962,7 +1962,7 @@ let keyFunctions = {
 		e.preventDefault();
 		e.stopPropagation();
 	},
-	"c": () => {
+	"KeyC": () => {
 		if (settings.useWASD){
 			toggleAutoRestart();
 		}
@@ -1971,13 +1971,13 @@ let keyFunctions = {
 		cursor[1] = null;
 		showCursor();
 	},
-	"1": () => {
+	"Digit1": () => {
 		addActionToQueue("N0");
 	},
-	"2": () => {
+	"Digit2": () => {
 		addActionToQueue("N1");
 	},
-	"3": () => {
+	"Digit3": () => {
 		addActionToQueue("N2");
 	},
 };
@@ -1993,7 +1993,7 @@ setTimeout(() => {
 	document.body.onkeydown = e => {
 		hideMessages();
 		if (!document.querySelector("input:focus")){
-			let key = e.key.length == 1 ? e.key.toLowerCase() : e.key;
+			let key = e.code;
 			if (keyFunctions[key]){
 				e.preventDefault();
 				keyFunctions[key](e);
