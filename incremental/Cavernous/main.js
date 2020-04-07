@@ -933,11 +933,17 @@ function selectQueueAction(queue, action, percent){
 	}
 	node.querySelector(".progress").style.width = percent + "%";
 	let workProgressBar = node.closest('.bottom-block').querySelector('.work-progress');
-	let lastProgess = workProgressBar.style.width.replace("%", "");
-	if (percent - lastProgess > 10){
+	let lastProgess = +workProgressBar.style.width.replace("%", "");
+	if (percent < lastProgess) {
 		workProgressBar.style.width = "0%";
-	} else {
+		lastProgess = 0
+	}
+	if (percent < lastProgess + 100/(0.4*60)){ // 0.4s@60fps
 		workProgressBar.style.width = percent + "%";
+		console.log('>>>', percent-lastProgess, lastProgess)
+	} else if (lastProgess) {
+		console.log('<<<', percent-lastProgess, lastProgess)
+		workProgressBar.style.width = "0%";
 	}
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
