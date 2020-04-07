@@ -157,8 +157,13 @@ function completeCoalMine(x, y){
 }
 
 function completeCollectMana(x, y) {
-	getStat("Mana").base += 0.1;
-	getStat("Mana").current += 0.1;
+	let location = getMapLocation(x, y);
+	let duration = startCollectMana(0, location.priorCompletions);
+	let mana = getStat("Mana");
+	let totalTimeAvailable = (mana.current * clones.length) + duration;
+	setBestRoute(x, y, totalTimeAvailable);
+	mana.base += 0.1;
+	mana.current += 0.1;
 	setMined(x, y, ".");
 }
 
@@ -555,6 +560,14 @@ function viewCell(e){
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
 				}
+				let xValue = x - xOffset, yValue = y - yOffset;
+				if ((type.name == "Mana-infused Rock" || type == "Mana Spring") && getBestRoute(xValue, yValue)){
+					document.querySelector("#location-route").style.display = "block";
+					document.querySelector("#x-loc").value = x - xOffset;
+					document.querySelector("#y-loc").value = y - yOffset;
+				} else {
+					document.querySelector("#location-route").style.display = "none";
+				}
 				return;
 			}
 		}
@@ -752,6 +765,49 @@ function setMined(x, y, icon){
 	}[map[y][x]] || map[y][x];
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
 }
+
+/********************************************* Routes ********************************************/
+
+class Route {
+	constructor(x, y, totalTimeAvailable, route){
+		this.x = x;
+		this.y = y;
+		this.totalTimeAvailable = totalTimeAvailable;
+		this.route = route || queues.map(queue => queueToString(queue));
+	}
+
+	loadRoute(){
+		let newQueues = this.route.map(q => stringToQueue(q));
+		for (let i = 0; i < queues.length; i++){
+			queues[i] = newQueues[i] || [];
+		}
+		redrawQueues();
+	}
+}
+
+function getBestRoute(x, y){
+	return routes.find(r => r.x == x && r.y == y);
+}
+
+function setBestRoute(x, y, totalTimeAvailable){
+	let bestRoute = routes.findIndex(r => r.x == x && r.y == y);
+	if (bestRoute == -1 || routes[bestRoute].totalTimeAvailable < totalTimeAvailable){
+		if (bestRoute > -1){
+			routes.splice(bestRoute, 1);
+		}
+		routes.push(new Route(x, y, totalTimeAvailable));
+	}
+}
+
+function loadRoute(){
+	let x = document.querySelector("#x-loc").value;
+	let y = document.querySelector("#y-loc").value;
+	let bestRoute = getBestRoute(x, y);
+	if (bestRoute) bestRoute.loadRoute();
+	if (!bestRoute) console.log("No route found");
+}
+
+let routes = [];
 
 /********************************************* Queue *********************************************/
 
@@ -1655,6 +1711,7 @@ function save(){
 		"timeBanked": timeBanked,
 	}
 	let messageData = messages.map(m => [m.name, m.displayed]);
+	let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
 	saveString = JSON.stringify({
 		"playerStats": playerStats,
 		"locations": locations,
@@ -1663,6 +1720,7 @@ function save(){
 		"time": time,
 		"messageData": messageData,
 		"settings": settings,
+		"routes": savedRoutes,
 	});
 	localStorage["saveGame"] = btoa(saveString);
 }
@@ -1706,6 +1764,9 @@ function load(){
 		if (message){
 			message.displayed = saveGame.messageData[i][1];
 		}
+	}
+	if (saveGame.routes){
+		routes = saveGame.routes.map(r => new Route(r[0], r[1], r[2], r[3]));
 	}
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();
