@@ -569,15 +569,14 @@ td:hover:after {
 }
 
 .damage {
-	background-color: #ff000055;
-	position: absolute;
+	background-color: #ff0000bb;
+	position: sticky;
 	left: 0;
-	top: 0px;
+	margin-top: -5px;
 	pointer-events: none;
 	height: 5px;
-	/* margin-top: -23px; */
-	/* margin-right: 13px; */
 	z-index: 30;
+	transform: translateY(2px);
 }
 
 .dead-clone {
@@ -657,4 +656,8 @@ td:hover:after {
 
 .not-available {
 	background-color: #ff000055;
+}
+
+#search-saved {
+	margin-bottom: 2px;
 }

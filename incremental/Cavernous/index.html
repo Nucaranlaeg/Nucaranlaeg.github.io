@@ -39,6 +39,7 @@
 			</tr>
 		</table>
 		<div id="queue-template" class="bottom-block" onclick="selectClone(this, event)" ondrop="savedQueueDrop(event, this)" ondragover="queueDragOver(event)">
+			<div class="damage"></div>
 			<div class="queue-inner" onclick="maybeClearCursor(event, this)"></div>
 			<div class="queue-time">
 				Time spent: <span class="time">0</span>s
@@ -47,7 +48,6 @@
 				<span class="button" onclick="saveQueue(this)">Save</span>
 				<span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</span>
 			</div>
-			<div class="damage"></div>
 			<div class="cursor"></div>
 		</div>
 		<div id="saved-queue-template"
@@ -145,7 +145,7 @@
 		</div>
 		<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
 			<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-			Version 0.2.2<br>
+			Version 0.2.3<br>
 			©2020 Nucaranlaeg
 		</div>
 	</div>
@@ -171,7 +171,13 @@
 		<div id="location-next"></div>
 	</div>
 	<div id="queues"></div>
-	<div id="saved-queues"></div>
+	<div id="saved-queues">
+		<div>
+			Search saved queues:
+			<input id="search-saved" onkeyup="filterSaved(this)" />
+		</div>
+		<div id="saved-queues-inner"></div>
+	</div>
 	<div id="message-box" onclick="hideMessages()">
 		<div id="message-wrapper">
 			<h3 id="message-title"></h3>

@@ -1087,7 +1087,7 @@ function savedQueueMove(event, el){
 }
 
 function drawSavedQueues(){
-	let node = document.querySelector("#saved-queues");
+	let node = document.querySelector("#saved-queues-inner");
 	while (node.firstChild){
 		node.removeChild(node.lastChild);
 	}
@@ -1110,7 +1110,22 @@ function drawSavedQueues(){
 		}
 		node.append(el);
 	}
-	node.style.display = savedQueues.length ? "block" : "none";
+	node.parentNode.style.display = savedQueues.length ? "block" : "none";
+}
+
+function filterSaved(filterInput){
+	if (filterInput.value.length == 0){
+		document.querySelectorAll(`.saved-queue`).forEach(queue => queue.style.display = "inline-block");
+		return;
+	}
+	let filter = RegExp(filterInput.value);
+	for (let i = 0; i < savedQueues.length; i++){
+		if (filter.test(savedQueues[i].name)){
+			document.querySelector(`#saved-queue${i}`).style.display = "inline-block";
+		} else {
+			document.querySelector(`#saved-queue${i}`).style.display = "none";
+		}
+	}
 }
 
 /******************************************* Highlights ******************************************/
@@ -1371,8 +1386,8 @@ class Clone {
 		if (!this.el) return;
 		let hp = 1 - Math.min((this.damage / getStat("Health").current));
 		this.el.querySelector(".damage").style.width = hp == 1 || !Number.isFinite(hp) ? "0" : (hp * 100) + "%";
-		if (hp < 0) this.el.classList.add('dead-clone')
-		else this.el.classList.remove('dead-clone')
+		if (hp < 0) this.el.classList.add('dead-clone');
+		else this.el.classList.remove('dead-clone');
 	}
 
 	createQueue() {
