@@ -1367,7 +1367,9 @@ class Clone {
 	styleDamage() {
 		if (!this.el) return;
 		let hp = 1 - Math.min((this.damage / getStat("Health").current));
-		this.el.querySelector(".damage").style.width = hp == 1 ? "0" : (hp * 100) + "%";
+		this.el.querySelector(".damage").style.width = hp == 1 || !Number.isFinite(hp) ? "0" : (hp * 100) + "%";
+		if (hp < 0) this.el.classList.add('dead-clone')
+		else this.el.classList.remove('dead-clone')
 	}
 
 	createQueue() {
