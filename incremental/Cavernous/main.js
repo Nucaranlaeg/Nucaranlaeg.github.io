@@ -157,8 +157,13 @@ function completeCoalMine(x, y){
 }
 
 function completeCollectMana(x, y) {
-	getStat("Mana").base += 0.1;
-	getStat("Mana").current += 0.1;
+	let location = getMapLocation(x, y);
+	let duration = startCollectMana(0, location.priorCompletions);
+	let mana = getStat("Mana");
+	let totalTimeAvailable = (mana.current * clones.length) + duration;
+	setBestRoute(x, y, totalTimeAvailable);
+	mana.base += 0.1;
+	mana.current += 0.1;
 	setMined(x, y, ".");
 }
 
@@ -555,6 +560,14 @@ function viewCell(e){
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
 				}
+				let xValue = x - xOffset, yValue = y - yOffset;
+				if ((type.name == "Mana-infused Rock" || type == "Mana Spring") && getBestRoute(xValue, yValue)){
+					document.querySelector("#location-route").style.display = "block";
+					document.querySelector("#x-loc").value = x - xOffset;
+					document.querySelector("#y-loc").value = y - yOffset;
+				} else {
+					document.querySelector("#location-route").style.display = "none";
+				}
 				return;
 			}
 		}
@@ -753,6 +766,49 @@ function setMined(x, y, icon){
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
 }
 
+/********************************************* Routes ********************************************/
+
+class Route {
+	constructor(x, y, totalTimeAvailable, route){
+		this.x = x;
+		this.y = y;
+		this.totalTimeAvailable = totalTimeAvailable;
+		this.route = route || queues.map(queue => queueToString(queue));
+	}
+
+	loadRoute(){
+		let newQueues = this.route.map(q => stringToQueue(q));
+		for (let i = 0; i < queues.length; i++){
+			queues[i] = newQueues[i] || [];
+		}
+		redrawQueues();
+	}
+}
+
+function getBestRoute(x, y){
+	return routes.find(r => r.x == x && r.y == y);
+}
+
+function setBestRoute(x, y, totalTimeAvailable){
+	let bestRoute = routes.findIndex(r => r.x == x && r.y == y);
+	if (bestRoute == -1 || routes[bestRoute].totalTimeAvailable < totalTimeAvailable){
+		if (bestRoute > -1){
+			routes.splice(bestRoute, 1);
+		}
+		routes.push(new Route(x, y, totalTimeAvailable));
+	}
+}
+
+function loadRoute(){
+	let x = document.querySelector("#x-loc").value;
+	let y = document.querySelector("#y-loc").value;
+	let bestRoute = getBestRoute(x, y);
+	if (bestRoute) bestRoute.loadRoute();
+	if (!bestRoute) console.log("No route found");
+}
+
+let routes = [];
+
 /********************************************* Queue *********************************************/
 
 let queues = [];
@@ -777,7 +833,7 @@ function addActionToQueue(action, queue = null){
 			if (queues[queue].length == 0) return;
 			queues[queue].pop();
 			queueNode.removeChild(queueNode.lastChild);
-		} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
+		} else if ("UDLRI<".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 			queues[queue].push([action, true]);
 			queueNode.append(createActionNode(action));
 		}
@@ -833,6 +889,7 @@ function createActionNode(action){
 		"U": settings.useAlternateArrows ? "↑" : "🡅",
 		"D": settings.useAlternateArrows ? "↓" : "🡇",
 		"I": settings.useAlternateArrows ? "○" : "🞇",
+		"<": settings.useAlternateArrows ? "⟲" : "⟲",
 	}[action];
 	if (!character){
 		character = runes[action[1]].icon;
@@ -868,6 +925,13 @@ function selectQueueAction(queue, action, percent){
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
 	node.querySelector(".progress").style.width = percent + "%";
+	let workProgressBar = node.closest('.bottom-block').querySelector('.work-progress');
+	let lastProgess = workProgressBar.style.width.replace("%", "");
+	if (percent - lastProgess > 10){
+		workProgressBar.style.width = "0%";
+	} else {
+		workProgressBar.style.width = percent + "%";
+	}
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
@@ -1087,7 +1151,7 @@ function savedQueueMove(event, el){
 }
 
 function drawSavedQueues(){
-	let node = document.querySelector("#saved-queues");
+	let node = document.querySelector("#saved-queues-inner");
 	while (node.firstChild){
 		node.removeChild(node.lastChild);
 	}
@@ -1110,7 +1174,22 @@ function drawSavedQueues(){
 		}
 		node.append(el);
 	}
-	node.style.display = savedQueues.length ? "block" : "none";
+	node.parentNode.style.display = savedQueues.length ? "block" : "none";
+}
+
+function filterSaved(filterInput){
+	if (filterInput.value.length == 0){
+		document.querySelectorAll(`.saved-queue`).forEach(queue => queue.style.display = "inline-block");
+		return;
+	}
+	let filter = RegExp(filterInput.value);
+	for (let i = 0; i < savedQueues.length; i++){
+		if (filter.test(savedQueues[i].name)){
+			document.querySelector(`#saved-queue${i}`).style.display = "inline-block";
+		} else {
+			document.querySelector(`#saved-queue${i}`).style.display = "none";
+		}
+	}
 }
 
 /******************************************* Highlights ******************************************/
@@ -1371,8 +1450,8 @@ class Clone {
 		if (!this.el) return;
 		let hp = 1 - Math.min((this.damage / getStat("Health").current));
 		this.el.querySelector(".damage").style.width = hp == 1 || !Number.isFinite(hp) ? "0" : (hp * 100) + "%";
-		if (hp < 0) this.el.classList.add('dead-clone')
-		else this.el.classList.remove('dead-clone')
+		if (hp < 0) this.el.classList.add('dead-clone');
+		else this.el.classList.remove('dead-clone');
 	}
 
 	createQueue() {
@@ -1640,6 +1719,7 @@ function save(){
 		"timeBanked": timeBanked,
 	}
 	let messageData = messages.map(m => [m.name, m.displayed]);
+	let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
 	saveString = JSON.stringify({
 		"playerStats": playerStats,
 		"locations": locations,
@@ -1648,6 +1728,7 @@ function save(){
 		"time": time,
 		"messageData": messageData,
 		"settings": settings,
+		"routes": savedRoutes,
 	});
 	localStorage["saveGame"] = btoa(saveString);
 }
@@ -1691,6 +1772,9 @@ function load(){
 		if (message){
 			message.displayed = saveGame.messageData[i][1];
 		}
+	}
+	if (saveGame.routes){
+		routes = saveGame.routes.map(r => new Route(r[0], r[1], r[2], r[3]));
 	}
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();
@@ -1827,8 +1911,9 @@ function toggleUseWASD() {
 }
 
 function toggleRepeatLast() {
-	settings.repeatLast = !settings.repeatLast;
+	settings.repeatLast = !1;// settings.repeatLast;
 	document.querySelector("#repeat-last-toggle").innerHTML = settings.repeatLast ? "Don't repeat last action" : "Repeat last action";
+	addActionToQueue("<")
 }
 
 /******************************************** Game loop ********************************************/
@@ -1844,10 +1929,13 @@ setInterval(() => {
 	let mana = getStat("Mana");
 	lastAction = Date.now();
 	if (mana.current == 0){
+		document.querySelector("#queues").classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2){
 			resetLoop();
 		}
+	} else {
+		document.querySelector("#queues").classList.remove("out-of-mana")
 	}
 	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
 		timeBanked += time / 2;
@@ -1900,6 +1988,17 @@ function performAction(time, startTime = null) {
 			} else {
 				return 0;
 			}
+		}
+		if (nextAction[0] == "<") {
+			let prevAction = queues[currentClone].find((e,i,a)=>a[i+1] && a[i+1][0] == "<")
+			prevAction[1] = true
+			if (prevAction[2]){
+				let index = queues[currentClone].indexOf(prevAction);
+				for (let inner of prevAction[2]) {
+					delete inner[`${currentClone}_${index}`]
+				}
+			}
+			return 0;
 		}
 		let location = getMapLocation(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset);
 		if (clones[currentClone].currentCompletions === null) clones[currentClone].currentCompletions = location.completions;
