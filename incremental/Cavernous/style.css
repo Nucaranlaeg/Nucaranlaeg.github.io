@@ -75,12 +75,13 @@ body {
 	display: inline-block;
 	vertical-align: top;
 	width: 100%;
-	height: min-content;
+	height: auto;
 	border: 1px solid #00000077;
 	border-radius: 5px;
 	padding: 2px;
 	position: relative;
-	overflow-x: scroll;
+	overflow-x: auto;
+	overflow-y: hidden;
 	scrollbar-width: thin;
 	scrollbar-color: #88aaaa #aacccc;
 	white-space: nowrap;
@@ -97,7 +98,7 @@ body {
 .queue-inner {
 	display: inline-flex;
 	flex-direction: row;
-	min-width: calc(100% - 96px);
+	min-width: calc(100% - 100px);
 }
 
 .queue-time {
@@ -113,7 +114,7 @@ body {
 }
 
 #queue0 .queue-inner {
-	min-width: calc(100% - 214px);
+	min-width: calc(100% - 216px);
 }
 
 .queue {
@@ -238,6 +239,7 @@ body {
 	border-radius: 5px;
 	padding: 2px;
 	position: relative;
+	user-select: none;
 }
 
 .wide {
@@ -574,7 +576,7 @@ td:hover:after {
 }
 
 .saved-queue .queue-inner {
-	min-width: calc(100% - 208px);
+	min-width: calc(100% - 212px);
 }
 
 .saved-name {
