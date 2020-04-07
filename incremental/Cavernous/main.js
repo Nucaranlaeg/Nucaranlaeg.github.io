@@ -248,6 +248,7 @@ function completeCrossLava(x, y){
 	bridge.update(-1);
 	setMined(x, y, ".");
 	completeMove(x, y);
+	getMapLocation(x, y).entered = Infinity;
 }
 
 function tickFight(usedTime, creature){
@@ -364,20 +365,21 @@ let creatures = [];
 /**************************************** Location Types *****************************************/
 
 class LocationType {
-	constructor(name, symbol, description, enterAction, presentAction, reset, nextCost){
+	constructor(name, symbol, description, enterAction, presentAction, reset, nextCost, enterCount){
 		this.name = name;
 		this.symbol = symbol;
 		this.description = description;
 		this.enterAction = enterAction ? Object.create(getAction(enterAction)) : null;
 		this.presentAction = presentAction ? Object.create(getAction(presentAction)) : null;
 		this.nextCost = nextCost;
+		this.enterCount = enterCount || 1;
 		if (reset){
 			this.extraReset = reset;
 		}
 	}
 
 	getEnterAction(entered) {
-		if (entered > 0){
+		if (entered >= this.enterCount){
 			return Object.create(getAction("Walk"));
 		}
 		return this.enterAction;
@@ -413,7 +415,7 @@ let locationTypes = [
 	new LocationType("Vaporizer", "=", "A machine for extracting the magic right out of gold.", "Walk", "Turn Gold to Mana", null),
 	new LocationType("Fountain", "^", "A healing fountain, activated by the runes around its base.", "Walk", "Heal", null),
 	new LocationType("Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
-	new LocationType("Lava", "~", "A bottomless pit full of lava.  At least, you're not going to be walking on the bottom, so it's bottomless enough for you.  Your bridges might not last very long here.", "Cross Lava", null, null),
+	new LocationType("Lava", "~", "A bottomless pit full of lava.  At least, you're not going to be walking on the bottom, so it's bottomless enough for you.  Your bridges might not last very long here, but probably long enough for one clone.", "Cross Lava", null, null, null, Infinity),
 	new LocationType("Runic Book", '"', "A large book sitting open on a pedestal.", "Walk", "Read", null),
 	new LocationType("Goblin", "g", "An ugly humanoid more likely to try and kill you than to let you by.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Goblin Chieftain", "c", "This one is uglier than the last two.  Probably meaner, too.\n{STATS}", "Attack Creature", null, null),
@@ -561,7 +563,8 @@ function viewCell(e){
 /********************************************** Map **********************************************/
 
 let map = ['███████████████████████████████████████████',
-           '███████████████▣&██████████████████████████',
+           '█████████████%%████████████████████████████',
+           '█████████████%#▣&██████████████████████████',
            '██+██¤#%█¤█████~███###██)#+████+#%#████████',
            '██#█+#####███%%%¤██#█#██####█%██%█%#███████',
            '██#█ +%#█# #######█#█#██¤█+###█# #+████████',
@@ -579,10 +582,10 @@ let map = ['██████████████████████�
            '██##c%#█#%███████##███g███████#███(#+██████',
            '████#█#██##+###g##██¤##]███+%~c#███#███████',
            '███○#████████████%+██%###█¤#███##█%#███████',
-           '███○##%#○%#██████#####█####%%███#+##%███████',
+           '███○##%#○%#██████#####█####%%███#+##%██████',
            '█████○#█#+%%██████+#███"██h████████%███████',
            '██████+#○██}██████████████%%#%█████████████',
-           '█████████████████████████+####¤███████████',
+           '█████████████████████████+####¤████████████',
            '███████████████████████████#^#+████████████',
            '██████████████████████████¤###%████████████',
            '███████████████████████████████████████████',
@@ -590,7 +593,7 @@ let map = ['██████████████████████�
 
 let originalMap = map.slice();
 
-let xOffset = 9, yOffset = 11;
+let xOffset = 9, yOffset = 12;
 
 let mapLocations = [];
 
@@ -783,7 +786,7 @@ function addActionToQueue(action, queue = null){
 			if (queues[queue].length == 0 || cursor[1] == -1) return;
 			queues[queue].splice(cursor[1], 1);
 			cursor[1]--;
-		} else if ("UDLRI".includes(action) || action[0] == "N" && !isNaN(+action[1])) {
+		} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 			if (cursor[1] >= 0){
 				queues[queue].splice(cursor[1] + 1, 0, [action, queues[queue][cursor[1]][1]]);
 			} else {
@@ -816,6 +819,7 @@ function clearQueue(queue = null){
 	while (queueNode.firstChild) {
 		queueNode.removeChild(queueNode.lastChild);
 	}
+	showCursor();
 }
 
 function createActionNode(action){
@@ -997,7 +1001,7 @@ function addActionToSavedQueue(action){
 		if (savedQueues[queue].length == 0) return;
 		savedQueues[queue].pop();
 		queueNode.removeChild(queueNode.lastChild);
-	} else if ("UDLRI".includes(action)) {
+	} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 		savedQueues[queue].push([action, true]);
 		queueNode.append(createActionNode(action));
 	}
@@ -1046,7 +1050,7 @@ function savedQueueDrop(event, el){
 	if (event.ctrlKey){
 		for (let i = 0; i < savedQueues[source].length; i++){
 			queues[target].push([savedQueues[source][i], true]);
-			queueNode.append(createActionNode(savedQueues[source][i]));
+			queueNode.append(createActionNode(savedQueues[source][i][0]));
 		}
 	} else {
 		queues[target].push([source, true, savedQueues[source]]);
@@ -1230,6 +1234,7 @@ function calcCombatStats() {
 	getStat("Attack").setStat(attack);
 	getStat("Defense").setStat(defense);
 	getStat("Health").setStat(health);
+	clones.forEach(c => c.styleDamage());
 }
 
 let stuff = [
