@@ -106,7 +106,7 @@ body {
 .queue-inner {
 	display: inline-flex;
 	flex-direction: row;
-	min-width: calc(100% - 106px);
+	min-width: calc(100% - 100px);
 }
 
 .queue-time {
@@ -119,10 +119,12 @@ body {
 
 #queue0 .queue-time {
 	display: inline-block;
+	width: 120px;
+	text-align: center;
 }
 
 #queue0 .queue-inner {
-	min-width: calc(100% - 216px);
+	min-width: calc(100% - 224px);
 }
 
 .queue {
