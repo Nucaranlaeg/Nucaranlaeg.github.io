@@ -589,6 +589,11 @@ td:hover:after {
 	background-color: #ff450055;
 }
 
+.out-of-mana {
+	background-color: #607d8b55;
+	transition: background-color 0.4s;
+}
+
 #saved-queues {
 	margin-top: 10px;
 	padding: 5px 10px 5px 5px;

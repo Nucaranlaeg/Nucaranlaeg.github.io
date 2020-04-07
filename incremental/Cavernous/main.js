@@ -1860,10 +1860,13 @@ setInterval(() => {
 	let mana = getStat("Mana");
 	lastAction = Date.now();
 	if (mana.current == 0){
+		document.querySelector("#queues").classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2){
 			resetLoop();
 		}
+	} else {
+		document.querySelector("#queues").classList.remove("out-of-mana")
 	}
 	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
 		timeBanked += time / 2;
