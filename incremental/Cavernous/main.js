@@ -914,6 +914,7 @@ function showCursor(){
 	document.querySelectorAll(".cursor.visible").forEach(el => el.classList.remove("visible"));
 	if (cursor[1] == null) return;
 	let cursorNode = document.querySelector(`#queue${cursor[0]} .cursor`);
+	if (!cursorNode) return;
 	cursorNode.classList.add("visible");
 	cursorNode.style.left = (cursor[1] * 16 + 17) + "px";
 }
