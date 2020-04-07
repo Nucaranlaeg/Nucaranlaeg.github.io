@@ -938,7 +938,7 @@ function selectQueueAction(queue, action, percent){
 		workProgressBar.style.width = "0%";
 		lastProgess = 0
 	}
-	if (percent < lastProgess + 100/(0.4*60)){ // 0.4s@60fps
+	if (percent < lastProgess + 100/(1*60)){ // 1s@60fps
 		workProgressBar.style.width = percent + "%";
 		console.log('>>>', percent-lastProgess, lastProgess)
 	} else if (lastProgess) {
