@@ -944,6 +944,22 @@ function selectSavedQueue(event, el){
 	if (!event.target.closest("input") && !event.target.closest("select")) el.focus();
 }
 
+function insertSavedQueue(event, el){
+	if (event.target.closest("input") || event.target.closest("select")) return;
+	console.log(event, event.which);
+
+	let source = el.closest('.saved-queue').id.replace("saved-queue", "");
+
+	for (let target of selectedQueue) {
+		let queueNode = document.querySelector('#queue'+target+' .queue-inner')
+		queues[target].push([source, true, savedQueues[source]]);
+		queueNode.append(createQueueActionNode(source));
+
+	}
+
+	el.closest('.saved-queue').blur()
+}
+
 function setSavedQueueName(el){
 	let queue = el.parentNode.id.replace("saved-queue", "");
 	savedQueues[queue].name = el.value;
