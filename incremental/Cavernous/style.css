@@ -321,11 +321,13 @@ td.iron {
 	background-color: #777777;
 }
 
-td.furnace {
+td.furnace,
+td.furnace2 {
 	background-color: #777777;
 }
 
-td.furnace:before {
+td.furnace:before,
+td.furnace2:before {
 	content: "#";
 	top: -1px;
 }

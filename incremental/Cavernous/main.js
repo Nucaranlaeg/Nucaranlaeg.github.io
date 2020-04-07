@@ -542,11 +542,12 @@ function viewCell(e){
 				type = getLocationType(getLocationTypeBySymbol(icon));
 				let primaryAction = type.presentAction || type.enterAction;
 				document.querySelector("#location-name").innerHTML = type.name;
-				if (type.description.includes("{STATS}")){
+				let description = type.description;
+				if (description.includes("{STATS}")){
 					let statsDesc = `Attack: ${location.creature.attack}\nDefense: ${location.creature.defense}\nHealth: ${location.creature.health}`;
-					type.description = type.description.replace("{STATS}", statsDesc);
+					description = description.replace("{STATS}", statsDesc);
 				}
-				document.querySelector("#location-description").innerHTML = type.description.replace(/\n/g, "<br>");
+				document.querySelector("#location-description").innerHTML = description.replace(/\n/g, "<br>");
 				if (type.nextCost){
 					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions)}`;
 				} else if (primaryAction) {
@@ -607,7 +608,7 @@ let classMapping = {
 	"+": ["gold", "Gold Ore"],
 	"%": ["iron", "Iron Ore"],
 	"╬": ["furnace", "Furnace"],
-	"▣": ["furnace", "Steel Furnace"],
+	"▣": ["furnace2", "Steel Furnace"],
 	"=": ["vaporizer", "Vaporizer"],
 	"⎶": ["bridge", "Anvil - Bridge"],
 	"&": ["bridge2", "Anvil - Upgrade Bridge"],
@@ -950,7 +951,6 @@ function selectSavedQueue(event, el){
 
 function insertSavedQueue(event, el){
 	if (event.target.closest("input") || event.target.closest("select")) return;
-	console.log(event, event.which);
 
 	let source = el.closest('.saved-queue').id.replace("saved-queue", "");
 
@@ -1777,7 +1777,6 @@ function toggleUseWASD() {
 
 function toggleRepeatLast() {
 	settings.repeatLast = !settings.repeatLast;
-	console.log(settings.repeatLast)
 	document.querySelector("#repeat-last-toggle").innerHTML = settings.repeatLast ? "Don't repeat last action" : "Repeat last action";
 }
 
