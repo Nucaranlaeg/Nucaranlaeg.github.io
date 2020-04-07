@@ -774,12 +774,19 @@ class Route {
 		this.y = y;
 		this.totalTimeAvailable = totalTimeAvailable;
 		this.route = route || queues.map(queue => queueToString(queue));
+		if (this.route.every((e, i, a) => e == a[0])) {
+			this.route = [this.route[0]];
+		}
 	}
 
 	loadRoute(){
 		let newQueues = this.route.map(q => stringToQueue(q));
 		for (let i = 0; i < queues.length; i++){
-			queues[i] = newQueues[i] || [];
+			if (this.route.length == 1) {
+				queues[i] = stringToQueue(this.route[0])
+			} else {
+				queues[i] = stringToQueue(this.route[i] || "")
+			}
 		}
 		redrawQueues();
 	}
