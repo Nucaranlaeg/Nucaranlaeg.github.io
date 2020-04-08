@@ -82,9 +82,15 @@ function resetLoop() {
 	getMessage("Time Travel").display(mana.base == 5);
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
-	if (settings.grindMana) {
-		routes.map(e => getMapLocation(e.x, e.y)).map(e => e.type.nextCost(0, e.priorCompletions)).map(parseFloat).map((e, i) => routes[i].totalTimeAvailable - e).map((e, i) => routes[i].eff = e);
-		routes.reduce((v, e) => v.eff > e.eff ? v : e).loadRoute();
+	if (settings.grindMana && routes) {
+		// Not sure if we want to always go for the best...
+		// Potential spot for improvement.
+		routes.forEach(r => {
+			let location = getMapLocation(r.x, r.y);
+			r.eff = parseFloat(location.type.nextCost(0, location.completions + location.priorCompletions)) - r.totalTimeAvailable;
+		});
+		// routes.map(e => getMapLocation(e.x, e.y)).map(e => e.type.nextCost(0, e.priorCompletions)).map(parseFloat).map((e, i) => routes[i].totalTimeAvailable - e).map((e, i) => routes[i].eff = e);
+		routes.reduce((v, e) => v.eff < e.eff ? v : e).loadRoute();
 	}
 	queues.forEach((q, i) => {
 		q.forEach(a => {
@@ -322,6 +328,7 @@ let settings = {
 	useAlternateArrows: false,
 	useWASD: false,
 	useDifferentBridges: true,
+	grindMana: false,
 }
 
 function toggleBankedTime() {
@@ -348,6 +355,11 @@ function toggleUseWASD() {
 	settings.useWASD = !settings.useWASD;
 	document.querySelector("#use-wasd-toggle").innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
 	document.querySelector("#auto-restart-key").innerHTML = settings.useWASD ? "C" : "W";
+}
+
+function toggleGrindMana() {
+	settings.grindMana = !settings.grindMana;
+	document.querySelector("#grind-mana-toggle").innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
 }
 
 /******************************************** Game loop ********************************************/
