@@ -189,9 +189,13 @@
 		</div>
 		<hr>
 		<h3>Uncommon Actions</h3>
-		<div class="option block clickable" onclick="addRepeatLast()">
+		<div class="option block clickable" onclick="addActionToQueue('<')">
 			<span id="repeat-last-action">Repeat last action</span>
 			<div class="description">This will also repeat a saved queue if that is the last action.</div>
+		</div>
+		<div class="option block clickable" onclick="addActionToQueue('=')">
+			<span id="repeat-last-action">Sync Clones</span>
+			<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
 		</div>
 	</div>
 	<div id="queues"></div>

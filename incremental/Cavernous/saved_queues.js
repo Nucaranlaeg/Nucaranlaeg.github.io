@@ -1,6 +1,6 @@
 function saveQueue(el){
 	let queue = el.parentNode.parentNode.id.replace("queue", "");
-	savedQueues.push(queues[queue].map(q => [q[0]]).filter(q => isNaN(+q)));
+	savedQueues.push(queues[queue].map(q => [q[0]]).filter(q => isNaN(+q) && q[0] != "<"));
 	savedQueues[savedQueues.length - 1].icon = possibleActionIcons[0];
 	// Generate random colour.
 	savedQueues[savedQueues.length - 1].colour = '#'+Math.floor(Math.random()*16777215).toString(16);
@@ -78,7 +78,7 @@ function addActionToSavedQueue(action){
 		if (savedQueues[queue].length == 0) return;
 		savedQueues[queue].pop();
 		queueNode.removeChild(queueNode.lastChild);
-	} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
+	} else if ("UDLRI=".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 		savedQueues[queue].push([action, true]);
 		queueNode.append(createActionNode(action));
 	}

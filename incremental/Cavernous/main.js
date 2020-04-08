@@ -222,7 +222,6 @@ function load(){
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
 
-
 	selectClone(0);
 	redrawQueues();
 
@@ -322,7 +321,6 @@ let settings = {
 	autoRestart: 0,
 	useAlternateArrows: false,
 	useWASD: false,
-	repeatLast: false,
 	useDifferentBridges: true,
 }
 
@@ -350,12 +348,6 @@ function toggleUseWASD() {
 	settings.useWASD = !settings.useWASD;
 	document.querySelector("#use-wasd-toggle").innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
 	document.querySelector("#auto-restart-key").innerHTML = settings.useWASD ? "C" : "W";
-}
-
-function toggleRepeatLast() {
-	settings.repeatLast = !1;// settings.repeatLast;
-	document.querySelector("#repeat-last-toggle").innerHTML = settings.repeatLast ? "Don't repeat last action" : "Repeat last action";
-	addActionToQueue("<")
 }
 
 /******************************************** Game loop ********************************************/
@@ -412,7 +404,7 @@ setInterval(() => {
 	redrawOptions();
 }, 10);
 
-function performAction(time, startTime = null) {
+function performAction(time) {
 	let nextAction, actionIndex;
 	while (time > 0 && ([nextAction, actionIndex] = getNextAction())[0] !== undefined){
 		let xOffset = {
@@ -425,6 +417,7 @@ function performAction(time, startTime = null) {
 		}[nextAction[0]] || 0;
 		if (nextAction[0][0] == "N"){
 			if (runes[nextAction[0][1]].create(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset)){
+				selectQueueAction(currentClone, actionIndex, 100);
 				completeNextAction();
 				continue;
 			} else {
@@ -432,13 +425,17 @@ function performAction(time, startTime = null) {
 			}
 		}
 		if (nextAction[0] == "<") {
-			let prevAction = queues[currentClone].find((e,i,a)=>a[i+1] && a[i+1][0] == "<")
-			prevAction[1] = true
-			if (prevAction[2]){
-				let index = queues[currentClone].indexOf(prevAction);
-				for (let inner of prevAction[2]) {
-					delete inner[`${currentClone}_${index}`]
-				}
+			completeNextAction();
+			continue;
+		}
+		if (nextAction[0] == "=") {
+			clones[currentClone].waiting = true;
+			if (clones.every((c, i) => {
+					return c.waiting || !queues[i].find(q => q[0] == "=" && q[1])
+				})){
+				selectQueueAction(currentClone, actionIndex, 100);
+				completeNextAction();
+				continue;
 			}
 			return 0;
 		}
@@ -472,10 +469,19 @@ function performAction(time, startTime = null) {
 			drawMap();
 		}
 	}
-	if (settings.repeatLast){
-		if (queues[currentClone].length && time != startTime){
-			queues[currentClone][queues[currentClone].length - 1][1] = true;
-			return performAction(time, time);
+	if (time > 0){
+		let repeat = queues[currentClone].findIndex(q => q[0] == "<");
+		if (repeat > -1){
+			for (let i = repeat + 1; i < queues[currentClone].length; i++){
+				queues[currentClone][i][1] = true;
+				if (queues[currentClone][i][2]){
+					for (let inner of queues[currentClone][i][2]) {
+						delete inner[`${currentClone}_${i}`];
+					}
+				}
+				selectQueueAction(currentClone, i, 0);
+			}
+			if (repeat < queues[currentClone].length - 1) performAction(time);
 		}
 	}
 	return time;

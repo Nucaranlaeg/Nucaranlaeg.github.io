@@ -10,6 +10,8 @@ class Clone {
 		this.currentProgress = 0;
 		this.damage = 0;
 		this.styleDamage();
+		this.syncs = 0;
+		this
 	}
 
 	takeDamage(amount) {

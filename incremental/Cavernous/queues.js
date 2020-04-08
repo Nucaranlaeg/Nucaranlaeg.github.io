@@ -20,7 +20,7 @@ function addActionToQueue(action, queue = null){
 			if (queues[queue].length == 0) return;
 			queues[queue].pop();
 			queueNode.removeChild(queueNode.lastChild);
-		} else if ("UDLRI<".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
+		} else if ("UDLRI<=".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 			queues[queue].push([action, true]);
 			queueNode.append(createActionNode(action));
 		}
@@ -30,7 +30,7 @@ function addActionToQueue(action, queue = null){
 			if (queues[queue].length == 0 || cursor[1] == -1) return;
 			queues[queue].splice(cursor[1], 1);
 			cursor[1]--;
-		} else if ("UDLRI".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
+		} else if ("UDLRI<=".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
 			if (cursor[1] >= 0){
 				queues[queue].splice(cursor[1] + 1, 0, [action, queues[queue][cursor[1]][1]]);
 			} else {
@@ -77,6 +77,7 @@ function createActionNode(action){
 		"D": settings.useAlternateArrows ? "↓" : "🡇",
 		"I": settings.useAlternateArrows ? "○" : "🞇",
 		"<": settings.useAlternateArrows ? "⟲" : "⟲",
+		"=": settings.useAlternateArrows ? "=" : "=",
 	}[action];
 	if (!character){
 		character = runes[action[1]].icon;
