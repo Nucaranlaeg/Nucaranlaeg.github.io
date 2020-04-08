@@ -774,12 +774,19 @@ class Route {
 		this.y = y;
 		this.totalTimeAvailable = totalTimeAvailable;
 		this.route = route || queues.map(queue => queueToString(queue));
+		if (this.route.every((e, i, a) => e == a[0])) {
+			this.route = [this.route[0]];
+		}
 	}
 
 	loadRoute(){
 		let newQueues = this.route.map(q => stringToQueue(q));
 		for (let i = 0; i < queues.length; i++){
-			queues[i] = newQueues[i] || [];
+			if (this.route.length == 1) {
+				queues[i] = stringToQueue(this.route[0])
+			} else {
+				queues[i] = stringToQueue(this.route[i] || "")
+			}
 		}
 		redrawQueues();
 	}
@@ -926,11 +933,15 @@ function selectQueueAction(queue, action, percent){
 	}
 	node.querySelector(".progress").style.width = percent + "%";
 	let workProgressBar = node.closest('.bottom-block').querySelector('.work-progress');
-	let lastProgess = workProgressBar.style.width.replace("%", "");
-	if (percent - lastProgess > 10){
+	let lastProgess = +workProgressBar.style.width.replace("%", "");
+	if (percent < lastProgess) {
 		workProgressBar.style.width = "0%";
-	} else {
+		lastProgess = 0
+	}
+	if (percent < lastProgess + 100/(1*60)){ // 1s@60fps
 		workProgressBar.style.width = percent + "%";
+	} else if (lastProgess) {
+		workProgressBar.style.width = "0%";
 	}
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
@@ -1579,6 +1590,10 @@ function resetLoop() {
 	getMessage("Time Travel").display(mana.base == 5);
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
+	if (settings.grindMana) {
+		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(0,e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].totalTimeAvailable-e).map((e,i)=>routes[i].eff = e)
+		routes.reduce((v, e)=> v.eff > e.eff ? v : e).loadRoute()
+	}
 	queues.forEach((q, i) => {
 		q.forEach(a => {
 			a[1] = true;
