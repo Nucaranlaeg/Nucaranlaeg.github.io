@@ -1,7 +1,6 @@
 let queues = [];
 let selectedQueue = [];
 let savedQueues = [];
-let possibleActionIcons = ["★", "✣", "✦", "♣", "♠", "⚑", "×", "⬈", "⬉", "⬊", "⬋"];
 let cursor = [0, null];
 
 function addActionToQueue(action, queue = null){
