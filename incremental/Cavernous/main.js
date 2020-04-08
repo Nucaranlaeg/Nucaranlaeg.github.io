@@ -446,6 +446,7 @@ function performAction(time) {
 			if (clones.every((c, i) => {
 					return c.waiting || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
+				clones[currentClone].waiting = false;
 				selectQueueAction(currentClone, actionIndex, 100);
 				completeNextAction();
 				continue;
