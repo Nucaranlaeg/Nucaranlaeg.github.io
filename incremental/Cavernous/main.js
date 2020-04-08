@@ -1591,7 +1591,7 @@ function resetLoop() {
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
 	if (settings.grindMana) {
-		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(e.completions,e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].totalTimeAvailable-e).map((e,i)=>routes[i].eff = e)
+		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(0,e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].totalTimeAvailable-e).map((e,i)=>routes[i].eff = e)
 		routes.reduce((v, e)=> v.eff > e.eff ? v : e).loadRoute()
 	}
 	queues.forEach((q, i) => {
