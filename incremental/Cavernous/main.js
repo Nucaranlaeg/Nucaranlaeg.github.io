@@ -940,9 +940,7 @@ function selectQueueAction(queue, action, percent){
 	}
 	if (percent < lastProgess + 100/(1*60)){ // 1s@60fps
 		workProgressBar.style.width = percent + "%";
-		console.log('>>>', percent-lastProgess, lastProgess)
 	} else if (lastProgess) {
-		console.log('<<<', percent-lastProgess, lastProgess)
 		workProgressBar.style.width = "0%";
 	}
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
