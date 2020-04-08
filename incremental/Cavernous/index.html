@@ -3,6 +3,20 @@
 	<title>Cavernous</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<script type="text/javascript" src="main.js"></script>
+	<script type="text/javascript" src="stats.js"></script>
+	<script type="text/javascript" src="actions.js"></script>
+	<script type="text/javascript" src="creatures.js"></script>
+	<script type="text/javascript" src="location_types.js"></script>
+	<script type="text/javascript" src="locations.js"></script>
+	<script type="text/javascript" src="map.js"></script>
+	<script type="text/javascript" src="routes.js"></script>
+	<script type="text/javascript" src="queues.js"></script>
+	<script type="text/javascript" src="saved_queues.js"></script>
+	<script type="text/javascript" src="highlights.js"></script>
+	<script type="text/javascript" src="stuff.js"></script>
+	<script type="text/javascript" src="runes.js"></script>
+	<script type="text/javascript" src="clones.js"></script>
+	<script type="text/javascript" src="messages.js"></script>
 </head>
 <body>
 	<div id="templates">
@@ -98,13 +112,13 @@
 				<span id="use-alternate-arrows-toggle">Use alternate arrow icons</span>
 				<div class="description">If 🡄🡅🡆🡇🞇 don't display, use ←↑→↓○ instead.</div>
 			</div>
+			<div class="option block clickable" onclick="toggleGrindMana()">
+				<span id="grind-mana-toggle">Not grinding mana rocks</span>
+				<div class="description">Loops through your best paths to each mana rock.</div>
+			</div>
 			<div class="option block clickable" onclick="toggleUseWASD()">
 				<span id="use-wasd-toggle">Use WASD</span>
 				<div class="description">Some people.</div>
-			</div>
-			<div class="option block clickable" onclick="toggleRepeatLast()">
-				<span id="repeat-last-toggle">Repeat last action</span>
-				<div class="description">This will also repeat a saved queue if that is the last action.</div>
 			</div>
 			<div class="block">
 				Mouse over to see key bindings.
@@ -146,7 +160,7 @@
 		</div>
 		<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
 			<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-			Version 0.2.3<br>
+			Version 0.2.4<br>
 			©2020 Nucaranlaeg
 		</div>
 	</div>
@@ -176,6 +190,16 @@
 				<input type="hidden" id="x-loc">
 				<input type="hidden" id="y-loc">
 			</button>
+		</div>
+		<hr>
+		<h3>Uncommon Actions</h3>
+		<div class="option block clickable" onclick="addActionToQueue('<')">
+			<span id="repeat-last-action">Repeat last action(s)</span>
+			<div class="description">Repeat all actions after this action.</div>
+		</div>
+		<div class="option block clickable" onclick="addActionToQueue('=')">
+			<span id="repeat-last-action">Sync Clones</span>
+			<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
 		</div>
 	</div>
 	<div id="queues"></div>
