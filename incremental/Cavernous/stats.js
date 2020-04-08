@@ -10,7 +10,7 @@ class Stat {
 		this.value = 1;
 		setTimeout(() => {
 			this.update();
-		}, 1);
+		}, 10);
 	}
 
 	updateValue() {
