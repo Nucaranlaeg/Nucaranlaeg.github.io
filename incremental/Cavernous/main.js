@@ -811,7 +811,6 @@ function loadRoute(){
 	let y = document.querySelector("#y-loc").value;
 	let bestRoute = getBestRoute(x, y);
 	if (bestRoute) bestRoute.loadRoute();
-	if (!bestRoute) console.log("No route found");
 }
 
 let routes = [];
@@ -1569,6 +1568,7 @@ function getCreature(search) {
 }
 
 function writeNumber(value, decimals = 0) {
+	if (value > 100) decimals = Math.min(decimals, 1);
 	return value.toFixed(decimals);
 }
 
@@ -1591,8 +1591,8 @@ function resetLoop() {
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
 	if (settings.grindMana) {
-		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(0,e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].totalTimeAvailable-e).map((e,i)=>routes[i].eff = e)
-		routes.reduce((v, e)=> v.eff > e.eff ? v : e).loadRoute()
+		routes.map(e => getMapLocation(e.x, e.y)).map(e => e.type.nextCost(0, e.priorCompletions)).map(parseFloat).map((e, i) => routes[i].totalTimeAvailable - e).map((e, i) => routes[i].eff = e);
+		routes.reduce((v, e) => v.eff > e.eff ? v : e).loadRoute();
 	}
 	queues.forEach((q, i) => {
 		q.forEach(a => {
