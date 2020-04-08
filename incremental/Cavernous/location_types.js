@@ -1,5 +1,5 @@
 class LocationType {
-	constructor(name, symbol, description, enterAction, presentAction, reset, nextCost, enterCount){
+	constructor(name, symbol, description, enterAction, presentAction, reset, nextCost, enterCount, canWorkTogether = true){
 		this.name = name;
 		this.symbol = symbol;
 		this.description = description;
@@ -10,6 +10,7 @@ class LocationType {
 		if (reset){
 			this.extraReset = reset;
 		}
+		this.canWorkTogether = canWorkTogether;
 	}
 
 	getEnterAction(entered) {
@@ -47,7 +48,7 @@ let locationTypes = [
 	new LocationType("Mana Spring", "*", "Pure mana, flowing out of the rock.  Each time you absorb the mana, the cost to do so next time increases.", "Walk", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Clone Machine", "♥", "A strange machine labelled 'Clone Machine'.  What could it do?", "Walk", "Create Clone", storeCompletions, getNextCloneAmountCost),
 	new LocationType("Vaporizer", "=", "A machine for extracting the magic right out of gold.", "Walk", "Turn Gold to Mana", null),
-	new LocationType("Fountain", "^", "A healing fountain, activated by the runes around its base.", "Walk", "Heal", null),
+	new LocationType("Fountain", "^", "A healing fountain, activated by the runes around its base.", "Walk", "Heal", null, null, null, false),
 	new LocationType("Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
 	new LocationType("Lava", "~", "A bottomless pit full of lava.  At least, you're not going to be walking on the bottom, so it's bottomless enough for you.  Your bridges might not last very long here, but probably long enough for one clone.", "Cross Lava", null, null, null, Infinity),
 	new LocationType("Runic Book", '"', "A large book sitting open on a pedestal.", "Walk", "Read", null),

@@ -441,7 +441,7 @@ function performAction(time) {
 		}
 		let location = getMapLocation(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset);
 		if (clones[currentClone].currentCompletions === null) clones[currentClone].currentCompletions = location.completions;
-		if ((!xOffset && !yOffset && clones[currentClone].currentProgress && (clones[currentClone].currentProgress < location.remainingPresent || location.remainingPresent == 0))
+		if ((!xOffset && !yOffset && location.canWorkTogether && clones[currentClone].currentProgress && (clones[currentClone].currentProgress < location.remainingPresent || location.remainingPresent == 0))
 			|| (clones[currentClone].currentCompletions !== null && clones[currentClone].currentCompletions < location.completions)){
 			completeNextAction();
 			clones[currentClone].currentProgress = 0;

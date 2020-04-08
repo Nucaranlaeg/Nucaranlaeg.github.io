@@ -10,12 +10,11 @@ class Route {
 	}
 
 	loadRoute(){
-		let newQueues = this.route.map(q => stringToQueue(q));
 		for (let i = 0; i < queues.length; i++){
 			if (this.route.length == 1) {
-				queues[i] = stringToQueue(this.route[0])
+				queues[i] = stringToQueue(this.route[0]);
 			} else {
-				queues[i] = stringToQueue(this.route[i] || "")
+				queues[i] = stringToQueue(this.route[i] || "");
 			}
 		}
 		redrawQueues();

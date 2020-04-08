@@ -175,7 +175,7 @@ function completeFight(x, y, creature){
 }
 
 function tickHeal(usedTime){
-	clones[currentClone].takeDamage(-Math.max(clones[currentClone].damage - (usedTime / 1000 / getStat("Runic Lore").value), 0));
+	clones[currentClone].takeDamage(-usedTime / 1000 / getStat("Runic Lore").value);
 }
 
 function completeHeal(){
@@ -228,7 +228,7 @@ let actions = [
 	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
-	new Action("Heal", 1000, [["Runic Lore", 1]], completeHeal, null, tickHeal)
+	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 ];
 
 // General smithing costs:

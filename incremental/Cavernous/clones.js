@@ -16,6 +16,7 @@ class Clone {
 
 	takeDamage(amount) {
 		this.damage += amount;
+		if (this.damage < 0) this.damage = 0;
 		if (this.damage >= getStat("Health").current) this.damage = Infinity;
 		this.styleDamage();
 	}

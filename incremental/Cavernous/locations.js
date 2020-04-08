@@ -49,7 +49,9 @@ class Location {
 					this.remainingPresent = 1;
 					this.usedTime = time;
 				} else {
-					this.completions++;
+					if (this.type.canWorkTogether){
+						this.completions++;
+					}
 				}
 			}
 			percent = this.remainingPresent / (this.presentDuration || 1);
