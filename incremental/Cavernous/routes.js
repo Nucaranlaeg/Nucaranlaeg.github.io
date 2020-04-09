@@ -6,13 +6,14 @@ class Route {
 			this.x = x.x;
 			this.y = x.y;
 			let route = queues.map(r => queueToString(r));
+			route = route.filter(e=>e.length)
 
 			if (route.every((e,i,a) => e==a[0])) {
 				route = [route[0]];
 			} else {
 				let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
 				let ununique = route.find(e => e != unique);
-				if (route.every(e => e == unique || e == unique)) {
+				if (route.every(e => e == unique || e == ununique)) {
 					route = [unique, ununique];
 				}
 			}
@@ -93,7 +94,7 @@ class Route {
 
 	static loadBestRoute() {
 		let bestEff = -999;
-		let route = routes[0];
+		let bestRoute = routes[0];
 		for (let r of routes) {
 			let eff = r.estimateConsumeManaLeft();
 			if (eff > bestEff) {
@@ -101,7 +102,10 @@ class Route {
 				bestRoute = r;
 			}
 		}
-		r.loadRoute();
+		settings.debug && log('best route is now: %o\n %o*%os, eff:%o: %o', //
+			getMapLocation(bestRoute.x, bestRoute.y), (clones.length - bestRoute.clonesLost),//
+			 +(getStat("Mana").base - bestRoute.manaUsed).toFixed(2), +bestEff.toFixed(2), bestRoute)
+		bestRoute.loadRoute();
 	}
 }
 
