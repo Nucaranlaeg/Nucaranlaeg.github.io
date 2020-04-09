@@ -145,16 +145,16 @@ function save(){
 		"timeBanked": timeBanked,
 	}
 	let messageData = messages.map(m => [m.name, m.displayed]);
-	let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
+	//let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
 	saveString = JSON.stringify({
-		"playerStats": playerStats,
-		"locations": locations,
-		"cloneData": cloneData,
-		"stored": stored,
-		"time": time,
-		"messageData": messageData,
-		"settings": settings,
-		"routes": savedRoutes,
+		playerStats,
+		locations,
+		cloneData,
+		stored,
+		time,
+		messageData,
+		settings,
+		routes,
 	});
 	localStorage["saveGame"] = btoa(saveString);
 }
@@ -200,7 +200,11 @@ function load(){
 		}
 	}
 	if (saveGame.routes){
-		routes = saveGame.routes.map(r => new Route(r[0], r[1], r[2], r[3]));
+		if (Array.isArray(saveGame.routes[0])) {
+			routes = saveGame.routes.map(r => Route.migrateFromArray(r))
+		} else {
+			routes = Route.fromJSON(saveGame.routes);	
+		}
 	}
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();

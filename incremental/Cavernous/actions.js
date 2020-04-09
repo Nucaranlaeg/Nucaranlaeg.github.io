@@ -58,16 +58,17 @@ function completeCoalMine(x, y){
 
 function completeCollectMana(x, y) {
 	let location = getMapLocation(x, y);
-	let duration = startCollectMana(0, location.priorCompletions);
-	let mana = getStat("Mana");
-	let totalTimeAvailable = (mana.current * clones.length) + duration;
-	setBestRoute(x, y, totalTimeAvailable);
+	Route.updateBestRoute(location);
 	mana.base += 0.1;
 	mana.current += 0.1;
 	setMined(x, y, ".");
 }
 
-function startCollectMana(completions, priorCompletions){
+function mineManaRockCost(completions, priorCompletions) {
+	return completions ? 0 : Math.pow(1.1, priorCompletions);
+}
+
+function startCollectMana(completions, priorCompletions) {
 	return completions ? 0 : Math.pow(1.1, priorCompletions);
 }
 
