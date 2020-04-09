@@ -323,6 +323,7 @@ function toggleBankedTime() {
 function toggleRunning() {
 	settings.running = !settings.running;
 	document.querySelector("#running-toggle").innerHTML = settings.running ? "Running" : "Paused";
+	document.querySelector("#running-toggle").closest(".option").classList.toggle("option-highlighted", !settings.running); 
 }
 
 function toggleAutoRestart() {
@@ -344,6 +345,7 @@ function toggleUseWASD() {
 function toggleGrindMana() {
 	settings.grindMana = !settings.grindMana;
 	document.querySelector("#grind-mana-toggle").innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
+	document.querySelector("#grind-mana-toggle").closest(".option").classList.toggle("option-highlighted", settings.grindMana); 
 }
 
 /******************************************** Game loop ********************************************/

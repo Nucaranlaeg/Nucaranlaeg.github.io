@@ -46,6 +46,10 @@ body {
 	width: 194px;
 }
 
+.option.option-highlighted {
+	background: #ffff0077;
+}
+
 .option.double-height {
 	height: 40px;
 }
