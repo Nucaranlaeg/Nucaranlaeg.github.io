@@ -146,6 +146,14 @@ function save(){
 	let messageData = messages.map(m => [m.name, m.displayed]);
 	//let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
 	saveString = JSON.stringify({
+		playerStats,
+		locations,
+		cloneData,
+		stored,
+		time,
+		messageData,
+		settings,
+		routes,
 	});
 	localStorage["saveGame"] = btoa(saveString);
 }
@@ -201,6 +209,7 @@ function load(){
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	toggleAutoRestart();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
+	Object.assign(settings, saveGame.settings, settings);
 
 	selectClone(0);
 	redrawQueues();
@@ -208,7 +217,9 @@ function load(){
 	// Fix attack and defense
 	getStat("Attack").base = 0;
 	getStat("Defense").base = 0;
+	stats.map(s => s.update());
 
+	drawMap();
 	resetLoop();
 }
 
@@ -238,6 +249,7 @@ function exportGame(){
 function importGame(){
 	let saveString = prompt("Input your save");
 	save();
+	save = () => {};
 	let temp = localStorage["saveGame"];
 	localStorage["saveGame"] = saveString;
 	try {
