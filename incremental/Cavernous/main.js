@@ -399,6 +399,7 @@ setInterval(() => {
 	redrawOptions();
 
 	stats.map(e=>e.update())
+	drawMap();
 }, Math.floor(1000 / fps));
 
 function performAction(time) {
@@ -452,7 +453,7 @@ function performAction(time) {
 			if (startStatus == 0){
 				completeNextAction();
 				clone.currentProgress = 0;
-				drawMap();
+				// drawMap(); // moved to main loop
 				selectQueueAction(currentClone, actionIndex, 100);
 				continue;
 			} else if (startStatus < 0){
@@ -465,7 +466,7 @@ function performAction(time) {
 		if (!percentRemaining){
 			completeNextAction();
 			clone.currentProgress = 0;
-			drawMap();
+			// drawMap(); // moved to main loop
 		}
 	}
 	if (time > 0){
