@@ -519,6 +519,12 @@ let keyFunctions = {
 			clearQueue();
 		}
 	},
+	"^Backspace": e => {
+		addActionToQueue("B");
+		if (e.ctrlKey) {
+			clearQueue();
+		}
+	},
 	"KeyW": () => {
 		if (settings.useWASD){
 			addActionToQueue("U");
@@ -551,13 +557,16 @@ let keyFunctions = {
 		toggleBankedTime();
 	},
 	"Tab": e => {
-		if (e.shiftKey){
-			selectClone((clones.length + selectedQueue[selectedQueue.length - 1] - 1) % clones.length);
-		} else {
-			selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
-		}
-		e.preventDefault();
+		selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
 		e.stopPropagation();
+	},
+	">Tab": e => {
+		selectClone((clones.length + selectedQueue[selectedQueue.length - 1] - 1) % clones.length);
+		e.stopPropagation();
+	},
+	"^KeyA": () => {
+		clones[0].select();
+		clones.slice(1).map(e => e.select(true));
 	},
 	"KeyC": () => {
 		if (settings.useWASD){
@@ -589,8 +598,8 @@ setTimeout(() => {
 	}
 	document.body.onkeydown = e => {
 		hideMessages();
-		if (!document.querySelector("input:focus")){
-			let key = e.code;
+		if (!document.querySelector("input:focus")) {
+			let key = `${e.ctrlKey ? '^' : ''}${e.shiftKey ? '>' : ''}${e.code}`;
 			if (keyFunctions[key]){
 				e.preventDefault();
 				keyFunctions[key](e);
