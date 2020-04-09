@@ -378,30 +378,31 @@ setInterval(() => {
 		redrawOptions();
 		return;
 	}
-	if (time > 1000){
-		timeBanked += (time - 1000) / 2;
-		time = 1000;
+	let timeAvailable = time;
+	if (settings.usingBankedTime && timeBanked > 0){
+		timeAvailable = Math.min(time + timeBanked, time * 10);
 	}
-	if (settings.usingBankedTime && time < 100 && timeBanked > 0){
-		timeBanked += time;
-		usedBank = 100 - time;
-		time = Math.min(100, timeBanked);
-		timeBanked = Math.floor(timeBanked - time);
+	if (timeAvailable > 1000) {
+		timeAvailable = 1000;
 	}
-	if (time > mana.current * 1000){
-		timeBanked += time - mana.current * 1000;
-		time = mana.current * 1000;
+	if (timeAvailable > mana.current * 1000){
+		timeAvailable = mana.current * 1000;
 	}
-	let unusedTime = time;
+	let timeLeft = timeAvailable;
 	for (let i = 0; i < clones.length; i++){
 		if (clones[i].damage == Infinity) continue;
 		currentClone = i;
-		unusedTime = Math.min(performAction(time), unusedTime);
+		timeLeft = Math.min(performAction(timeAvailable), timeLeft);
 	}
-	timeBanked += Math.max(unusedTime - usedBank, 0) / 2 + Math.min(usedBank, unusedTime);
-	queueTime += time - unusedTime;
-	mana.spendMana((time - unusedTime) / 1000);
-	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)){
+	let timeUsed = timeAvailable - timeLeft;
+	if (timeUsed > time) {
+		timeBanked -= timeUsed - time;
+	} else {
+		timeBanked += (time - timeUsed) / 2;
+	}
+	queueTime += timeUsed;
+	mana.spendMana(timeUsed / 1000);
+	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
 	let timeDiv = document.querySelector("#queue0 .queue-time .time");
