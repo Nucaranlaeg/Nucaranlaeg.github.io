@@ -67,14 +67,8 @@ function resetLoop() {
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
 	if (settings.grindMana && routes) {
-		// Not sure if we want to always go for the best...
-		// Potential spot for improvement.
-		routes.forEach(r => {
-			let location = getMapLocation(r.x, r.y);
-			r.eff = parseFloat(location.type.nextCost(0, location.completions + location.priorCompletions)) - r.totalTimeAvailable;
-		});
-		// routes.map(e => getMapLocation(e.x, e.y)).map(e => e.type.nextCost(0, e.priorCompletions)).map(parseFloat).map((e, i) => routes[i].totalTimeAvailable - e).map((e, i) => routes[i].eff = e);
-		routes.reduce((v, e) => v.eff < e.eff ? v : e).loadRoute();
+		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(0,e.completions+e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].totalTimeAvailable-e).map((e,i)=>routes[i].eff = e)
+		routes.reduce((v, e)=> v.eff > e.eff ? v : e).loadRoute()
 	}
 	queues.forEach((q, i) => {
 		q.forEach(a => {
@@ -431,11 +425,11 @@ function performAction(time) {
 			continue;
 		}
 		if (nextAction[0] == "=") {
-			clones[currentClone].waiting = true;
+			clone.waiting = true;
 			if (clones.every((c, i) => {
-					return c.waiting || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.waiting === true || c.waiting <= queueTime + 100) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
-				clones[currentClone].waiting = false;
+				clone.waiting = queueTime;
 				selectQueueAction(currentClone, actionIndex, 100);
 				completeNextAction();
 				continue;
