@@ -359,7 +359,7 @@ let queueTime = 0;
 let currentClone = 0;
 let fps = 60;
 
-setInterval(() => {
+setInterval(function mainLoop() {
 	let time = Date.now() - lastAction;
 	let usedBank = 0;
 	let mana = getStat("Mana");
@@ -380,7 +380,8 @@ setInterval(() => {
 	}
 	let timeAvailable = time;
 	if (settings.usingBankedTime && timeBanked > 0){
-		timeAvailable = Math.min(time + timeBanked, time * 10);
+		let speedMultiplier = settings.debug_speedMultiplier || 10;
+		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
 	}
 	if (timeAvailable > 1000) {
 		timeAvailable = 1000;
@@ -388,12 +389,19 @@ setInterval(() => {
 	if (timeAvailable > mana.current * 1000){
 		timeAvailable = mana.current * 1000;
 	}
-	let timeLeft = timeAvailable;
-	for (let i = 0; i < clones.length; i++){
-		if (clones[i].damage == Infinity) continue;
-		currentClone = i;
-		timeLeft = Math.min(performAction(timeAvailable), timeLeft);
+	if (timeAvailable < 0) {
+		timeAvailable = 0;
 	}
+	let timeLeft = timeAvailable;
+	
+	// for (let i = 0; i < clones.length; i++){
+	// 	if (clones[i].damage == Infinity) continue;
+	// 	currentClone = i;
+	// 	timeLeft = Math.min(performAction(timeAvailable), timeLeft);
+	// }
+	timeLeft = Clone.performActions(timeAvailable);
+
+	
 	let timeUsed = timeAvailable - timeLeft;
 	if (timeUsed > time) {
 		timeBanked -= timeUsed - time;
@@ -414,6 +422,8 @@ setInterval(() => {
 }, Math.floor(1000 / fps));
 
 function performAction(time, lastTime) {
+	throw "Outdated";
+	return Clone.performActions(time);
 	let nextAction, actionIndex;
 	while (time > 0 && ([nextAction, actionIndex] = getNextAction())[0] !== undefined){
 		let clone = clones[currentClone];

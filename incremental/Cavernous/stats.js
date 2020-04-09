@@ -72,14 +72,15 @@ class Stat {
 
 	getNextLoopValue() {
 		if (!this.learnable) return this.base;
-		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / 100;
+		let statIncreaseDivisor = settings.debug_statIncreaseDivisor || 100;
+		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / statIncreaseDivisor;
 		return this.base + (increase > 0 ? increase : 0);
 	}
 
 	spendMana(amount) {
 		if (this.name != "Mana") return;
 		this.current -= amount;
-		this.update();
+		// this.update(); // moved to main loop
 	}
 }
 
