@@ -181,7 +181,7 @@ function load(){
 	}
 	clones = [];
 	while (clones.length < saveGame.cloneData.count){
-		clones.push(new Clone());
+		clones.push(new Clone(clones.length));
 	}
 	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
 	queues = [];
@@ -485,7 +485,7 @@ function performAction(time) {
 }
 
 function setup(){
-	clones.push(new Clone());
+	clones.push(new Clone(clones.length));
 	selectClone(0);
 	getMapLocation(0,0);
 	drawMap();

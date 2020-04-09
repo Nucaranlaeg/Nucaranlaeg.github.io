@@ -1,5 +1,6 @@
 class Clone {
-	constructor(){
+	constructor(id){
+		this.id = id;
 		this.reset();
 		this.createQueue();
 	}
@@ -36,36 +37,55 @@ class Clone {
 		document.querySelector("#queues").append(this.el);
 		queues.push([]);
 	}
+
+	select(allowMultiple = false) {
+		if (!allowMultiple) {
+
+			for (let index of selectedQueue) {
+				if (index != this.id) clones[index].deselect();
+			}
+			if (cursor[0] != this.id){
+				cursor = [this.id, null];
+			}
+			selectedQueue = [this.id];
+
+		} else {
+
+			cursor = [0, null];
+
+		}
+
+		document.querySelector(`#queue${this.id}`).classList.add("selected-clone");
+		if (!selectedQueue.includes(this.id)) {
+			selectedQueue.push(this.id)
+		}
+
+	}
+
+	deselect() {
+		document.querySelector(`#queue${this.id}`).classList.remove("selected-clone");
+		if (cursor[0] == this.id)
+			cursor[1] = null;
+		selectedQueue = selectedQueue.filter(e => e != this.id);
+	}
 }
 
 function selectClone(target, event){
 	if (target.id) {
-		let selection = target.id.replace("queue", "");
-		if (cursor[0] != selection){
-			cursor = [selection, null];
-		}
+		let index = +target.id.replace("queue", "");
 		if (event && event.ctrlKey) {
-			cursor = [0, null];
-			if (selectedQueue.includes(selection)){
-				selectedQueue = selectedQueue.filter(q => q != selection) || [selection];
-				target.classList.remove("selected-clone");
+			if (selectedQueue.includes(index)) {
+				clones[index].deselect();
 			} else {
-				selectedQueue.push(selection);
-				target.classList.add("selected-clone");
+				clones[index].select(true);
 			}
 		} else {
-			document.querySelectorAll(".selected-clone").forEach(el => el.classList.remove("selected-clone"));
-			selectedQueue = [target.id.replace("queue", "")];
-			target.classList.add("selected-clone");
+			clones[index].select();
 		}
 	} else {
-		if (cursor[0] != target){
-			cursor = [target, null];
-		}
-		document.querySelectorAll(".selected-clone").forEach(el => el.classList.remove("selected-clone"));
-		selectedQueue = [target];
-		document.querySelector(`#queue${target}`).classList.add("selected-clone");
+		clones[target].select();
 	}
+	
 	showCursor();
 	showFinalLocation();
 }
