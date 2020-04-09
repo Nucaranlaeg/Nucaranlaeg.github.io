@@ -413,7 +413,8 @@ setInterval(() => {
 	queueTime += time - unusedTime;
 	mana.spendMana((time - unusedTime) / 1000);
 	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)) resetLoop();
-	document.querySelector("#queue0 .queue-time .time").innerHTML = writeNumber(queueTime / 1000, 1);
+	let timeDiv = document.querySelector("#queue0 .queue-time .time");
+	if (timeDiv) timeDiv.innerHTML = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
 }, 10);
 
@@ -444,9 +445,10 @@ function performAction(time) {
 		if (nextAction[0] == "=") {
 			clones[currentClone].waiting = true;
 			if (clones.every((c, i) => {
-					return c.waiting || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.waiting === true || c.waiting === queueTime) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
-				clones[currentClone].waiting = false;
+					console.log(clones.map(c => c.waiting));
+				clones[currentClone].waiting = queueTime;
 				selectQueueAction(currentClone, actionIndex, 100);
 				completeNextAction();
 				continue;
