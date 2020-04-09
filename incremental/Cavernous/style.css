@@ -256,6 +256,11 @@ body {
 	user-select: none;
 }
 
+.bottom-vertical-block {
+	position: absolute;
+	bottom: 2px;
+}
+
 .wide {
 	width: 500px;
 }
