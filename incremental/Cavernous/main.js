@@ -352,6 +352,7 @@ let lastAction = Date.now();
 let timeBanked = 0;
 let queueTime = 0;
 let currentClone = 0;
+let fps = 60;
 
 setInterval(() => {
 	let time = Date.now() - lastAction;
@@ -396,9 +397,11 @@ setInterval(() => {
 	queueTime += time - unusedTime;
 	mana.spendMana((time - unusedTime) / 1000);
 	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)) resetLoop();
-	document.querySelector("#queue0 .queue-time .time").innerHTML = writeNumber(queueTime / 1000, 1);
+// 	document.querySelector("#queue0 .queue-time .time").innerHTML = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
-}, 10);
+
+	stats.map(e=>e.update())
+}, Math.floor(1000 / fps));
 
 function performAction(time) {
 	let nextAction, actionIndex;
