@@ -90,6 +90,19 @@ class Route {
 	static fromJSON(ar) {
 		return ar.map(r => new Route(r));
 	}
+
+	static loadBestRoute() {
+		let bestEff = -999;
+		let route = routes[0];
+		for (let r of routes) {
+			let eff = r.estimateConsumeManaLeft();
+			if (eff > bestEff) {
+				bestEff = eff;
+				bestRoute = r;
+			}
+		}
+		r.loadRoute();
+	}
 }
 
 function getBestRoute(x, y){
