@@ -99,3 +99,9 @@ let stats = [
 function getStat(name) {
 	return stats.find(a => a.name == name);
 }
+
+
+function writeNumber(value, decimals = 0) {
+	if (value > 100) decimals = Math.min(decimals, 1);
+	return value.toFixed(decimals);
+}
