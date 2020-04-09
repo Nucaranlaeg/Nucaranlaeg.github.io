@@ -67,8 +67,8 @@ function resetLoop() {
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
 	if (settings.grindMana && routes) {
-		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(0,e.completions+e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].totalTimeAvailable-e).map((e,i)=>routes[i].eff = e)
-		routes.reduce((v, e)=> v.eff > e.eff ? v : e).loadRoute()
+		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(0,e.completions+e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].eff = routes[i].totalTimeAvailable - e - (routes[i].atMana * clones.length));
+		routes.reduce((v, e)=> v.eff > e.eff ? v : e).loadRoute();
 	}
 	queues.forEach((q, i) => {
 		q.forEach(a => {
@@ -145,7 +145,7 @@ function save(){
 		"timeBanked": timeBanked,
 	}
 	let messageData = messages.map(m => [m.name, m.displayed]);
-	let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
+	let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route, r.atMana])
 	saveString = JSON.stringify({
 		"playerStats": playerStats,
 		"locations": locations,
@@ -200,7 +200,7 @@ function load(){
 		}
 	}
 	if (saveGame.routes){
-		routes = saveGame.routes.map(r => new Route(r[0], r[1], r[2], r[3]));
+		routes = saveGame.routes.map(r => new Route(...r));
 	}
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();
@@ -430,7 +430,7 @@ function performAction(time, lastTime) {
 		if (nextAction[0] == "=") {
 			clones[currentClone].waiting = true;
 			if (clones.every((c, i) => {
-					return (c.waiting === true || c.waiting <= queueTime + 100) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.waiting === true || (c.waiting <= queueTime && c.waiting >= queueTime - 100)) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
 				clones[currentClone].waiting = queueTime;
 				selectQueueAction(currentClone, actionIndex, 100);
