@@ -28,24 +28,12 @@ function completeNextAction(clone = currentClone) {
 	if (action[2].every(a => a[`${clone}_${index}`] === false)) action[1] = false;
 }
 
-function getAction(name) {
-	return actions.find(a => a.name == name);
-}
-
 function getLocationType(name) {
 	return locationTypes.find(a => a.name == name);
 }
 
 function getLocationTypeBySymbol(symbol) {
 	return locationTypes.find(a => a.symbol == symbol).name;
-}
-
-function getStat(name) {
-	return stats.find(a => a.name == name);
-}
-
-function getStuff(name) {
-	return stuff.find(a => a.name == name);
 }
 
 function getMessage(name) {
@@ -63,11 +51,6 @@ function getCreature(search) {
 function writeNumber(value, decimals = 0) {
 	if (value > 100) decimals = Math.min(decimals, 1);
 	return value.toFixed(decimals);
-}
-
-function setContrast(colour) {
-	darkness = (parseInt(colour.slice(1, 3), 16) * 299 + parseInt(colour.slice(3, 5), 16) * 587 + parseInt(colour.slice(5, 7), 16) * 114) / 1000;
-	return darkness > 125 ? "#000000" : "#ffffff";
 }
 
 function redrawOptions() {
@@ -192,7 +175,7 @@ function load(){
 	}
 	clones = [];
 	while (clones.length < saveGame.cloneData.count){
-		clones.push(new Clone());
+		clones.push(new Clone(clones.length));
 	}
 	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
 	queues = [];
@@ -334,6 +317,7 @@ function toggleBankedTime() {
 function toggleRunning() {
 	settings.running = !settings.running;
 	document.querySelector("#running-toggle").innerHTML = settings.running ? "Running" : "Paused";
+	document.querySelector("#running-toggle").closest(".option").classList.toggle("option-highlighted", !settings.running); 
 }
 
 function toggleAutoRestart() {
@@ -355,6 +339,7 @@ function toggleUseWASD() {
 function toggleGrindMana() {
 	settings.grindMana = !settings.grindMana;
 	document.querySelector("#grind-mana-toggle").innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
+	document.querySelector("#grind-mana-toggle").closest(".option").classList.toggle("option-highlighted", settings.grindMana); 
 }
 
 /******************************************** Game loop ********************************************/
@@ -363,6 +348,7 @@ let lastAction = Date.now();
 let timeBanked = 0;
 let queueTime = 0;
 let currentClone = 0;
+let fps = 60;
 
 setInterval(() => {
 	let time = Date.now() - lastAction;
@@ -407,10 +393,11 @@ setInterval(() => {
 	queueTime += time - unusedTime;
 	mana.spendMana((time - unusedTime) / 1000);
 	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)) resetLoop();
-	let timeDiv = document.querySelector("#queue0 .queue-time .time");
-	if (timeDiv) timeDiv.innerHTML = writeNumber(queueTime / 1000, 1);
+// 	document.querySelector("#queue0 .queue-time .time").innerHTML = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
-}, 10);
+
+	stats.map(e=>e.update())
+}, Math.floor(1000 / fps));
 
 function performAction(time) {
 	let nextAction, actionIndex;
@@ -498,7 +485,7 @@ function performAction(time) {
 }
 
 function setup(){
-	clones.push(new Clone());
+	clones.push(new Clone(clones.length));
 	selectClone(0);
 	getMapLocation(0,0);
 	drawMap();
@@ -526,6 +513,12 @@ let keyFunctions = {
 	"Backspace": e => {
 		addActionToQueue("B");
 		if (e.ctrlKey){
+			clearQueue();
+		}
+	},
+	"^Backspace": e => {
+		addActionToQueue("B");
+		if (e.ctrlKey) {
 			clearQueue();
 		}
 	},
@@ -561,13 +554,16 @@ let keyFunctions = {
 		toggleBankedTime();
 	},
 	"Tab": e => {
-		if (e.shiftKey){
-			selectClone((clones.length + selectedQueue[selectedQueue.length - 1] - 1) % clones.length);
-		} else {
-			selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
-		}
-		e.preventDefault();
+		selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
 		e.stopPropagation();
+	},
+	">Tab": e => {
+		selectClone((clones.length + selectedQueue[selectedQueue.length - 1] - 1) % clones.length);
+		e.stopPropagation();
+	},
+	"^KeyA": () => {
+		clones[0].select();
+		clones.slice(1).map(e => e.select(true));
 	},
 	"KeyC": () => {
 		if (settings.useWASD){
@@ -599,8 +595,8 @@ setTimeout(() => {
 	}
 	document.body.onkeydown = e => {
 		hideMessages();
-		if (!document.querySelector("input:focus")){
-			let key = e.code;
+		if (!document.querySelector("input:focus")) {
+			let key = `${e.ctrlKey ? '^' : ''}${e.shiftKey ? '>' : ''}${e.code}`;
 			if (keyFunctions[key]){
 				e.preventDefault();
 				keyFunctions[key](e);

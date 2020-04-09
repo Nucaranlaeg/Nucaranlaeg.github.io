@@ -77,3 +77,12 @@ let stuff = [
 	new Stuff("Steel Shield", "[", "A steel shield.  This should help you not die. (+2 defense)  Max 1 shield per clone.", "#222222", 0, calcCombatStats),
 	new Stuff("Steel Armour", "]", "A suit of steel armour.  This should help you take more hits. (+15 health)  Max 1 armour per clone.", "#222222", 0, calcCombatStats),
 ];
+
+function setContrast(colour) {
+	darkness = (parseInt(colour.slice(1, 3), 16) * 299 + parseInt(colour.slice(3, 5), 16) * 587 + parseInt(colour.slice(5, 7), 16) * 114) / 1000;
+	return darkness > 125 ? "#000000" : "#ffffff";
+}
+
+function getStuff(name) {
+	return stuff.find(a => a.name == name);
+}
