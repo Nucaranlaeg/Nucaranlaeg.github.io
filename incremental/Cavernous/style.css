@@ -46,6 +46,10 @@ body {
 	width: 194px;
 }
 
+.option.option-highlighted {
+	background: #ffff0077;
+}
+
 .option.double-height {
 	height: 40px;
 }
@@ -576,10 +580,22 @@ td:hover:after {
 	pointer-events: none;
 	height: 3px;
 	z-index: 30;
+	opacity: 1;
+	transition: opacity 0.4s;
+}
+
+.damage[style*="100%"] {
+	opacity: 0;
 }
 .work-progress {
 	background-color: #0000ff55;
 	width: 0%;
+	transition: opacity 0.35s 0.05s;
+}
+
+.work-progress[style*=" 0%"] {
+	opacity: 0;
+	transition: opacity 0s;
 }
 
 .dead-clone {

@@ -2,21 +2,22 @@
 <head>
 	<title>Cavernous</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
-	<script type="text/javascript" src="main.js"></script>
-	<script type="text/javascript" src="stats.js"></script>
-	<script type="text/javascript" src="actions.js"></script>
-	<script type="text/javascript" src="creatures.js"></script>
-	<script type="text/javascript" src="location_types.js"></script>
-	<script type="text/javascript" src="locations.js"></script>
-	<script type="text/javascript" src="map.js"></script>
-	<script type="text/javascript" src="routes.js"></script>
-	<script type="text/javascript" src="queues.js"></script>
-	<script type="text/javascript" src="saved_queues.js"></script>
-	<script type="text/javascript" src="highlights.js"></script>
-	<script type="text/javascript" src="stuff.js"></script>
-	<script type="text/javascript" src="runes.js"></script>
-	<script type="text/javascript" src="clones.js"></script>
-	<script type="text/javascript" src="messages.js"></script>
+	<script type="text/javascript" defer src="stats.js"></script>
+	<script type="text/javascript" defer src="actions.js"></script>
+	<script type="text/javascript" defer src="creatures.js"></script>
+	<script type="text/javascript" defer src="location_types.js"></script>
+	<script type="text/javascript" defer src="locations.js"></script>
+	<script type="text/javascript" defer src="map.js"></script>
+	<script type="text/javascript" defer src="routes.js"></script>
+	<script type="text/javascript" defer src="queues.js"></script>
+	<script type="text/javascript" defer src="saved_queues.js"></script>
+	<script type="text/javascript" defer src="highlights.js"></script>
+	<script type="text/javascript" defer src="stuff.js"></script>
+	<script type="text/javascript" defer src="runes.js"></script>
+	<script type="text/javascript" defer src="clones.js"></script>
+	<script type="text/javascript" defer src="messages.js"></script>
+	
+	<script type="text/javascript" defer src="main.js"></script>
 </head>
 <body>
 	<div id="templates">
@@ -53,7 +54,7 @@
 			</tr>
 		</table>
 		<div id="queue-template" class="bottom-block" onclick="selectClone(this, event)" ondrop="savedQueueDrop(event, this)" ondragover="queueDragOver(event)">
-			<div class="damage"></div>
+			<div class="damage" style="width: 100%;"></div>
 			<div class="queue-inner" onclick="maybeClearCursor(event, this)"></div>
 			<div class="queue-time">
 				Time spent: <span class="time">0</span>s

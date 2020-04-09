@@ -46,14 +46,24 @@ function addActionToQueue(action, queue = null){
 	}
 }
 
-function clearQueue(queue = null){
+function clearQueue(queue = null, noConfirm = false){
 	if (queue === null){
-		for (let i = 0; i < selectedQueue.length; i++){
-			clearQueue(selectedQueue[i]);
+		if (selectedQueue.length == 0) return;
+		if (selectedQueue.length == 1) {
+			clearQueue(selectedQueue[0]);
+		} else {
+			if (selectedQueue.length == queues.length) {
+				if (!noConfirm && !confirm("Really clear ALL queues?")) return;
+			} else {
+				if (!noConfirm && !confirm("Really clear ALL selected queues?")) return;
+			}
+			for (let i = 0; i < selectedQueue.length; i++) {
+				clearQueue(selectedQueue[i], true);
+			}
 		}
 		return;
 	}
-	if (!confirm("Really clear queue?")) return;
+	if (!noConfirm && !confirm("Really clear queue?")) return;
 	queues[queue] = [];
 	if (cursor[0] == queue){
 		cursor[1] = null;

@@ -8,9 +8,9 @@ class Stat {
 		this.bonus = 0;
 		this.node = null;
 		this.value = 1;
-		setTimeout(() => {
-			this.update();
-		}, 10);
+// 		setTimeout(() => {
+// 			this.update();
+// 		}, 10);
 	}
 
 	updateValue() {
@@ -93,3 +93,7 @@ let stats = [
 	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),
 	new Stat("Health", "", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false),
 ];
+
+function getStat(name) {
+	return stats.find(a => a.name == name);
+}

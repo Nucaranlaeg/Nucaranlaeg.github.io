@@ -78,7 +78,7 @@ function startCreateClone(completions, priorCompletions){
 }
 
 function completeCreateClone(x, y){
-	clones.push(new Clone());
+	clones.push(new Clone(clones.length));
 	resetLoop();
 }
 
@@ -230,6 +230,10 @@ let actions = [
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 ];
+
+function getAction(name) {
+	return actions.find(a => a.name == name);
+}
 
 // General smithing costs:
 // Iron: 2500/bar
