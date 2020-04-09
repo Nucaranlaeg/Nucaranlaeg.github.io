@@ -426,9 +426,8 @@ function performAction(time) {
 		if (nextAction[0] == "=") {
 			clones[currentClone].waiting = true;
 			if (clones.every((c, i) => {
-					return (c.waiting === true || c.waiting === queueTime) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.waiting === true || c.waiting <= queueTime + 100) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
-					console.log(clones.map(c => c.waiting));
 				clones[currentClone].waiting = queueTime;
 				selectQueueAction(currentClone, actionIndex, 100);
 				completeNextAction();
