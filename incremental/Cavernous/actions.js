@@ -231,6 +231,10 @@ let actions = [
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 ];
 
+function getAction(name) {
+	return actions.find(a => a.name == name);
+}
+
 // General smithing costs:
 // Iron: 2500/bar
 // Steel: 7500/bar + cost of iron item

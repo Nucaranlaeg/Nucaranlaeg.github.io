@@ -28,24 +28,12 @@ function completeNextAction(clone = currentClone) {
 	if (action[2].every(a => a[`${clone}_${index}`] === false)) action[1] = false;
 }
 
-function getAction(name) {
-	return actions.find(a => a.name == name);
-}
-
 function getLocationType(name) {
 	return locationTypes.find(a => a.name == name);
 }
 
 function getLocationTypeBySymbol(symbol) {
 	return locationTypes.find(a => a.symbol == symbol).name;
-}
-
-function getStat(name) {
-	return stats.find(a => a.name == name);
-}
-
-function getStuff(name) {
-	return stuff.find(a => a.name == name);
 }
 
 function getMessage(name) {
@@ -63,11 +51,6 @@ function getCreature(search) {
 function writeNumber(value, decimals = 0) {
 	if (value > 100) decimals = Math.min(decimals, 1);
 	return value.toFixed(decimals);
-}
-
-function setContrast(colour) {
-	darkness = (parseInt(colour.slice(1, 3), 16) * 299 + parseInt(colour.slice(3, 5), 16) * 587 + parseInt(colour.slice(5, 7), 16) * 114) / 1000;
-	return darkness > 125 ? "#000000" : "#ffffff";
 }
 
 function redrawOptions() {
