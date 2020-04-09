@@ -392,14 +392,17 @@ setInterval(() => {
 	timeBanked += Math.max(unusedTime - usedBank, 0) / 2 + Math.min(usedBank, unusedTime);
 	queueTime += time - unusedTime;
 	mana.spendMana((time - unusedTime) / 1000);
-	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)) resetLoop();
-// 	document.querySelector("#queue0 .queue-time .time").innerHTML = writeNumber(queueTime / 1000, 1);
+	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)){
+		resetLoop();
+	}
+	let timeDiv = document.querySelector("#queue0 .queue-time .time");
+	if (timeDiv) timeDiv.innerHTML = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
 
 	stats.map(e=>e.update())
 }, Math.floor(1000 / fps));
 
-function performAction(time) {
+function performAction(time, lastTime) {
 	let nextAction, actionIndex;
 	while (time > 0 && ([nextAction, actionIndex] = getNextAction())[0] !== undefined){
 		let xOffset = {
@@ -477,7 +480,7 @@ function performAction(time) {
 				}
 				selectQueueAction(currentClone, i, 0);
 			}
-			if (repeat < queues[currentClone].length - 1) performAction(time);
+			if (repeat < queues[currentClone].length - 1 && (!lastTime || time < lastTime)) return performAction(time, time);
 		}
 	}
 	return time;
