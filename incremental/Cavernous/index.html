@@ -192,15 +192,17 @@
 				<input type="hidden" id="y-loc">
 			</button>
 		</div>
-		<hr>
-		<h3>Uncommon Actions</h3>
-		<div class="option block clickable" onclick="addActionToQueue('<')">
-			<span id="repeat-last-action">Repeat last action(s)</span>
-			<div class="description">Repeat all actions after this action.</div>
-		</div>
-		<div class="option block clickable" onclick="addActionToQueue('=')">
-			<span id="repeat-last-action">Sync Clones</span> (=)
-			<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
+		<div class="bottom-vertical-block">
+			<hr>
+			<h3>Uncommon Actions</h3>
+			<div class="option block clickable" onclick="addActionToQueue('<')">
+				<span id="repeat-last-action">Repeat last action(s)</span>
+				<div class="description">Repeat all actions after this action.</div>
+			</div>
+			<div class="option block clickable" onclick="addActionToQueue('=')">
+				<span id="repeat-last-action">Sync Clones</span> (=)
+				<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
+			</div>
 		</div>
 	</div>
 	<div id="queues"></div>

@@ -19,7 +19,7 @@ class Stat {
 
 	gainSkill(amount) {
 		this.current += amount / 10;
-		this.update();
+		// this.update(); // moved to main loop
 	}
 
 	setStat(amount) {
@@ -36,14 +36,16 @@ class Stat {
 		}
 		if (!this.node){
 			this.createNode();
+			this.effectNode = this.node.querySelector(".effect");
+			this.descriptionNode = this.node.querySelector(".description");
 		}
 		if (this.name == "Mana"){
-			this.node.querySelector(".effect").innerHTML = writeNumber(this.current + this.bonus, 1) + "/" + writeNumber(this.base, 1);
+			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1) + "/" + writeNumber(this.base, 1);
 		} else if (!this.learnable){
-			this.node.querySelector(".effect").innerHTML = writeNumber(this.current + this.bonus, 1);
+			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
 		} else {
-			this.node.querySelector(".effect").innerHTML = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
-			this.node.querySelector(".description").innerHTML = this.description + ` (${writeNumber(100 - this.value * 100, 1)}%)`;
+			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
+			this.descriptionNode.innerText = this.description + ` (${writeNumber(100 - this.value * 100, 1)}%)`;
 		}
 	}
 

@@ -1,5 +1,5 @@
 class Route {
-	constructor(x, y, totalTimeAvailable, route){
+	constructor(x, y, totalTimeAvailable, route, atMana){
 		this.x = x;
 		this.y = y;
 		this.totalTimeAvailable = totalTimeAvailable;
@@ -7,6 +7,7 @@ class Route {
 		if (this.route.every((e, i, a) => e == a[0])) {
 			this.route = [this.route[0]];
 		}
+		this.atMana = atMana || getStat("Mana").base;
 	}
 
 	loadRoute(){
