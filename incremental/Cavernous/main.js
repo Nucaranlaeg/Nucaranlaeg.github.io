@@ -408,6 +408,7 @@ setInterval(() => {
 function performAction(time) {
 	let nextAction, actionIndex;
 	while (time > 0 && ([nextAction, actionIndex] = getNextAction())[0] !== undefined){
+		let clone = clones[currentClone];
 		let xOffset = {
 			"L": -1,
 			"R": 1
@@ -417,7 +418,7 @@ function performAction(time) {
 			"D": 1
 		}[nextAction[0]] || 0;
 		if (nextAction[0][0] == "N"){
-			if (runes[nextAction[0][1]].create(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset)){
+			if (runes[nextAction[0][1]].create(clones[currentClone].x + xOffset, clone.y + yOffset)){
 				selectQueueAction(currentClone, actionIndex, 100);
 				completeNextAction();
 				continue;
@@ -441,12 +442,12 @@ function performAction(time) {
 			}
 			return 0;
 		}
-		let location = getMapLocation(clones[currentClone].x + xOffset, clones[currentClone].y + yOffset);
-		if (clones[currentClone].currentCompletions === null) clones[currentClone].currentCompletions = location.completions;
-		if ((!xOffset && !yOffset && location.canWorkTogether && clones[currentClone].currentProgress && (clones[currentClone].currentProgress < location.remainingPresent || location.remainingPresent == 0))
-			|| (clones[currentClone].currentCompletions !== null && clones[currentClone].currentCompletions < location.completions)){
+		let location = getMapLocation(clone.x + xOffset, clone.y + yOffset);
+		if (clone.currentCompletions === null) clone.currentCompletions = location.completions;
+		if ((!xOffset && !yOffset && location.canWorkTogether && clone.currentProgress && (clone.currentProgress < location.remainingPresent || location.remainingPresent == 0))
+			|| (clone.currentCompletions !== null && clone.currentCompletions < location.completions)){
 			completeNextAction();
-			clones[currentClone].currentProgress = 0;
+			clone.currentProgress = 0;
 			selectQueueAction(currentClone, actionIndex, 100);
 			continue;
 		}
@@ -454,7 +455,7 @@ function performAction(time) {
 			let startStatus = location.start();
 			if (startStatus == 0){
 				completeNextAction();
-				clones[currentClone].currentProgress = 0;
+				clone.currentProgress = 0;
 				drawMap();
 				selectQueueAction(currentClone, actionIndex, 100);
 				continue;
@@ -464,10 +465,10 @@ function performAction(time) {
 		}
 		[time, percentRemaining] = location.tick(time);
 		selectQueueAction(currentClone, actionIndex, 100 - (percentRemaining * 100));
-		clones[currentClone].currentProgress = location.remainingPresent;
+		clone.currentProgress = location.remainingPresent;
 		if (!percentRemaining){
 			completeNextAction();
-			clones[currentClone].currentProgress = 0;
+			clone.currentProgress = 0;
 			drawMap();
 		}
 	}
