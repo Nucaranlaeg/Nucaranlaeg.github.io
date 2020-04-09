@@ -5,24 +5,24 @@ class Route {
 		if (x instanceof Location) {
 			this.x = x.x;
 			this.y = x.y;
-			let queues = queues.map(queue => queueToString(queue));
+			let route = queues.map(r => queueToString(r));
 
-			if (queues.every((e,i,a) => e==a[0])) {
-				queues = [queues[0]];
+			if (route.every((e,i,a) => e==a[0])) {
+				route = [route[0]];
 			} else {
-				let unique = queues.find((e, i, a) => a.filter(el => el == e).length == 1);
-				let ununique = queues.find(e => e != unique);
-				if (queues.every(e => e == unique || e == unique)) {
-					queues = [unique, ununique];
+				let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
+				let ununique = route.find(e => e != unique);
+				if (route.every(e => e == unique || e == unique)) {
+					route = [unique, ununique];
 				}
 			}
-			this.route = queues;
+			this.route = route;
 
-			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y);
+			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
 
 			let mana = getStat("Mana")
 			let duration = mineManaRockCost(0, location.priorCompletions);
-			this.manaUsed = mana.base - mana.current + duration / (clones.length - this.clonesLost);
+			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 			return;
 
@@ -55,16 +55,23 @@ class Route {
 	static updateBestRoute(location) {
 		let cur = new Route(location);
 		let prev = Route.getBestRoute(location.x, location.y);
+		let curEff = cur.estimateConsumeManaLeft();
 		if (!prev) {
 			routes.push(cur);
+			settings.debug && log('found path to %o:\nnow: %o*%os: %oeff',//
+				location, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
 			return cur;
 		}
-		if (prev.estimateConsumeManaLeft() < cur.estimateConsumeManaLeft()) {
-			routes = routes.filter(e => e != prev);
-			routes.push(cur);
-			return cur;
+		let prevEff = prev.estimateConsumeManaLeft();
+		if (curEff < prevEff + 1e-4) {
+			return prev;
 		}
-		return prev;
+		settings.debug && log('updated path to %o:\nwas: %o*%os, %oeff: %o\nnow: %o*%os: %oeff',//
+			location, (clones.length - prev.clonesLost), prev.manaUsed, prevEff,//
+			prev, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
+		routes = routes.filter(e => e != prev);
+		routes.push(cur);
+		return cur;
 	}
 
 	static getBestRoute(x, y) {

@@ -59,9 +59,16 @@ function completeCoalMine(x, y){
 function completeCollectMana(x, y) {
 	let location = getMapLocation(x, y);
 	Route.updateBestRoute(location);
+	let mana = getStat("Mana");
 	mana.base += 0.1;
 	mana.current += 0.1;
 	setMined(x, y, ".");
+}
+
+function tickCollectMana(x, y) {
+	let clone = clones[currentClone];
+	let location = getMapLocation(clone.x, clone.y);
+	Route.updateBestRoute(location);
 }
 
 function mineManaRockCost(completions, priorCompletions) {
@@ -211,7 +218,7 @@ let actions = [
 	new Action("Mine Gold", 1000, [["Mining", 1], ["Speed", 0.2]], completeGoldMine),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
-	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana),
+	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana),
 	new Action("Create Clone", 1000, [], completeCreateClone, startCreateClone),
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire([["Iron Ore", 1]])),
 	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),
