@@ -558,6 +558,9 @@ let keyFunctions = {
 	"KeyB": () => {
 		toggleBankedTime();
 	},
+	"KeyG": () => {
+		toggleGrindMana();
+	},
 	"Tab": e => {
 		selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
 		e.stopPropagation();
@@ -587,6 +590,9 @@ let keyFunctions = {
 	},
 	"Digit3": () => {
 		addActionToQueue("N2");
+	},
+	"Equal" : () => {
+		addActionToQueue("=");
 	},
 };
 
