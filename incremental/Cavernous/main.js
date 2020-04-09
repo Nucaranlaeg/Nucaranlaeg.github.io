@@ -324,11 +324,7 @@ function toggleRunning() {
 function toggleAutoRestart() {
 	settings.autoRestart = (settings.autoRestart + 1) % 4;
 	document.querySelector("#auto-restart-toggle").innerHTML = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"][settings.autoRestart];
-<<<<<<< HEAD
-	document.querySelector("#auto-restart-toggle").closest(".option").classList.toggle("option-highlighted", !settings.autoRestart); 
-=======
 	document.querySelector("#auto-restart-toggle").closest(".option").classList.toggle("option-highlighted", settings.autoRestart == 0); 
->>>>>>> 05ec71eb0e9d1472955ef185e8e8adb64d5a94fb
 }
 
 function toggleUseAlternateArrows() {
