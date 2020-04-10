@@ -8,9 +8,6 @@ class Stat {
 		this.bonus = 0;
 		this.node = null;
 		this.value = 1;
-// 		setTimeout(() => {
-// 			this.update();
-// 		}, 10);
 	}
 
 	updateValue() {
