@@ -189,7 +189,7 @@ body {
 }
 
 .block > .description {
-	display: none;
+	visibility: hidden;
 	position: absolute;
 	margin-top: 7px;
 	left: 5px;
@@ -212,7 +212,7 @@ body {
 }
 
 .block:hover:not(.dragging) .description {
-	display: block;
+	visibility: visible;
 }
 
 .progress-indicator {
