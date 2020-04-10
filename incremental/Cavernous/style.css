@@ -114,18 +114,17 @@ body {
 }
 
 .queue-time {
-	display: none;
+	display: inline-block;
+	width: 120px;
+	text-align: center;
 	position: sticky;
 	margin-top: -3px;
 	right: 100px;
 	background-color: #aaccccd0;
+	font-size: 0;
 }
 
-#queue0 .queue-time {
-	display: inline-block;
-	width: 120px;
-	text-align: center;
-}
+#queue0 .queue-time {font-size: unset;}
 
 #queue0 .queue-inner {
 	min-width: calc(100% - 224px);
