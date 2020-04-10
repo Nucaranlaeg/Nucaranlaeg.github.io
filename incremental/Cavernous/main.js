@@ -67,8 +67,7 @@ function resetLoop() {
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => s.reset());
 	if (settings.grindMana && routes) {
-		routes.map(e=>getMapLocation(e.x,e.y)).map(e=>e.type.nextCost(0,e.completions+e.priorCompletions)).map(parseFloat).map((e,i)=>routes[i].eff = routes[i].totalTimeAvailable - e - (routes[i].atMana * clones.length));
-		routes.reduce((v, e)=> v.eff > e.eff ? v : e).loadRoute();
+		Route.loadBestRoute();
 	}
 	queues.forEach((q, i) => {
 		q.forEach(a => {
@@ -145,16 +144,16 @@ function save(){
 		"timeBanked": timeBanked,
 	}
 	let messageData = messages.map(m => [m.name, m.displayed]);
-	let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route, r.atMana])
+	//let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
 	saveString = JSON.stringify({
-		"playerStats": playerStats,
-		"locations": locations,
-		"cloneData": cloneData,
-		"stored": stored,
-		"time": time,
-		"messageData": messageData,
-		"settings": settings,
-		"routes": savedRoutes,
+		playerStats,
+		locations,
+		cloneData,
+		stored,
+		time,
+		messageData,
+		settings,
+		routes,
 	});
 	localStorage["saveGame"] = btoa(saveString);
 }
@@ -200,12 +199,17 @@ function load(){
 		}
 	}
 	if (saveGame.routes){
-		routes = saveGame.routes.map(r => new Route(...r));
+		if (Array.isArray(saveGame.routes[0])) {
+			routes = saveGame.routes.map(r => Route.migrateFromArray(r))
+		} else {
+			routes = Route.fromJSON(saveGame.routes);	
+		}
 	}
 	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
 	while (settings.running != saveGame.settings.running) toggleRunning();
 	toggleAutoRestart();
 	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
+	Object.assign(settings, saveGame.settings, settings);
 
 	selectClone(0);
 	redrawQueues();
@@ -213,7 +217,9 @@ function load(){
 	// Fix attack and defense
 	getStat("Attack").base = 0;
 	getStat("Defense").base = 0;
+	stats.map(s => s.update());
 
+	drawMap();
 	resetLoop();
 }
 
@@ -243,6 +249,7 @@ function exportGame(){
 function importGame(){
 	let saveString = prompt("Input your save");
 	save();
+	save = () => {};
 	let temp = localStorage["saveGame"];
 	localStorage["saveGame"] = saveString;
 	try {
@@ -352,7 +359,7 @@ let queueTime = 0;
 let currentClone = 0;
 let fps = 60;
 
-setInterval(() => {
+setInterval(function mainLoop() {
 	let time = Date.now() - lastAction;
 	let usedBank = 0;
 	let mana = getStat("Mana");
@@ -371,30 +378,39 @@ setInterval(() => {
 		redrawOptions();
 		return;
 	}
-	if (time > 1000){
-		timeBanked += (time - 1000) / 2;
-		time = 1000;
+	let timeAvailable = time;
+	if (settings.usingBankedTime && timeBanked > 0){
+		let speedMultiplier = settings.debug_speedMultiplier || 10;
+		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
 	}
-	if (settings.usingBankedTime && time < 100 && timeBanked > 0){
-		timeBanked += time;
-		usedBank = 100 - time;
-		time = Math.min(100, timeBanked);
-		timeBanked = Math.floor(timeBanked - time);
+	if (timeAvailable > 1000) {
+		timeAvailable = 1000;
 	}
-	if (time > mana.current * 1000){
-		timeBanked += time - mana.current * 1000;
-		time = mana.current * 1000;
+	if (timeAvailable > mana.current * 1000){
+		timeAvailable = mana.current * 1000;
 	}
-	let unusedTime = time;
-	for (let i = 0; i < clones.length; i++){
-		if (clones[i].damage == Infinity) continue;
-		currentClone = i;
-		unusedTime = Math.min(performAction(time), unusedTime);
+	if (timeAvailable < 0) {
+		timeAvailable = 0;
 	}
-	timeBanked += Math.max(unusedTime - usedBank, 0) / 2 + Math.min(usedBank, unusedTime);
-	queueTime += time - unusedTime;
-	mana.spendMana((time - unusedTime) / 1000);
-	if (unusedTime && (settings.autoRestart == 1 || settings.autoRestart == 2)){
+	let timeLeft = timeAvailable;
+	
+	// for (let i = 0; i < clones.length; i++){
+	// 	if (clones[i].damage == Infinity) continue;
+	// 	currentClone = i;
+	// 	timeLeft = Math.min(performAction(timeAvailable), timeLeft);
+	// }
+	timeLeft = Clone.performActions(timeAvailable);
+
+	
+	let timeUsed = timeAvailable - timeLeft;
+	if (timeUsed > time) {
+		timeBanked -= timeUsed - time;
+	} else {
+		timeBanked += (time - timeUsed) / 2;
+	}
+	queueTime += timeUsed;
+	mana.spendMana(timeUsed / 1000);
+	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
 	let timeDiv = document.querySelector("#queue0 .queue-time .time");
@@ -406,6 +422,8 @@ setInterval(() => {
 }, Math.floor(1000 / fps));
 
 function performAction(time, lastTime) {
+	throw "Outdated";
+	return Clone.performActions(time);
 	let nextAction, actionIndex;
 	while (time > 0 && ([nextAction, actionIndex] = getNextAction())[0] !== undefined){
 		let clone = clones[currentClone];

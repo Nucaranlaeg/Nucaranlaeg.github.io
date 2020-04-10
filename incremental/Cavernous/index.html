@@ -114,9 +114,12 @@
 					<span id="use-alternate-arrows-toggle">Use alternate arrow icons</span>
 					<div class="description">If 🡄🡅🡆🡇🞇 don't display, use ←↑→↓○ instead.</div>
 				</div>
-				<div class="option block clickable" onclick="toggleGrindMana()">
+				<div class="option block clickable" onclick="toggleGrindMana()" ondblclick="Route.invalidateRouteCosts()">
 					<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
-					<div class="description">Loops through your best paths to each mana rock.</div>
+					<div class="description">
+						Loops through your best paths to each mana rock.<br>
+						Double click to revisit all known mana rocks.
+					</div>
 				</div>
 				<div class="option block clickable" onclick="toggleUseWASD()">
 					<span id="use-wasd-toggle">Use WASD</span>
