@@ -35,7 +35,7 @@ function getNextCloneAmountCost(completions, priorCompletions){
 }
 
 function startCollectManaCost(completions, priorCompletions){
-	return `${writeNumber(this.presentAction.getDuration(startCollectMana(completions, priorCompletions)) / 1000, 2)}s`;
+	return `${writeNumber(this.presentAction.getDuration(mineManaRockCost(completions, priorCompletions)) / 1000, 2)}s`;
 }
 
 let locationTypes = [

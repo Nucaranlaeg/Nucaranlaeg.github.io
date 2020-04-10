@@ -41,6 +41,14 @@ function completeMove(x, y){
 	setMined(x, y);
 }
 
+function startWalk(){
+	if (!clones[currentClone].walkTime) clones[currentClone].walkTime = this.getDuration();
+}
+
+function tickWalk(time){
+	clones[currentClone].walkTime = Math.max(0, clones[currentClone].walkTime - time);
+}
+
 function completeGoldMine(x, y){
 	getStuff("Gold Nugget").update(1);
 	completeMove(x, y);
@@ -58,16 +66,24 @@ function completeCoalMine(x, y){
 
 function completeCollectMana(x, y) {
 	let location = getMapLocation(x, y);
-	let duration = startCollectMana(0, location.priorCompletions);
+	Route.updateBestRoute(location);
 	let mana = getStat("Mana");
-	let totalTimeAvailable = (mana.current * clones.length) + duration;
-	setBestRoute(x, y, totalTimeAvailable);
 	mana.base += 0.1;
 	mana.current += 0.1;
 	setMined(x, y, ".");
 }
 
-function startCollectMana(completions, priorCompletions){
+function tickCollectMana(x, y) {
+	let clone = clones[currentClone];
+	let location = getMapLocation(clone.x, clone.y);
+	Route.updateBestRoute(location);
+}
+
+function mineManaRockCost(completions, priorCompletions) {
+	return completions ? 0 : Math.pow(1.1, priorCompletions);
+}
+
+function startCollectMana(completions, priorCompletions) {
 	return completions ? 0 : Math.pow(1.1, priorCompletions);
 }
 
@@ -205,12 +221,12 @@ function completeTeleport(){
 }
 
 let actions = [
-	new Action("Walk", 100, [["Speed", 1]], completeMove),
+	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Gold", 1000, [["Mining", 1], ["Speed", 0.2]], completeGoldMine),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
-	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana),
+	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana),
 	new Action("Create Clone", 1000, [], completeCreateClone, startCreateClone),
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire([["Iron Ore", 1]])),
 	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),

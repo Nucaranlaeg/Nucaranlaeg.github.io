@@ -8,9 +8,6 @@ class Stat {
 		this.bonus = 0;
 		this.node = null;
 		this.value = 1;
-// 		setTimeout(() => {
-// 			this.update();
-// 		}, 10);
 	}
 
 	updateValue() {
@@ -72,14 +69,15 @@ class Stat {
 
 	getNextLoopValue() {
 		if (!this.learnable) return this.base;
-		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / 100;
+		let statIncreaseDivisor = settings.debug_statIncreaseDivisor || 100;
+		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / statIncreaseDivisor;
 		return this.base + (increase > 0 ? increase : 0);
 	}
 
 	spendMana(amount) {
 		if (this.name != "Mana") return;
 		this.current -= amount;
-		this.update();
+		// this.update(); // moved to main loop
 	}
 }
 
@@ -98,4 +96,10 @@ let stats = [
 
 function getStat(name) {
 	return stats.find(a => a.name == name);
+}
+
+
+function writeNumber(value, decimals = 0) {
+	if (value > 100) decimals = Math.min(decimals, 1);
+	return value.toFixed(decimals);
 }

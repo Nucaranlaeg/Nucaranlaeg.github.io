@@ -113,9 +113,12 @@
 					<span id="use-alternate-arrows-toggle">Use alternate arrow icons</span>
 					<div class="description">If 🡄🡅🡆🡇🞇 don't display, use ←↑→↓○ instead.</div>
 				</div>
-				<div class="option block clickable" onclick="toggleGrindMana()">
+				<div class="option block clickable" onclick="toggleGrindMana()" ondblclick="Route.invalidateRouteCosts()">
 					<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
-					<div class="description">Loops through your best paths to each mana rock.</div>
+					<div class="description">
+						Loops through your best paths to each mana rock.<br>
+						Double click to revisit all known mana rocks.
+					</div>
 				</div>
 				<div class="option block clickable" onclick="toggleUseWASD()">
 					<span id="use-wasd-toggle">Use WASD</span>
@@ -165,7 +168,7 @@
 			</div>
 			<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
 				<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-				Version 0.2.7<br>
+				Version 0.3.1<br>
 				©2020 Nucaranlaeg
 			</div>
 		</div>
@@ -200,11 +203,11 @@
 				<hr>
 				<h3>Uncommon Actions</h3>
 				<div class="option block clickable" onclick="addActionToQueue('<')">
-					<span id="repeat-last-action">Repeat last action(s)</span>
+					<span id="repeat-last-action">Repeat following action(s)</span>
 					<div class="description">Repeat all actions after this action.</div>
 				</div>
 				<div class="option block clickable" onclick="addActionToQueue('=')">
-					<span id="repeat-last-action">Sync Clones</span> (=)
+					<span id="sync-clones">Sync Clones</span> (=)
 					<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
 				</div>
 			</div>

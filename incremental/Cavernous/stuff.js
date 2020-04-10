@@ -10,10 +10,6 @@ class Stuff {
 		if (effect){
 			this.effect = effect;
 		}
-		setTimeout(() => {
-			this.createNode();
-			this.update();
-		}, 1);
 	}
 
 	effect() {}
