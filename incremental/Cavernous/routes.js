@@ -1,24 +1,117 @@
 class Route {
-	constructor(x, y, totalTimeAvailable, route, atMana){
-		this.x = x;
-		this.y = y;
-		this.totalTimeAvailable = totalTimeAvailable;
-		this.route = route || queues.map(queue => queueToString(queue));
-		if (this.route.every((e, i, a) => e == a[0])) {
-			this.route = [this.route[0]];
+	constructor(x, y, totalTimeAvailable, route){
+		if (route) throw 123;
+
+		if (x instanceof Location) {
+			this.x = x.x;
+			this.y = x.y;
+			let route = queues.map(r => queueToString(r));
+			route = route.filter(e=>e.length)
+
+			if (route.every((e,i,a) => e==a[0])) {
+				route = [route[0]];
+			} else {
+				let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
+				let ununique = route.find(e => e != unique);
+				if (route.every(e => e == unique || e == ununique)) {
+					route = [unique, ununique];
+				}
+			}
+			this.route = route;
+
+			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
+
+			let mana = getStat("Mana")
+			let duration = mineManaRockCost(0, location.priorCompletions);
+			this.manaUsed = +(mana.base - mana.current).toFixed(2);
+
+			return;
+
 		}
-		this.atMana = atMana || getStat("Mana").base;
+		Object.assign(this, x);
 	}
 
 	loadRoute(){
 		for (let i = 0; i < queues.length; i++){
-			if (this.route.length == 1) {
+			if (i == 0 || this.route.length == 1) {
 				queues[i] = stringToQueue(this.route[0]);
+			} else if (this.route.length == 2) {
+				queues[i] = stringToQueue(this.route[1]);
 			} else {
-				queues[i] = stringToQueue(this.route[i] || "");
+				queues[i] = stringToQueue(this.route[i] || this.route[this.route.length - 1] || "");
 			}
 		}
 		redrawQueues();
+	}
+
+	getConsumeCost() {
+		let loc = getMapLocation(this.x, this.y);
+		return mineManaRockCost(0, loc.completions + loc.priorCompletions);
+	}
+
+	estimateConsumeManaLeft() {
+		let est = getStat("Mana").base - this.manaUsed - this.getConsumeCost() / (clones.length - this.clonesLost);
+		return this.invalidateCost ? est + 100 : est;
+	}
+
+	static updateBestRoute(location) {
+		let cur = new Route(location);
+		let prev = Route.getBestRoute(location.x, location.y);
+		let curEff = cur.estimateConsumeManaLeft();
+		if (!prev) {
+			routes.push(cur);
+			settings.debug && log('found path to %o:\nnow: %o*%os: %oeff',//
+				location, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
+			return cur;
+		}
+		let prevEff = prev.estimateConsumeManaLeft();
+		if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {
+			return prev;
+		}
+		settings.debug && log('updated%s path to %o:\nwas: %o*%os, %oeff: %o\nnow: %o*%os: %oeff',//
+			prev.invalidateCost ? ' outdated' : '', location, (clones.length - prev.clonesLost), prev.manaUsed, prevEff,//
+			prev, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
+		routes = routes.filter(e => e != prev);
+		routes.push(cur);
+		return cur;
+	}
+
+	static getBestRoute(x, y) {
+		return routes.find(r => r.x == x && r.y == y);
+	}
+
+	static migrateFromArray(r) {
+		let [x, y, totalTimeAvailable, route] = r;
+		return new Route({
+			x, y, route, 
+			manaUsed: getStat("Mana").base - totalTimeAvailable / clones.length,
+			clonesLost: 0,
+		});
+	}
+
+	static fromJSON(ar) {
+		return ar.map(r => new Route(r));
+	}
+
+	static loadBestRoute() {
+		let bestEff = -999;
+		let bestRoute = routes[0];
+		for (let r of routes) {
+			let eff = r.estimateConsumeManaLeft();
+			if (eff > bestEff) {
+				bestEff = eff;
+				bestRoute = r;
+			}
+		}
+		settings.debug && log('best route is now: %o\n %o*%os, eff:%o: %o', //
+			getMapLocation(bestRoute.x, bestRoute.y), (clones.length - bestRoute.clonesLost),//
+			 +(getStat("Mana").base - bestRoute.manaUsed).toFixed(2), +bestEff.toFixed(2), bestRoute);
+		bestRoute.loadRoute();
+	}
+
+	static invalidateRouteCosts() {
+		settings.debug && log('route costs invalidated');
+		routes.map(e=>e.invalidateCost = true);
 	}
 }
 
