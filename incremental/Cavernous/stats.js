@@ -54,7 +54,7 @@ class Stat {
 		this.node = statTemplate.cloneNode(true);
 		this.node.id = "stat_" + this.name;
 		this.node.querySelector(".name").innerHTML = this.name;
-		this.node.querySelector(".icon").innerHTML = this.icon;
+		this.node.querySelector(".icon").innerHTML = this.icon.length ? this.icon : "&nbsp";
 		this.node.querySelector(".description").innerHTML = this.description;
 		document.querySelector("#stats").appendChild(this.node);
 		if (this.name == "Runic Lore"){
