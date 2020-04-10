@@ -13,6 +13,7 @@ class Clone {
 		this.styleDamage();
 		this.syncs = 0;
 		this.repeated = false;
+		this.walkTime = 0;
 	}
 
 	takeDamage(amount) {
