@@ -41,6 +41,14 @@ function completeMove(x, y){
 	setMined(x, y);
 }
 
+function startWalk(){
+	if (!clones[currentClone].walkTime) clones[currentClone].walkTime = this.getDuration();
+}
+
+function tickWalk(time){
+	clones[currentClone].walkTime = Math.max(0, clones[currentClone].walkTime - time);
+}
+
 function completeGoldMine(x, y){
 	getStuff("Gold Nugget").update(1);
 	completeMove(x, y);
@@ -213,7 +221,7 @@ function completeTeleport(){
 }
 
 let actions = [
-	new Action("Walk", 100, [["Speed", 1]], completeMove),
+	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Gold", 1000, [["Mining", 1], ["Speed", 0.2]], completeGoldMine),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),

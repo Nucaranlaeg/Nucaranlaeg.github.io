@@ -361,13 +361,12 @@ let fps = 60;
 
 setInterval(function mainLoop() {
 	let time = Date.now() - lastAction;
-	let usedBank = 0;
 	let mana = getStat("Mana");
 	lastAction = Date.now();
 	if (mana.current == 0){
 		document.querySelector("#queues").classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
-		if (settings.autoRestart == 2){
+		if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
 			resetLoop();
 		}
 	} else {
@@ -393,12 +392,7 @@ setInterval(function mainLoop() {
 		timeAvailable = 0;
 	}
 	let timeLeft = timeAvailable;
-	
-	// for (let i = 0; i < clones.length; i++){
-	// 	if (clones[i].damage == Infinity) continue;
-	// 	currentClone = i;
-	// 	timeLeft = Math.min(performAction(timeAvailable), timeLeft);
-	// }
+
 	timeLeft = Clone.performActions(timeAvailable);
 
 	
@@ -420,93 +414,6 @@ setInterval(function mainLoop() {
 	stats.map(e=>e.update())
 	drawMap();
 }, Math.floor(1000 / fps));
-
-function performAction(time, lastTime) {
-	throw "Outdated";
-	return Clone.performActions(time);
-	let nextAction, actionIndex;
-	while (time > 0 && ([nextAction, actionIndex] = getNextAction())[0] !== undefined){
-		let clone = clones[currentClone];
-		let xOffset = {
-			"L": -1,
-			"R": 1
-		}[nextAction[0]] || 0;
-		let yOffset = {
-			"U": -1,
-			"D": 1
-		}[nextAction[0]] || 0;
-		if (nextAction[0][0] == "N"){
-			if (runes[nextAction[0][1]].create(clones[currentClone].x + xOffset, clone.y + yOffset)){
-				selectQueueAction(currentClone, actionIndex, 100);
-				completeNextAction();
-				continue;
-			} else {
-				return 0;
-			}
-		}
-		if (nextAction[0] == "<") {
-			completeNextAction();
-			continue;
-		}
-		if (nextAction[0] == "=") {
-			clone.waiting = true;
-			if (clones.every((c, i) => {
-					return (c.waiting === true || (c.waiting <= queueTime && c.waiting >= queueTime - 100)) || !queues[i].find(q => q[0] == "=" && q[1])
-				})){
-				clone.waiting = queueTime;
-				selectQueueAction(currentClone, actionIndex, 100);
-				completeNextAction();
-				continue;
-			}
-			return 0;
-		}
-		let location = getMapLocation(clone.x + xOffset, clone.y + yOffset);
-		if (clone.currentCompletions === null) clone.currentCompletions = location.completions;
-		if ((!xOffset && !yOffset && location.canWorkTogether && clone.currentProgress && (clone.currentProgress < location.remainingPresent || location.remainingPresent == 0))
-			|| (clone.currentCompletions !== null && clone.currentCompletions < location.completions)){
-			completeNextAction();
-			clone.currentProgress = 0;
-			selectQueueAction(currentClone, actionIndex, 100);
-			continue;
-		}
-		if ((location.remainingPresent <= 0 && !xOffset && !yOffset) || (location.remainingEnter <= 0 && (xOffset || yOffset))){
-			let startStatus = location.start();
-			if (startStatus == 0){
-				completeNextAction();
-				clone.currentProgress = 0;
-				// drawMap(); // moved to main loop
-				selectQueueAction(currentClone, actionIndex, 100);
-				continue;
-			} else if (startStatus < 0){
-				return 0;
-			}
-		}
-		[time, percentRemaining] = location.tick(time);
-		selectQueueAction(currentClone, actionIndex, 100 - (percentRemaining * 100));
-		clone.currentProgress = location.remainingPresent;
-		if (!percentRemaining){
-			completeNextAction();
-			clone.currentProgress = 0;
-			// drawMap(); // moved to main loop
-		}
-	}
-	if (time > 0){
-		let repeat = queues[currentClone].findIndex(q => q[0] == "<");
-		if (repeat > -1){
-			for (let i = repeat + 1; i < queues[currentClone].length; i++){
-				queues[currentClone][i][1] = true;
-				if (queues[currentClone][i][2]){
-					for (let inner of queues[currentClone][i][2]) {
-						delete inner[`${currentClone}_${i}`];
-					}
-				}
-				selectQueueAction(currentClone, i, 0);
-			}
-			if (repeat < queues[currentClone].length - 1 && (!lastTime || time < lastTime)) return performAction(time, time);
-		}
-	}
-	return time;
-}
 
 function setup(){
 	clones.push(new Clone(clones.length));
