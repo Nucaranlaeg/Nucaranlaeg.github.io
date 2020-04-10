@@ -12,7 +12,7 @@ class Clone {
 		this.damage = 0;
 		this.styleDamage();
 		this.syncs = 0;
-		this
+		this.repeated = false;
 	}
 
 	takeDamage(amount) {
@@ -100,7 +100,7 @@ class Clone {
 			}
 		}
 		if (action[0] == "<") {
-			completeNextAction();
+			this.completeNextAction();
 			return time;
 		}
 		if (action[0] == "=") {
@@ -166,6 +166,7 @@ class Clone {
 
 		let repeat = this.queue.findIndex(q => q[0] == "<");
 		if (repeat > -1 && this.repeatsThisTick < 10) {
+			this.repeated = true;
 			this.repeatsThisTick++;
 			for (let i = repeat + 1; i < this.queue.length; i++){
 				this.queue[i][1] = true;
