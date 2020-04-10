@@ -74,21 +74,19 @@ body {
 	line-height: 20px;
 	min-width: 16px;
 	user-select: none;
-	position: relative;
 	text-align: center;
+	
+	background-clip: content-box;
+	box-sizing: border-box;
+	width: 16px;
 }
 
-.progress {
-	display: none;
+.action.started {
 	background-color: #01322066;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
 }
 
-.action.started .progress {
-	display: block;
+.character {
+	width: 16px;
 }
 
 .bottom-block {

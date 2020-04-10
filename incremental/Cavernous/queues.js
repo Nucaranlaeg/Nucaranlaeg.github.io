@@ -121,7 +121,7 @@ function selectQueueAction(queue, action, percent){
 		percent /= queues[queue][action][2].length;
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
-	node.querySelector(".progress").style.width = percent + "%";
+node.style.paddingRight = `${Math.floor(16 * (100 - percent) / 100)}px`;
 	let workProgressBar = node.closest('.bottom-block').querySelector('.work-progress');
 	let lastProgess = +workProgressBar.style.width.replace("%", "");
 	if (percent < lastProgess) {
@@ -156,7 +156,7 @@ function redrawQueues(){
 			queueNode.append(node);
 			if (!queues[i][j][1]){
 				node.classList.add("started");
-				node.querySelector(".progress").style.width = "100%";
+				node.style.paddingRight = "0";
 			}
 		}
 	}
