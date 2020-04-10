@@ -50,7 +50,8 @@ class Route {
 	}
 
 	estimateConsumeManaLeft() {
-		return getStat("Mana").base - this.manaUsed - this.getConsumeCost() / (clones.length - this.clonesLost);
+		let est = getStat("Mana").base - this.manaUsed - this.getConsumeCost() / (clones.length - this.clonesLost);
+		return this.invalidateCost ? est + 100 : est;
 	}
 
 	static updateBestRoute(location) {
@@ -64,11 +65,11 @@ class Route {
 			return cur;
 		}
 		let prevEff = prev.estimateConsumeManaLeft();
-		if (curEff < prevEff + 1e-4) {
+		if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {
 			return prev;
 		}
-		settings.debug && log('updated path to %o:\nwas: %o*%os, %oeff: %o\nnow: %o*%os: %oeff',//
-			location, (clones.length - prev.clonesLost), prev.manaUsed, prevEff,//
+		settings.debug && log('updated%s path to %o:\nwas: %o*%os, %oeff: %o\nnow: %o*%os: %oeff',//
+			prev.invalidateCost ? ' outdated' : '', location, (clones.length - prev.clonesLost), prev.manaUsed, prevEff,//
 			prev, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
 		routes = routes.filter(e => e != prev);
 		routes.push(cur);
@@ -104,8 +105,13 @@ class Route {
 		}
 		settings.debug && log('best route is now: %o\n %o*%os, eff:%o: %o', //
 			getMapLocation(bestRoute.x, bestRoute.y), (clones.length - bestRoute.clonesLost),//
-			 +(getStat("Mana").base - bestRoute.manaUsed).toFixed(2), +bestEff.toFixed(2), bestRoute)
+			 +(getStat("Mana").base - bestRoute.manaUsed).toFixed(2), +bestEff.toFixed(2), bestRoute);
 		bestRoute.loadRoute();
+	}
+
+	static invalidateRouteCosts() {
+		settings.debug && log('route costs invalidated');
+		routes.map(e=>e.invalidateCost = true);
 	}
 }
 
