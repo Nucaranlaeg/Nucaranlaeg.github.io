@@ -690,3 +690,23 @@ td:hover:after {
 #search-saved {
 	margin-bottom: 2px;
 }
+
+
+
+
+
+.bottom-block:not(:hover)>.queue-buttons {
+	right: -100px;
+}
+
+.queue-buttons {
+	transition: right 0.4s;
+}
+
+.bottom-block:not(:hover)>.queue-time {
+	right: 4px;
+}
+
+.queue-time {
+	transition: right 0.4s;
+}
