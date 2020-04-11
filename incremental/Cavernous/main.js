@@ -413,7 +413,7 @@ setInterval(function mainLoop() {
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
-	let timeDiv = document.querySelector("#queue0 .queue-time .time");
+	let timeDiv = document.querySelector("#time-spent");
 	if (timeDiv) timeDiv.innerHTML = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
 

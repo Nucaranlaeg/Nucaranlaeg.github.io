@@ -114,15 +114,20 @@ body {
 }
 
 .queue-time {
-	display: inline-block;
-	width: 120px;
-	text-align: center;
-	position: sticky;
-	margin-top: -3px;
-	right: 100px;
-	background-color: #aaccccd0;
-	font-size: 0;
+	/* display: inline-block; */
+	/* width: 130px; */
+	/* text-align: center; */
+	/* position: sticky; */
+	/* margin-top: -3px; */
+	/* right: 100px; */
+	/* background-color: #aaccccd0; */
+	/* font-size: 0; */
+	position: absolute;
+	bottom: 6px;
+	right: 8px;
 }
+
+.queue-time #time-spent {font-family: "Lucida Console", monospace;font-size: 14px;min-width: 3.1em;display: inline-block;text-align: right;font-variant-numeric: tabular-nums;}
 
 #queue0 .queue-time {font-size: unset;}
 
