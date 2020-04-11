@@ -46,7 +46,8 @@ class Route {
 
 	getConsumeCost() {
 		let loc = getMapLocation(this.x, this.y);
-		return mineManaRockCost(0, loc.completions + loc.priorCompletions);
+		let mul = getAction("Collect Mana").getBaseDurationMultipluer();
+		return mineManaRockCost(0, loc.completions + loc.priorCompletions) * mul;
 	}
 
 	estimateConsumeManaLeft() {

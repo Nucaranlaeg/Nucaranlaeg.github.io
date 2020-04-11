@@ -14,6 +14,10 @@ class Stat {
 		this.value = 100 / (100 + this.current + this.bonus);
 	}
 
+	get baseValue() {
+		return 100 / (100 + this.base);
+	}
+
 	gainSkill(amount) {
 		this.current += amount / 10;
 		// this.update(); // moved to main loop
