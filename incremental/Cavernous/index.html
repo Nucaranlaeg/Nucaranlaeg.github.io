@@ -200,6 +200,16 @@
 					<input type="hidden" id="x-loc">
 					<input type="hidden" id="y-loc">
 				</button>
+				<div id="route-has-route">
+					Route time: <span id="route-best-time"></span>s<br>
+					Mana used: <span id="route-best-mana-used"></span><br>
+					Clones lost: <span id="route-best-clones-lost"></span><br>
+					Mana estimate after consuming: <span id="route-best-mana-left"></span>s<br>
+					<span id="route-best-invalidated" hidden>Route values wil be reset on the next visit.</span>
+				</div>
+				<div id="route-not-visited">
+					There is no known routes to this location.
+				</div>
 			</div>
 			<div class="bottom-vertical-block">
 				<hr>
