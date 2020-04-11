@@ -1,43 +1,39 @@
+const xOffset = 9, yOffset = 12;
 
-let map = ['███████████████████████████████████████████',
-           '█████████████%%████████████████████████████',
-           '█████████████%#▣&██████████████████████████',
-           '██+██¤#%█¤█████~███###██)#+████+#%#████████',
-           '██#█+#####███%%%¤██#█#██####█%██%█%#███████',
-           '██#█ +%#█# #######█#█#██¤█+###█# #+████████',
-           '██#█%██#████#██#+#█#█#%███#█###%██%████████',
-           '██%█#█%#█+###█¤#█###█#█████##%█%+██████████',
-           '██##%█+[██#████ █████#█###█%#██████████████',
-           '██%██████████♥###+### ##█#██#¤██+%%##██████',
-           '█{#+█%# #+███##█##+█████##██ ██%#███%██████',
-           '█████%█+███¤██#+##█████##██##████%%##¤█████',
-           '███%█#█#█.##█¤#####%%# ##+####█¤###████████',
-           '███###█#██######█╬⎶████#¤███##████ ████████',
-           '██████###██#¤████████###%█%█%#+███¤████████',
-           '████%##█##█#█¤#██#¤█+#%#██#█████%%##%██████',
-           '██##%##██#█###%=█#███%#####¤█¤#%#███%██████',
-           '██##c%#█#%███████##███g███████#███(#+██████',
-           '████#█#██##+###g##██¤##]███+%~c#███#███████',
-           '███○#████████████%+██%###█¤#███##█%#███████',
-           '███○##%#○%#██████#####█####%%███#+##%██████',
-           '█████○#█#+%%██████+#███"██h████████%███████',
-           '██████+#○██}██████████████%%#%█████████████',
-           '█████████████████████████+####¤████████████',
-           '███████████████████████████#^#+████████████',
-           '██████████████████████████¤###%████████████',
-           '███████████████████████████████████████████',
+const originalMap = [
+	 '███████████████████████████████████████████',
+	 '█████████████%%████████████████████████████',
+	 '█████████████%#▣&██████████████████████████',
+	 '██+██¤#%█¤█████~███###██)#+████+#%#████████',
+	 '██#█+#####███%%%¤██#█#██####█%██%█%#███████',
+	 '██#█ +%#█# #######█#█#██¤█+###█# #+████████',
+	 '██#█%██#████#██#+#█#█#%███#█###%██%████████',
+	 '██%█#█%#█+###█¤#█###█#█████##%█%+██████████',
+	 '██##%█+[██#████ █████#█###█%#██████████████',
+	 '██%██████████♥###+### ##█#██#¤██+%%##██████',
+	 '█{#+█%# #+███##█##+█████##██ ██%#███%██████',
+	 '█████%█+███¤██#+##█████##██##████%%##¤█████',
+	 '███%█#█#█.##█¤#####%%# ##+####█¤###████████',
+	 '███###█#██######█╬⎶████#¤███##████ ████████',
+	 '██████###██#¤████████###%█%█%#+███¤████████',
+	 '████%##█##█#█¤#██#¤█+#%#██#█████%%##%██████',
+	 '██##%##██#█###%=█#███%#####¤█¤#%#███%██████',
+	 '██##c%#█#%███████##███g███████#███(#+██████',
+	 '████#█#██##+###g##██¤##]███+%~c#███#███████',
+	 '███○#████████████%+██%###█¤#███##█%#███████',
+	 '███○##%#○%#██████#####█####%%███#+##%██████',
+	 '█████○#█#+%%██████+#███"██h████████%███████',
+	 '██████+#○██}██████████████%%#%█████████████',
+	 '█████████████████████████+####¤████████████',
+	 '███████████████████████████#^#+████████████',
+	 '██████████████████████████¤###%████████████',
+	 '███████████████████████████████████████████',
 ];
 
-let originalMap = map.slice();
-
-let xOffset = 9, yOffset = 12;
-
-let mapLocations = [];
-
-let classMapping = {
+const classMapping = {
 	"█": ["wall", "Solid Rock"],
-	"¤": ["mana", "Mana-infused Rock"],
-	"*": ["mined-mana", "Mana Spring"],
+	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions)}`],
+	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions)}`],
 	".": ["tunnel", "Dug Tunnel"],
 	"#": ["rock", "Rock"],
 	"♥": ["clone-machine", "Strange Machine"],
@@ -67,6 +63,13 @@ let classMapping = {
 	"h": ["hobgoblin", "Hobgoblin"],
 };
 
+let map = originalMap.slice();
+
+let mapDirt = [];
+let mapStain = [];
+
+let mapLocations = [];
+
 while (mapLocations.length < map.length){
 	mapLocations.push([]);
 }
@@ -88,8 +91,13 @@ function getMapLocation(x, y, adj = false){
 	if (!mapLocations[y][x]){
 		let mapSymbol = map[y][x];
 		mapLocations[y][x] = new Location(x - xOffset, y - yOffset, getLocationTypeBySymbol(mapSymbol));
+		classMapping[mapSymbol][2] ? mapStain.push([x, y]) : mapDirt.push([x, y]);
 	}
 	return mapLocations[y][x];
+}
+
+function hasMapLocation(x, y) {
+	return mapLocations[y] && mapLocations[y][x] != undefined;
 }
 
 let mapNodes = [];
@@ -114,12 +122,12 @@ function drawNewMap() {
 				cellNode.setAttribute("data-x", x);
 				cellNode.setAttribute("data-y", y);
 				if (mapLocations[y][x]) {
-					let [className, descriptor] = classMapping[map[y][x]];
+					let [className, descriptor, isStained, descriptorMod] = classMapping[map[y][x]];
 					className = className.split(" ");
 					for (let i = 0; i < className.length; i++){
 						cellNode.classList.add(className[i]);
 					}
-					cellNode.setAttribute("data-content", descriptor);
+					cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 				} else {
 					cellNode.classList.add("blank");
 				}
@@ -130,44 +138,36 @@ function drawNewMap() {
 	}
 	isDrawn = true;
 	for (let i = 0; i < clones.length; i++){
-		mapNode.childNodes[clones[i].y + yOffset].childNodes[clones[i].x + xOffset].classList.add("occupied");
+		let clone = clones[i];
+		let node = mapNodes[clone.y + yOffset][clone.x + xOffset];
+		node.classList.add("occupied");
+		clone.occupiedNode = node;
 	}
 }
 
 let isDrawn = false;
 
 function drawCell(x, y) {
-	if (!mapLocations[y][x]) return;
 	let cell = mapNodes[y][x];
-	let [className, descriptor] = classMapping[map[y][x]];
-	if (cell.className != className){
-		cell.className = "";
-		className = className.split(" ");
-		for (let i = 0; i < className.length; i++){
-			cell.classList.add(className[i]);
-		}
-		if (descriptor == "Mana Spring" || descriptor == "Mana-infused Rock"){
-			descriptor += " " + mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions);
-		}
-		cell.setAttribute("data-content", descriptor);
-	} else if (descriptor == "Mana Spring" || descriptor == "Mana-infused Rock"){
-		descriptor += " " + mapLocations[y][x].type.nextCost(mapLocations[y][x].completions, mapLocations[y][x].priorCompletions);
-		cell.setAttribute("data-content", descriptor);
-	}
+	let [className, descriptor, isStained, descriptorMod] = classMapping[map[y][x]];
+	cell.className = className;
+	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
 
 function drawMap() {
 	if (!isDrawn) drawNewMap();
-	for (let y = 0; y < mapNodes.length; y++){
-		if (!mapLocations[y]) continue;
-		for (let x = 0; x < mapNodes[y].length; x++){
-			drawCell(x, y);
-		}
-	}
+	
+	mapDirt.forEach(([x,y])=>drawCell(x, y));
+	mapDirt = [];
+	mapStain.forEach(([x,y])=>drawCell(x, y));
+	
 	let mapNode = document.querySelector("#map-inner");
-	document.querySelectorAll(".occupied").forEach(el => el.classList.remove("occupied"));
 	for (let i = 0; i < clones.length; i++){
-		mapNode.childNodes[clones[i].y + yOffset].childNodes[clones[i].x + xOffset].classList.add("occupied");
+		let clone = clones[i];
+		clone.occupiedNode && clone.occupiedNode.classList.remove("occupied");
+		let node = mapNodes[clone.y + yOffset][clone.x + xOffset];
+		node.classList.add("occupied");
+		clone.occupiedNode = node;
 	}
 	showFinalLocation(true);
 }
@@ -187,6 +187,7 @@ function setMined(x, y, icon){
 		"h": ".",
 	}[map[y][x]] || map[y][x];
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
+	mapDirt.push([x, y]);
 }
 
 function viewCell(e){
@@ -224,4 +225,22 @@ function viewCell(e){
 			}
 		}
 	}
+}
+
+function getMapNode(x, y) {
+	return mapNodes[y] && mapNodes[y][x];
+}
+
+function getMapTile(x, y) {
+	return map[y] && map[y][x];
+}
+
+function resetMap() {
+	mapLocations.forEach((ml, y) => {
+		ml.forEach((l, x) => {
+			l.reset();
+			mapDirt.push([x, y]);
+		});
+	})
+	map = originalMap.slice();
 }

@@ -37,12 +37,12 @@ class Stat {
 			this.descriptionNode = this.node.querySelector(".description");
 		}
 		if (this.name == "Mana"){
-			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1) + "/" + writeNumber(this.base, 1);
+			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 1)}/${writeNumber(this.base, 1)}`;
 		} else if (!this.learnable){
 			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
-			this.descriptionNode.innerText = this.description + ` (${writeNumber(100 - this.value * 100, 1)}%)`;
+			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)`;
 		}
 	}
 

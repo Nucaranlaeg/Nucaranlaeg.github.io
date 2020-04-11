@@ -81,9 +81,6 @@ function resetLoop() {
 		s.update();
 	});
 	clones.forEach(c => c.reset());
-	mapLocations.forEach(ml => {
-		ml.forEach(l => l.reset());
-	})
 	queueTime = 0;
 	currentActionDetails = null;
 	savedQueues = savedQueues.map(q => {
@@ -99,7 +96,7 @@ function resetLoop() {
 		c.defense = c.creature.defense;
 		c.health = c.creature.health;
 	});
-	map = originalMap.slice();
+	resetMap();
 	drawMap();
 	save();
 	showFinalLocation();
