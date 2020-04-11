@@ -24,6 +24,10 @@ body {
 	position: relative;
 }
 
+#stats {
+	z-index: -1;
+}
+
 .stat {
 	height: 20px;
 	width: 194px;
@@ -44,6 +48,18 @@ body {
 .option {
 	height: 20px;
 	width: 194px;
+}
+
+.option-row {
+	position: relative;
+}
+
+.option-row > .block.option {
+	position: static;
+}
+
+.option.option--half-width {
+	width: 46%;
 }
 
 .option.option-highlighted {
@@ -80,6 +96,7 @@ body {
 	vertical-align: top;
 	width: 100%;
 	height: auto;
+	box-sizing: border-box;
 	border: 1px solid #00000077;
 	border-radius: 5px;
 	padding: 0 2px;
@@ -164,11 +181,17 @@ body {
 	column-count: 3;
 	column-gap: 8px;
 	width: 194px;
+	position: relative;
 }
 
-.block .description {
-	display: none;
+.block.stuff {
+	position: static;
+}
+
+.block > .description {
+	visibility: hidden;
 	position: absolute;
+	margin-top: 7px;
 	left: 5px;
 	width: 180px;
 	background: #99bbbb;
@@ -179,30 +202,17 @@ body {
 	color: #000000;
 }
 
-.block .big-description {
+.block > .big-description {
 	width: 360px;
 }
 
-.stuff .description {
+.block.stuff > .description {
 	top: calc(100% + 3px);
 	backface-visibility: hidden;
 }
 
-.action .description {
-	top: 54px;
-}
-
-.stat .description,
-.option .description {
-	top: 23px;
-}
-
-.option.double-height .description {
-	top: 43px;
-}
-
 .block:hover:not(.dragging) .description {
-	display: block;
+	visibility: visible;
 }
 
 .progress-indicator {
@@ -249,12 +259,19 @@ body {
 	margin-top: -1px;
 }
 
+.vertical-blocks {
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+	z-index: 1;
+}
+
 .vertical-block {
-	display: inline-block;
-	vertical-align: top;
+	will-change: transform;
+	flex-shrink: 0;
 	width: 200px;
 	height: 500px;
-	border: 1px solid #00000077;
+	border: 2px solid #00000077;
 	border-radius: 5px;
 	padding: 2px;
 	position: relative;

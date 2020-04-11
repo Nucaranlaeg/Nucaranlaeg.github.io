@@ -56,6 +56,13 @@ class Location {
 			}
 			percent = this.remainingPresent / (this.presentDuration || 1);
 		} else {
+			if (this.type.getEnterAction(this.entered).name == "Walk"){
+				if (!clones[currentClone].walkTime){
+					// Not sure why this is happening... walktime should be set when start() is called the first time.
+					this.start();
+				}
+				this.remainingEnter = clones[currentClone].walkTime;
+			}
 			usedTime = Math.min(time, this.remainingEnter);
 			this.type.getEnterAction(this.entered).tick(usedTime, this.creature);
 			this.remainingEnter -= usedTime;
@@ -74,6 +81,7 @@ class Location {
 				}
 			}
 			percent = this.remainingEnter / (this.enterDuration || 1);
+			if (this.type.getEnterAction().name == "Walk") this.remainingEnter = 100;
 		}
 		return [time - usedTime, percent];
 	}

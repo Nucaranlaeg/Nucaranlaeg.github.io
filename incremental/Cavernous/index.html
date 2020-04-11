@@ -82,91 +82,95 @@
 		</div>
 		<div id="message-link-template" class="message-link" onclick="viewMessage(event, this)"></div>
 	</div>
-	<div id="options" class="vertical-block">
-		<h3>Options</h3>
-		<div id="options-inner">
-			<div class="option block clickable" onclick="toggleBankedTime()">
-				<span id="time-banked-toggle">Using</span> Time (B)
-				<span id="time-banked">0</span>
-				<div class="description">If you're offline or your computer runs slowly, time is banked (at 50% efficiency) - you can use it to speed up the game!</div>
-			</div>
-			<div class="option block clickable" onclick="toggleRunning()">
-				<span id="running-toggle">Running</span> (P)
-				<div class="description">Pause the game to more easily adjust your queue.</div>
-			</div>
-			<div class="option block clickable" onclick="toggleAutoRestart()">
-				<span id="auto-restart-toggle">Wait when any complete</span> (<span id="auto-restart-key">W</span>)
-				<div class="description">Restart to improve your skills when the queue is empty.</div>
-			</div>
-			<div class="option block clickable" onclick="resetLoop()">
-				<span class="name">Travel back in time (R)</span>
-				<div class="description">Return to your little room.</div>
-			</div>
-			<div class="option block clickable" onclick="viewMessages()">
-				<span class="name">View messages</span>
-				<div class="description">Reminisce about the 'story'.</div>
-			</div>
-			<div class="option block clickable" onclick="toggleUseAlternateArrows()">
-				<span id="use-alternate-arrows-toggle">Use alternate arrow icons</span>
-				<div class="description">If 🡄🡅🡆🡇🞇 don't display, use ←↑→↓○ instead.</div>
-			</div>
-			<div class="option block clickable" onclick="toggleGrindMana()" ondblclick="Route.invalidateRouteCosts()">
-				<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
-				<div class="description">
-					Loops through your best paths to each mana rock.<br>
-					Doubleclick to revisit all known mana rocks.
+	<div class="vertical-blocks">
+		<div id="options" class="vertical-block">
+			<h3>Options</h3>
+			<div id="options-inner">
+				<div class="option block clickable" onclick="toggleBankedTime()">
+					<span id="time-banked-toggle">Using</span> Time (B)
+					<span id="time-banked">0</span>
+					<div class="description">If you're offline or your computer runs slowly, time is banked (at 50% efficiency) - you can use it to speed up the game!</div>
+				</div>
+				<div class="option block clickable" onclick="toggleRunning()">
+					<span id="running-toggle">Running</span> (P)
+					<div class="description">Pause the game to more easily adjust your queue.</div>
+				</div>
+				<div class="option block clickable" onclick="toggleAutoRestart()">
+					<span id="auto-restart-toggle">Wait when any complete</span> (<span id="auto-restart-key">W</span>)
+					<div class="description">Restart to improve your skills when the queue is empty.</div>
+				</div>
+				<div class="option block clickable" onclick="resetLoop()">
+					<span class="name">Travel back in time (R)</span>
+					<div class="description">Return to your little room.</div>
+				</div>
+				<div class="option block clickable" onclick="viewMessages()">
+					<span class="name">View messages</span>
+					<div class="description">Reminisce about the 'story'.</div>
+				</div>
+				<div class="option block clickable" onclick="toggleUseAlternateArrows()">
+					<span id="use-alternate-arrows-toggle">Use alternate arrow icons</span>
+					<div class="description">If 🡄🡅🡆🡇🞇 don't display, use ←↑→↓○ instead.</div>
+				</div>
+				<div class="option block clickable" onclick="toggleGrindMana()" ondblclick="Route.invalidateRouteCosts()">
+					<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
+					<div class="description">
+						Loops through your best paths to each mana rock.<br>
+						Double click to revisit all known mana rocks.
+					</div>
+				</div>
+				<div class="option block clickable" onclick="toggleUseWASD()">
+					<span id="use-wasd-toggle">Use WASD</span>
+					<div class="description">Some people.</div>
+				</div>
+				<div class="block">
+					Mouse over to see key bindings.
+					<div class="description big-description">
+						Arrow keys to move<br>
+						Space to act at your location<br>
+						Backspace removes a command<br>
+						1-3 to inscribe a rune<br>
+						Ctrl-backspace clears the whole queue<br>
+						Tab selects the next clone<br>
+						Drag from a saved queue to add to an active queue<br>
+						Ctrl-drag adds all the actions instead.
+					</div>
+				</div>
+				<div class="option block clickable" onclick="save()">
+					<span class="name">Manually Save</span>
+					<div class="description">The game automatically saves every time a reset occurs.</div>
+				</div>
+				<div class="option block clickable" ondblclick="deleteSave()">
+					<span class="name">Clear Save (double click)</span>
+					<div class="description">Are you sure you want to restart the game?</div>
+				</div>
+				<div class="option-row">
+					<div class="option block clickable option--half-width" onclick="exportGame()">
+						<span class="name">Export</span>
+						<div class="description">This will put your save on your clipboard.</div>
+					</div>
+					<div class="option block clickable option--half-width" onclick="importGame()">
+						<span class="name">Import</span>
+						<div class="description">Paste your save in the box.</div>
+					</div>
+				</div>
+				<div class="option-row">
+					<div class="option block clickable option--half-width" onclick="exportQueues()">
+						<span class="name">Export Queue</span>
+						<div class="description">This will put your current queues on your clipboard.</div>
+					</div>
+					<div class="option block clickable option--half-width" onclick="importQueues()">
+						<span class="name">Import Queue</span>
+						<div class="description">Paste queues in the box.</div>
+					</div>
 				</div>
 			</div>
-			<div class="option block clickable" onclick="toggleUseWASD()">
-				<span id="use-wasd-toggle">Use WASD</span>
-				<div class="description">Some people.</div>
+			<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
+				<a href="https://discord.gg/EXAHXBr">Discord</a><br>
+				Version 0.3.1<br>
+				©2020 Nucaranlaeg
 			</div>
-			<div class="block">
-				Mouse over to see key bindings.
-				<div class="description big-description">
-					Arrow keys to move<br>
-					Space to act at your location<br>
-					Backspace removes a command<br>
-					1-3 to inscribe a rune<br>
-					Ctrl-backspace clears the whole queue<br>
-					Tab selects the next clone<br>
-					Drag from a saved queue to add to an active queue<br>
-					Ctrl-drag adds all the actions instead.
-				</div>
-			</div>
-			<div class="option block clickable" onclick="save()">
-				<span class="name">Manually Save</span>
-				<div class="description">The game automatically saves every time a reset occurs.</div>
-			</div>
-			<div class="option block clickable" ondblclick="deleteSave()">
-				<span class="name">Clear Save (double click)</span>
-				<div class="description">Are you sure you want to restart the game?</div>
-			</div>
-			<div class="option block clickable half-width" onclick="exportGame()">
-				<span class="name">Export</span>
-				<div class="description">This will put your save on your clipboard.</div>
-			</div>
-			<div class="option block clickable half-width" onclick="importGame()">
-				<span class="name">Import</span>
-				<div class="description">Paste your save in the box.</div>
-			</div>
-			<div class="option block clickable half-width" onclick="exportQueues()">
-				<span class="name">Export Queue</span>
-				<div class="description">This will put your current queues on your clipboard.</div>
-			</div>
-			<div class="option block clickable half-width" onclick="importQueues()">
-				<span class="name">Import Queue</span>
-				<div class="description">Paste queues in the box.</div>
-			</div>
-		</div>
-		<div class="version" title="If you want to work with me on this or fork it (if I've abandoned it), just send an email to bennerguy@gmail.com.">
-			<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-			Version 0.2.7<br>
-			©2020 Nucaranlaeg, Dimava
-		</div>
-	</div>
-	<div id="stats" class="vertical-block">
-		<h3>Stats</h3>
+		</div>		<div id="stats" class="vertical-block">
+			<h3>Stats</h3>
 
 		<div class="queue-time">
 			Time spent: <span id="time-spent">0</span>s
@@ -179,33 +183,34 @@
 			<hr>
 			<h3>Runes</h3>
 		</div>
-	</div>
+		</div>
 	<div id="map" class="vertical-block wide" onclick="viewCell(event)">
 		<h3>Map</h3>
 		<table id="map-inner"></table>
 	</div>
-	<div id="location" class="vertical-block">
-		<h3>Selected Location</h3>
-		<h4 id="location-name"></h4>
-		<div id="location-description"></div>
-		<div id="location-next"></div>
-		<div id="location-route">
-			<button id="route-button" onclick="loadRoute()">
-				Load best route to this rock
-				<input type="hidden" id="x-loc">
-				<input type="hidden" id="y-loc">
-			</button>
-		</div>
-		<div class="bottom-vertical-block">
-			<hr>
-			<h3>Uncommon Actions</h3>
-			<div class="option block clickable" onclick="addActionToQueue('<')">
-				<span id="repeat-last-action">Repeat last action(s)</span>
-				<div class="description">Repeat all actions after this action.</div>
+		<div id="location" class="vertical-block">
+			<h3>Selected Location</h3>
+			<h4 id="location-name"></h4>
+			<div id="location-description"></div>
+			<div id="location-next"></div>
+			<div id="location-route">
+				<button id="route-button" onclick="loadRoute()">
+					Load best route to this rock
+					<input type="hidden" id="x-loc">
+					<input type="hidden" id="y-loc">
+				</button>
 			</div>
-			<div class="option block clickable" onclick="addActionToQueue('=')">
-				<span id="repeat-last-action">Sync Clones</span> (=)
-				<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
+			<div class="bottom-vertical-block">
+				<hr>
+				<h3>Uncommon Actions</h3>
+				<div class="option block clickable" onclick="addActionToQueue('<')">
+					<span id="repeat-last-action">Repeat following action(s)</span>
+					<div class="description">Repeat all actions after this action.</div>
+				</div>
+				<div class="option block clickable" onclick="addActionToQueue('=')">
+					<span id="sync-clones">Sync Clones</span> (=)
+					<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
+				</div>
 			</div>
 		</div>
 	</div>
