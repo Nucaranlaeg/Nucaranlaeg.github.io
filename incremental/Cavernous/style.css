@@ -696,17 +696,21 @@ td:hover:after {
 
 
 .bottom-block:not(:hover)>.queue-buttons {
-	right: -100px;
+	/*right: -100px;*/
+	opacity: 0;
 }
 
 .queue-buttons {
-	transition: right 0.4s;
+	/*transition: right 0.4s;*/
+	transition: opacity 0.4s;
 }
 
 .bottom-block:not(:hover)>.queue-time {
-	right: 4px;
+	/*right: 4px;*/
+	opacity: 0;
 }
 
 .queue-time {
-	transition: right 0.4s;
+	/*transition: right 0.4s;*/
+	transition: opacity 0.4s;
 }
