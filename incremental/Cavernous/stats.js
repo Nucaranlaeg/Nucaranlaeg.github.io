@@ -77,6 +77,8 @@ class Stat {
 	spendMana(amount) {
 		if (this.name != "Mana") return;
 		this.current -= amount;
+		if (this.current < -1) alert('Error: overspend mana\nplease send to devs');
+		if (this.current < 0) this.current = 0;
 		// this.update(); // moved to main loop
 	}
 }
