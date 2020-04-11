@@ -154,6 +154,8 @@ function drawCell(x, y) {
 	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
 
+let mapNode;
+
 function drawMap() {
 	if (!isDrawn) drawNewMap();
 	
@@ -161,7 +163,7 @@ function drawMap() {
 	mapDirt = [];
 	mapStain.forEach(([x,y])=>drawCell(x, y));
 	
-	let mapNode = document.querySelector("#map-inner");
+	mapNode = mapNode || document.querySelector("#map-inner");
 	for (let i = 0; i < clones.length; i++){
 		let clone = clones[i];
 		clone.occupiedNode && clone.occupiedNode.classList.remove("occupied");
@@ -175,6 +177,7 @@ function drawMap() {
 function setMined(x, y, icon){
 	x += xOffset;
 	y += yOffset;
+	let old = map[y][x];
 	let tile = icon || {
 		"#": ".",
 		"¤": "*",
@@ -185,9 +188,11 @@ function setMined(x, y, icon){
 		"○": ".",
 		"c": ".",
 		"h": ".",
-	}[map[y][x]] || map[y][x];
+	}[old] || old;
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
-	mapDirt.push([x, y]);
+	if (tile !== old) {
+		mapDirt.push([x, y]);
+	}
 }
 
 function viewCell(e){
