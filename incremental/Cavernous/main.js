@@ -365,7 +365,7 @@ setInterval(function mainLoop() {
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
-	queueTimeNode = queueTimeNode || document.querySelector("#queue0 .queue-time .time");
+	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
 
