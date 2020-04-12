@@ -156,10 +156,9 @@ body {
 
 .queue-time #time-spent {font-family: "Lucida Console", monospace;font-size: 14px;min-width: 3.1em;display: inline-block;text-align: right;font-variant-numeric: tabular-nums;}
 
-#queue0 .queue-time {font-size: unset;}
-
-#queue0 .queue-inner {
-	/* min-width: calc(100% - 224px); */
+#queues {
+	margin-top: 10px;
+	will-change: opacity;
 }
 
 .queue {
@@ -276,7 +275,7 @@ body {
 }
 
 .vertical-block {
-	will-change: transform;
+	will-change: opacity;
 	flex-shrink: 0;
 	width: 200px;
 	height: 500px;
@@ -657,7 +656,7 @@ td:hover:after {
 }
 
 #saved-queues-inner {
-	will-change: transform;
+	will-change: opacity;
 }
 
 .saved-queue .queue-inner {
