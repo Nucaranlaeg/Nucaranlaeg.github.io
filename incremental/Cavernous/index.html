@@ -2,6 +2,7 @@
 <head>
 	<title>Cavernous</title>
 	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" defer src="settings.js"></script>
 	<script type="text/javascript" defer src="stats.js"></script>
 	<script type="text/javascript" defer src="actions.js"></script>
 	<script type="text/javascript" defer src="creatures.js"></script>
@@ -56,9 +57,6 @@
 		<div id="queue-template" class="bottom-block" onclick="selectClone(this, event)" ondrop="savedQueueDrop(event, this)" ondragover="queueDragOver(event)">
 			<div class="damage" style="width: 100%;"></div>
 			<div class="queue-inner" onclick="maybeClearCursor(event, this)"></div>
-			<div class="queue-time">
-				Time spent: <span class="time">0</span>s
-			</div>
 			<div class="queue-buttons">
 				<span class="button" onclick="saveQueue(this)">Save</span>
 				<span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</span>
@@ -172,22 +170,25 @@
 				Version 0.3.1<br>
 				©2020 Nucaranlaeg
 			</div>
-		</div>
-		<div id="stats" class="vertical-block">
+		</div>		<div id="stats" class="vertical-block">
 			<h3>Stats</h3>
+
+		<div class="queue-time">
+			Time spent: <span id="time-spent">0</span>s
 		</div>
-		<div id="stuff" class="vertical-block">
-			<h3>Stuff</h3>
-			<div id="stuff-inner"></div>
-			<div id="runes">
-				<hr>
-				<h3>Runes</h3>
-			</div>
+	</div>
+	<div id="stuff" class="vertical-block">
+		<h3>Stuff</h3>
+		<div id="stuff-inner"></div>
+		<div id="runes">
+			<hr>
+			<h3>Runes</h3>
 		</div>
-		<div id="map" class="vertical-block wide" onclick="viewCell(event)">
-			<h3>Map</h3>
-			<table id="map-inner"></table>
 		</div>
+	<div id="map" class="vertical-block wide" onclick="viewCell(event)">
+		<h3>Map</h3>
+		<table id="map-inner"></table>
+	</div>
 		<div id="location" class="vertical-block">
 			<h3>Selected Location</h3>
 			<h4 id="location-name"></h4>
@@ -199,6 +200,16 @@
 					<input type="hidden" id="x-loc">
 					<input type="hidden" id="y-loc">
 				</button>
+				<div id="route-has-route">
+					Route time: <span id="route-best-time"></span>s<br>
+					Mana used: <span id="route-best-mana-used"></span><br>
+					Clones lost: <span id="route-best-clones-lost"></span><br>
+					Mana estimate after consuming: <span id="route-best-mana-left"></span>s<br>
+					<span id="route-best-invalidated" hidden>Route values wil be reset on the next visit.</span>
+				</div>
+				<div id="route-not-visited">
+					There is no known routes to this location.
+				</div>
 			</div>
 			<div class="bottom-vertical-block">
 				<hr>
