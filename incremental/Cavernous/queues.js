@@ -111,18 +111,19 @@ function resetQueueHighlight(queue){
 }
 
 function selectQueueAction(queue, action, percent){
-	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
+	let queueBlock = queuesNode.children[queue];
+	let queueNode = queueBlock.querySelector('.queue-inner');
 	this.width = this.width || queueNode.parentNode.clientWidth;
-	let nodes = queueNode.querySelectorAll(`.action`);
+	let nodes = queueNode.children;
 	let node = nodes[action];
-	node.classList.add("started");
+	node.classList.add('started');
 	if (queues[queue][action][2]){
 		let complete = queues[queue][action][2].findIndex(q => q[`${queue}_${action}`] === undefined);
 		percent /= queues[queue][action][2].length;
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
-	node.querySelector(".progress").style.width = percent + "%";
-	let workProgressBar = node.closest('.bottom-block').querySelector('.work-progress');
+	node.style.paddingRight = `${Math.floor(16 * (100 - percent) / 100)}px`;
+	let workProgressBar = queueBlock.querySelector('.work-progress');
 	let lastProgess = +workProgressBar.style.width.replace("%", "");
 	if (percent < lastProgess) {
 		workProgressBar.style.width = "0%";
@@ -156,7 +157,7 @@ function redrawQueues(){
 			queueNode.append(node);
 			if (!queues[i][j][1]){
 				node.classList.add("started");
-				node.querySelector(".progress").style.width = "100%";
+				node.style.paddingRight = "0";
 			}
 		}
 	}
