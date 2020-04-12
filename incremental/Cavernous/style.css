@@ -74,21 +74,19 @@ body {
 	line-height: 20px;
 	min-width: 16px;
 	user-select: none;
-	position: relative;
 	text-align: center;
+	
+	background-clip: content-box;
+	box-sizing: border-box;
+	width: 16px;
 }
 
-.progress {
-	display: none;
+.action.started {
 	background-color: #01322066;
-	height: 100%;
-	position: absolute;
-	top: 0;
-	left: 0;
 }
 
-.action.started .progress {
-	display: block;
+.character {
+	width: 16px;
 }
 
 .bottom-block {
@@ -127,29 +125,30 @@ body {
 .queue-inner {
 	display: inline-flex;
 	flex-direction: row;
-	min-width: calc(100% - 100px);
-}
-
-#queues {
-	will-change: transform;
-	margin-top: 10px;
+	min-width: calc(100% - 120px);
+	padding-right: 16px;
 }
 
 .queue-time {
-	display: inline-block;
-	width: 120px;
-	text-align: center;
-	position: sticky;
-	margin-top: -3px;
-	right: 100px;
-	background-color: #aaccccd0;
-	font-size: 0;
+	/* display: inline-block; */
+	/* width: 130px; */
+	/* text-align: center; */
+	/* position: sticky; */
+	/* margin-top: -3px; */
+	/* right: 100px; */
+	/* background-color: #aaccccd0; */
+	/* font-size: 0; */
+	position: absolute;
+	bottom: 6px;
+	right: 8px;
 }
+
+.queue-time #time-spent {font-family: "Lucida Console", monospace;font-size: 14px;min-width: 3.1em;display: inline-block;text-align: right;font-variant-numeric: tabular-nums;}
 
 #queue0 .queue-time {font-size: unset;}
 
 #queue0 .queue-inner {
-	min-width: calc(100% - 224px);
+	/* min-width: calc(100% - 224px); */
 }
 
 .queue {
@@ -247,6 +246,10 @@ body {
 
 .clickable {
 	cursor: pointer;
+}
+
+.half-width {
+	width: 46%;
 }
 
 #add-count {
@@ -707,4 +710,28 @@ td:hover:after {
 
 #search-saved {
 	margin-bottom: 2px;
+}
+
+
+
+
+
+.bottom-block:not(:hover)>.queue-buttons {
+	/* right: -100px; */
+	/* transition: right 0.4s 1s; */
+	opacity: 0;
+}
+
+.queue-buttons {
+	/* transition: opacity 0.4s; */
+}
+
+.bottom-block:not(:hover)>.queue-time {
+	right: 4px;
+	transition: right 0.4s 1s;
+}
+
+.queue-time {
+	/* transition: right 0.4s; */
+	/* white-space: nowrap; */
 }

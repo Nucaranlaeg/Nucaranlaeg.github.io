@@ -25,6 +25,8 @@ class Route {
 			let duration = mineManaRockCost(0, location.priorCompletions);
 			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
+			this.reachTime = +(queueTime / 1000).toFixed(2);
+
 			return;
 
 		}
@@ -46,12 +48,13 @@ class Route {
 
 	getConsumeCost() {
 		let loc = getMapLocation(this.x, this.y);
-		return mineManaRockCost(0, loc.completions + loc.priorCompletions);
+		let mul = getAction("Collect Mana").getBaseDurationMultipluer();
+		return mineManaRockCost(0, loc.completions + loc.priorCompletions) * mul;
 	}
 
-	estimateConsumeManaLeft() {
+	estimateConsumeManaLeft(ignoreInvalidate = false) {
 		let est = getStat("Mana").base - this.manaUsed - this.getConsumeCost() / (clones.length - this.clonesLost);
-		return this.invalidateCost ? est + 100 : est;
+		return !ignoreInvalidate && this.invalidateCost ? est + 100 : est;
 	}
 
 	static updateBestRoute(location) {
@@ -113,6 +116,23 @@ class Route {
 		settings.debug && log('route costs invalidated');
 		routes.map(e=>e.invalidateCost = true);
 	}
+
+	showOnLocationUI() {
+		
+		q("#location-route").hidden = false;
+		q("#route-has-route").hidden = false;
+		q("#route-not-visited").hidden = true;
+
+		q("#route-best-time").innerText = this.reachTime;
+		q("#route-best-mana-used").innerText = this.manaUsed;
+		q("#route-best-clones-lost").innerText = this.clonesLost;
+		q("#route-best-mana-left").innerText = +this.estimateConsumeManaLeft(true).toFixed(2);
+		q("#route-best-invalidated").hidden = !this.invalidateCost;
+
+		q("#x-loc").value = this.x;
+		q("#y-loc").value = this.y;
+		
+	}
 }
 
 function getBestRoute(x, y){
@@ -137,3 +157,8 @@ function loadRoute(){
 }
 
 let routes = [];
+
+// sorry, but im bored of writing qsa everywhere
+function q(sel) {
+	return document.querySelector(sel);
+}

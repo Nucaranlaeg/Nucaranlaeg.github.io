@@ -53,8 +53,11 @@ function writeNumber(value, decimals = 0) {
 	return value.toFixed(decimals);
 }
 
+let timeBankNode;
+
 function redrawOptions() {
-	document.querySelector("#time-banked").innerHTML = writeNumber(timeBanked / 1000, 1);
+	timeBankNode = timeBankNode || document.querySelector("#time-banked");
+	timeBankNode.innerText = writeNumber(timeBanked / 1000, 1);
 }
 
 window.ondrop = e => e.preventDefault();
@@ -65,7 +68,10 @@ function resetLoop() {
 	let mana = getStat("Mana");
 	getMessage("Time Travel").display(mana.base == 5);
 	if (mana.base >= 6) getMessage("Strip Mining").display();
-	stats.forEach(s => s.reset());
+	stats.forEach(s => {
+		s.reset();
+		s.update();
+	});
 	if (settings.grindMana && routes) {
 		Route.loadBestRoute();
 	}
@@ -81,9 +87,6 @@ function resetLoop() {
 		s.update();
 	});
 	clones.forEach(c => c.reset());
-	mapLocations.forEach(ml => {
-		ml.forEach(l => l.reset());
-	})
 	queueTime = 0;
 	currentActionDetails = null;
 	savedQueues = savedQueues.map(q => {
@@ -99,7 +102,7 @@ function resetLoop() {
 		c.defense = c.creature.defense;
 		c.health = c.creature.health;
 	});
-	map = originalMap.slice();
+	resetMap();
 	drawMap();
 	save();
 	showFinalLocation();
@@ -205,11 +208,8 @@ function load(){
 			routes = Route.fromJSON(saveGame.routes);	
 		}
 	}
-	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
-	while (settings.running != saveGame.settings.running) toggleRunning();
-	toggleAutoRestart();
-	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
-	Object.assign(settings, saveGame.settings, settings);
+
+	loadSettings(saveGame.settings);
 
 	selectClone(0);
 	redrawQueues();
@@ -305,57 +305,15 @@ function importQueues(){
 	}
 }
 
-/******************************************** Settings ********************************************/
 
-let settings = {
-	usingBankedTime: true,
-	running: true,
-	autoRestart: 0,
-	useAlternateArrows: false,
-	useWASD: false,
-	useDifferentBridges: true,
-	grindMana: false,
-}
-
-function toggleBankedTime() {
-	settings.usingBankedTime = !settings.usingBankedTime;
-	document.querySelector("#time-banked-toggle").innerHTML = settings.usingBankedTime ? "Using" : "Banking";
-}
-
-function toggleRunning() {
-	settings.running = !settings.running;
-	document.querySelector("#running-toggle").innerHTML = settings.running ? "Running" : "Paused";
-	document.querySelector("#running-toggle").closest(".option").classList.toggle("option-highlighted", !settings.running); 
-}
-
-function toggleAutoRestart() {
-	settings.autoRestart = (settings.autoRestart + 1) % 4;
-	document.querySelector("#auto-restart-toggle").innerHTML = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"][settings.autoRestart];
-	document.querySelector("#auto-restart-toggle").closest(".option").classList.toggle("option-highlighted", settings.autoRestart == 0); 
-}
-
-function toggleUseAlternateArrows() {
-	settings.useAlternateArrows = !settings.useAlternateArrows;
-	document.querySelector("#use-alternate-arrows-toggle").innerHTML = settings.useAlternateArrows ? "Use default arrows" : "Use alternate arrows";
-}
-
-function toggleUseWASD() {
-	settings.useWASD = !settings.useWASD;
-	document.querySelector("#use-wasd-toggle").innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
-	document.querySelector("#auto-restart-key").innerHTML = settings.useWASD ? "C" : "W";
-}
-
-function toggleGrindMana() {
-	settings.grindMana = !settings.grindMana;
-	document.querySelector("#grind-mana-toggle").innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
-	document.querySelector("#grind-mana-toggle").closest(".option").classList.toggle("option-highlighted", settings.grindMana); 
-}
 
 /******************************************** Game loop ********************************************/
 
 let lastAction = Date.now();
 let timeBanked = 0;
 let queueTime = 0;
+let queuesNode;
+let queueTimeNode;
 let currentClone = 0;
 let fps = 60;
 
@@ -363,14 +321,15 @@ setInterval(function mainLoop() {
 	let time = Date.now() - lastAction;
 	let mana = getStat("Mana");
 	lastAction = Date.now();
+	queuesNode = queuesNode || document.querySelector("#queues");
 	if (mana.current == 0){
-		document.querySelector("#queues").classList.add("out-of-mana")
+		queuesNode.classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
 			resetLoop();
 		}
 	} else {
-		document.querySelector("#queues").classList.remove("out-of-mana")
+		queuesNode.classList.remove("out-of-mana")
 	}
 	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
 		timeBanked += time / 2;
@@ -395,7 +354,6 @@ setInterval(function mainLoop() {
 
 	timeLeft = Clone.performActions(timeAvailable);
 
-	
 	let timeUsed = timeAvailable - timeLeft;
 	if (timeUsed > time) {
 		timeBanked -= timeUsed - time;
@@ -407,11 +365,11 @@ setInterval(function mainLoop() {
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
-	let timeDiv = document.querySelector("#queue0 .queue-time .time");
-	if (timeDiv) timeDiv.innerHTML = writeNumber(queueTime / 1000, 1);
+	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
+	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
 
-	stats.map(e=>e.update())
+	stats.forEach(e=>e.update());
 	drawMap();
 }, Math.floor(1000 / fps));
 

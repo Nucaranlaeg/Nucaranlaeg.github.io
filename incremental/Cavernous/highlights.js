@@ -1,3 +1,6 @@
+let finalLocation;
+let hoverLocation;
+
 function showIntermediateLocation(e){
 	let queueNode = e.target.parentNode.parentNode;
 	let index = Array.from(queueNode.children).findIndex(node => node == e.target.parentNode);
@@ -13,13 +16,18 @@ function showLocationAfterSteps(index, queueNumber, isDraw = false, isHover = fa
 	let x = xOffset; y = yOffset;
 	[x, y] = getQueueOffset(x, y, queues[queueNumber], index);
 	if (x === undefined) return;
-	let target = document.querySelector(`#map-inner`);
+	let target = getMapNode(x, y);
 	if (!target) return;
-	target = target.children[y];
-	if (!target) return;
-	target = target.children[x];
-	document.querySelectorAll(`.${isHover ? 'hover' : 'final'}-location`).forEach(e => e.classList.remove(`${isHover ? 'hover' : 'final'}-location`));
-	target.classList.add(`${isHover ? 'hover' : 'final'}-location`);
+	if (isHover) {
+		hoverLocation && hoverLocation.classList.remove('hover-location');
+		target.classList.add('hover-location');
+		hoverLocation = target;
+	}
+	else {
+		finalLocation && finalLocation.classList.remove('final-location');
+		target.classList.add('final-location');
+		finalLocation = target;
+	}
 	if (!isDraw) viewCell({"target": target});
 }
 
@@ -31,7 +39,7 @@ function getQueueOffset(x, y, queue, maxIndex){
 			continue;
 		}
 		[x, y] = getActionOffset(x, y, action);
-		if (!mapLocations[y] || !mapLocations[y][x]) {
+		if (!hasMapLocation(x, y)) {
 			return [undefined, undefined];
 		}
 	}
@@ -41,7 +49,7 @@ function getQueueOffset(x, y, queue, maxIndex){
 function getActionOffset(x, y, action){
 	x += (action == "R") - (action == "L");
 	y += (action == "D") - (action == "U");
-	if (map[y][x] == "█"){
+	if (getMapTile(x, y) == "█"){
 		x -= (action == "R") - (action == "L");
 		y -= (action == "D") - (action == "U");
 	}
@@ -49,12 +57,15 @@ function getActionOffset(x, y, action){
 }
 
 function stopHovering(){
-	document.querySelectorAll(".hover-location").forEach(e => e.classList.remove("hover-location"));
+	hoverLocation && hoverLocation.classList.remove("hover-location");
+	hoverLocation = undefined;
 }
 
 function showFinalLocation(isDraw = false){
-	document.querySelectorAll(".final-location").forEach(e => e.classList.remove("final-location"));
 	if (selectedQueue[0] !== undefined){
 		showLocationAfterSteps(queues[selectedQueue[0]].length - 1, selectedQueue[0], isDraw);
+	}
+	else if (finalLocation) {
+		finalLocation.classList.remove("final-location");
 	}
 }

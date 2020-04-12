@@ -196,9 +196,10 @@ class Clone {
 	}
 
 	static performActions(time) {
+		let maxSingleTickTime = settings.debug_maxSingleTickTime || 99;
 		while(time > 100) {
-			this.performActions(99)
-			time -= 99;
+			this.performActions(maxSingleTickTime)
+			time -= maxSingleTickTime;
 		}
 
 		for (let c of clones) {

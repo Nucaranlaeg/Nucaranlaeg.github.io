@@ -33,6 +33,14 @@ class Action {
 		}
 		return duration;
 	}
+
+	getBaseDurationMultipluer() {
+		let duration = this.baseDuration / 1000;
+		for (let i = 0; i < this.stats.length; i++) {
+			duration *= Math.pow(this.stats[i][0].baseValue, this.stats[i][1]);
+		}
+		return duration;	
+	}
 }
 
 function completeMove(x, y){

@@ -8,26 +8,32 @@ class Stat {
 		this.bonus = 0;
 		this.node = null;
 		this.value = 1;
+		this.dirty = false;
 	}
 
 	updateValue() {
 		this.value = 100 / (100 + this.current + this.bonus);
+		this.dirty = true;
+	}
+
+	get baseValue() {
+		return 100 / (100 + this.base);
 	}
 
 	gainSkill(amount) {
 		this.current += amount / 10;
-		// this.update(); // moved to main loop
+		this.dirty = true;
 	}
 
 	setStat(amount) {
 		// For combat stats.
 		this.current = this.base + amount;
-		this.update();
+		this.dirty = true;
 	}
 
-	update(updateZero) {
+	update() {
+		if (!this.dirty) return;
 		this.updateValue();
-		if ((this.current === 0 && !updateZero) && this.name !== "Mana") return;
 		if (this.name == "Runic Lore"){
 			updateRunes(this.current);
 		}
@@ -37,13 +43,14 @@ class Stat {
 			this.descriptionNode = this.node.querySelector(".description");
 		}
 		if (this.name == "Mana"){
-			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1) + "/" + writeNumber(this.base, 1);
+			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 1)}/${writeNumber(this.base, 1)}`;
 		} else if (!this.learnable){
 			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
-			this.descriptionNode.innerText = this.description + ` (${writeNumber(100 - this.value * 100, 1)}%)`;
+			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)`;
 		}
+		this.dirty = false;
 	}
 
 	createNode() {
@@ -60,11 +67,11 @@ class Stat {
 	}
 
 	reset() {
+		if (this.current === this.base && this.bonus === 0) return;
 		this.base = this.getNextLoopValue();
-		let isDecreasing = this.current > 0;
 		this.current = this.base;
 		this.bonus = 0;
-		this.update(isDecreasing);
+		this.dirty = true;
 	}
 
 	getNextLoopValue() {
@@ -77,7 +84,9 @@ class Stat {
 	spendMana(amount) {
 		if (this.name != "Mana") return;
 		this.current -= amount;
-		// this.update(); // moved to main loop
+		if (this.current < -1) alert('Error: overspend mana\nplease send to devs');
+		if (this.current < 0) this.current = 0;
+		this.dirty = true;
 	}
 }
 
@@ -97,7 +106,6 @@ let stats = [
 function getStat(name) {
 	return stats.find(a => a.name == name);
 }
-
 
 function writeNumber(value, decimals = 0) {
 	if (value > 100) decimals = Math.min(decimals, 1);
