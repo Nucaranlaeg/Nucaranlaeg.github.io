@@ -208,11 +208,8 @@ function load(){
 			routes = Route.fromJSON(saveGame.routes);	
 		}
 	}
-	while (settings.usingBankedTime != saveGame.settings.usingBankedTime) toggleBankedTime();
-	while (settings.running != saveGame.settings.running) toggleRunning();
-	toggleAutoRestart();
-	while (settings.autoRestart != saveGame.settings.autoRestart) toggleAutoRestart();
-	Object.assign(settings, saveGame.settings, settings);
+
+	loadSettings(saveGame.settings);
 
 	selectClone(0);
 	redrawQueues();
@@ -308,51 +305,7 @@ function importQueues(){
 	}
 }
 
-/******************************************** Settings ********************************************/
 
-let settings = {
-	usingBankedTime: true,
-	running: true,
-	autoRestart: 0,
-	useAlternateArrows: false,
-	useWASD: false,
-	useDifferentBridges: true,
-	grindMana: false,
-}
-
-function toggleBankedTime() {
-	settings.usingBankedTime = !settings.usingBankedTime;
-	document.querySelector("#time-banked-toggle").innerHTML = settings.usingBankedTime ? "Using" : "Banking";
-}
-
-function toggleRunning() {
-	settings.running = !settings.running;
-	document.querySelector("#running-toggle").innerHTML = settings.running ? "Running" : "Paused";
-	document.querySelector("#running-toggle").closest(".option").classList.toggle("option-highlighted", !settings.running); 
-}
-
-function toggleAutoRestart() {
-	settings.autoRestart = (settings.autoRestart + 1) % 4;
-	document.querySelector("#auto-restart-toggle").innerHTML = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"][settings.autoRestart];
-	document.querySelector("#auto-restart-toggle").closest(".option").classList.toggle("option-highlighted", settings.autoRestart == 0); 
-}
-
-function toggleUseAlternateArrows() {
-	settings.useAlternateArrows = !settings.useAlternateArrows;
-	document.querySelector("#use-alternate-arrows-toggle").innerHTML = settings.useAlternateArrows ? "Use default arrows" : "Use alternate arrows";
-}
-
-function toggleUseWASD() {
-	settings.useWASD = !settings.useWASD;
-	document.querySelector("#use-wasd-toggle").innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
-	document.querySelector("#auto-restart-key").innerHTML = settings.useWASD ? "C" : "W";
-}
-
-function toggleGrindMana() {
-	settings.grindMana = !settings.grindMana;
-	document.querySelector("#grind-mana-toggle").innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
-	document.querySelector("#grind-mana-toggle").closest(".option").classList.toggle("option-highlighted", settings.grindMana); 
-}
 
 /******************************************** Game loop ********************************************/
 
@@ -413,7 +366,7 @@ setInterval(function mainLoop() {
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
-	queueTimeNode = queueTimeNode || document.querySelector("#queue0 .queue-time .time");
+	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
 	updateDropTarget();

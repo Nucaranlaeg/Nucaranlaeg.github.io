@@ -219,13 +219,19 @@ function viewCell(e){
 					document.querySelector("#location-next").innerHTML = "";
 				}
 				let xValue = x - xOffset, yValue = y - yOffset;
-				if ((type.name == "Mana-infused Rock" || type == "Mana Spring") && getBestRoute(xValue, yValue)){
-					document.querySelector("#location-route").style.display = "block";
-					document.querySelector("#x-loc").value = x - xOffset;
-					document.querySelector("#y-loc").value = y - yOffset;
+				if ((type.name == "Mana-infused Rock" || type.name == "Mana Spring")) {
+					q("#location-route").hidden = true;
+					let route = getBestRoute(xValue, yValue);
+					if (route) {
+						route.showOnLocationUI();
+					} else {
+						q("#route-has-route").hidden = true;
+						q("#route-not-visited").hidden = true;
+					}
 				} else {
-					document.querySelector("#location-route").style.display = "none";
+					document.querySelector("#location-route").hidden = true;
 				}
+
 				return;
 			}
 		}
