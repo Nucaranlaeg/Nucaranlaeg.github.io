@@ -18,7 +18,7 @@ class Stuff {
 		if (!this.node) this.createNode();
 		this.count += newCount;
 		this.effect();
-		this.node.innerHTML = this.count;
+		this.node.innerText = this.count;
 		if (this.count > 0){
 			this.node.parentNode.style.display = "inline-block";
 		}

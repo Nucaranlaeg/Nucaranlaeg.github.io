@@ -40,7 +40,6 @@ class Rune {
 		location.setTemporaryPresent(this);
 		setMined(x, y, this.icon);
 		if (this.createEvent) this.createEvent(x, y);
-		drawCell(x, y);
 		return true;
 	}
 }
