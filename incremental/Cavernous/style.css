@@ -98,12 +98,23 @@ body {
 	border: 1px solid #00000077;
 	border-radius: 5px;
 	padding: 0 2px;
+	margin: 1px 0;
 	position: relative;
 	overflow-x: auto;
 	overflow-y: hidden;
 	scrollbar-width: thin;
 	scrollbar-color: #88aaaa #aacccc;
 	white-space: nowrap;
+}
+
+.bottom-block.saved-queue.drop-below {
+	border-bottom: 2px solid;
+	margin-bottom: 0;
+}
+
+.bottom-block.saved-queue.drop-above {
+	border-top: 2px solid;
+	margin-top: 0;
 }
 
 #saved-queues .bottom-block > *,
@@ -638,6 +649,10 @@ td:hover:after {
 	border-radius: 10px;
 	display: none;
 	user-select: none;
+}
+
+#saved-queues-inner {
+	will-change: transform;
 }
 
 .saved-queue .queue-inner {

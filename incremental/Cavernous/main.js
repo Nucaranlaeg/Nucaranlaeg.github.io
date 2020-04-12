@@ -381,6 +381,7 @@ setInterval(function mainLoop() {
 	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
 		timeBanked += time / 2;
 		redrawOptions();
+		updateDropTarget();
 		return;
 	}
 	let timeAvailable = time;
@@ -415,6 +416,7 @@ setInterval(function mainLoop() {
 	queueTimeNode = queueTimeNode || document.querySelector("#queue0 .queue-time .time");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
+	updateDropTarget();
 
 	stats.forEach(e=>e.update());
 	drawMap();
