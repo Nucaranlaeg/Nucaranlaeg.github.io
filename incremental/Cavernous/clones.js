@@ -107,7 +107,7 @@ class Clone {
 		if (action[0] == "=") {
 			this.waiting = true;
 			if (clones.every((c, i) => {
-					return (c.waiting === true || (c.waiting <= queueTime && c.waiting >= queueTime - 100)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.waiting === true || (c.waiting <= queueTime && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 2)) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
 				this.waiting = queueTime;
 				this.selectQueueAction(actionIndex, 100);
@@ -122,7 +122,7 @@ class Clone {
 
 		if ((!hasOffset && location.canWorkTogether && this.currentProgress
 					&& (this.currentProgress < location.remainingPresent || location.remainingPresent == 0))
-				|| (this.currentCompletions !== null && this.currentCompletions < location.completions)) {
+				|| (!hasOffset && this.currentCompletions !== null && this.currentCompletions < location.completions)) {
 			this.completeNextAction();
 			this.currentProgress = 0;
 			this.selectQueueAction(actionIndex, 100);
