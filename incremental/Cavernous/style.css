@@ -98,12 +98,23 @@ body {
 	border: 1px solid #00000077;
 	border-radius: 5px;
 	padding: 0 2px;
+	margin: 1px 0;
 	position: relative;
 	overflow-x: auto;
 	overflow-y: hidden;
 	scrollbar-width: thin;
 	scrollbar-color: #88aaaa #aacccc;
 	white-space: nowrap;
+}
+
+.bottom-block.saved-queue.drop-below {
+	border-bottom: 2px solid;
+	margin-bottom: 0;
+}
+
+.bottom-block.saved-queue.drop-above {
+	border-top: 2px solid;
+	margin-top: 0;
 }
 
 #saved-queues .bottom-block > *,
@@ -145,10 +156,9 @@ body {
 
 .queue-time #time-spent {font-family: "Lucida Console", monospace;font-size: 14px;min-width: 3.1em;display: inline-block;text-align: right;font-variant-numeric: tabular-nums;}
 
-#queue0 .queue-time {font-size: unset;}
-
-#queue0 .queue-inner {
-	/* min-width: calc(100% - 224px); */
+#queues {
+	margin-top: 10px;
+	will-change: opacity;
 }
 
 .queue {
@@ -265,7 +275,7 @@ body {
 }
 
 .vertical-block {
-	will-change: transform;
+	will-change: opacity;
 	flex-shrink: 0;
 	width: 200px;
 	height: 500px;
@@ -643,6 +653,10 @@ td:hover:after {
 	border-radius: 10px;
 	display: none;
 	user-select: none;
+}
+
+#saved-queues-inner {
+	will-change: opacity;
 }
 
 .saved-queue .queue-inner {

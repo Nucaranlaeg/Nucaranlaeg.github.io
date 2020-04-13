@@ -1,3 +1,9 @@
+let dragTarget;
+let newDropTarget;
+let newIsDropTopHalf;
+let oldDropTarget;
+let oldIsDropTopHalf;
+
 function saveQueue(el){
 	let queue = el.parentNode.parentNode.id.replace("queue", "");
 	savedQueues.push(queues[queue].map(q => [q[0]]).filter(q => isNaN(+q) && q[0] != "<"));
@@ -85,6 +91,7 @@ function addActionToSavedQueue(action){
 }
 
 function startSavedQueueDrag(event, el){
+	dragTarget = el.closest(".saved-queue");
 	event.dataTransfer.setDragImage(el.querySelector(".icon-select"), 0, 0);
 	event.dataTransfer.setData("text/plain", el.id.replace("saved-queue", ""));
 	event.dataTransfer.effectAllowed = "copymove";
@@ -97,27 +104,43 @@ function queueDragOver(event){
 
 function savedQueueDragOver(event, el){
 	event.preventDefault();
-	if (el.id.replace("saved-queue", "") == event.dataTransfer.getData("text/plain")){
+	if (el.closest(".saved-queue") === dragTarget){
 		event.dataTransfer.dropEffect = "none";
-		return;
 	}
-	if (isDropTopHalf(event)){
-		el.closest(".bottom-block").style.borderTop = "2px solid";
-		el.closest(".bottom-block").style.borderBottom = "";
-	} else {
-		el.closest(".bottom-block").style.borderTop = "";
-		el.closest(".bottom-block").style.borderBottom = "2px solid";
+	else {
+		event.dataTransfer.dropEffect = "move";
+		newDropTarget = el.closest(".saved-queue");
+		newIsDropTopHalf = isDropTopHalf(event);
 	}
-	event.dataTransfer.dropEffect = "move";
 }
 
 function savedQueueDragOut(el){
-	el.closest(".bottom-block").style.borderTop = "";
-	el.closest(".bottom-block").style.borderBottom = "";
+	if (newDropTarget === el) {
+		newDropTarget = undefined;
+	}
 }
 
 function isDropTopHalf(event){
 	return event.offsetY < 14;
+}
+
+function updateDropTarget() {
+	let targetChanged = newDropTarget !== oldDropTarget;
+	let halfChanged = newIsDropTopHalf !== oldIsDropTopHalf;
+	
+	if (oldDropTarget && targetChanged) {
+		let oldClasses = oldDropTarget.classList;
+		oldClasses.remove(oldIsDropTopHalf ? "drop-above" : "drop-below");
+		oldDropTarget = undefined;
+	}
+	
+	if (newDropTarget && (targetChanged || halfChanged)) {
+		let newClasses = newDropTarget.classList;
+		newClasses.add(newIsDropTopHalf ? "drop-above" : "drop-below");
+		halfChanged && newClasses.remove(newIsDropTopHalf ? "drop-below" : "drop-above");
+		oldDropTarget = newDropTarget;
+		oldIsDropTopHalf = newIsDropTopHalf;
+	}
 }
 
 function savedQueueDrop(event, el){
@@ -137,7 +160,7 @@ function savedQueueDrop(event, el){
 
 function savedQueueMove(event, el){
 	savedQueueDragOut(el);
-	let source = event.dataTransfer.getData("text/plain");
+	let source = +event.dataTransfer.getData("text/plain");
 	let target = +el.id.replace("saved-queue", "") + (isDropTopHalf(event) ? -1 : 0);
 	if (source > target) target++;
 	for (let i = 0; i < queues.length; i++){
@@ -154,9 +177,18 @@ function savedQueueMove(event, el){
 			}
 		}
 	}
+	
 	let oldQueue = savedQueues.splice(source, 1)[0];
 	savedQueues.splice(target, 0, oldQueue);
-	drawSavedQueues();
+	
+	let queueContainer = document.querySelector("#saved-queues-inner");
+	dragTarget.id = "";
+	queueContainer.insertBefore(dragTarget, queueContainer.children[source > target ? target : target+1]);
+	let delta = source > target ? -1 : 1;
+	for (let i = source; i != target; i += delta) {
+		queueContainer.children[i].id = `saved-queue${i}`
+	}
+	dragTarget.id = `saved-queue${target}`;
 }
 
 function drawSavedQueues(){
