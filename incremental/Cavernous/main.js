@@ -334,6 +334,7 @@ setInterval(function mainLoop() {
 	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
 		timeBanked += time / 2;
 		redrawOptions();
+		updateDropTarget();
 		return;
 	}
 	let timeAvailable = time;
@@ -360,7 +361,6 @@ setInterval(function mainLoop() {
 	} else {
 		timeBanked += (time - timeUsed) / 2;
 	}
-	queueTime += timeUsed;
 	mana.spendMana(timeUsed / 1000);
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
@@ -368,6 +368,7 @@ setInterval(function mainLoop() {
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	redrawOptions();
+	updateDropTarget();
 
 	stats.forEach(e=>e.update());
 	drawMap();
