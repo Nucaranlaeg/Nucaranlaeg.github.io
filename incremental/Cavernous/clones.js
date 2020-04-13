@@ -215,7 +215,9 @@ class Clone {
 			}
 			maxTime = Math.max(...clones.map(e=>!e.noActionsAvailable && e.damage != Infinity && e.timeAvailable));
 		}
-		return Math.min(...clones.map(e=>e.timeLeft));
+		let timeNotSpent = Math.min(...clones.map(e=>e.timeLeft))
+		queueTime += time - timeNotSpent;
+		return timeNotSpent;
 	}
 
 }
