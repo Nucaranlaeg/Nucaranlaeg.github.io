@@ -215,7 +215,7 @@ class Clone {
 			}
 			maxTime = Math.max(...clones.map(e=>!e.noActionsAvailable && e.damage != Infinity && e.timeAvailable));
 		}
-		return Math.max(...clones.map(e=>e.timeLeft));
+		return Math.min(...clones.map(e=>e.timeLeft));
 	}
 
 }
