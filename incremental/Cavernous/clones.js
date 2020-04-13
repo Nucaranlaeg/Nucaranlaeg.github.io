@@ -197,7 +197,11 @@ class Clone {
 
 	static performActions(time) {
 		let maxSingleTickTime = settings.debug_maxSingleTickTime || 99;
-		while(time > 100) {
+		let goldToManaBaseTime = getAction("Turn Gold to Mana").getBaseDuration() / clones.length * 1000;
+		if (maxSingleTickTime > goldToManaBaseTime / 2) {
+			maxSingleTickTime = goldToManaBaseTime / 2;
+		}
+		while (time > maxSingleTickTime) {
 			this.performActions(maxSingleTickTime)
 			time -= maxSingleTickTime;
 		}
