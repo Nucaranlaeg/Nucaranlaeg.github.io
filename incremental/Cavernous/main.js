@@ -195,10 +195,7 @@ function load(){
 		clones.push(new Clone(clones.length));
 	}
 	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
-	queues = [];
-	for (let i = 0; i < saveGame.cloneData.queues.length; i++){
-		queues.push(saveGame.cloneData.queues[i].map(q => [q, true]));
-	}
+	queues = ActionQueue.fromJSON(saveGame.cloneData.queues);
 	savedQueues = [];
 	for (let i = 0; i < saveGame.stored.length; i++){
 		savedQueues.push(saveGame.stored[i].queue);
