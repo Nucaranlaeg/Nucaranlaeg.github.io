@@ -217,11 +217,7 @@ function load(){
 		}
 	}
 	if (saveGame.routes){
-		if (Array.isArray(saveGame.routes[0])) {
-			routes = saveGame.routes.map(r => Route.migrateFromArray(r))
-		} else {
-			routes = Route.fromJSON(saveGame.routes);	
-		}
+		routes = Route.fromJSON(saveGame.routes);
 	}
 
 	loadSettings(saveGame.settings);
