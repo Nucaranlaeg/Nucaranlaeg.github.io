@@ -234,6 +234,8 @@ function load(){
 
 	drawMap();
 	resetLoop();
+
+	applyCustomStyling();
 }
 
 function ensureLegalQueues(){
@@ -520,3 +522,10 @@ setTimeout(() => {
 	};
 	load();
 }, 10);
+
+
+function applyCustomStyling() {
+	if (settings.debug_verticalBlocksJustify) {
+		document.querySelector(".vertical-blocks").style.justifyContent = settings.debug_verticalBlocksJustify;
+	}
+}
