@@ -110,6 +110,9 @@ function resetLoop() {
 
 /********************************************* Saving *********************************************/
 
+let saveName = (new URL(document.location)).searchParams.get('save') || '';
+saveName = `saveGame${saveName && '_'}${saveName}`
+
 function save(){
 	let playerStats = stats.map(s => {
 		return {
@@ -158,12 +161,12 @@ function save(){
 		settings,
 		routes,
 	});
-	localStorage["saveGame"] = btoa(saveString);
+	localStorage[saveName] = btoa(saveString);
 }
 
 function load(){
-	if (!localStorage["saveGame"]) return setup();
-	let saveGame = JSON.parse(atob(localStorage["saveGame"]));
+	if (!localStorage[saveName]) return setup();
+	let saveGame = JSON.parse(atob(localStorage[saveName]));
 	stats.forEach(s => s.current = 0);
 	for (let i = 0; i < saveGame.playerStats.length; i++){
 		getStat(saveGame.playerStats[i].name).base = saveGame.playerStats[i].base;
@@ -237,25 +240,25 @@ function ensureLegalQueues(){
 }
 
 function deleteSave(){
-	if (localStorage["saveGame"]) localStorage["saveGameBackup"] = localStorage["saveGame"];
-	localStorage.removeItem("saveGame");
+	if (localStorage[saveName]) localStorage[saveName + "Backup"] = localStorage[saveName];
+	localStorage.removeItem(saveName);
 	window.location.reload();
 }
 
 function exportGame(){
-	navigator.clipboard.writeText(localStorage["saveGame"]);
+	navigator.clipboard.writeText(localStorage[saveName]);
 }
 
 function importGame(){
 	let saveString = prompt("Input your save");
 	save();
 	save = () => {};
-	let temp = localStorage["saveGame"];
-	localStorage["saveGame"] = saveString;
+	let temp = localStorage[saveName];
+	localStorage[saveName] = saveString;
 	try {
 		load();
 	} catch {
-		localStorage["saveGame"] = temp;
+		localStorage[saveName] = temp;
 		load();
 	}
 	window.location.reload();
