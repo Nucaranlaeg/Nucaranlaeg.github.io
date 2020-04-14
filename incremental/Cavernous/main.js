@@ -417,6 +417,7 @@ let keyFunctions = {
 			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == true &&
 			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == false) {
 
+			alert("Queue clear confirmations were succesfully disabled!");
 			settings.noConfirm = true;
 		}
 	},
