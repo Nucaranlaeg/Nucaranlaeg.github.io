@@ -405,14 +405,19 @@ let keyFunctions = {
 	},
 	"Backspace": e => {
 		addActionToQueue("B");
-		if (e.ctrlKey){
-			clearQueue();
-		}
 	},
 	"^Backspace": e => {
-		addActionToQueue("B");
-		if (e.ctrlKey) {
-			clearQueue();
+		if (!queues.every(e => e.length == 0)) {
+			clearQueue(null, settings.noConfirm);
+			return;
+		}
+		if (!settings.noConfirm &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == false &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == true &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == true &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == false) {
+
+			settings.noConfirm = true;
 		}
 	},
 	"KeyW": () => {
