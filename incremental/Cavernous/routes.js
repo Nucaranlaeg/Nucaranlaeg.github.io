@@ -1,7 +1,5 @@
 class Route {
-	constructor(x, y, totalTimeAvailable, route){
-		if (route) throw 123;
-
+	constructor(x) {
 		if (x instanceof Location) {
 			this.x = x.x;
 			this.y = x.y;
@@ -28,7 +26,6 @@ class Route {
 			this.reachTime = +(queueTime / 1000).toFixed(2);
 
 			return;
-
 		}
 		Object.assign(this, x);
 	}
@@ -83,16 +80,21 @@ class Route {
 		return routes.find(r => r.x == x && r.y == y);
 	}
 
-	static migrateFromArray(r) {
-		let [x, y, totalTimeAvailable, route] = r;
-		return new Route({
-			x, y, route, 
-			manaUsed: getStat("Mana").base - totalTimeAvailable / clones.length,
-			clonesLost: 0,
-		});
+	static migrate(ar) {
+		if (previousVersion < 0.0304) {
+			if (Array.isArray(ar[0])) {
+				ar = ar.map(([x, y, totalTimeAvailable, route]) => ({
+					x, y, route,
+					manaUsed: getStat("Mana").base - totalTimeAvailable / clones.length,
+					clonesLost: 0,
+				}));
+			}
+		}
+		return ar;
 	}
 
 	static fromJSON(ar) {
+		ar = this.migrate(ar);
 		return ar.map(r => new Route(r));
 	}
 
