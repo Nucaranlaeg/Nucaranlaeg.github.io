@@ -115,9 +115,11 @@ function resetLoop() {
 /********************************************* Saving *********************************************/
 
 let saveName = (new URL(document.location)).searchParams.get('save') || '';
-saveName = `saveGame${saveName && '_'}${saveName}`
+saveName = `saveGame${saveName && '_'}${saveName}`;
+let savingDisabled = (new URL(document.location)).searchParams.get('saving') == 'disabled';
 
 function save(){
+	if (savingDisabled) return;
 	let playerStats = stats.map(s => {
 		return {
 			"name": s.name,
