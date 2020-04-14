@@ -174,7 +174,7 @@ function save(){
 function load(){
 	if (!localStorage[saveName]) return setup();
 	let saveGame = JSON.parse(atob(localStorage[saveName]));
-	previousVersion = saveGame.version;
+	previousVersion = saveGame.version || 0.0303;
 	if (version < previousVersion) {
 		alert(`Error: Version number reduced!\n${previousVersion} -> ${version}`);
 	}
