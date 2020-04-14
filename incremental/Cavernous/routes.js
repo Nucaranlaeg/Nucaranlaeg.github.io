@@ -33,11 +33,11 @@ class Route {
 	loadRoute(){
 		for (let i = 0; i < queues.length; i++){
 			if (i == 0 || this.route.length == 1) {
-				queues[i] = stringToQueue(this.route[0]);
+				queues[i].fromString(this.route[0]);
 			} else if (this.route.length == 2) {
-				queues[i] = stringToQueue(this.route[1]);
+				queues[i].fromString(this.route[1]);
 			} else {
-				queues[i] = stringToQueue(this.route[i] || this.route[this.route.length - 1] || "");
+				queues[i].fromString(this.route[i] || this.route[this.route.length - 1] || "");
 			}
 		}
 		redrawQueues();

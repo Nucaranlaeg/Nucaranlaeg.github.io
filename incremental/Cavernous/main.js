@@ -271,51 +271,6 @@ function importGame(){
 	window.location.reload();
 }
 
-function queueToString(queue){
-	return queue.map(q => {
-		return isNaN(+q[0]) ? q[0] : queueToString(savedQueues[q[0]]);
-	}).join("");
-}
-
-function stringToQueue(string){
-	let queue = [];
-	for (let i = 0; i < string.length; i++){
-		if (string[i] == "N"){
-			queue.push([string.slice(i, i+2), false]);
-			i++;
-		} else {
-			queue.push([string.slice(i, i+1), false]);
-		}
-	}
-	return queue;
-}
-
-function exportQueues(){
-	let exportString = queues.map(queue => queueToString(queue));
-	navigator.clipboard.writeText(JSON.stringify(exportString));
-}
-
-function importQueues(){
-	let queueString = prompt("Input your queues");
-	let tempQueues = queues.slice();
-	try {
-		let newQueues = JSON.parse(queueString);
-		if (newQueues.length > queues.length){
-			alert("Could not import queues - too many queues.")
-			return;
-		}
-		newQueues = newQueues.map(q => stringToQueue(q));
-		for (let i = 0; i < queues.length; i++){
-			queues[i] = newQueues[i] || [];
-		}
-		redrawQueues();
-	} catch {
-		alert("Could not import queues.");
-		queues = tempQueues;
-	}
-}
-
-
 
 /******************************************** Game loop ********************************************/
 

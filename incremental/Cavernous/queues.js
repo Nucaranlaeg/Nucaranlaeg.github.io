@@ -61,7 +61,7 @@ class ActionQueue extends Array {
 				this.removeActionAt(index);
 			} else if ("UDLRI<=".includes(actionID) || (actionID[0] == "N" && !isNaN(+actionID[1]))) {
 				if (index >= 0) {
-					this.splice(index + 1, 0, [actionID, this[index][1]]);
+					this.splice(index + 1, 0, new QueueAction(actionID, this[index][1]));
 				} else {
 					this.unshift(new QueueAction(actionID, queues[0][1]))
 				}
@@ -90,7 +90,26 @@ class ActionQueue extends Array {
 
 	clear() {
 		this.splice(0, this.length);
-		[...this.queueNode.childNodes].map(e => e.remove());
+		this.queueNode.innerText = '';
+	}
+
+	fromString(string) {
+		this.clear();
+		let prev = '';
+		for (let char of string) {
+			if (prev == 'N') {
+				this.addActionAt(prev + char, null);
+			} else if (char != 'N') {
+				this.addActionAt(char, null);
+			}
+			prev = char;
+		}
+	}
+
+	toString() {
+		return Array.from(this).map(q => {
+			return isNaN(+q[0]) ? q[0] : queueToString(savedQueues[q[0]]);
+		}).join("");
 	}
 }
 
@@ -104,13 +123,9 @@ function addActionToQueue(action, queue = null){
 		return;
 	}
 	if (queues[queue] === undefined) return;
-	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
-	if (cursor[1] == null) {
-		queues[queue].addActionAt(action, null);
-	} else {
 
-		queues[queue].addActionAt(action, cursor[1]);
-	}
+	queues[queue].addActionAt(action, cursor[1]);
+
 	redrawQueues();
 	scrollQueue(queue, cursor[1]);
 	showCursor();
@@ -254,6 +269,36 @@ function showCursor(){
 	cursorNode.classList.add("visible");
 	cursorNode.style.left = (cursor[1] * 16 + 17) + "px";
 }
+
+function queueToString(queue) {
+	return queue.toString();
+}
+
+function exportQueues() {
+	let exportString = queues.map(queue => queueToString(queue));
+	navigator.clipboard.writeText(JSON.stringify(exportString));
+}
+
+function importQueues() {
+	let queueString = prompt("Input your queues");
+	let tempQueues = queues.slice();
+	try {
+		let newQueues = JSON.parse(queueString);
+		if (newQueues.length > queues.length) {
+			alert("Could not import queues - too many queues.")
+			return;
+		}
+		queues.map(e => e.clear());
+		for (let i = 0; i < newQueues.length; i++) {
+			queues[i].fromString(newQueues[i]);
+		}
+		redrawQueues();
+	} catch {
+		alert("Could not import queues.");
+		queues = tempQueues;
+	}
+}
+
 
 
 
