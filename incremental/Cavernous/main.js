@@ -1,5 +1,9 @@
 let possibleActionIcons = ["★", "✣", "✦", "♣", "♠", "⚑", "×", "⬈", "⬉", "⬊", "⬋"];
 
+let version = document.querySelector("#version").innerText.split(".").map((e, i) => parseInt(e, 36) / 100 ** i).reduce((v, e) => v + e);
+let previousVersion;
+
+
 /******************************************** Functions ********************************************/
 
 function getNextAction(clone = currentClone) {
@@ -152,6 +156,7 @@ function save(){
 	let messageData = messages.map(m => [m.name, m.displayed]);
 	//let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
 	saveString = JSON.stringify({
+		version,
 		playerStats,
 		locations,
 		cloneData,
@@ -167,6 +172,11 @@ function save(){
 function load(){
 	if (!localStorage[saveName]) return setup();
 	let saveGame = JSON.parse(atob(localStorage[saveName]));
+	previousVersion = saveGame.version;
+	if (version < previousVersion) {
+		alert(`Error: Version number reduced!\n${previousVersion} -> ${version}`);
+	}
+
 	stats.forEach(s => s.current = 0);
 	for (let i = 0; i < saveGame.playerStats.length; i++){
 		getStat(saveGame.playerStats[i].name).base = saveGame.playerStats[i].base;
