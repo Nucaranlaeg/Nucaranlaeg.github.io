@@ -21,8 +21,17 @@ class Stat {
 	}
 
 	gainSkill(amount) {
+		let prev = this.current;
 		this.current += amount / 10;
 		this.dirty = true;
+
+		if (!this.learnable) return;
+		let val = (this.current + 1) ** 0.9 - (this.base + 1);
+		if (val < 0) return;
+		let prevVal = (prev + 1) ** 0.9 - (this.base + 1);
+		if (prevVal < 0) prevVal = 0;
+		let increase = (val - prevVal) / this.statIncreaseDivisor;
+		this.base += increase;
 	}
 
 	setStat(amount) {
@@ -74,10 +83,13 @@ class Stat {
 		this.dirty = true;
 	}
 
+	get statIncreaseDivisor() {
+		return settings.debug_statIncreaseDivisor || 100;
+	}
+
 	getNextLoopValue() {
 		if (!this.learnable) return this.base;
-		let statIncreaseDivisor = settings.debug_statIncreaseDivisor || 100;
-		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / statIncreaseDivisor;
+		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / this.statIncreaseDivisor;
 		return this.base + (increase > 0 ? increase : 0);
 	}
 
