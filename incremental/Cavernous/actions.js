@@ -106,8 +106,8 @@ function completeCreateClone(x, y){
 	resetLoop();
 }
 
-function getNextCloneAmount(completions){
-	return completions == 0 ? 1 : 5 * Math.pow(2, completions);
+function getNextCloneAmount(){
+	return clones.length == 1 ? 1 : 5 * Math.pow(2, clones.length - 1);
 }
 
 function simpleConvert(source, target){

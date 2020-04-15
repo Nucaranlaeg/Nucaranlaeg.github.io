@@ -109,7 +109,7 @@ class Clone {
 		if (action[0] == "=") {
 			this.waiting = true;
 			if (clones.every((c, i) => {
-					return (c.waiting === true || (c.waiting <= queueTime && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 2)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.waiting === true || (c.waiting && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 5)) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
 				this.waiting = queueTime;
 				this.selectQueueAction(actionIndex, 100);

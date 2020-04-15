@@ -21,6 +21,7 @@ class Stat {
 	}
 
 	gainSkill(amount) {
+		if (isNaN(+amount)) return;
 		let prev = this.current;
 		this.current += amount / 10;
 		this.dirty = true;
@@ -35,6 +36,7 @@ class Stat {
 	}
 
 	setStat(amount) {
+		if (isNaN(+amount)) return;
 		// For combat stats.
 		this.current = this.base + amount;
 		this.dirty = true;

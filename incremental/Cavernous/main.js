@@ -258,6 +258,7 @@ function exportGame(){
 
 function importGame(){
 	let saveString = prompt("Input your save");
+	if (!saveString) return;
 	save();
 	save = () => {};
 	let temp = localStorage[saveName];
