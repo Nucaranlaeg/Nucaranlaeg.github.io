@@ -36,7 +36,9 @@ class Clone {
 		this.el = queueTemplate.cloneNode(true);
 		this.el.id = `queue${clones.length}`;
 		document.querySelector("#queues").append(this.el);
-		queues.push([]);
+		let q = new ActionQueue();
+		q.index = queues.length;
+		queues.push(q);
 	}
 
 	select(allowMultiple = false) {
@@ -222,6 +224,11 @@ class Clone {
 		let timeNotSpent = Math.min(...clones.map(e=>e.timeLeft))
 		queueTime += time - timeNotSpent;
 		return timeNotSpent;
+	}
+
+	static addNewClone() {
+		let c = new Clone(clones.length);
+		clones.push(c);
 	}
 
 }
