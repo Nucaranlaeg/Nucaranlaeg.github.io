@@ -21,11 +21,13 @@ class Stat {
 	}
 
 	gainSkill(amount) {
+		if (isNaN(+amount)) return;
 		this.current += amount / 10;
 		this.dirty = true;
 	}
 
 	setStat(amount) {
+		if (isNaN(+amount)) return;
 		// For combat stats.
 		this.current = this.base + amount;
 		this.dirty = true;
