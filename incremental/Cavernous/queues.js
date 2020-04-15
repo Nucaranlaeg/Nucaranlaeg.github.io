@@ -3,6 +3,116 @@ let selectedQueue = [];
 let savedQueues = [];
 let cursor = [0, null];
 
+class QueueAction extends Array {
+	constructor(actionID, undone = true) {
+		super(actionID, undone);
+	}
+
+	get actionID() {
+		return this[0];
+	}
+
+	static fromJSON(ch) {
+		ch = this.migrate(ch);
+		return new QueueAction(ch);
+	}
+
+	static migrate(ar) {
+		if (previousVersion < 0.0304) {
+
+		}
+		return ar;
+	}
+
+}
+
+class ActionQueue extends Array {
+	constructor(...items) {
+		super(...items);
+	}
+
+	static fromJSON(ar) {
+		ar = this.migrate(ar);
+		return ar.map((q, i) => {
+			q = new ActionQueue(...q.map(e => QueueAction.fromJSON(e)));
+			q.index = i;
+			return q;
+		});
+	}
+
+	static migrate(ar) {
+		if (previousVersion < 0.0304) {
+
+		}
+		return ar;
+	}
+
+	addActionAt(actionID, index = cursor[1]) {
+		if (index == null) {
+			if (actionID == "B") {
+				this.removeActionAt(null);
+			} else if ("UDLRI<=".includes(actionID) || (actionID[0] == "N" && !isNaN(+actionID[1]))) {
+				this.push(new QueueAction(actionID));
+				this.queueNode.append(createActionNode(actionID));
+			}
+			scrollQueue(this.index, this.length);
+		} else {
+			if (actionID == "B") {
+				this.removeActionAt(index);
+			} else if ("UDLRI<=".includes(actionID) || (actionID[0] == "N" && !isNaN(+actionID[1]))) {
+				if (index >= 0) {
+					this.splice(index + 1, 0, new QueueAction(actionID, this[index][1]));
+				} else {
+					this.unshift(new QueueAction(actionID, queues[0][1]))
+				}
+				cursor[1]++;
+			}
+		}
+	}
+
+	removeActionAt(index = cursor[1]) {
+		if (index == null) {
+			if (this.length == 0) return;
+			this.pop();
+			this.queueNode.lastChild.remove();
+		} else {
+			if (this.length == 0 || index == -1) return;
+			this.splice(index, 1);
+			cursor[1]--;
+		}
+	}
+
+	get queueNode() {
+		let node = document.querySelector(`#queue${this.index} > .queue-inner`);
+		Object.defineValue(this, 'queueNode', node);
+		return node;
+	}
+
+	clear() {
+		this.splice(0, this.length);
+		this.queueNode.innerText = '';
+	}
+
+	fromString(string) {
+		this.clear();
+		let prev = '';
+		for (let char of string) {
+			if (prev == 'N') {
+				this.addActionAt(prev + char, null);
+			} else if (char != 'N') {
+				this.addActionAt(char, null);
+			}
+			prev = char;
+		}
+	}
+
+	toString() {
+		return Array.from(this).map(q => {
+			return isNaN(+q[0]) ? q[0] : queueToString(savedQueues[q[0]]);
+		}).join("");
+	}
+}
+
 function addActionToQueue(action, queue = null){
 	if (document.querySelector(".saved-queue:focus, .saved-name:focus")) return addActionToSavedQueue(action);
 	if (queue === null){
@@ -13,37 +123,12 @@ function addActionToQueue(action, queue = null){
 		return;
 	}
 	if (queues[queue] === undefined) return;
-	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
-	if (cursor[1] == null){
-		if (action == "B") {
-			if (queues[queue].length == 0) return;
-			queues[queue].pop();
-			queueNode.removeChild(queueNode.lastChild);
-		} else if ("UDLRI<=".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
-			queues[queue].push([action, true]);
-			queueNode.append(createActionNode(action));
-		}
-		scrollQueue(queue, queues[queue].length);
-	} else {
-		if (action == "B") {
-			if (queues[queue].length == 0 || cursor[1] == -1) return;
-			queues[queue].splice(cursor[1], 1);
-			cursor[1]--;
-		} else if ("UDLRI<=".includes(action) || (action[0] == "N" && !isNaN(+action[1]))) {
-			if (cursor[1] >= 0){
-				queues[queue].splice(cursor[1] + 1, 0, [action, queues[queue][cursor[1]][1]]);
-			} else {
-				queues[queue].unshift([action, queues[0][1]])
-			}
-			cursor[1]++;
-		} else {
-			// Avoid expensive draws if it somehow got here.
-			return;
-		}
-		redrawQueues();
-		scrollQueue(queue, cursor[1]);
-		showCursor();
-	}
+
+	queues[queue].addActionAt(action, cursor[1]);
+
+	redrawQueues();
+	scrollQueue(queue, cursor[1]);
+	showCursor();
 }
 
 function clearQueue(queue = null, noConfirm = false){
@@ -64,13 +149,9 @@ function clearQueue(queue = null, noConfirm = false){
 		return;
 	}
 	if (!noConfirm && !confirm("Really clear queue?")) return;
-	queues[queue] = [];
+	queues[queue].clear();
 	if (cursor[0] == queue){
 		cursor[1] = null;
-	}
-	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
-	while (queueNode.firstChild) {
-		queueNode.removeChild(queueNode.lastChild);
 	}
 	showCursor();
 }
@@ -187,4 +268,47 @@ function showCursor(){
 	}
 	cursorNode.classList.add("visible");
 	cursorNode.style.left = (cursor[1] * 16 + 17) + "px";
+}
+
+function queueToString(queue) {
+	return queue.toString();
+}
+
+function exportQueues() {
+	let exportString = queues.map(queue => queueToString(queue));
+	navigator.clipboard.writeText(JSON.stringify(exportString));
+}
+
+function importQueues() {
+	let queueString = prompt("Input your queues");
+	let tempQueues = queues.slice();
+	try {
+		let newQueues = JSON.parse(queueString);
+		if (newQueues.length > queues.length) {
+			alert("Could not import queues - too many queues.")
+			return;
+		}
+		queues.map(e => e.clear());
+		for (let i = 0; i < newQueues.length; i++) {
+			queues[i].fromString(newQueues[i]);
+		}
+		redrawQueues();
+	} catch {
+		alert("Could not import queues.");
+		queues = tempQueues;
+	}
+}
+
+
+
+
+Object.defineValue = function(o, name, value = name, enumerable = false) {
+	if (typeof name == 'function')
+		name = name.name
+	return Object.defineProperty(o, name, {
+		enumerable,
+		configurable: true,
+		writable: true,
+		value
+	})
 }

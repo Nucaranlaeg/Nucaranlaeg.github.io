@@ -36,7 +36,9 @@ class Clone {
 		this.el = queueTemplate.cloneNode(true);
 		this.el.id = `queue${clones.length}`;
 		document.querySelector("#queues").append(this.el);
-		queues.push([]);
+		let q = new ActionQueue();
+		q.index = queues.length;
+		queues.push(q);
 	}
 
 	select(allowMultiple = false) {
@@ -107,7 +109,7 @@ class Clone {
 		if (action[0] == "=") {
 			this.waiting = true;
 			if (clones.every((c, i) => {
-					return (c.waiting === true || (c.waiting <= queueTime && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 2)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.waiting === true || (c.waiting && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 5)) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
 				this.waiting = queueTime;
 				this.selectQueueAction(actionIndex, 100);
@@ -197,7 +199,11 @@ class Clone {
 
 	static performActions(time) {
 		let maxSingleTickTime = settings.debug_maxSingleTickTime || 99;
-		while(time > 100) {
+		let goldToManaBaseTime = getAction("Turn Gold to Mana").getBaseDuration() / clones.length * 1000;
+		if (maxSingleTickTime > goldToManaBaseTime / 2) {
+			maxSingleTickTime = goldToManaBaseTime / 2;
+		}
+		while (time > maxSingleTickTime) {
 			this.performActions(maxSingleTickTime)
 			time -= maxSingleTickTime;
 		}
@@ -218,6 +224,11 @@ class Clone {
 		let timeNotSpent = Math.min(...clones.map(e=>e.timeLeft))
 		queueTime += time - timeNotSpent;
 		return timeNotSpent;
+	}
+
+	static addNewClone() {
+		let c = new Clone(clones.length);
+		clones.push(c);
 	}
 
 }

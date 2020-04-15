@@ -34,7 +34,7 @@ class Action {
 		return duration;
 	}
 
-	getBaseDurationMultipluer() {
+	getBaseDuration() {
 		let duration = this.baseDuration / 1000;
 		for (let i = 0; i < this.stats.length; i++) {
 			duration *= Math.pow(this.stats[i][0].baseValue, this.stats[i][1]);
@@ -102,12 +102,12 @@ function startCreateClone(completions, priorCompletions){
 }
 
 function completeCreateClone(x, y){
-	clones.push(new Clone(clones.length));
+	Clone.addNewClone();
 	resetLoop();
 }
 
-function getNextCloneAmount(completions){
-	return completions == 0 ? 1 : 5 * Math.pow(2, completions);
+function getNextCloneAmount(){
+	return clones.length == 1 ? 1 : 5 * Math.pow(2, clones.length - 1);
 }
 
 function simpleConvert(source, target){

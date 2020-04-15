@@ -1,5 +1,9 @@
 let possibleActionIcons = ["★", "✣", "✦", "♣", "♠", "⚑", "×", "⬈", "⬉", "⬊", "⬋"];
 
+let version = document.querySelector("#version").innerText.split(".").map((e, i) => parseInt(e, 36) / 100 ** i).reduce((v, e) => v + e);
+let previousVersion;
+
+
 /******************************************** Functions ********************************************/
 
 function getNextAction(clone = currentClone) {
@@ -110,7 +114,12 @@ function resetLoop() {
 
 /********************************************* Saving *********************************************/
 
+let saveName = (new URL(document.location)).searchParams.get('save') || '';
+saveName = `saveGame${saveName && '_'}${saveName}`;
+let savingDisabled = (new URL(document.location)).searchParams.get('saving') == 'disabled';
+
 function save(){
+	if (savingDisabled) return;
 	let playerStats = stats.map(s => {
 		return {
 			"name": s.name,
@@ -149,6 +158,7 @@ function save(){
 	let messageData = messages.map(m => [m.name, m.displayed]);
 	//let savedRoutes = routes.map(r => [r.x, r.y, r.totalTimeAvailable, r.route])
 	saveString = JSON.stringify({
+		version,
 		playerStats,
 		locations,
 		cloneData,
@@ -158,12 +168,17 @@ function save(){
 		settings,
 		routes,
 	});
-	localStorage["saveGame"] = btoa(saveString);
+	localStorage[saveName] = btoa(saveString);
 }
 
 function load(){
-	if (!localStorage["saveGame"]) return setup();
-	let saveGame = JSON.parse(atob(localStorage["saveGame"]));
+	if (!localStorage[saveName]) return setup();
+	let saveGame = JSON.parse(atob(localStorage[saveName]));
+	previousVersion = saveGame.version || 0.0303;
+	if (version < previousVersion) {
+		alert(`Error: Version number reduced!\n${previousVersion} -> ${version}`);
+	}
+
 	stats.forEach(s => s.current = 0);
 	for (let i = 0; i < saveGame.playerStats.length; i++){
 		getStat(saveGame.playerStats[i].name).base = saveGame.playerStats[i].base;
@@ -177,13 +192,10 @@ function load(){
 	}
 	clones = [];
 	while (clones.length < saveGame.cloneData.count){
-		clones.push(new Clone(clones.length));
+		Clone.addNewClone();
 	}
 	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
-	queues = [];
-	for (let i = 0; i < saveGame.cloneData.queues.length; i++){
-		queues.push(saveGame.cloneData.queues[i].map(q => [q, true]));
-	}
+	queues = ActionQueue.fromJSON(saveGame.cloneData.queues);
 	savedQueues = [];
 	for (let i = 0; i < saveGame.stored.length; i++){
 		savedQueues.push(saveGame.stored[i].queue);
@@ -202,11 +214,7 @@ function load(){
 		}
 	}
 	if (saveGame.routes){
-		if (Array.isArray(saveGame.routes[0])) {
-			routes = saveGame.routes.map(r => Route.migrateFromArray(r))
-		} else {
-			routes = Route.fromJSON(saveGame.routes);	
-		}
+		routes = Route.fromJSON(saveGame.routes);
 	}
 
 	loadSettings(saveGame.settings);
@@ -221,6 +229,8 @@ function load(){
 
 	drawMap();
 	resetLoop();
+
+	applyCustomStyling();
 }
 
 function ensureLegalQueues(){
@@ -237,74 +247,30 @@ function ensureLegalQueues(){
 }
 
 function deleteSave(){
-	if (localStorage["saveGame"]) localStorage["saveGameBackup"] = localStorage["saveGame"];
-	localStorage.removeItem("saveGame");
+	if (localStorage[saveName]) localStorage[saveName + "Backup"] = localStorage[saveName];
+	localStorage.removeItem(saveName);
 	window.location.reload();
 }
 
 function exportGame(){
-	navigator.clipboard.writeText(localStorage["saveGame"]);
+	navigator.clipboard.writeText(localStorage[saveName]);
 }
 
 function importGame(){
 	let saveString = prompt("Input your save");
+	if (!saveString) return;
 	save();
 	save = () => {};
-	let temp = localStorage["saveGame"];
-	localStorage["saveGame"] = saveString;
+	let temp = localStorage[saveName];
+	localStorage[saveName] = saveString;
 	try {
 		load();
 	} catch {
-		localStorage["saveGame"] = temp;
+		localStorage[saveName] = temp;
 		load();
 	}
 	window.location.reload();
 }
-
-function queueToString(queue){
-	return queue.map(q => {
-		return isNaN(+q[0]) ? q[0] : queueToString(savedQueues[q[0]]);
-	}).join("");
-}
-
-function stringToQueue(string){
-	let queue = [];
-	for (let i = 0; i < string.length; i++){
-		if (string[i] == "N"){
-			queue.push([string.slice(i, i+2), false]);
-			i++;
-		} else {
-			queue.push([string.slice(i, i+1), false]);
-		}
-	}
-	return queue;
-}
-
-function exportQueues(){
-	let exportString = queues.map(queue => queueToString(queue));
-	navigator.clipboard.writeText(JSON.stringify(exportString));
-}
-
-function importQueues(){
-	let queueString = prompt("Input your queues");
-	let tempQueues = queues.slice();
-	try {
-		let newQueues = JSON.parse(queueString);
-		if (newQueues.length > queues.length){
-			alert("Could not import queues - too many queues.")
-			return;
-		}
-		newQueues = newQueues.map(q => stringToQueue(q));
-		for (let i = 0; i < queues.length; i++){
-			queues[i] = newQueues[i] || [];
-		}
-		redrawQueues();
-	} catch {
-		alert("Could not import queues.");
-		queues = tempQueues;
-	}
-}
-
 
 
 /******************************************** Game loop ********************************************/
@@ -375,7 +341,8 @@ setInterval(function mainLoop() {
 }, Math.floor(1000 / fps));
 
 function setup(){
-	clones.push(new Clone(clones.length));
+	Clone.addNewClone();
+	queues = ActionQueue.fromJSON([[]]);
 	selectClone(0);
 	getMapLocation(0,0);
 	drawMap();
@@ -402,14 +369,20 @@ let keyFunctions = {
 	},
 	"Backspace": e => {
 		addActionToQueue("B");
-		if (e.ctrlKey){
-			clearQueue();
-		}
 	},
 	"^Backspace": e => {
-		addActionToQueue("B");
-		if (e.ctrlKey) {
-			clearQueue();
+		if (!queues.every(e => e.length == 0)) {
+			clearQueue(null, settings.noConfirm);
+			return;
+		}
+		if (!settings.noConfirm &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == false &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == true &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == true &&
+			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == false) {
+
+			alert("Queue clear confirmations were succesfully disabled!");
+			settings.noConfirm = true;
 		}
 	},
 	"KeyW": () => {
@@ -501,3 +474,10 @@ setTimeout(() => {
 	};
 	load();
 }, 10);
+
+
+function applyCustomStyling() {
+	if (settings.debug_verticalBlocksJustify) {
+		document.querySelector(".vertical-blocks").style.justifyContent = settings.debug_verticalBlocksJustify;
+	}
+}
