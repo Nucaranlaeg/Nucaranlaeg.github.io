@@ -102,7 +102,7 @@ function startCreateClone(completions, priorCompletions){
 }
 
 function completeCreateClone(x, y){
-	clones.push(new Clone(clones.length));
+	Clone.addNewClone();
 	resetLoop();
 }
 
