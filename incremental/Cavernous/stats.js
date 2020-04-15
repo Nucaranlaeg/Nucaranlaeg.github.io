@@ -79,7 +79,6 @@ class Stat {
 
 	reset() {
 		if (this.current === this.base && this.bonus === 0) return;
-		this.base = this.getNextLoopValue();
 		this.current = this.base;
 		this.bonus = 0;
 		this.dirty = true;
@@ -87,12 +86,6 @@ class Stat {
 
 	get statIncreaseDivisor() {
 		return settings.debug_statIncreaseDivisor || 100;
-	}
-
-	getNextLoopValue() {
-		if (!this.learnable) return this.base;
-		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / this.statIncreaseDivisor;
-		return this.base + (increase > 0 ? increase : 0);
 	}
 
 	spendMana(amount) {

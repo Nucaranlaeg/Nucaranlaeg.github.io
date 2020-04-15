@@ -123,7 +123,7 @@ function save(){
 	let playerStats = stats.map(s => {
 		return {
 			"name": s.name,
-			"base": s.learnable ? s.base : s.getNextLoopValue(),
+			"base": s.base,
 		};
 	});
 	let locations = [];
