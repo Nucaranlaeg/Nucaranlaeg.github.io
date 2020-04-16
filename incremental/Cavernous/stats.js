@@ -38,6 +38,8 @@ class Stat {
 		this.updateValue();
 		if (this.name == "Runic Lore"){
 			updateRunes(this.current);
+		} else if (this.name == "Magic"){
+			updateSpells(this.current);
 		}
 		if (!this.node){
 			this.createNode();
@@ -66,6 +68,8 @@ class Stat {
 		document.querySelector("#stats").appendChild(this.node);
 		if (this.name == "Runic Lore"){
 			document.querySelector("#runes").style.display = "block";
+		} else if (this.name == "Spellcraft"){
+			document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "block");
 		}
 	}
 
@@ -100,6 +104,7 @@ let stats = [
 	new Stat("Speed", "", "How quick you are."),
 	new Stat("Smithing", "🛠", "Your skill at turning raw ores into usable objects."),
 	new Stat("Runic Lore", "🕮", "A measure of your understanding of magical runes."),
+	new Stat("Spellcraft", "", "Wield the energies you've torn from the ground in powerful ways."),
 	new Stat("Combat", "", "Your ability to kill things.", 0),
 	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all clones' stats)", 0, false),
 	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),

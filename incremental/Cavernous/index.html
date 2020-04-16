@@ -14,6 +14,7 @@
 	<script type="text/javascript" defer src="saved_queues.js"></script>
 	<script type="text/javascript" defer src="highlights.js"></script>
 	<script type="text/javascript" defer src="stuff.js"></script>
+	<script type="text/javascript" defer src="spells.js"></script>
 	<script type="text/javascript" defer src="runes.js"></script>
 	<script type="text/javascript" defer src="clones.js"></script>
 	<script type="text/javascript" defer src="messages.js"></script>
@@ -29,6 +30,12 @@
 			<div class="description"></div>
 		</div>
 		<div id="rune-template" class="stat block">
+			<span class="name"></span>
+			<span class="icon"></span>
+			<span class="index"></span>
+			<div class="description"></div>
+		</div>
+		<div id="spell-template" class="stat block">
 			<span class="name"></span>
 			<span class="icon"></span>
 			<span class="index"></span>
@@ -181,9 +188,13 @@
 		<div id="stuff-inner"></div>
 		<div id="runes">
 			<hr>
-			<h3>Runes</h3>
+			<h3>Runes <span class="rune-spell-toggle">(C for spells)</span></h3>
 		</div>
+		<div id="spells">
+			<hr>
+			<h3>Spells <span class="rune-spell-toggle">(C for runes)</span></h3>
 		</div>
+	</div>
 	<div id="map" class="vertical-block wide" onclick="viewCell(event)">
 		<h3>Map</h3>
 		<table id="map-inner"></table>

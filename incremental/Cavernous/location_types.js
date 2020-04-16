@@ -30,8 +30,8 @@ function storeCompletions(completions, priorCompletions){
 	return completions + priorCompletions;
 }
 
-function getNextCloneAmountCost(completions, priorCompletions){
-	return `${getNextCloneAmount(completions + priorCompletions)} gold`;
+function getNextCloneAmountCost(){
+	return `${getNextCloneAmount()} gold`;
 }
 
 function startCollectManaCost(completions, priorCompletions){

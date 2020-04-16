@@ -714,7 +714,12 @@ td:hover:after {
 	to {opacity: 0.5;}
 }
 
-#runes {
+#runes,
+#spells {
+	display: none;
+}
+
+.rune-spell-toggle {
 	display: none;
 }
 

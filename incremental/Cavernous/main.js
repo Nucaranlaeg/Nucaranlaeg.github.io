@@ -415,6 +415,9 @@ let keyFunctions = {
 	"KeyB": () => {
 		toggleBankedTime();
 	},
+	"KeyC": () => {
+		switchActionLists();
+	},
 	"KeyG": () => {
 		toggleGrindMana();
 	},
