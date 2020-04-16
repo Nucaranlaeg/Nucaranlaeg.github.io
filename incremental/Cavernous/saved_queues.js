@@ -38,10 +38,7 @@ function insertSavedQueue(event, el){
 	let source = el.closest('.saved-queue').id.replace("saved-queue", "");
 
 	for (let target of selectedQueue) {
-		let queueNode = document.querySelector('#queue'+target+' .queue-inner')
-		queues[target].push([source, true, savedQueues[source]]);
-		queueNode.append(createQueueActionNode(source));
-
+		queues[target].addActionAt(source, null);
 	}
 
 	el.closest('.saved-queue').blur()
@@ -146,15 +143,10 @@ function updateDropTarget() {
 function savedQueueDrop(event, el){
 	let source = event.dataTransfer.getData("text/plain");
 	let target = el.id.replace("queue", "");
-	let queueNode = el.querySelector(".queue-inner");
 	if (event.ctrlKey){
-		for (let i = 0; i < savedQueues[source].length; i++){
-			queues[target].push([savedQueues[source][i], true]);
-			queueNode.append(createActionNode(savedQueues[source][i][0]));
-		}
+		queues[target].copyQueueAt(savedQueues[source], null);
 	} else {
-		queues[target].push([source, true, savedQueues[source]]);
-		queueNode.append(createQueueActionNode(source));
+		queues[target].addActionAt(source, null);
 	}
 }
 

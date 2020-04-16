@@ -288,7 +288,7 @@ setInterval(function mainLoop() {
 	let mana = getStat("Mana");
 	lastAction = Date.now();
 	queuesNode = queuesNode || document.querySelector("#queues");
-	if (mana.current == 0){
+	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
 		queuesNode.classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
