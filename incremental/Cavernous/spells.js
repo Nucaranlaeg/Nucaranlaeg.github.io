@@ -9,7 +9,7 @@ class Spell {
 		this.description = description;
 	}
 
-	createNode() {
+	createNode(index) {
 		if (this.node){
 			return;
 		}
@@ -21,14 +21,15 @@ class Spell {
 		this.node.querySelector(".icon").innerHTML = this.icon;
 		this.node.querySelector(".description").innerHTML = this.description;
 		document.querySelector("#spells").appendChild(this.node);
+		document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "inline-block");
 	}
 
 	cast() {
-		if (currentClone.activeSpells.find(this)) return true;
+		if (clones[currentClone].activeSpells.find(spell => spell == this)) return true;
 		let mana = getStat("Mana");
 		if (mana.current < this.castManaCost) return false;
 		mana.spendMana(this.castManaCost);
-		currentClone.activeSpells.push(this);
+		clones[currentClone].activeSpells.push(this);
 		return true;
 	}
 
@@ -41,14 +42,18 @@ class Spell {
 			mana.spendMana(cost);
 		}
 	}
+
+	canAddToQueue() {
+		return !!this.node;
+	}
 }
 
-function updateSpells(current){
-	if (current > 75){
+function updateSpells(base){
+	if (base > 75){
 		getMessage("Arcane Shield").display();
 	}
 	for (let i = 0; i < spells.length; i++){
-		if (spells[i].skill < current){
+		if (spells[i].skill < base){
 			spells[i].createNode(i);
 		}
 	}

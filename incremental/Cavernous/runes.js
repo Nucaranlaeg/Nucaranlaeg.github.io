@@ -29,6 +29,10 @@ class Rune {
 		if (this.node) this.node.classList.add("not-available");
 	}
 
+	canAddToQueue() {
+		return !!this.node;
+	}
+
 	create(x, y){
 		if (map[y + yOffset][x + xOffset] != ".") return true;
 		if (this.isInscribable() > 0){

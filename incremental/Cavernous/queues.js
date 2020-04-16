@@ -51,7 +51,7 @@ class ActionQueue extends Array {
 		if (index == null) {
 			if (actionID == "B") {
 				this.removeActionAt(null);
-			} else if ("UDLRI<=".includes(actionID) || (actionID[0] == "N" && !isNaN(+actionID[1]))) {
+			} else if ("UDLRI<=".includes(actionID) || ("NS".includes(actionID[0]) && !isNaN(+actionID[1]))) {
 				this.push(new QueueAction(actionID));
 				this.queueNode.append(createActionNode(actionID));
 			}
@@ -59,7 +59,7 @@ class ActionQueue extends Array {
 		} else {
 			if (actionID == "B") {
 				this.removeActionAt(index);
-			} else if ("UDLRI<=".includes(actionID) || (actionID[0] == "N" && !isNaN(+actionID[1]))) {
+			} else if ("UDLRI<=".includes(actionID) || ("NS".includes(actionID[0]) && !isNaN(+actionID[1]))) {
 				if (index >= 0) {
 					this.splice(index + 1, 0, new QueueAction(actionID, this[index][1]));
 				} else {
@@ -97,9 +97,9 @@ class ActionQueue extends Array {
 		this.clear();
 		let prev = '';
 		for (let char of string) {
-			if (prev == 'N') {
+			if ("NS".includes(prev)) {
 				this.addActionAt(prev + char, null);
-			} else if (char != 'N') {
+			} else if (!"NS".includes(char)) {
 				this.addActionAt(char, null);
 			}
 			prev = char;
@@ -129,6 +129,14 @@ function addActionToQueue(action, queue = null){
 	redrawQueues();
 	scrollQueue(queue, cursor[1]);
 	showCursor();
+}
+
+function addRuneAction(index){
+	if (settings.showingRunes){
+		if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index);
+	} else {
+		if (index < spells.length && spells[index].canAddToQueue()) addActionToQueue("S" + index);
+	}
 }
 
 function clearQueue(queue = null, noConfirm = false){
@@ -170,7 +178,7 @@ function createActionNode(action){
 		"=": settings.useAlternateArrows ? "=" : "=",
 	}[action];
 	if (!character){
-		character = runes[action[1]].icon;
+		character = action[0] == "N" ? runes[action[1]].icon : spells[action[1]].icon;
 	}
 	actionNode.querySelector(".character").innerHTML = character;
 	return actionNode;

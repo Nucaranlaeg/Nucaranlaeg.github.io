@@ -35,7 +35,7 @@
 			<span class="index"></span>
 			<div class="description"></div>
 		</div>
-		<div id="spell-template" class="stat block">
+		<div id="spell-template" class="stat block spell">
 			<span class="name"></span>
 			<span class="icon"></span>
 			<span class="index"></span>
@@ -176,29 +176,29 @@
 				Version <span id="version">0.3.4</span><br>
 				©2020
 			</div>
-		</div>		<div id="stats" class="vertical-block">
+		</div>
+		<div id="stats" class="vertical-block">
 			<h3>Stats</h3>
-
-		<div class="queue-time">
-			Time spent: <span id="time-spent">0</span>s
+			<div class="queue-time">
+				Time spent: <span id="time-spent">0</span>s
+			</div>
 		</div>
-	</div>
-	<div id="stuff" class="vertical-block">
-		<h3>Stuff</h3>
-		<div id="stuff-inner"></div>
-		<div id="runes">
-			<hr>
-			<h3>Runes <span class="rune-spell-toggle">(C for spells)</span></h3>
+		<div id="stuff" class="vertical-block">
+			<h3>Stuff</h3>
+			<div id="stuff-inner"></div>
+			<div id="runes">
+				<hr>
+				<h3>Runes <span class="rune-spell-toggle">(N for spells)</span></h3>
+			</div>
+			<div id="spells">
+				<hr>
+				<h3>Spells <span class="rune-spell-toggle">(N for runes)</span></h3>
+			</div>
 		</div>
-		<div id="spells">
-			<hr>
-			<h3>Spells <span class="rune-spell-toggle">(C for runes)</span></h3>
+		<div id="map" class="vertical-block wide" onclick="viewCell(event)">
+			<h3>Map</h3>
+			<table id="map-inner"></table>
 		</div>
-	</div>
-	<div id="map" class="vertical-block wide" onclick="viewCell(event)">
-		<h3>Map</h3>
-		<table id="map-inner"></table>
-	</div>
 		<div id="location" class="vertical-block">
 			<h3>Selected Location</h3>
 			<h4 id="location-name"></h4>

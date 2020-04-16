@@ -719,6 +719,11 @@ td:hover:after {
 	display: none;
 }
 
+#runes.active-pane,
+#spells.active-pane {
+	display: block;
+}
+
 .rune-spell-toggle {
 	display: none;
 }

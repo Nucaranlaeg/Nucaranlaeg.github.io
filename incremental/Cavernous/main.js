@@ -415,8 +415,9 @@ let keyFunctions = {
 	"KeyB": () => {
 		toggleBankedTime();
 	},
-	"KeyC": () => {
-		switchActionLists();
+	"KeyN": () => {
+		if (!document.querySelector("#stuff .spell")) return;
+		switchRuneList();
 	},
 	"KeyG": () => {
 		toggleGrindMana();
@@ -443,13 +444,22 @@ let keyFunctions = {
 		showCursor();
 	},
 	"Digit1": () => {
-		addActionToQueue("N0");
+		addRuneAction(0);
 	},
 	"Digit2": () => {
-		addActionToQueue("N1");
+		addRuneAction(1);
 	},
 	"Digit3": () => {
-		addActionToQueue("N2");
+		addRuneAction(2);
+	},
+	"Numpad1": () => {
+		addRuneAction(0);
+	},
+	"Numpad2": () => {
+		addRuneAction(1);
+	},
+	"Numpad3": () => {
+		addRuneAction(2);
 	},
 	"Equal" : () => {
 		addActionToQueue("=");

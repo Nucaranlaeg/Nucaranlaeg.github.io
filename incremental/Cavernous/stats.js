@@ -39,7 +39,7 @@ class Stat {
 		if (this.name == "Runic Lore"){
 			updateRunes(this.current);
 		} else if (this.name == "Magic"){
-			updateSpells(this.current);
+			updateSpells(this.base);
 		}
 		if (!this.node){
 			this.createNode();
@@ -67,9 +67,11 @@ class Stat {
 		this.node.querySelector(".description").innerHTML = this.description;
 		document.querySelector("#stats").appendChild(this.node);
 		if (this.name == "Runic Lore"){
-			document.querySelector("#runes").style.display = "block";
-		} else if (this.name == "Spellcraft"){
-			document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "block");
+			if (!document.querySelector(".active-pane")){
+				document.querySelector("#runes").classList.add("active-pane");
+			}
+		} else if (this.name == "Spellcraft" || (this.name == "Magic" && this.base >= 75)){
+			document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "inline-block");
 		}
 	}
 
