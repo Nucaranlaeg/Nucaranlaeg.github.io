@@ -4,12 +4,30 @@ let savedQueues = [];
 let cursor = [0, null];
 
 class QueueAction extends Array {
-	constructor(actionID, undone = true) {
-		super(actionID, undone);
+	constructor(actionID, undone = true, ...rest) {
+		super(actionID, undone, ...rest);
 	}
 
 	get actionID() {
 		return this[0];
+	}
+	
+	get done() {
+		return !this[1];
+	}
+	
+	get started() {
+		return this.node.classList.contains('started');
+	}
+	
+	get node() {
+		let node = createActionNode(this.actionID);
+		if (this.done) {
+			node.classList.add("started");
+			node.style.paddingRight = "0";
+		}
+		Object.defineValue(this, 'node', node);
+		return node;
 	}
 
 	static fromJSON(ch) {
@@ -23,7 +41,16 @@ class QueueAction extends Array {
 		}
 		return ar;
 	}
+}
 
+class QueueReferenceAction extends QueueAction {
+	constructor(queueID, undone = true, queueReference) {
+		super(queueID, undone, queueReference);
+	}
+	
+	get queueReference() {
+		return this[2];
+	}
 }
 
 class ActionQueue extends Array {
@@ -48,37 +75,59 @@ class ActionQueue extends Array {
 	}
 
 	addActionAt(actionID, index = cursor[1]) {
+		if (actionID == "B") {
+			return this.removeActionAt(index);
+		}
+		
+		if (isNaN(+actionID) // not queue reference
+		    && !"UDLRI<=".includes(actionID) // not non-rune action
+		    && (actionID[0] != "N" || isNaN(+actionID[1])))  // not rune action
+		{
+			return;
+		}
+		
+		let done = index == null ? false // last action, don't skip
+		         : index >= 0 ? this[index].done // middle action, skip if prior is done
+		         : this[0].started; // first action, skip if next is started
+		let newAction = isNaN(+actionID) ? new QueueReferenceAction(actionID, !done, savedQueues[actionID]) : new QueueAction(actionID, !done);
+		
 		if (index == null) {
-			if (actionID == "B") {
-				this.removeActionAt(null);
-			} else if ("UDLRI<=".includes(actionID) || (actionID[0] == "N" && !isNaN(+actionID[1]))) {
-				this.push(new QueueAction(actionID));
-				this.queueNode.append(createActionNode(actionID));
-			}
-			scrollQueue(this.index, this.length);
+			this.push(newAction);
+			this.queueNode.append(newAction.node);
+		} else if (index >= 0) {
+			this.splice(index + 1, 0, newAction);
+			this[index].node.insertAdjacentElement('afterend', newAction.node);
+			cursor[1]++;
 		} else {
-			if (actionID == "B") {
-				this.removeActionAt(index);
-			} else if ("UDLRI<=".includes(actionID) || (actionID[0] == "N" && !isNaN(+actionID[1]))) {
-				if (index >= 0) {
-					this.splice(index + 1, 0, new QueueAction(actionID, this[index][1]));
-				} else {
-					this.unshift(new QueueAction(actionID, queues[0][1]))
-				}
-				cursor[1]++;
-			}
+			this.unshift(newAction);
+			this.queueNode.insertAdjacentElement('afterbegin', newAction.node);
+			cursor[1]++;
 		}
 	}
 
 	removeActionAt(index = cursor[1]) {
 		if (index == null) {
 			if (this.length == 0) return;
-			this.pop();
-			this.queueNode.lastChild.remove();
+			this.pop().node.remove();
 		} else {
 			if (this.length == 0 || index == -1) return;
-			this.splice(index, 1);
+			this.splice(index, 1)[0].node.remove();
 			cursor[1]--;
+		}
+	}
+	
+	copyQueueAt(queue, index) {
+		if (!(queue instanceof Array)) return;
+		let increment = index !== undefined && index !== null;
+		for (let item of queue) {
+			if (item instanceof QueueAction) {
+				this.addActionAt(item.actionID, index);
+				increment && index++;
+			}
+			else {
+				this.addActionAt(item[0], index);
+				increment && index++;
+			}
 		}
 	}
 
@@ -126,7 +175,6 @@ function addActionToQueue(action, queue = null){
 
 	queues[queue].addActionAt(action, cursor[1]);
 
-	redrawQueues();
 	scrollQueue(queue, cursor[1]);
 	showCursor();
 }
@@ -233,13 +281,9 @@ function redrawQueues(){
 		while (queueNode.firstChild) {
 			queueNode.removeChild(queueNode.lastChild);
 		}
-		for (let j = 0; j < queues[i].length; j++){
-			let node = createActionNode(queues[i][j][0]);
+		for (let action of queues[i]){
+			let node = action.node;
 			queueNode.append(node);
-			if (!queues[i][j][1]){
-				node.classList.add("started");
-				node.style.paddingRight = "0";
-			}
 		}
 	}
 }
