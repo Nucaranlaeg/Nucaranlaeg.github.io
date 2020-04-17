@@ -721,8 +721,11 @@ td:hover:after {
 
 #runes,
 #spells {
-	display: none;
+	/* display: none; */
 }
+
+#runes h3,
+div#spells h3 {margin: 0.5em;}
 
 #runes.active-pane,
 #spells.active-pane {

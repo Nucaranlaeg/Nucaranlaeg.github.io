@@ -179,10 +179,10 @@ function addActionToQueue(action, queue = null){
 	showCursor();
 }
 
-function addRuneAction(index){
-	if (settings.showingRunes){
+function addRuneAction(index, type){
+	if (type == 'rune'){
 		if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index);
-	} else {
+	} else if (type == 'spell') {
 		if (index < spells.length && spells[index].canAddToQueue()) addActionToQueue("S" + index);
 	}
 }
