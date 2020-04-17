@@ -510,8 +510,13 @@ td.hobgoblin {
 	background-color: #cc0000;
 }
 
+td.champion {
+	background-color: #550000;
+}
+
 td.chieftain:before,
 td.hobgoblin:before,
+td.champion:before,
 td.goblin:before {
 	content: "웃";
 	top: 0px;

@@ -188,12 +188,12 @@ function tickFight(usedTime, creature){
 }
 
 function completeFight(x, y, creature){
-	let attack = getStat("Attack").current * (clones[currentClone].activeSpells.find(spell => spell.name == "Mystic Blade") ? 2 : 1);
+	let attack = getStat("Attack").current;
 	if (creature.health){
 		if (creature.defense >= attack && creature.attack <= getStat("Defense").current){
 			creature.health = Math.max(creature.health - 1, 0);
 		}
-		creature.health = Math.max(creature.health - Math.max(attack - creature.defense, 0), 0);
+		creature.health = Math.max(creature.health - (Math.max(attack - creature.defense, 0) * (clones[currentClone].activeSpells.find(spell => spell.name == "Mystic Blade") ? 2 : 1)), 0);
 	}
 	if (!creature.health){
 		clones.forEach(c => {

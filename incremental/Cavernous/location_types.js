@@ -55,6 +55,7 @@ let locationTypes = [
 	new LocationType("Goblin", "g", "An ugly humanoid more likely to try and kill you than to let you by.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Goblin Chieftain", "c", "This one is uglier than the last two.  Probably meaner, too.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Hobgoblin", "h", "A large creature looking something like the goblins.  It looks ready to fight.\n{STATS}", "Attack Creature", null, null),
+	new LocationType("Goblin Champion", "m", "The largest of the goblins.  You're going to have to work hard to take him down.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
 	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
 	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to another place.", "Walk", null, null),
