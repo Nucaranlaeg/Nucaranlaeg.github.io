@@ -51,19 +51,19 @@ function switchRuneList() {
 
 function loadSettings(savedSettings) {
 	do toggleBankedTime();
-	while (settings.usingBankedTime != savedSettings.usingBankedTime);
+	while (settings.usingBankedTime != !!savedSettings.usingBankedTime);
 
 	do toggleRunning();
-	while (settings.running != savedSettings.running);
+	while (settings.running != !!savedSettings.running);
 
 	do toggleAutoRestart();
-	while (settings.autoRestart != savedSettings.autoRestart);
+	while (settings.autoRestart != !!savedSettings.autoRestart);
 
 	do toggleGrindMana();
-	while (settings.grindMana != savedSettings.grindMana);
+	while (settings.grindMana != !!savedSettings.grindMana);
 
 	do switchRuneList();
-	while (settings.showingRunes != savedSettings.showingRunes);
+	while (settings.showingRunes != !!savedSettings.showingRunes);
 
 	Object.assign(settings, savedSettings, settings);
 }
