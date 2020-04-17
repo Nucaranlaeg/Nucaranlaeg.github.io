@@ -14,9 +14,20 @@ class Clone {
 		this.syncs = 0;
 		this.repeated = false;
 		this.walkTime = 0;
+		this.activeSpells = [];
 	}
 
 	takeDamage(amount) {
+		if (this.activeSpells.find(spell => spell.name == "Arcane Shield")){
+			let mana = getStat("Mana");
+			if (mana.current < amount){
+				mana.spendMana(mana.current);
+				amount -= mana.current;
+			} else {
+				mana.spendMana(amount);
+				amount = 0;
+			}
+		}
 		this.damage += amount;
 		if (this.damage < 0) this.damage = 0;
 		if (this.damage >= getStat("Health").current) this.damage = Infinity;
@@ -80,6 +91,10 @@ class Clone {
 		return selectQueueAction(this.id, actionIndex, n);
 	}
 
+	sustainSpells(time) {
+		this.activeSpells.forEach(s => s.sustain(time));
+	}
+
 	executeAction(time, action, actionIndex) {
 		currentClone = this.id;
 
@@ -95,6 +110,15 @@ class Clone {
 
 		if (action[0][0] == "N"){
 			if (runes[action[0][1]].create(this.x + xOffset, this.y + yOffset)){
+				this.selectQueueAction(actionIndex, 100);
+				this.completeNextAction();
+				return time;
+			} else {
+				return 0;
+			}
+		}
+		if (action[0][0] == "S"){
+			if (spells[action[0][1]].cast()){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
 				return time;
@@ -162,7 +186,9 @@ class Clone {
 		this.timeAvailable = time;
 
 		if (nextAction) {
+			let startTime = time;
 			time = this.executeAction(time, nextAction, actionIndex);
+			this.sustainSpells(startTime - time);
 			this.timeAvailable = time;
 			return time;
 		} 
@@ -204,7 +230,7 @@ class Clone {
 			maxSingleTickTime = goldToManaBaseTime / 2;
 		}
 		while (time > maxSingleTickTime) {
-			this.performActions(maxSingleTickTime)
+			this.performActions(maxSingleTickTime);
 			time -= maxSingleTickTime;
 		}
 
@@ -216,12 +242,15 @@ class Clone {
 			for (let c of clones) {
 				if (c.noActionsAvailable) continue;
 				if (c.timeAvailable == maxTime) {
-					c.performSingleAction()
+					c.performSingleAction();
 				}
 			}
 			maxTime = Math.max(...clones.map(e=>!e.noActionsAvailable && e.damage != Infinity && e.timeAvailable));
 		}
-		let timeNotSpent = Math.min(...clones.map(e=>e.timeLeft))
+		let timeNotSpent = Math.min(...clones.map(e=>e.timeLeft));
+		clones.forEach(c => {
+			if (c.timeLeft > timeNotSpent) c.sustainSpells(c.timeLeft - timeNotSpent);
+		})
 		queueTime += time - timeNotSpent;
 		return timeNotSpent;
 	}

@@ -288,7 +288,7 @@ setInterval(function mainLoop() {
 	let mana = getStat("Mana");
 	lastAction = Date.now();
 	queuesNode = queuesNode || document.querySelector("#queues");
-	if (mana.current == 0){
+	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
 		queuesNode.classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
@@ -416,6 +416,10 @@ let keyFunctions = {
 	"KeyB": () => {
 		toggleBankedTime();
 	},
+	"KeyN": () => {
+		if (!document.querySelector("#stuff .spell")) return;
+		switchRuneList();
+	},
 	"KeyG": () => {
 		toggleGrindMana();
 	},
@@ -441,13 +445,22 @@ let keyFunctions = {
 		showCursor();
 	},
 	"Digit1": () => {
-		addActionToQueue("N0");
+		addRuneAction(0);
 	},
 	"Digit2": () => {
-		addActionToQueue("N1");
+		addRuneAction(1);
 	},
 	"Digit3": () => {
-		addActionToQueue("N2");
+		addRuneAction(2);
+	},
+	"Numpad1": () => {
+		addRuneAction(0);
+	},
+	"Numpad2": () => {
+		addRuneAction(1);
+	},
+	"Numpad3": () => {
+		addRuneAction(2);
 	},
 	"Equal" : () => {
 		addActionToQueue("=");

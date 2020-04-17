@@ -81,7 +81,7 @@ class ActionQueue extends Array {
 		
 		if (isNaN(+actionID) // not queue reference
 		    && !"UDLRI<=".includes(actionID) // not non-rune action
-		    && (actionID[0] != "N" || isNaN(+actionID[1])))  // not rune action
+		    && (!"NS".includes(actionID[0]) || isNaN(+actionID[1]))) // not rune action
 		{
 			return;
 		}
@@ -146,9 +146,9 @@ class ActionQueue extends Array {
 		this.clear();
 		let prev = '';
 		for (let char of string) {
-			if (prev == 'N') {
+			if ("NS".includes(prev)) {
 				this.addActionAt(prev + char, null);
-			} else if (char != 'N') {
+			} else if (!"NS".includes(char)) {
 				this.addActionAt(char, null);
 			}
 			prev = char;
@@ -177,6 +177,14 @@ function addActionToQueue(action, queue = null){
 
 	scrollQueue(queue, cursor[1]);
 	showCursor();
+}
+
+function addRuneAction(index){
+	if (settings.showingRunes){
+		if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index);
+	} else {
+		if (index < spells.length && spells[index].canAddToQueue()) addActionToQueue("S" + index);
+	}
 }
 
 function clearQueue(queue = null, noConfirm = false){
@@ -218,7 +226,7 @@ function createActionNode(action){
 		"=": settings.useAlternateArrows ? "=" : "=",
 	}[action];
 	if (!character){
-		character = runes[action[1]].icon;
+		character = action[0] == "N" ? runes[action[1]].icon : spells[action[1]].icon;
 	}
 	actionNode.querySelector(".character").innerHTML = character;
 	return actionNode;
