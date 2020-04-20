@@ -123,7 +123,7 @@ function save(){
 	let playerStats = stats.map(s => {
 		return {
 			"name": s.name,
-			"base": s.learnable ? s.base : s.getNextLoopValue(),
+			"base": s.base,
 		};
 	});
 	let locations = [];
@@ -288,7 +288,7 @@ setInterval(function mainLoop() {
 	let mana = getStat("Mana");
 	lastAction = Date.now();
 	queuesNode = queuesNode || document.querySelector("#queues");
-	if (mana.current == 0){
+	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
 		queuesNode.classList.add("out-of-mana")
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
@@ -416,6 +416,10 @@ let keyFunctions = {
 	"KeyB": () => {
 		toggleBankedTime();
 	},
+	"KeyN": () => {
+		if (!document.querySelector("#stuff .spell")) return;
+		switchRuneList();
+	},
 	"KeyG": () => {
 		toggleGrindMana();
 	},
@@ -441,13 +445,40 @@ let keyFunctions = {
 		showCursor();
 	},
 	"Digit1": () => {
-		addActionToQueue("N0");
+		addRuneAction(0, 'rune');
 	},
 	"Digit2": () => {
-		addActionToQueue("N1");
+		addRuneAction(1, 'rune');
 	},
 	"Digit3": () => {
-		addActionToQueue("N2");
+		addRuneAction(2, 'rune');
+	},
+	"Numpad1": () => {
+		addRuneAction(0, 'rune');
+	},
+	"Numpad2": () => {
+		addRuneAction(1, 'rune');
+	},
+	"Numpad3": () => {
+		addRuneAction(2, 'rune');
+	},
+	">Digit1": () => {
+		addRuneAction(0, 'spell');
+	},
+	">Digit2": () => {
+		addRuneAction(1, 'spell');
+	},
+	">Digit3": () => {
+		addRuneAction(2, 'spell');
+	},
+	">Numpad1": () => {
+		addRuneAction(0, 'spell');
+	},
+	">Numpad2": () => {
+		addRuneAction(1, 'spell');
+	},
+	">Numpad3": () => {
+		addRuneAction(2, 'spell');
 	},
 	"Equal" : () => {
 		addActionToQueue("=");

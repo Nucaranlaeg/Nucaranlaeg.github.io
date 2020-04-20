@@ -6,6 +6,7 @@ let settings = {
 	useWASD: false,
 	useDifferentBridges: true,
 	grindMana: false,
+	showingRunes: true,
 }
 
 function toggleBankedTime() {
@@ -42,18 +43,27 @@ function toggleGrindMana() {
 	document.querySelector("#grind-mana-toggle").closest(".option").classList.toggle("option-highlighted", settings.grindMana); 
 }
 
+function switchRuneList() {
+	settings.showingRunes = !settings.showingRunes;
+	document.querySelector("#runes").classList.toggle("active-pane", settings.showingRunes);
+	document.querySelector("#spells").classList.toggle("active-pane", !settings.showingRunes);
+}
+
 function loadSettings(savedSettings) {
 	do toggleBankedTime();
-	while (settings.usingBankedTime != savedSettings.usingBankedTime);
+	while (settings.usingBankedTime != !!savedSettings.usingBankedTime);
 
 	do toggleRunning();
-	while (settings.running != savedSettings.running);
+	while (settings.running != !!savedSettings.running);
 
 	do toggleAutoRestart();
-	while (settings.autoRestart != savedSettings.autoRestart);
+	while (settings.autoRestart != !!savedSettings.autoRestart);
 
 	do toggleGrindMana();
-	while (settings.grindMana != savedSettings.grindMana);
+	while (settings.grindMana != !!savedSettings.grindMana);
+
+	do switchRuneList();
+	while (settings.showingRunes != !!savedSettings.showingRunes);
 
 	Object.assign(settings, savedSettings, settings);
 }

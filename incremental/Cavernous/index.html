@@ -14,6 +14,7 @@
 	<script type="text/javascript" defer src="saved_queues.js"></script>
 	<script type="text/javascript" defer src="highlights.js"></script>
 	<script type="text/javascript" defer src="stuff.js"></script>
+	<script type="text/javascript" defer src="spells.js"></script>
 	<script type="text/javascript" defer src="runes.js"></script>
 	<script type="text/javascript" defer src="clones.js"></script>
 	<script type="text/javascript" defer src="messages.js"></script>
@@ -29,6 +30,12 @@
 			<div class="description"></div>
 		</div>
 		<div id="rune-template" class="stat block">
+			<span class="name"></span>
+			<span class="icon"></span>
+			<span class="index"></span>
+			<div class="description"></div>
+		</div>
+		<div id="spell-template" class="stat block spell">
 			<span class="name"></span>
 			<span class="icon"></span>
 			<span class="index"></span>
@@ -166,28 +173,32 @@
 			</div>
 			<div class="version" title="Developers: Nucaranlaeg, Dimava, Gnomez">
 				<a href="https://discord.gg/EXAHXBr">Discord</a><br>
-				Version <span id="version">0.3.4</span><br>
+				Version <span id="version">0.4.0</span><br>
 				©2020
 			</div>
-		</div>		<div id="stats" class="vertical-block">
+		</div>
+		<div id="stats" class="vertical-block">
 			<h3>Stats</h3>
-
-		<div class="queue-time">
-			Time spent: <span id="time-spent">0</span>s
+			<div class="queue-time">
+				Time spent: <span id="time-spent">0</span>s
+			</div>
 		</div>
-	</div>
-	<div id="stuff" class="vertical-block">
-		<h3>Stuff</h3>
-		<div id="stuff-inner"></div>
-		<div id="runes">
-			<hr>
-			<h3>Runes</h3>
+		<div id="stuff" class="vertical-block">
+			<h3>Stuff</h3>
+			<div id="stuff-inner"></div>
+			<div id="runes">
+				<hr>
+				<h3 title="Press the rune's number to insert it into your queue.">Runes</h3>
+			</div>
+			<div id="spells">
+				<hr>
+				<h3 title="Press ctrl and the spell's number to insert it into your queue.">Spells</h3>
+			</div>
 		</div>
+		<div id="map" class="vertical-block wide" onclick="viewCell(event)">
+			<h3>Map</h3>
+			<table id="map-inner"></table>
 		</div>
-	<div id="map" class="vertical-block wide" onclick="viewCell(event)">
-		<h3>Map</h3>
-		<table id="map-inner"></table>
-	</div>
 		<div id="location" class="vertical-block">
 			<h3>Selected Location</h3>
 			<h4 id="location-name"></h4>

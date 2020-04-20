@@ -11,6 +11,7 @@ let baseCreatures = [
 	new BaseCreature("Goblin", 5, 0, 10),
 	new BaseCreature("Goblin Chieftain", 7, 3, 20),
 	new BaseCreature("Hobgoblin", 8, 4, 15),
+	new BaseCreature("Goblin Champion", 15, 8, 40),
 ];
 
 class Creature {

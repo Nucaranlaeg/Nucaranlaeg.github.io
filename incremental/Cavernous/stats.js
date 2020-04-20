@@ -22,8 +22,17 @@ class Stat {
 
 	gainSkill(amount) {
 		if (isNaN(+amount)) return;
+		let prev = this.current;
 		this.current += amount / 10;
 		this.dirty = true;
+
+		if (!this.learnable) return;
+		let val = (this.current + 1) ** 0.9 - (this.base + 1);
+		if (val < 0) return;
+		let prevVal = (prev + 1) ** 0.9 - (this.base + 1);
+		if (prevVal < 0) prevVal = 0;
+		let increase = (val - prevVal) / this.statIncreaseDivisor;
+		this.base += increase;
 	}
 
 	setStat(amount) {
@@ -38,6 +47,8 @@ class Stat {
 		this.updateValue();
 		if (this.name == "Runic Lore"){
 			updateRunes(this.current);
+		} else if (this.name == "Magic"){
+			updateSpells(this.base);
 		}
 		if (!this.node){
 			this.createNode();
@@ -50,7 +61,8 @@ class Stat {
 			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
-			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)`;
+			let increaseRequired = (2 * this.base + 1) ** (1 / 0.9) - 1;
+			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 1)}`;
 		}
 		this.dirty = false;
 	}
@@ -64,23 +76,23 @@ class Stat {
 		this.node.querySelector(".description").innerHTML = this.description;
 		document.querySelector("#stats").appendChild(this.node);
 		if (this.name == "Runic Lore"){
-			document.querySelector("#runes").style.display = "block";
+			if (!document.querySelector(".active-pane")){
+				document.querySelector("#runes").classList.add("active-pane");
+			}
+		} else if (this.name == "Spellcraft" || (this.name == "Magic" && this.base >= 75)){
+			document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "inline-block");
 		}
 	}
 
 	reset() {
 		if (this.current === this.base && this.bonus === 0) return;
-		this.base = this.getNextLoopValue();
 		this.current = this.base;
 		this.bonus = 0;
 		this.dirty = true;
 	}
 
-	getNextLoopValue() {
-		if (!this.learnable) return this.base;
-		let statIncreaseDivisor = settings.debug_statIncreaseDivisor || 100;
-		let increase = (Math.pow(this.current + 1, 0.9) - (this.base + 1)) / statIncreaseDivisor;
-		return this.base + (increase > 0 ? increase : 0);
+	get statIncreaseDivisor() {
+		return settings.debug_statIncreaseDivisor || 100;
 	}
 
 	spendMana(amount) {
@@ -99,6 +111,7 @@ let stats = [
 	new Stat("Speed", "", "How quick you are."),
 	new Stat("Smithing", "🛠", "Your skill at turning raw ores into usable objects."),
 	new Stat("Runic Lore", "🕮", "A measure of your understanding of magical runes."),
+	new Stat("Spellcraft", "", "Wield the energies you've torn from the ground in powerful ways."),
 	new Stat("Combat", "", "Your ability to kill things.", 0),
 	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all clones' stats)", 0, false),
 	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),

@@ -59,4 +59,7 @@ let messages = [
 	            "To use it, press the number corresponding to the desired rune in the runes section of the Stuff panel."),
 	new Message("Lava Can't Melt Steel Bridges", "You worked so hard on that bridge, and to see it quickly turn to slag after crossing that lava is sad.\n" +
 	            "At least one of your clones made it across."),
+	new Message("Arcane Shield", "Your deepening understanding of the mysteries of magic give you the idea of forming your mana into a shield, protecting yourself from danger.\n" +
+	            "You'll preserve your health, but it might take a lot of mana to maintain.  Each clone will have to form one separately.\n" +
+	            "It will last until then end of your next fight."),
 ];
