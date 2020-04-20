@@ -20,6 +20,7 @@ class Spell {
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".icon").innerHTML = this.icon;
 		this.node.querySelector(".description").innerHTML = this.description;
+		this.node.setAttribute("onclick", `addRuneAction(${spells.indexOf(this)}, "spell")`);
 		document.querySelector("#spells").appendChild(this.node);
 		document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "inline-block");
 	}

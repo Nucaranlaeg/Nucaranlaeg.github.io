@@ -17,11 +17,12 @@ class Rune {
 		}
 		let runeTemplate = document.querySelector("#rune-template");
 		this.node = runeTemplate.cloneNode(true);
-		this.node.id = "rune_" + this.name;
+		this.node.id = "rune_" + this.name.replace(/\W/g, '_');
 		this.node.querySelector(".index").innerHTML = (index + 1) % 10;
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".icon").innerHTML = this.icon;
 		this.node.querySelector(".description").innerHTML = this.description;
+		this.node.setAttribute("onclick", `addRuneAction(${runes.indexOf(this)}, "rune")`);
 		document.querySelector("#runes").appendChild(this.node);
 	}
 
