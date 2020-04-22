@@ -593,7 +593,8 @@ td:after {
 	border-radius: 2px;
 	z-index: 15;
 	pointer-events: none;
-	content: attr(data-content)
+	content: attr(data-content);
+	font-size: 16px;
 }
 
 td:hover:after {
