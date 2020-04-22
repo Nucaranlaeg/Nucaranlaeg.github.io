@@ -75,14 +75,20 @@ body {
 	min-width: 16px;
 	user-select: none;
 	text-align: center;
-	
 	background-clip: content-box;
 	box-sizing: border-box;
 	width: 16px;
+	background: linear-gradient(#01322066,#01322066);
+	background-repeat: no-repeat;
 }
 
 .action.started {
-	background-color: #01322066;
+	/* background-color: #01322066; */
+}
+
+.action:not(.started) {
+	background: transparent;
+	transition: background-color 0.4s;
 }
 
 .character {
