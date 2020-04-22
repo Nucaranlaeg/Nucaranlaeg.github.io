@@ -785,3 +785,53 @@ div#spells h3 {margin: 0.5em;}
 	/* transition: right 0.4s; */
 	/* white-space: nowrap; */
 }
+
+
+
+
+/*******
+ * testing t2 ^ icons 
+ *******/
+
+/* ^ triangle */
+.test1 td.furnace2:not(:hover):after,
+.test1 td.bridge2:not(:hover):after,
+.test1 td.sword2:not(:hover):after,
+.test1 td.armour2:not(:hover):after {
+	/* border: 2px solid red; */
+	border-color: transparent transparent red transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	display: block;
+	border-radius: 0;
+	left: unset;
+	top: 0;
+	padding: 0;
+	background: transparent;
+	border-width: 0px 2px 4px 2px;
+	right: 0;
+	z-index: 10;
+}
+
+/* RU triangle */
+.test2 td.furnace2:not(:hover):after,
+.test2 td.bridge2:not(:hover):after,
+.test2 td.sword2:not(:hover):after,
+.test2 td.armour2:not(:hover):after {
+	border-color: red red transparent transparent;
+	border-width: 2px 2px 2px 2px;
+	left: unset;
+	right: 0;
+}
+
+/* LU triangle */
+.test3 td.furnace2:not(:hover):after,
+.test3 td.bridge2:not(:hover):after,
+.test3 td.sword2:not(:hover):after,
+.test3 td.armour2:not(:hover):after {
+	border-color: red transparent transparent red;
+	border-width: 2px 2px 2px 2px;
+	right: unset;
+	left: 0;
+}
