@@ -562,6 +562,9 @@ td::before {
 	width: 100%;
 	box-sizing: border-box;
 	/* border: 2px solid transparent; */
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 td:after {
