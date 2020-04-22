@@ -298,7 +298,8 @@ body {
 }
 
 .wide {
-	width: 500px;
+	/* width: 500px; */
+	width: auto;
 }
 
 h3, h4 {
@@ -307,6 +308,8 @@ h3, h4 {
 
 #map-inner {
 	border-collapse: collapse;
+	table-layout: fixed;
+	width: calc(12px * 45);
 }
 
 td {
