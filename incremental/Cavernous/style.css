@@ -309,15 +309,17 @@ h3, h4 {
 #map-inner {
 	border-collapse: collapse;
 	table-layout: fixed;
-	width: calc(12px * 45);
+	/* width: calc(12px * 45); */
 }
 
 td {
 	width: 12px;
 	height: 12px;
 	position: relative;
-	line-height: 12px;
+	line-height: 1;
 	padding: 0;
+	font-size: 12px;
+}
 }
 
 td.occupied:before {
@@ -344,7 +346,7 @@ td.hover-location:before {
 	z-index: 10;
 	content: " ";
 	box-sizing: border-box;
-	line-height: 0.5;
+	/* line-height: 0.1; */
 }
 
 td.hover-location:before {
@@ -446,7 +448,8 @@ td.shield2:before {
 	content: "⛨";
 	/* top: 0px; */
 	/* left: 0px; */
-	font-size: 11px;
+	font-size: 0.916em;
+	padding-top: 1%;
 }
 
 td.armour:before,
@@ -454,7 +457,9 @@ td.armour2:before {
 	content: "]";
 	/* top: -1px; */
 	/* left: 4px; */
-	font-size: 10px;
+	font-size: 0.833em;
+	font-weight: bold;
+	padding-bottom: 0.2em;
 }
 
 td.pit {
@@ -467,10 +472,11 @@ td.lava {
 
 td.lava:before {
 	content: "~";
- 	/* top: 1px;*/
+	/* top: 1px;*/
 	/* left: 1px; */
-	font-size: 17px;
+	font-size: 1.416em;
 	text-shadow: 0px -4px 0px black;
+	line-height: 0.1;
 }
 
 td.book {
@@ -479,9 +485,9 @@ td.book {
 
 td.book:before {
 	content: "🕮";
- 	/* top: 0px;*/
+	/* top: 0px;*/
 	/* left: 0px; */
-	font-size: 10px;
+	font-size: 0.9em;
 }
 
 td.rune-weak,
@@ -494,21 +500,18 @@ td.rune-weak:before {
 	content: "W";
  	/* top: 0px;*/
 	/* left: 0px; */
-	font-size: 12px;
 }
 
 td.rune-to:before {
 	content: "T";
  	/* top: 0px;*/
 	/* left: 2px; */
-	font-size: 12px;
 }
 
 td.rune-from:before {
 	content: "F";
  	/* top: 0px;*/
 	/* left: 2px; */
-	font-size: 12px;
 }
 
 td.chieftain {
@@ -534,7 +537,7 @@ td.goblin:before {
 	content: "웃";
 	/* top: 0px; */
 	/* left: 0px; */
-	font-size: 11px;
+	font-size: 0.91666em;
 }
 
 td.hobgoblin:before {
@@ -549,8 +552,8 @@ td.coal:before {
 	content: "○";
 	/* top: -1px; */
 	/* left: 1px; */
-	font-size: 14px;
 	color: #ffffff;
+	font-size: 1.166em;
 }
 
 td::before {
