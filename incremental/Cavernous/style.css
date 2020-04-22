@@ -320,6 +320,11 @@ td {
 	padding: 0;
 	font-size: 12px;
 }
+
+body.test-16px td {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
 }
 
 td.occupied:before {
@@ -351,6 +356,12 @@ td.hover-location:before {
 
 td.hover-location:before {
 	border-color: #ff00ff;
+}
+
+body.test-16px td.occupied:before,
+body.test-16px td.final-location:before,
+body.test-16px td.hover-location:before {
+	border-width: 2px;
 }
 
 td.wall {
