@@ -45,26 +45,42 @@ function viewMessage(event, el){
 
 let messages = [
 	new Message("Welcome to Cavernous!", `
-					You wake up in a bare room.  One of the walls looks soft enough for you to dig through, but you have a feeling you'll be back here again.
+					You wake up in a bare room.
+					One of the walls looks soft enough for you to dig through,
+					but you have a feeling you'll be back here again.
 
 					Move around with <u>arrow keys</u>.
 					Click anywhere to continue.`),
 	new Message("Out of Mana", `
 					You've run out of mana.  You feel drawn back to the room where you started.
+
 					(Click "Travel back in time" or press the <u>R</u> key)`),
 	new Message("Time Travel", `
 					You're back in the room you first found yourself in.
-					This time, you feel slightly more competent than last time, and you know a little of the cave you're in.  Given time, you're sure you can find a way out.
-					If you haven't, it would be good to use the spacebar to extract mana from those rocks.
+					This time, you feel slightly more competent than last time.
+					Is that because you now know a little of the cave you're in?
+					Given time, you're sure you can find a way out.
+					And while you haven't, it would be good to use the <u>spacebar</u> to extract mana from those rocks.
 
 					<b>Controls:</b>
 					<u>Backspace</u> to remove last action
 					<u>Ctrl+Backspace</u> to clear queue
 					<u>Arrows</u> to move
 					<u>Spacebar</u> to interact`),
+	new Message("The Looping of Looping Loops", `
+					The time repeats itself over and over, the cave stays the same.
+
+					Check the <u>Options</u> panel for the <u>Auto-Restart requirement (W)</u>`),
 	new Message("Strip Mining", `
-					It's getting harder to extract mana from that rock.  You'll have to go out and find another rock to extract mana from.
-					Check the <u>Options</u> panel for automations, like <u>auto-restart requirement (W)</u>`),
+					It's getting harder to extract mana from that rock.
+					You'll have to go out and find another rock to extract mana from.
+
+					Check the right panel to estimate how many more times you can consume this rock`),
+	new Message("All the known ways", `
+					There are many mana rocks, but the shortest path is always the best one.
+
+					Check the <u>Options</u> panel for the <u>Auto-Gring</u>
+					to automatically select the fastest path`),
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs.
