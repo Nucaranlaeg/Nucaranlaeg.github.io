@@ -28,6 +28,16 @@ body {
 	position: relative;
 }
 
+.block-row:not([hidden]), .block-row.option {
+	border: 1px solid #00000033;
+	display: flex;
+	padding: 2px;
+	text-align: center;
+	/* position: relative; */
+	height: auto;
+	justify-content: space-evenly;
+}
+
 #stats {
 	z-index: -1;
 }
@@ -52,6 +62,11 @@ body {
 .option {
 	height: 20px;
 	width: 194px;
+}
+
+.small-option {
+	
+width: 21;
 }
 
 .option-row {
@@ -220,6 +235,15 @@ body {
 	color: #000000;
 }
 
+.small-option.block > .description {
+	left: unset;
+	right: 0;
+	width: auto;
+	white-space: nowrap;
+	bottom: 100%;
+	margin-bottom: 3px;
+}
+
 .block > .big-description {
 	width: 360px;
 }
@@ -309,6 +333,11 @@ body {
 
 h3, h4 {
 	text-align: center;
+}
+
+h4#location-name {
+	padding: 0;
+	margin: 0;
 }
 
 #map {
@@ -474,7 +503,8 @@ td.shield2:before {
 	/* top: 0px; */
 	/* left: 0px; */
 	font-size: 0.916em;
-	padding-top: 1%;
+	padding-top: 15%;
+	padding-left: 6%;
 }
 
 td.armour:before,
@@ -579,6 +609,7 @@ td.coal:before {
 	/* left: 1px; */
 	color: #ffffff;
 	font-size: 1.166em;
+	padding-bottom: 10%;
 }
 
 td::before {
@@ -773,8 +804,7 @@ td:hover:after {
 	/* display: none; */
 }
 
-#runes h3,
-div#spells h3 {margin: 0.5em;}
+#runes h3, div#spells h3, .bottom-vertical-block h3 {margin: 0.5em;}
 
 #runes.active-pane,
 #spells.active-pane {

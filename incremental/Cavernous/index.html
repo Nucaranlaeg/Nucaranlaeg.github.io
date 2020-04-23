@@ -214,7 +214,11 @@
 					Route time: <span id="route-best-time"></span>s<br>
 					Mana used: <span id="route-best-mana-used"></span><br>
 					Clones lost: <span id="route-best-clones-lost"></span><br>
-					Mana estimate after consuming: <span id="route-best-mana-left"></span>s<br>
+					Est. mana left: <span id="route-best-mana-left"></span>s<br>
+					Probably 
+						<span id="route-best-unminable" hidden>cannot be consumed</span>
+						<span id="route-best-minable">can be consumed like <u>123</u> times<span hidden> in one go</span></span>
+					at the time being<br>
 					<span id="route-best-invalidated" hidden>Route values wil be reset on the next visit.</span>
 				</div>
 				<div id="route-not-visited">
@@ -223,7 +227,61 @@
 			</div>
 			<div class="bottom-vertical-block">
 				<hr>
-				<h3>Uncommon Actions</h3>
+				<h3>Actions</h3>
+				<div class="block-row">
+					<div class="small-option block clickable" onclick="addActionToQueue('U')">
+						<span id="add-action-up">🡅</span>
+						<div class="description">Move up</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('L')">
+						<span id="add-action-left">🡄</span>
+						<div class="description">Move left</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('D')">
+						<span id="add-action-down">🡇</span>
+						<div class="description">Move down</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('R')">
+						<span id="add-action-right">🡆</span>
+						<div class="description">Move right</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('I')">
+						<span id="add-action-interact">🞇</span>
+						<div class="description">Interact</div>
+					</div>
+				</div>
+				<div class="block-row" hidden>
+					<div class="small-option block clickable" onclick="keyFunctions.Digit2()">
+						<span id="add-action-up">W</span>
+						<div class="description">Move up</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions.Digit2()">
+						<span id="add-action-left">T</span>
+						<div class="description">Move left</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions.Digit3()">
+						<span id="add-action-down">F</span>
+						<div class="description">Move down</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions['^Digit1']()">
+						<span id="add-action-right">A</span>
+						<div class="description">Move right</div>
+					</div>
+				</div>
+				<div class="block-row" hidden>
+					<div class="small-option block clickable" onclick="keyFunctions['^KeyA']()">
+						<span id="add-action-interact">All</span>
+						<div class="description">Select all</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions.Backspace()">
+						<span id="add-action-interact">&lt;=</span>
+						<div class="description">Erase</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions['^Backspace']()">
+						<span id="add-action-interact">X</span>
+						<div class="description">Clear</div>
+					</div>
+				</div>
 				<div class="option block clickable" onclick="addActionToQueue('<')">
 					<span id="repeat-last-action">Repeat following action(s)</span>
 					<div class="description">Repeat all actions after this action.</div>

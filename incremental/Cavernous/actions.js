@@ -76,7 +76,7 @@ function completeCollectMana(x, y) {
 	let location = getMapLocation(x, y);
 	Route.updateBestRoute(location);
 	let mana = getStat("Mana");
-	mana.base += 0.1;
+	mana.base = +(mana.base + 0.1).toFixed(2);
 	mana.current += 0.1;
 	setMined(x, y, ".");
 }
