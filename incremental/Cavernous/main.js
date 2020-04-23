@@ -71,6 +71,7 @@ window.ondrop = e => e.preventDefault();
 function resetLoop() {
 	let mana = getStat("Mana");
 	getMessage("Time Travel").display(mana.base == 5);
+	if (mana.base == 5) while (settings.autoRestart != 3) toggleAutoRestart();
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => {
 		s.reset();
@@ -114,9 +115,10 @@ function resetLoop() {
 
 /********************************************* Saving *********************************************/
 
-let saveName = (new URL(document.location)).searchParams.get('save') || '';
+let URLParams = (new URL(document.location)).searchParams;
+let saveName = URLParams.get('save') || '';
 saveName = `saveGame${saveName && '_'}${saveName}`;
-let savingDisabled = (new URL(document.location)).searchParams.get('saving') == 'disabled';
+let savingDisabled = URLParams.get('saving') == 'disabled';
 
 function save(){
 	if (savingDisabled) return;
@@ -347,6 +349,10 @@ function setup(){
 	getMapLocation(0,0);
 	drawMap();
 	getMessage("Welcome to Cavernous!").display();
+	if (URLParams.has('timeless')) {
+		timeBanked = 1e9;
+		settings.debug_speedMultiplier = 50;
+	}
 }
 
 /****************************************** Key Bindings ******************************************/
@@ -408,6 +414,9 @@ let keyFunctions = {
 		}
 	},
 	"KeyR": () => {
+		if (getStat("Mana").base == 5) {
+			hideMessages();
+		}
 		resetLoop();
 	},
 	"KeyP": () => {
@@ -480,9 +489,15 @@ let keyFunctions = {
 	">Numpad3": () => {
 		addRuneAction(2, 'spell');
 	},
-	"Equal" : () => {
+	"Equal": () => {
 		addActionToQueue("=");
 	},
+	"Escape": () => {
+		hideMessages();
+	},
+	"Enter": () => {
+		hideMessages();
+	}
 };
 
 setTimeout(() => {
@@ -494,7 +509,6 @@ setTimeout(() => {
 		templateSelect.append(el);
 	}
 	document.body.onkeydown = e => {
-		hideMessages();
 		if (!document.querySelector("input:focus")) {
 			let key = `${e.ctrlKey ? '^' : ''}${e.shiftKey ? '>' : ''}${e.code}`;
 			if (keyFunctions[key]){

@@ -1,3 +1,7 @@
+:root {
+	--cell-size: 12px;
+}
+
 body {
 	padding: 10px;
 	background: #aacccc;
@@ -75,14 +79,20 @@ body {
 	min-width: 16px;
 	user-select: none;
 	text-align: center;
-	
 	background-clip: content-box;
 	box-sizing: border-box;
 	width: 16px;
+	background: linear-gradient(#01322066,#01322066);
+	background-repeat: no-repeat;
 }
 
 .action.started {
-	background-color: #01322066;
+	/* background-color: #01322066; */
+}
+
+.action:not(.started) {
+	background: transparent;
+	transition: background-color 0.4s;
 }
 
 .character {
@@ -158,7 +168,7 @@ body {
 
 #queues {
 	margin-top: 10px;
-	will-change: opacity;
+	/* will-change: opacity; */
 }
 
 .queue {
@@ -275,7 +285,7 @@ body {
 }
 
 .vertical-block {
-	will-change: opacity;
+	/* will-change: opacity; */
 	flex-shrink: 0;
 	width: 200px;
 	height: 500px;
@@ -292,50 +302,80 @@ body {
 }
 
 .wide {
-	width: 500px;
+	/* width: 500px; */
+	width: auto;
+	flex-grow: 0.5;
 }
 
 h3, h4 {
 	text-align: center;
 }
 
+#map {
+	padding: 2px 0 0px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
 #map-inner {
 	border-collapse: collapse;
+	table-layout: fixed;
+	/* width: calc(12px * 45); */
+	font-size: var(--cell-size);
+	align-self: center;
 }
 
 td {
-	width: 12px;
-	height: 12px;
+	width: 1em;
+	height: 1em;
 	position: relative;
-	line-height: 12px;
+	line-height: 1;
 	padding: 0;
+	font-size: inherit;
+}
+
+body.test-16px td {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
 }
 
 td.occupied:before {
-	border: 2px solid rgb(255, 0, 0);
-	width: 10px;
-	height: 10px;
-	margin-left: -2px;
-	top: -1px;
-	left: 1px;
+	border: 0.1em solid rgb(255, 0, 0);
+	outline: 0.05em solid red;
+	/* width: 14px; */
+	/* height: 14px; */
+	/* margin-left: -2px; */
+	/* top: -1px; */
+	/* left: -1px; */
 	z-index: 10;
 	content: " ";
 }
 
 td.final-location:before,
 td.hover-location:before {
-	border: 2px solid #0000ff;
-	width: 10px;
-	height: 10px;
-	margin-left: -2px;
-	top: -1px;
-	left: 1px;
+	border: 0.1em solid #0000ff;
+	outline: 0.05em solid blue;
+	width: 100%;
+	height: 100%;
+	/* margin-left: -2px; */
+	/* top: 0;*/
+	/* left: 0; */
 	z-index: 10;
 	content: " ";
+	box-sizing: border-box;
+	/* line-height: 0.1; */
 }
 
 td.hover-location:before {
 	border-color: #ff00ff;
+}
+
+body.test-16px td.occupied:before,
+body.test-16px td.final-location:before,
+body.test-16px td.hover-location:before {
+	border-width: 2px;
 }
 
 td.wall {
@@ -380,7 +420,7 @@ td.furnace2 {
 td.furnace:before,
 td.furnace2:before {
 	content: "#";
-	top: -1px;
+	/* top: -1px; */
 }
 
 td.vaporizer {
@@ -389,7 +429,7 @@ td.vaporizer {
 
 td.vaporizer:before {
 	content: "#";
-	top: -1px;
+ 	/* top: -1px; */
 }
 
 td.fountain {
@@ -398,8 +438,8 @@ td.fountain {
 
 td.fountain:before {
 	content: "+";
-	top: -1px;
-	left: 1px;
+ 	/* top: -1px;*/
+	/* left: 1px; */
 	font-weight: bolder;
 }
 
@@ -417,31 +457,34 @@ td.armour2 {
 td.bridge:before,
 td.bridge2:before {
 	content: "⎶";
-	top: -1px;
-	left: 0px;
+	/* top: -1px; */
+	/* left: 0px; */
 }
 
 td.sword:before,
 td.sword2:before {
 	content: "⚔";
-	top: -1px;
-	left: 0px;
+	/* top: -1px; */
+	/* left: 0px; */
 }
 
 td.shield:before,
 td.shield2:before {
 	content: "⛨";
-	top: 0px;
-	left: 0px;
-	font-size: 11px;
+	/* top: 0px; */
+	/* left: 0px; */
+	font-size: 0.916em;
+	padding-top: 1%;
 }
 
 td.armour:before,
 td.armour2:before {
 	content: "]";
-	top: -1px;
-	left: 4px;
-	font-size: 10px;
+	/* top: -1px; */
+	/* left: 4px; */
+	font-size: 0.833em;
+	font-weight: bold;
+	padding-bottom: 0.2em;
 }
 
 td.pit {
@@ -454,10 +497,11 @@ td.lava {
 
 td.lava:before {
 	content: "~";
-	top: 1px;
-	left: 1px;
-	font-size: 17px;
+	/* top: 1px;*/
+	/* left: 1px; */
+	font-size: 1.416em;
 	text-shadow: 0px -4px 0px black;
+	line-height: 0.1;
 }
 
 td.book {
@@ -466,9 +510,9 @@ td.book {
 
 td.book:before {
 	content: "🕮";
-	top: 0px;
-	left: 0px;
-	font-size: 10px;
+	/* top: 0px;*/
+	/* left: 0px; */
+	font-size: 0.9em;
 }
 
 td.rune-weak,
@@ -479,23 +523,20 @@ td.rune-from {
 
 td.rune-weak:before {
 	content: "W";
-	top: 0px;
-	left: 0px;
-	font-size: 12px;
+ 	/* top: 0px;*/
+	/* left: 0px; */
 }
 
 td.rune-to:before {
 	content: "T";
-	top: 0px;
-	left: 2px;
-	font-size: 12px;
+ 	/* top: 0px;*/
+	/* left: 2px; */
 }
 
 td.rune-from:before {
 	content: "F";
-	top: 0px;
-	left: 2px;
-	font-size: 12px;
+ 	/* top: 0px;*/
+	/* left: 2px; */
 }
 
 td.chieftain {
@@ -519,9 +560,9 @@ td.hobgoblin:before,
 td.champion:before,
 td.goblin:before {
 	content: "웃";
-	top: 0px;
-	left: 0px;
-	font-size: 11px;
+	/* top: 0px; */
+	/* left: 0px; */
+	font-size: 0.91666em;
 }
 
 td.hobgoblin:before {
@@ -534,16 +575,24 @@ td.coal {
 
 td.coal:before {
 	content: "○";
-	top: -1px;
-	left: 1px;
-	font-size: 14px;
+	/* top: -1px; */
+	/* left: 1px; */
 	color: #ffffff;
+	font-size: 1.166em;
 }
 
 td::before {
 	position: absolute;
-	top: 1px;
-	left: 2px;
+	top: 0;
+	left: 0;
+	text-align: center;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	/* border: 2px solid transparent; */
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 td:after {
@@ -558,7 +607,8 @@ td:after {
 	border-radius: 2px;
 	z-index: 15;
 	pointer-events: none;
-	content: attr(data-content)
+	content: attr(data-content);
+	font-size: 16px;
 }
 
 td:hover:after {
@@ -566,7 +616,6 @@ td:hover:after {
 }
 
 #message-box {
-	display: none;
 	position: fixed;
 	top: 0;
 	bottom: 0;
@@ -661,7 +710,7 @@ td:hover:after {
 }
 
 #saved-queues-inner {
-	will-change: opacity;
+	/* will-change: opacity; */
 }
 
 .saved-queue .queue-inner {
@@ -766,4 +815,54 @@ div#spells h3 {margin: 0.5em;}
 .queue-time {
 	/* transition: right 0.4s; */
 	/* white-space: nowrap; */
+}
+
+
+
+
+/*******
+ * testing t2 ^ icons 
+ *******/
+
+/* ^ triangle */
+.test1 td.furnace2:not(:hover):after,
+.test1 td.bridge2:not(:hover):after,
+.test1 td.sword2:not(:hover):after,
+.test1 td.armour2:not(:hover):after {
+	/* border: 2px solid red; */
+	border-color: transparent transparent red transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	display: block;
+	border-radius: 0;
+	left: unset;
+	top: 0;
+	padding: 0;
+	background: transparent;
+	border-width: 0px 2px 4px 2px;
+	right: 0;
+	z-index: 10;
+}
+
+/* RU triangle */
+.test2 td.furnace2:not(:hover):after,
+.test2 td.bridge2:not(:hover):after,
+.test2 td.sword2:not(:hover):after,
+.test2 td.armour2:not(:hover):after {
+	border-color: red red transparent transparent;
+	border-width: 2px 2px 2px 2px;
+	left: unset;
+	right: 0;
+}
+
+/* LU triangle */
+.test3 td.furnace2:not(:hover):after,
+.test3 td.bridge2:not(:hover):after,
+.test3 td.sword2:not(:hover):after,
+.test3 td.armour2:not(:hover):after {
+	border-color: red transparent transparent red;
+	border-width: 2px 2px 2px 2px;
+	right: unset;
+	left: 0;
 }

@@ -167,6 +167,7 @@ function drawMap() {
 	mapStain.forEach(([x,y])=>drawCell(x, y));
 	
 	mapNode = mapNode || document.querySelector("#map-inner");
+	clampMap();
 	for (let i = 0; i < clones.length; i++){
 		let clone = clones[i];
 		clone.occupiedNode && clone.occupiedNode.classList.remove("occupied");
@@ -175,6 +176,36 @@ function drawMap() {
 		clone.occupiedNode = node;
 	}
 	showFinalLocation(true);
+}
+
+function clampMap() {
+	let xMin = 999;
+	let xMax = -999;
+	let yMin = 999;
+	let yMax = -999;
+	for (let y = 0; y < mapLocations.length; y++) {
+		for (let x = 0; x < mapLocations[y].length; x++) {
+			if (mapLocations[y][x]) {
+				xMin = Math.min(xMin, x);
+				xMax = Math.max(xMax, x);
+				yMin = Math.min(yMin, y);
+				yMax = Math.max(yMax, y);
+			}
+		}
+	}
+
+	for (let y = 0; y < mapNodes.length; y++) {
+		for (let x = 0; x < mapNodes[y].length; x++) {
+			let node = mapNodes[y][x];
+			node.hidden = xMin > x || x > xMax || yMin > y || y > yMax;
+		}
+	}
+
+	let size = Math.max(xMax - xMin + 1, yMax - yMin + 1);
+	size = yMax - yMin + 1;
+	let scale = Math.floor(440 / size);
+	mapNode.style.setProperty("--cell-count", size + "px");
+	mapNode.style.setProperty("--cell-size", scale + "px");
 }
 
 function setMined(x, y, icon){

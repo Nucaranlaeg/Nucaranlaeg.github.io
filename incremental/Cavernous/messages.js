@@ -7,23 +7,23 @@ class Message {
 
 	display(show_again){
 		if (this.displayed && !show_again) return;
-		let box = document.querySelector("#message-box");
 		document.querySelector("#message-title").innerHTML = this.name;
 		document.querySelector("#message-text").innerHTML = this.message;
-		box.style.display = "block";
+		messageBox.hidden = false;
 		this.displayed = true;
 	}
 }
 
+messageBox = document.querySelector("#message-box");
+
 function hideMessages(){
-	document.querySelector("#message-box").style.display = "none";
+	messageBox.hidden = true;
 }
 
 function viewMessages(){
 	document.querySelector("#message-title").innerHTML = "Messages";
-	let box = document.querySelector("#message-box");
-	box.style.display = "block";
-	let text = box.querySelector("#message-text");
+	messageBox.hidden = false;
+	let text = messageBox.querySelector("#message-text");
 	while (text.firstChild){
 		text.removeChild(text.lastChild);
 	}
@@ -44,13 +44,21 @@ function viewMessage(event, el){
 
 let messages = [
 	new Message("Welcome to Cavernous!", "You wake up in a bare room.  One of the walls looks soft enough for you to dig through, but you have a feeling you'll be back here again.\n" +
-	            "Move around using the arrow keys to move and the spacebar to interact.\n" +
+	            "Move around with <u>arrow keys</u> and use the <u>spacebar</u> to interact.\n" +
 	            "Click anywhere to continue."),
-	new Message("Out of Mana", "You've run out of mana.  You feel drawn back to the room where you started.\n(Click \"Travel back in time\" or press the R key)"),
+	new Message("Out of Mana", "You've run out of mana.  You feel drawn back to the room where you started.\n(Click \"Travel back in time\" or press the <u>R</u> key)"),
 	new Message("Time Travel", "You're back in the room you first found yourself in.\n" +
 	            "This time, you feel slightly more competent than last time, and you know a little of the cave you're in.  Given time, you're sure you can find a way out.\n" +
-	            "If you haven't, it would be good to use the spacebar to extract mana from those rocks."),
-	new Message("Strip Mining", "It's getting harder to extract mana from that rock.  You'll have to go out and find another rock to extract mana from."),
+	            "If you haven't, it would be good to use the spacebar to extract mana from those rocks.\n" +
+	            "<br>" + 
+	            "<b>Controls:</b> \n" + 
+	            "<u>Backspace</u> to remove last action\n" +
+	            "<u>Ctrl+Backspace</u> to clear queue\n" +
+	            "<u>Arrows</u> to move\n" +
+	            "<u>Spacebar</u> to interact\n"),
+	new Message("Strip Mining", "It's getting harder to extract mana from that rock.  You'll have to go out and find another rock to extract mana from.\n" + 
+				"<br>" + 
+				"Check the <u>Options</u> panel for automations, like <u>auto-restart requirement (W)</u>"),
 	new Message("First Clone", "You've created your first clone!  It can carry out actions in exactly the same way you can.\n" +
 	            "You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs." +
 	            "Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out."),
