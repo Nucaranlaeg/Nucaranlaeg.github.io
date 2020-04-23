@@ -313,8 +313,9 @@ setInterval(function mainLoop() {
 	}
 	let timeAvailable = time;
 	if (settings.usingBankedTime && timeBanked > 0){
-		let speedMultiplier = settings.debug_speedMultiplier || 10;
-		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
+		let speedMultiplier = 3 + mana.base / 5;
+		let speedCap = settings.debug_speedMultiplier || 10;
+		timeAvailable = Math.min(time + timeBanked, time * Math.min(speedMultiplier, speedCap));
 	}
 	if (timeAvailable > 1000) {
 		timeAvailable = 1000;
