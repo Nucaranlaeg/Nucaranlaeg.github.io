@@ -70,8 +70,11 @@ window.ondrop = e => e.preventDefault();
 
 function resetLoop() {
 	let mana = getStat("Mana");
-	getMessage("Time Travel").display(mana.base == 5);
-	if (mana.base >= 6) getMessage("Strip Mining").display();
+	getMessage("Time Travel").display(mana.base == 5) && queues[0].clear();
+	if (mana.base == 5) setSetting(toggleAutoRestart, 3);
+	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
+	if (mana.base == 6) getMessage("Strip Mining").display();
+	if (routes.length == 4) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
 	stats.forEach(s => {
 		s.reset();
 		s.update();
@@ -114,9 +117,10 @@ function resetLoop() {
 
 /********************************************* Saving *********************************************/
 
-let saveName = (new URL(document.location)).searchParams.get('save') || '';
+let URLParams = (new URL(document.location)).searchParams;
+let saveName = URLParams.get('save') || '';
 saveName = `saveGame${saveName && '_'}${saveName}`;
-let savingDisabled = (new URL(document.location)).searchParams.get('saving') == 'disabled';
+let savingDisabled = URLParams.get('saving') == 'disabled';
 
 function save(){
 	if (savingDisabled) return;
@@ -297,7 +301,11 @@ setInterval(function mainLoop() {
 	} else {
 		queuesNode.classList.remove("out-of-mana")
 	}
-	if (!settings.running || mana.current == 0 || (settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) || (settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined))){
+	if (!settings.running ||
+			mana.current == 0 ||
+			(settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) ||
+			(settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined)) ||
+			!messageBox.hidden) {
 		timeBanked += time / 2;
 		redrawOptions();
 		updateDropTarget();
@@ -305,8 +313,9 @@ setInterval(function mainLoop() {
 	}
 	let timeAvailable = time;
 	if (settings.usingBankedTime && timeBanked > 0){
-		let speedMultiplier = settings.debug_speedMultiplier || 10;
-		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
+		let speedMultiplier = 3 + mana.base / 5;
+		let speedCap = settings.debug_speedMultiplier || 10;
+		timeAvailable = Math.min(time + timeBanked, time * Math.min(speedMultiplier, speedCap));
 	}
 	if (timeAvailable > 1000) {
 		timeAvailable = 1000;
@@ -327,7 +336,6 @@ setInterval(function mainLoop() {
 	} else {
 		timeBanked += (time - timeUsed) / 2;
 	}
-	mana.spendMana(timeUsed / 1000);
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
@@ -347,6 +355,10 @@ function setup(){
 	getMapLocation(0,0);
 	drawMap();
 	getMessage("Welcome to Cavernous!").display();
+	if (URLParams.has('timeless')) {
+		timeBanked = 1e9;
+		settings.debug_speedMultiplier = 50;
+	}
 }
 
 /****************************************** Key Bindings ******************************************/
@@ -408,6 +420,9 @@ let keyFunctions = {
 		}
 	},
 	"KeyR": () => {
+		if (getStat("Mana").base == 5) {
+			hideMessages();
+		}
 		resetLoop();
 	},
 	"KeyP": () => {
@@ -480,9 +495,15 @@ let keyFunctions = {
 	">Numpad3": () => {
 		addRuneAction(2, 'spell');
 	},
-	"Equal" : () => {
+	"Equal": () => {
 		addActionToQueue("=");
 	},
+	"Escape": () => {
+		hideMessages();
+	},
+	"Enter": () => {
+		hideMessages();
+	}
 };
 
 setTimeout(() => {
@@ -494,7 +515,6 @@ setTimeout(() => {
 		templateSelect.append(el);
 	}
 	document.body.onkeydown = e => {
-		hideMessages();
 		if (!document.querySelector("input:focus")) {
 			let key = `${e.ctrlKey ? '^' : ''}${e.shiftKey ? '>' : ''}${e.code}`;
 			if (keyFunctions[key]){

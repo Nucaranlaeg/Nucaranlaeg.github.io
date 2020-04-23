@@ -24,7 +24,7 @@ class QueueAction extends Array {
 		let node = createActionNode(this.actionID);
 		if (this.done) {
 			node.classList.add("started");
-			node.style.paddingRight = "0";
+			node.style.backgroundSize = "0%";
 		}
 		Object.defineValue(this, 'node', node);
 		return node;
@@ -259,7 +259,7 @@ function selectQueueAction(queue, action, percent){
 		percent /= queues[queue][action][2].length;
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
-	node.style.paddingRight = `${Math.floor(16 * (100 - percent) / 100)}px`;
+	node.style.backgroundSize = `${Math.max(0, percent)}%`;
 	let workProgressBar = queueBlock.querySelector('.work-progress');
 	let lastProgess = +workProgressBar.style.width.replace("%", "");
 	if (percent < lastProgess) {

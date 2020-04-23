@@ -21,7 +21,7 @@ class Route {
 
 			let mana = getStat("Mana")
 			let duration = mineManaRockCost(0, location.priorCompletions);
-			this.manaUsed = +(mana.base - mana.current).toFixed(2);
+			this.manaUsed = +(mana.base - mana.current + 0.1).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
 
@@ -43,15 +43,36 @@ class Route {
 		redrawQueues();
 	}
 
-	getConsumeCost() {
+	getConsumeCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y);
 		let mul = getAction("Collect Mana").getBaseDuration();
-		return mineManaRockCost(0, loc.completions + loc.priorCompletions) * mul;
+		return mineManaRockCost(0, loc.completions + loc.priorCompletions + relativeLevel) * mul;
 	}
 
 	estimateConsumeManaLeft(ignoreInvalidate = false) {
 		let est = getStat("Mana").base - this.manaUsed - this.getConsumeCost() / (clones.length - this.clonesLost);
 		return !ignoreInvalidate && this.invalidateCost ? est + 100 : est;
+	}
+
+	estimateConsumeTimes() {
+		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost);
+		let times = 0;
+		let cost = this.getConsumeCost(times);
+		while (baseTime + 0.1 * times > cost) {
+			cost = this.getConsumeCost(++times);
+		}
+		return times;
+	}
+
+	estimateConsumeTimesAtOnce() {
+		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost);
+		let times = 0;
+		let cost = this.getConsumeCost(times);
+		while (baseTime > cost) {
+			baseTime -= cost;
+			cost = this.getConsumeCost(++times);
+		}
+		return times;
 	}
 
 	static updateBestRoute(location) {
@@ -128,7 +149,17 @@ class Route {
 		q("#route-best-time").innerText = this.reachTime;
 		q("#route-best-mana-used").innerText = this.manaUsed;
 		q("#route-best-clones-lost").innerText = this.clonesLost;
-		q("#route-best-mana-left").innerText = +this.estimateConsumeManaLeft(true).toFixed(2);
+
+		let est = this.estimateConsumeManaLeft(true);
+		q("#route-best-mana-left").innerText = est.toFixed(2);
+		q("#route-best-unminable").hidden = est >= 0;
+		q("#route-best-minable").hidden = est < 0;
+		if (est > 0) {
+			let estTimes = this.estimateConsumeTimes();
+			let estAtOnce = this.estimateConsumeTimesAtOnce();
+			q("#route-best-minable u").innerText = estAtOnce > 1 ? estAtOnce : estTimes;
+			q("#route-best-minable span").hidden = estAtOnce == 1;
+		}
 		q("#route-best-invalidated").hidden = !this.invalidateCost;
 
 		q("#x-loc").value = this.x;
