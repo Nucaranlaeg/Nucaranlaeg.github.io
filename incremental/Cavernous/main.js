@@ -115,9 +115,10 @@ function resetLoop() {
 
 /********************************************* Saving *********************************************/
 
-let saveName = (new URL(document.location)).searchParams.get('save') || '';
+let URLParams = (new URL(document.location)).searchParams;
+let saveName = URLParams.get('save') || '';
 saveName = `saveGame${saveName && '_'}${saveName}`;
-let savingDisabled = (new URL(document.location)).searchParams.get('saving') == 'disabled';
+let savingDisabled = URLParams.get('saving') == 'disabled';
 
 function save(){
 	if (savingDisabled) return;
@@ -348,6 +349,10 @@ function setup(){
 	getMapLocation(0,0);
 	drawMap();
 	getMessage("Welcome to Cavernous!").display();
+	if (URLParams.has('timeless')) {
+		timeBanked = 1e9;
+		settings.debug_speedMultiplier = 50;
+	}
 }
 
 /****************************************** Key Bindings ******************************************/
