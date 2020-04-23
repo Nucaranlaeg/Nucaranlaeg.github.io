@@ -71,6 +71,7 @@ window.ondrop = e => e.preventDefault();
 function resetLoop() {
 	let mana = getStat("Mana");
 	getMessage("Time Travel").display(mana.base == 5);
+	if (mana.base == 5) while (settings.autoRestart != 3) toggleAutoRestart();
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => {
 		s.reset();
@@ -408,6 +409,9 @@ let keyFunctions = {
 		}
 	},
 	"KeyR": () => {
+		if (getStat("Mana").base == 5) {
+			hideMessages();
+		}
 		resetLoop();
 	},
 	"KeyP": () => {
@@ -480,9 +484,15 @@ let keyFunctions = {
 	">Numpad3": () => {
 		addRuneAction(2, 'spell');
 	},
-	"Equal" : () => {
+	"Equal": () => {
 		addActionToQueue("=");
 	},
+	"Escape": () => {
+		hideMessages();
+	},
+	"Enter": () => {
+		hideMessages();
+	}
 };
 
 setTimeout(() => {
@@ -494,7 +504,6 @@ setTimeout(() => {
 		templateSelect.append(el);
 	}
 	document.body.onkeydown = e => {
-		hideMessages();
 		if (!document.querySelector("input:focus")) {
 			let key = `${e.ctrlKey ? '^' : ''}${e.shiftKey ? '>' : ''}${e.code}`;
 			if (keyFunctions[key]){

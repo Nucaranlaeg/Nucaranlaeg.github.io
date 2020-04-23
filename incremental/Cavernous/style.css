@@ -602,7 +602,6 @@ td:hover:after {
 }
 
 #message-box {
-	display: none;
 	position: fixed;
 	top: 0;
 	bottom: 0;
