@@ -1,3 +1,7 @@
+:root {
+	--cell-size: 12px;
+}
+
 body {
 	padding: 10px;
 	background: #aacccc;
@@ -300,25 +304,35 @@ body {
 .wide {
 	/* width: 500px; */
 	width: auto;
+	flex-grow: 0.5;
 }
 
 h3, h4 {
 	text-align: center;
 }
 
+#map {
+	padding: 2px 0 0px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
 #map-inner {
 	border-collapse: collapse;
 	table-layout: fixed;
 	/* width: calc(12px * 45); */
+	font-size: var(--cell-size);
+	align-self: center;
 }
 
 td {
-	width: 12px;
-	height: 12px;
+	width: 1em;
+	height: 1em;
 	position: relative;
 	line-height: 1;
 	padding: 0;
-	font-size: 12px;
+	font-size: inherit;
 }
 
 body.test-16px td {
@@ -328,8 +342,8 @@ body.test-16px td {
 }
 
 td.occupied:before {
-	border: 1px solid rgb(255, 0, 0);
-	outline: 1px solid red;
+	border: 0.1em solid rgb(255, 0, 0);
+	outline: 0.05em solid red;
 	/* width: 14px; */
 	/* height: 14px; */
 	/* margin-left: -2px; */
@@ -341,8 +355,8 @@ td.occupied:before {
 
 td.final-location:before,
 td.hover-location:before {
-	border: 1px solid #0000ff;
-	outline: 1px solid blue;
+	border: 0.1em solid #0000ff;
+	outline: 0.05em solid blue;
 	width: 100%;
 	height: 100%;
 	/* margin-left: -2px; */
