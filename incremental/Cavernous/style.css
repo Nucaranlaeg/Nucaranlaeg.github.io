@@ -336,6 +336,11 @@ h3, h4 {
 	text-align: center;
 }
 
+h4#location-name {
+	padding: 0;
+	margin: 0;
+}
+
 #map {
 	padding: 2px 0 0px;
 	display: flex;
@@ -800,8 +805,7 @@ td:hover:after {
 	/* display: none; */
 }
 
-#runes h3,
-div#spells h3 {margin: 0.5em;}
+#runes h3, div#spells h3, .bottom-vertical-block h3 {margin: 0.5em;}
 
 #runes.active-pane,
 #spells.active-pane {
