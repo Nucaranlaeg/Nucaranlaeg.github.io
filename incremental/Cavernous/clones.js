@@ -230,8 +230,12 @@ class Clone {
 			maxSingleTickTime = goldToManaBaseTime / 2;
 		}
 		while (time > maxSingleTickTime) {
-			this.performActions(maxSingleTickTime);
+			let leftover = this.performActions(maxSingleTickTime);
 			time -= maxSingleTickTime;
+			if (leftover) {
+				time += leftover;
+				return time;
+			}
 		}
 
 		for (let c of clones) {
