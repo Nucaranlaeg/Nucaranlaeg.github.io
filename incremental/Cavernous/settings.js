@@ -75,7 +75,5 @@ function loadSettings(savedSettings) {
 
 	setSetting(switchRuneList, !!savedSettings.showingRunes);
 
-	setCellSize();
-
 	Object.assign(settings, savedSettings, settings);
 }
