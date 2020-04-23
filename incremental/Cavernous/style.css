@@ -28,8 +28,7 @@ body {
 	position: relative;
 }
 
-.block-row,
-.block-row.option {
+.block-row:not([hidden]), .block-row.option {
 	border: 1px solid #00000033;
 	display: flex;
 	padding: 2px;
