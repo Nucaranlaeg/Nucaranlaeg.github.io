@@ -197,7 +197,10 @@ function clampMap() {
 	for (let y = 0; y < mapNodes.length; y++) {
 		for (let x = 0; x < mapNodes[y].length; x++) {
 			let node = mapNodes[y][x];
-			node.hidden = xMin > x || x > xMax || yMin > y || y > yMax;
+			let toHide = xMin > x || x > xMax || yMin > y || y > yMax;
+			if (node.hidden != toHide) {
+				node.hidden = toHide;
+			}
 		}
 	}
 
