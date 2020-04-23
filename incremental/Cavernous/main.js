@@ -70,7 +70,7 @@ window.ondrop = e => e.preventDefault();
 
 function resetLoop() {
 	let mana = getStat("Mana");
-	getMessage("Time Travel").display(mana.base == 5);
+	getMessage("Time Travel").display(mana.base == 5) && queues[0].clear();
 	if (mana.base == 5) while (settings.autoRestart != 3) toggleAutoRestart();
 	if (mana.base >= 6) getMessage("Strip Mining").display();
 	stats.forEach(s => {
