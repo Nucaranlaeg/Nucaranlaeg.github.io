@@ -329,7 +329,6 @@ setInterval(function mainLoop() {
 	} else {
 		timeBanked += (time - timeUsed) / 2;
 	}
-	mana.spendMana(timeUsed / 1000);
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}

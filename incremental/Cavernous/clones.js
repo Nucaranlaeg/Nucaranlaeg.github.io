@@ -256,6 +256,7 @@ class Clone {
 			if (c.timeLeft > timeNotSpent) c.sustainSpells(c.timeLeft - timeNotSpent);
 		})
 		queueTime += time - timeNotSpent;
+		getStat("Mana").spendMana((time - timeNotSpent) / 1000);
 		return timeNotSpent;
 	}
 
