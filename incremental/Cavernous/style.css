@@ -741,7 +741,7 @@ td:hover:after {
 }
 
 #saved-queues-inner {
-	/* will-change: opacity; */
+	will-change: opacity;
 }
 
 .saved-queue .queue-inner {
