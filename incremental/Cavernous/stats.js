@@ -61,7 +61,7 @@ class Stat {
 			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
-			let increaseRequired = (2 * this.base + 1) ** (1 / 0.9) - 1;
+			let increaseRequired = ((this.base + 1) ** (1/9) * (this.base + 1)) - 1;
 			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 1)}`;
 		}
 		this.dirty = false;
