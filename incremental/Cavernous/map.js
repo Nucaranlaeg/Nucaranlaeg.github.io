@@ -225,6 +225,7 @@ function setMined(x, y, icon){
 		"○": ".",
 		"c": ".",
 		"h": ".",
+		"m": ".",
 	}[old] || old;
 	map[y] = map[y].slice(0, x) + tile + map[y].slice(x + 1);
 	if (tile !== old) {

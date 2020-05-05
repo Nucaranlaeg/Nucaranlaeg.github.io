@@ -46,6 +46,26 @@ function getQueueOffset(x, y, queue, maxIndex){
 	return [x, y];
 }
 
+function getQueueOffsets(x, y, queue){
+	let positions = [];
+	for (let i = 0; i < queue.length; i++){
+		let action = queue[i][0];
+		if (!isNaN(+action)){
+			positions.push(...getQueueOffset(x, y, savedQueues[action]));
+			[x, y] = positions[positions.length - 1];
+			if (x === undefined) return positions;
+			continue;
+		}
+		[x, y] = getActionOffset(x, y, action);
+		if (!hasMapLocation(x, y)) {
+			positions.push([undefined, undefined]);
+			return positions;
+		}
+		positions.push([x, y]);
+	}
+	return positions;
+}
+
 function getActionOffset(x, y, action){
 	x += (action == "R") - (action == "L");
 	y += (action == "D") - (action == "U");

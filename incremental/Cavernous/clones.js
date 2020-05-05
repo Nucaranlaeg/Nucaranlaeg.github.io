@@ -15,6 +15,7 @@ class Clone {
 		this.repeated = false;
 		this.walkTime = 0;
 		this.activeSpells = [];
+		this.waiting = false;
 	}
 
 	takeDamage(amount) {
@@ -285,6 +286,13 @@ function selectClone(target, event){
 	
 	showCursor();
 	showFinalLocation();
+	// Experimental route-displaying algorithm
+	// if (selectedQueue.length == 1) {
+	// 	let positions = getQueueOffsets(xOffset, yOffset, queues[selectedQueue[0]]);
+	// 	runExperiment(positions);
+	// } else {
+	// 	runExperiment([]);
+	// }
 }
 
 let clones = [];
