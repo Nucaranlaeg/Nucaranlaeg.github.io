@@ -23,6 +23,9 @@ class Spell {
 		this.node.setAttribute("onclick", `addRuneAction(${spells.indexOf(this)}, "spell")`);
 		document.querySelector("#spells").appendChild(this.node);
 		document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "inline-block");
+		let actionButtonNode = document.querySelector("#add-action-" + this.name.toLowerCase().replace(" ", "-")).parentNode;
+		actionButtonNode.classList.remove("hidden-action");
+		actionButtonNode.parentNode.classList.remove("hidden-action");
 	}
 
 	cast() {

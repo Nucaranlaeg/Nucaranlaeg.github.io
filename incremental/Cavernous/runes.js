@@ -24,6 +24,9 @@ class Rune {
 		this.node.querySelector(".description").innerHTML = this.description;
 		this.node.setAttribute("onclick", `addRuneAction(${runes.indexOf(this)}, "rune")`);
 		document.querySelector("#runes").appendChild(this.node);
+		let actionButtonNode = document.querySelector("#add-action-" + this.name.toLowerCase().replace(" ", "-")).parentNode;
+		actionButtonNode.classList.remove("hidden-action");
+		actionButtonNode.parentNode.classList.remove("hidden-action");
 	}
 
 	notAvailable() {
