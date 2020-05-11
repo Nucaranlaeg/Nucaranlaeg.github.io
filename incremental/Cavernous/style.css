@@ -65,8 +65,7 @@ body {
 }
 
 .small-option {
-	
-width: 21;
+	width: 21;
 }
 
 .option-row {
@@ -847,8 +846,10 @@ td:hover:after {
 	/* white-space: nowrap; */
 }
 
-
-
+.hidden-action,
+.block-row.hidden-action {
+	display: none;
+}
 
 /*******
  * testing t2 ^ icons 
