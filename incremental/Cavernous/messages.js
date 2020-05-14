@@ -79,14 +79,14 @@ let messages = [
 	new Message("All the known ways", `
 					There are many mana rocks, but the shortest path is always the best one.
 
-					Check the <u>Options</u> panel for the <u>Auto-Gring</u>
+					Check the <u>Options</u> panel for the <u>Auto-Grind</u>
 					to automatically select the fastest path`),
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs.
 					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out.`),
 	new Message("Goblin", `
-					A strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought.`),
+					What you thought was a strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought.`),
 	new Message("Runic Lore", `
 					You've mastered the basics of runic lore!  A new action is available to you: Inscribe Rune.
 					To use it, press the number corresponding to the desired rune in the runes section of the Stuff panel.`),

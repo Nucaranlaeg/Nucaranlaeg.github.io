@@ -17,8 +17,11 @@ class Stuff {
 	update(newCount = 0) {
 		if (!this.node) this.createNode();
 		this.count += newCount;
+		// Ensure we never have 0.9999989 gold.
+		this.count = Math.round(this.count * 10) / 10;
 		this.effect();
-		this.node.innerText = this.count;
+		// Check if the number is an integer - if it's not, display one decimal place.
+		this.node.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 1);
 		if (this.count > 0){
 			this.node.parentNode.style.display = "inline-block";
 		}

@@ -59,6 +59,7 @@ const classMapping = {
 	"W": ["rune-weak", "Weaken Rune"],
 	"T": ["rune-to", "Teleport To Rune"],
 	"F": ["rune-from", "Teleport From Rune"],
+	"D": ["rune-dup", "Duplication Rune"],
 	"○": ["coal", "Coal"],
 	"g": ["goblin", "Goblin"],
 	"c": ["chieftain", "Goblin Chieftain"],
