@@ -25,6 +25,9 @@ class Stat {
 		let prev = this.current;
 		this.current += amount / 10;
 		this.dirty = true;
+		if (this.current > 5 && prev <= 5){
+			getMessage("Learning").display();
+		}
 
 		if (!this.learnable) return;
 		let val = (this.current + 1) ** 0.9 - (this.base + 1);

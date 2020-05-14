@@ -31,6 +31,9 @@ class Route {
 	}
 
 	loadRoute(){
+		for (let i = 0; i < this.route.length; i++){
+			if (!this.route[i].endsWith("I")) this.route[i] += "I";
+		}
 		for (let i = 0; i < queues.length; i++){
 			if (i == 0 || this.route.length == 1) {
 				queues[i].fromString(this.route[0]);

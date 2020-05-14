@@ -31,7 +31,10 @@ class Clone {
 		}
 		this.damage += amount;
 		if (this.damage < 0) this.damage = 0;
-		if (this.damage >= getStat("Health").current) this.damage = Infinity;
+		if (this.damage >= getStat("Health").current){
+			this.damage = Infinity;
+			getMessage("Death").display();
+		}
 		this.styleDamage();
 	}
 
@@ -261,9 +264,14 @@ class Clone {
 		return timeNotSpent;
 	}
 
-	static addNewClone() {
+	static addNewClone(loading = false) {
 		let c = new Clone(clones.length);
 		clones.push(c);
+		if (!loading){
+			if (clones.length == 2) getMessage("First Clone").display();
+			if (clones.length == 3) getMessage("Second Clone").display();
+			if (clones.length == 4) getMessage("Third Clone").display();
+		}
 	}
 
 }

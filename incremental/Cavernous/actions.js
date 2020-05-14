@@ -63,7 +63,7 @@ function getDuplicationAmount(x, y){
 	for (let i = 0; i < rune_locs.length; i++){
 		let location = getMapLocation(...rune_locs[i], true);
 		if (location.temporaryPresent && location.temporaryPresent.name == "Charge Duplication"){
-			amount += location.completions / 10;
+			amount += location.completions;
 		}
 	}
 	return amount;
@@ -260,8 +260,14 @@ function completeTeleport(){
 }
 
 function startChargeRune(completions){
-	if (completions >= 10) return 0;
-	return Math.pow(1.5, completions);
+	if (completions > 0){
+		return 0;
+	}
+	let runes = 0;
+	for (let y = 0; y < map.length; y++){
+		runes += map[y].split("D").length - 1;
+	}
+	return runes;
 }
 
 let actions = [
@@ -288,7 +294,7 @@ let actions = [
 	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
-	new Action("Charge Duplication", 5000, [["Runic Lore", 1]], null, startChargeRune),
+	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], null, startChargeRune),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 ];
 
