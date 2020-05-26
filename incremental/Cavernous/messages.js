@@ -111,5 +111,5 @@ let messages = [
 	new Message("Arcane Shield", `
 					Your deepening understanding of the mysteries of magic give you the idea of forming your mana into a shield, protecting yourself from danger.
 					You'll preserve your health, but it might take a lot of mana to maintain.  Each clone will have to form one separately.
-					It will last until then end of your next fight.`),
+					It will last until the end of your next fight.`),
 ];
