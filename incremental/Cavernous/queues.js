@@ -64,9 +64,6 @@ class QueueAction extends Array {
 class QueueReferenceAction extends QueueAction {
 	constructor(queueID, undone = true, queueReference) {
 		super(queueID, undone, queueReference);
-		if (!queueReference){
-			setTimeout(() => this[2] = savedQueues[queueID]);
-		}
 	}
 
 	get queueReference() {
@@ -74,6 +71,7 @@ class QueueReferenceAction extends QueueAction {
 	}
 
 	get action() {
+		if (!this[2]) this[2] = savedQueues[this[0]];
 		let nextAction = this[2].find(a => a[`${this.clone}_${this.index}`] === undefined);
 		if (!nextAction) return [undefined, -1];
 		return [nextAction[0], this.index];

@@ -113,7 +113,7 @@ class Clone {
 		}[actionToDo[0]] || 0;
 		let hasOffset = !!xOffset || !!yOffset;
 
-		if (actionToDo[0] == "N"){
+		if (actionToDo[0][0] == "N"){
 			if (runes[actionToDo[1]].create(this.x + xOffset, this.y + yOffset)){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
@@ -122,7 +122,7 @@ class Clone {
 				return 0;
 			}
 		}
-		if (actionToDo[0] == "S"){
+		if (actionToDo[0][0] == "S"){
 			if (spells[actionToDo[1]].cast()){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
