@@ -67,12 +67,17 @@ const classMapping = {
 	"m": ["champion", "Goblin Champion"],
 };
 
+// The tiles that can be pathfinded through.
+const walkable = "*.♥╬▣=⎶&\"()[]{}^WTF";
+
 let map = originalMap.slice();
 
 let mapDirt = [];
 let mapStain = [];
 
 let mapLocations = [];
+
+let visibleX = null, visibleY = null;
 
 while (mapLocations.length < map.length){
 	mapLocations.push([]);
@@ -257,10 +262,11 @@ function viewCell(e){
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
 				}
-				let xValue = x - xOffset, yValue = y - yOffset;
+				visibleX = x - xOffset;
+				visibleY = y - yOffset;
 				if ((type.name == "Mana-infused Rock" || type.name == "Mana Spring")) {
 					q("#location-route").hidden = true;
-					let route = getBestRoute(xValue, yValue);
+					let route = getBestRoute(visibleX, visibleY);
 					if (route) {
 						route.showOnLocationUI();
 					} else {

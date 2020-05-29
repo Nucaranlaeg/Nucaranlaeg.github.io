@@ -8,6 +8,10 @@ class QueueAction extends Array {
 		super(actionID, undone, ...rest);
 	}
 
+	get action() {
+		return this[0];
+	}
+
 	get actionID() {
 		return this[0];
 	}
@@ -32,6 +36,11 @@ class QueueAction extends Array {
 
 	static fromJSON(ch) {
 		ch = this.migrate(ch);
+		if (!isNaN(ch)){
+			return new QueueReferenceAction(ch);
+		} else if (ch[0] == "P") {
+			return new QueuePathfindAction(ch);
+		}
 		return new QueueAction(ch);
 	}
 
@@ -41,15 +50,94 @@ class QueueAction extends Array {
 		}
 		return ar;
 	}
+
+	complete() {
+		this[1] = false;
+	}
+
+	setCaller(clone, index) {
+		this.clone = clone;
+		this.index = index;
+	}
 }
 
 class QueueReferenceAction extends QueueAction {
 	constructor(queueID, undone = true, queueReference) {
 		super(queueID, undone, queueReference);
+		if (!queueReference){
+			setTimeout(() => this[2] = savedQueues[queueID]);
+		}
 	}
-	
+
 	get queueReference() {
 		return this[2];
+	}
+
+	get action() {
+		let nextAction = this[2].find(a => a[`${this.clone}_${this.index}`] === undefined);
+		if (!nextAction) return [undefined, -1];
+		return [nextAction[0], this.index];
+	}
+
+	complete() {
+		let nextAction = this[2].find(a => a[`${this.clone}_${this.index}`] === undefined);
+		nextAction[`${this.clone}_${this.index}`] = false;
+		if (this[2].every(a => a[`${this.clone}_${this.index}`] === false)) this[1] = false;
+	}
+}
+
+class QueuePathfindAction extends QueueAction {
+	constructor(actionID, undone = true) {
+		super(actionID, undone);
+		let [_, targetX, targetY] = this.actionID.match(/P(-?\d+):(-?\d+);/);
+		this.targetX = +targetX + xOffset;
+		this.targetY = +targetY + yOffset;
+	}
+
+	get action() {
+		let originX = clones[this.clone].x + xOffset, originY = clones[this.clone].y + yOffset;
+		// Do a simple search from the clone's current position to the target position.
+		// Return the direction the clone needs to go next.
+		let getDistance = (x1, x2, y1, y2) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
+		// Prevent pathing to the same spot.
+		if (getDistance(originX, this.targetX, originY, this.targetY) == 0) return [undefined, -1];
+		console.log(originX, originY, this.targetX, this.targetY)
+
+		let openList = [];
+		let closedList = [[originY, originX]];
+		if (walkable.includes(map[originY - 1][originX]))
+			openList.push([originY - 1, originX, 1, getDistance(originX, this.targetX, originY - 1, this.targetY), "U"])
+		if (walkable.includes(map[originY + 1][originX]))
+			openList.push([originY + 1, originX, 1, getDistance(originX, this.targetX, originY + 1, this.targetY), "D"])
+		if (walkable.includes(map[originY][originX - 1]))
+			openList.push([originY, originX - 1, 1, getDistance(originX - 1, this.targetX, originY, this.targetY), "L"])
+		if (walkable.includes(map[originY][originX + 1]))
+			openList.push([originY, originX + 1, 1, getDistance(originX + 1, this.targetX, originY, this.targetY), "R"])
+		while (openList.length > 0) {
+			let best_next = openList.reduce((a, c) => a < c[3] ? a : c[3], Infinity);
+			let active = openList.splice(openList.findIndex(x => x[3] == best_next), 1)[0];
+			console.log(active, openList.length);
+			if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0) return [active[4], this.index];
+			// Add adjacent tiles
+			if (walkable.includes(map[active[0] - 1][active[1]]) && !closedList.find(x => x[0] == active[0] - 1 && x[1] == active[1]))
+				openList.push([active[0] - 1, active[1], active[2] + 1, active[2] + getDistance(active[1], this.targetX, active[0] - 1, this.targetY), active[4]])
+			if (walkable.includes(map[active[0] + 1][active[1]]) && !closedList.find(x => x[0] == active[0] + 1 && x[1] == active[1]))
+				openList.push([active[0] + 1, active[1], active[2] + 1, active[2] + getDistance(active[1], this.targetX, active[0] + 1, this.targetY), active[4]])
+			if (walkable.includes(map[active[0]][active[1] - 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] - 1))
+				openList.push([active[0], active[1] - 1, active[2] + 1, active[2] + getDistance(active[1] - 1, this.targetX, active[0], this.targetY), active[4]])
+			if (walkable.includes(map[active[0]][active[1] + 1]) && !closedList.find(x => x[0] == active[0] && x[1] == active[1] + 1))
+				openList.push([active[0], active[1] + 1, active[2] + 1, active[2] + getDistance(active[1] + 1, this.targetX, active[0], this.targetY), active[4]])
+			// Remove the most recent from consideration
+			closedList.push([active[0], active[1]]);
+		}
+		return [undefined, -1];
+	}
+
+	complete(){
+		let originX = clones[this.clone].x + xOffset, originY = clones[this.clone].y + yOffset;
+		if ((originX == this.targetX && originY == this.targetY) || this.action[0] === undefined){
+			this[1] = false;
+		}
 	}
 }
 
@@ -81,7 +169,7 @@ class ActionQueue extends Array {
 		
 		if (isNaN(+actionID) // not queue reference
 		    && !"UDLRI<=".includes(actionID) // not non-rune action
-		    && (!"NS".includes(actionID[0]) || isNaN(+actionID[1]))) // not rune action
+		    && (!"NSP".includes(actionID[0]) || isNaN(+actionID[1]))) // not rune action or pathfinding
 		{
 			return;
 		}
@@ -89,7 +177,9 @@ class ActionQueue extends Array {
 		let done = index == null ? false // last action, don't skip
 		         : index >= 0 ? this[index].done // middle action, skip if prior is done
 		         : this[0].started; // first action, skip if next is started
-		let newAction = isNaN(+actionID) ? new QueueReferenceAction(actionID, !done, savedQueues[actionID]) : new QueueAction(actionID, !done);
+		let newAction = !isNaN(+actionID) ? new QueueReferenceAction(actionID, !done, savedQueues[actionID])
+		              : actionID[0] == "P" ? new QueuePathfindAction(actionID, !done)
+		              : new QueueAction(actionID, !done);
 		
 		if (index == null) {
 			this.push(newAction);
@@ -145,7 +235,17 @@ class ActionQueue extends Array {
 	fromString(string) {
 		this.clear();
 		let prev = '';
+		let pathfind = "P";
 		for (let char of string) {
+			if (prev == "P") {
+				if (char != ";"){
+					pathfind += char;
+					continue;
+				}
+				this.addActionAt(pathfind, null);
+				prev = ";";
+				continue;
+			}
 			if ("NS".includes(prev)) {
 				this.addActionAt(prev + char, null);
 			} else if (!"NS".includes(char)) {
@@ -226,7 +326,10 @@ function createActionNode(action){
 		"=": settings.useAlternateArrows ? "=" : "=",
 	}[action];
 	if (!character){
-		character = action[0] == "N" ? runes[action[1]].icon : spells[action[1]].icon;
+		character = action[0] == "N" ? runes[action[1]].icon
+		          : action[0] == "S" ? spells[action[1]].icon
+		          : action[0] == "P" ? "?"
+		          : "";
 	}
 	actionNode.querySelector(".character").innerHTML = character;
 	return actionNode;

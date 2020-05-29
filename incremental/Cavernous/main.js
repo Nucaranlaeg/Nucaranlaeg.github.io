@@ -8,14 +8,10 @@ let previousVersion;
 
 function getNextAction(clone = currentClone) {
 	let index = queues[clone].findIndex(a => a[1]);
-	if (index == -1 || isNaN(+queues[clone][index][0])) return [queues[clone][index], index];
 	let action = queues[clone][index];
-	if (!action[2]){
-		action[2] = savedQueues[action[0]];
-	}
-	let nextAction = action[2].find(a => a[`${clone}_${index}`] === undefined);
-	if (!nextAction) return [undefined, -1];
-	return [[nextAction[0], nextAction[`${clone}_${index}`] === undefined], index];
+	if (!action) return [undefined, index];
+	action.setCaller(clone, index);
+	return [action, index];
 }
 
 function completeNextAction(clone = currentClone) {
@@ -23,13 +19,7 @@ function completeNextAction(clone = currentClone) {
 	let action = queues[clone][index];
 	clones[clone].currentCompletions = null;
 	if (!action) return;
-	if (isNaN(+action[0])){
-		action[1] = false;
-		return;
-	}
-	let nextAction = action[2].find(a => a[`${clone}_${index}`] === undefined);
-	nextAction[`${clone}_${index}`] = false;
-	if (action[2].every(a => a[`${clone}_${index}`] === false)) action[1] = false;
+	action.complete(clone, index);
 }
 
 function getLocationType(name) {
@@ -113,6 +103,9 @@ function resetLoop() {
 	drawMap();
 	save();
 	showFinalLocation();
+	if (isNaN(timeBanked)){
+		timeBanked = 0;
+	}
 }
 
 /********************************************* Saving *********************************************/
@@ -509,7 +502,11 @@ let keyFunctions = {
 	},
 	"Enter": () => {
 		hideMessages();
-	}
+	},
+	"KeyF": () => {
+		if (visibleX === undefined || visibleY === undefined) return;
+		addActionToQueue(`P${visibleX}:${visibleY};`);
+	},
 };
 
 setTimeout(() => {

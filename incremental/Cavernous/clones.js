@@ -101,19 +101,20 @@ class Clone {
 
 	executeAction(time, action, actionIndex) {
 		currentClone = this.id;
+		let actionToDo = action.action;
 
 		let xOffset = {
+			"R": 1,
 			"L": -1,
-			"R": 1
-		}[action[0]] || 0;
+		}[actionToDo[0]] || 0;
 		let yOffset = {
 			"U": -1,
-			"D": 1
-		}[action[0]] || 0;
+			"D": 1,
+		}[actionToDo[0]] || 0;
 		let hasOffset = !!xOffset || !!yOffset;
 
-		if (action[0][0] == "N"){
-			if (runes[action[0][1]].create(this.x + xOffset, this.y + yOffset)){
+		if (actionToDo[0] == "N"){
+			if (runes[actionToDo[1]].create(this.x + xOffset, this.y + yOffset)){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
 				return time;
@@ -121,8 +122,8 @@ class Clone {
 				return 0;
 			}
 		}
-		if (action[0][0] == "S"){
-			if (spells[action[0][1]].cast()){
+		if (actionToDo[0] == "S"){
+			if (spells[actionToDo[1]].cast()){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
 				return time;
@@ -130,11 +131,11 @@ class Clone {
 				return 0;
 			}
 		}
-		if (action[0] == "<") {
+		if (actionToDo == "<") {
 			this.completeNextAction();
 			return time;
 		}
-		if (action[0] == "=") {
+		if (actionToDo == "=") {
 			this.waiting = true;
 			if (clones.every((c, i) => {
 					return (c.waiting === true || (c.waiting && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 5)) || !queues[i].find(q => q[0] == "=" && q[1])
