@@ -101,7 +101,6 @@ class QueuePathfindAction extends QueueAction {
 		let getDistance = (x1, x2, y1, y2) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
 		// Prevent pathing to the same spot.
 		if (getDistance(originX, this.targetX, originY, this.targetY) == 0) return [undefined, -1];
-		console.log(originX, originY, this.targetX, this.targetY)
 
 		let openList = [];
 		let closedList = [[originY, originX]];
@@ -116,7 +115,6 @@ class QueuePathfindAction extends QueueAction {
 		while (openList.length > 0) {
 			let best_next = openList.reduce((a, c) => a < c[3] ? a : c[3], Infinity);
 			let active = openList.splice(openList.findIndex(x => x[3] == best_next), 1)[0];
-			console.log(active, openList.length);
 			if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0) return [active[4], this.index];
 			// Add adjacent tiles
 			if (walkable.includes(map[active[0] - 1][active[1]]) && !closedList.find(x => x[0] == active[0] - 1 && x[1] == active[1]))
@@ -238,11 +236,10 @@ class ActionQueue extends Array {
 		let pathfind = "P";
 		for (let char of string) {
 			if (prev == "P") {
-				if (char != ";"){
-					pathfind += char;
-					continue;
-				}
+				pathfind += char;
+				if (char != ";") continue;
 				this.addActionAt(pathfind, null);
+				pathfind = "P";
 				prev = ";";
 				continue;
 			}
