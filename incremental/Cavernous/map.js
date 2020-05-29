@@ -60,6 +60,7 @@ const classMapping = {
 	"T": ["rune-to", "Teleport To Rune"],
 	"F": ["rune-from", "Teleport From Rune"],
 	"D": ["rune-dup", "Duplication Rune"],
+	"d": ["rune-dup-charged", "Duplication Rune"],
 	"○": ["coal", "Coal"],
 	"g": ["goblin", "Goblin"],
 	"c": ["chieftain", "Goblin Chieftain"],
@@ -68,7 +69,7 @@ const classMapping = {
 };
 
 // The tiles that can be pathfinded through.
-const walkable = "*.♥╬▣=⎶&\"()[]{}^WTFD";
+const walkable = "*.♥╬▣=⎶&\"()[]{}^WTFDd";
 
 let map = originalMap.slice();
 
