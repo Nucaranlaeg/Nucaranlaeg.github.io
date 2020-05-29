@@ -165,10 +165,11 @@ class ActionQueue extends Array {
 			return this.removeActionAt(index);
 		}
 		
-		if (isNaN(+actionID) // not queue reference
-		    && !"UDLRI<=".includes(actionID) // not non-rune action
-		    && (!"NSP".includes(actionID[0]) || isNaN(+actionID[1]))) // not rune action or pathfinding
-		{
+		// Standard action:        [UDLRI<=]
+		// Rune/spell action:      [NS]\d
+		// Queue reference:        \d
+		// Pathfind action:        P-?\d+:-?\d+;
+		if (!actionID.match(/^([UDLRI<=]|[NS]\d|\d|P-?\d+:-?\d+;)$/)){
 			return;
 		}
 		

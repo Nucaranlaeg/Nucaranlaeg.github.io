@@ -68,7 +68,7 @@ const classMapping = {
 };
 
 // The tiles that can be pathfinded through.
-const walkable = "*.♥╬▣=⎶&\"()[]{}^WTF";
+const walkable = "*.♥╬▣=⎶&\"()[]{}^WTFD";
 
 let map = originalMap.slice();
 
