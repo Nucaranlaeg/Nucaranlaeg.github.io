@@ -79,14 +79,29 @@ let messages = [
 	new Message("All the known ways", `
 					There are many mana rocks, but the shortest path is always the best one.
 
-					Check the <u>Options</u> panel for the <u>Auto-Gring</u>
+					Check the <u>Options</u> panel for the <u>Auto-Grind</u>
 					to automatically select the fastest path`),
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to the Clone Machine.  Click on the Clone Machine to find out how much the next clone costs.
 					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out.`),
+	new Message("Second Clone", `
+					You've created another clone!  Remember, these clones can work together.
+					It's probably a good thing that you can get along with yourself - it would get messy quick if you couldn't.`),
+	new Message("Third Clone", `
+					You've created yet another clone.
+					Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...`),
 	new Message("Goblin", `
-					A strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought.`),
+					What you thought was a strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought.`),
+	new Message("Death", `
+					That goblin killed one of your clones!
+					Fortunately for you, death is not the end.  Surely you'll be able to overcome this obstacle in short order.
+					If you <u>sync</u> your clones and have them attack together, you might have better luck.  Or maybe you need to craft more or better weapons.`),
+	new Message("Learning", `
+					Despite going back in time, your skills are slowly improving.  You can perform actions faster than before!
+					
+					Each stat is displayed as <u>current</u> (<u>base</u>), and your current value is reset to your base value when you travel back in time.
+					Hovering over a stat displays the percentage of time you save on tasks using that stat.`),
 	new Message("Runic Lore", `
 					You've mastered the basics of runic lore!  A new action is available to you: Inscribe Rune.
 					To use it, press the number corresponding to the desired rune in the runes section of the Stuff panel.`),
@@ -96,5 +111,5 @@ let messages = [
 	new Message("Arcane Shield", `
 					Your deepening understanding of the mysteries of magic give you the idea of forming your mana into a shield, protecting yourself from danger.
 					You'll preserve your health, but it might take a lot of mana to maintain.  Each clone will have to form one separately.
-					It will last until then end of your next fight.`),
+					It will last until the end of your next fight.`),
 ];

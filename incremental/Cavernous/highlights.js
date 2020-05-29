@@ -67,6 +67,11 @@ function getQueueOffsets(x, y, queue){
 }
 
 function getActionOffset(x, y, action){
+	if (action[0] == "P"){
+		let _;
+		[_, x, y] = action.match(/P(-?\d+):(-?\d+);/);
+		return [+x + xOffset, +y + yOffset];
+	}
 	x += (action == "R") - (action == "L");
 	y += (action == "D") - (action == "U");
 	if (getMapTile(x, y) == "█"){

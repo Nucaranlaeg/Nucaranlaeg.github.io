@@ -546,26 +546,25 @@ td.book:before {
 
 td.rune-weak,
 td.rune-to,
-td.rune-from {
+td.rune-from,
+td.rune-dup {
 	background-color: #c99868;
 }
 
 td.rune-weak:before {
 	content: "W";
- 	/* top: 0px;*/
-	/* left: 0px; */
 }
 
 td.rune-to:before {
 	content: "T";
- 	/* top: 0px;*/
-	/* left: 2px; */
 }
 
 td.rune-from:before {
 	content: "F";
- 	/* top: 0px;*/
-	/* left: 2px; */
+}
+
+td.rune-dup:before {
+	content: "D";
 }
 
 td.chieftain {

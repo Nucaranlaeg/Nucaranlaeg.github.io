@@ -57,18 +57,30 @@ function tickWalk(time){
 	clones[currentClone].walkTime = Math.max(0, clones[currentClone].walkTime - time);
 }
 
+function getDuplicationAmount(x, y){
+	let amount = 1;
+	let rune_locs = [[x-1, y], [x+1, y], [x, y-1], [x, y+1]];
+	for (let i = 0; i < rune_locs.length; i++){
+		let location = getMapLocation(...rune_locs[i], true);
+		if (location.temporaryPresent && location.temporaryPresent.name == "Charge Duplication"){
+			amount += location.completions;
+		}
+	}
+	return amount;
+}
+
 function completeGoldMine(x, y){
-	getStuff("Gold Nugget").update(1);
+	getStuff("Gold Nugget").update(getDuplicationAmount(x, y));
 	completeMove(x, y);
 }
 
 function completeIronMine(x, y){
-	getStuff("Iron Ore").update(1);
+	getStuff("Iron Ore").update(getDuplicationAmount(x, y));
 	completeMove(x, y);
 }
 
 function completeCoalMine(x, y){
-	getStuff("Coal").update(1);
+	getStuff("Coal").update(getDuplicationAmount(x, y));
 	completeMove(x, y);
 }
 
@@ -247,6 +259,17 @@ function completeTeleport(){
 	}
 }
 
+function startChargeRune(completions){
+	if (completions > 0){
+		return 0;
+	}
+	let runes = 0;
+	for (let y = 0; y < map.length; y++){
+		runes += map[y].split("D").length - 1;
+	}
+	return runes;
+}
+
 let actions = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
@@ -271,6 +294,7 @@ let actions = [
 	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
+	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], null, startChargeRune),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 ];
 
