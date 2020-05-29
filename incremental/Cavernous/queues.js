@@ -263,6 +263,7 @@ function addActionToQueue(action, queue = null){
 	if (queue === null){
 		for (let i = 0; i < selectedQueue.length; i++){
 			addActionToQueue(action, selectedQueue[i]);
+			scrollQueue(selectedQueue[i], cursor[1]);
 		}
 		showFinalLocation();
 		return;
@@ -375,7 +376,7 @@ function selectQueueAction(queue, action, percent){
 
 function scrollQueue(queue, action = null){
 	if (action === null){
-		action = queues[queue].findIndex(a => !a[1]);
+		action = queues[queue].length;
 	}
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
 	this.width = this.width || queueNode.parentNode.clientWidth;
