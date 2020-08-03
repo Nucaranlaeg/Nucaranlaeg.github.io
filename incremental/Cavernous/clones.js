@@ -19,7 +19,7 @@ class Clone {
 	}
 
 	takeDamage(amount) {
-		if (this.activeSpells.find(spell => spell.name == "Arcane Shield")){
+		if (this.activeSpells.find(spell => spell.name == "Arcane Shield") && amount > 0){
 			let mana = getStat("Mana");
 			if (mana.current < amount){
 				mana.spendMana(mana.current);

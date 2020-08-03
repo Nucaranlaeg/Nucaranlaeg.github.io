@@ -112,4 +112,6 @@ let messages = [
 					Your deepening understanding of the mysteries of magic give you the idea of forming your mana into a shield, protecting yourself from danger.
 					You'll preserve your health, but it might take a lot of mana to maintain.  Each clone will have to form one separately.
 					It will last until the end of your next fight.`),
+	new Message("Won", `
+					I can't really figure out how to make the game scale nicely past here.  So at this point, you win!`),
 ];

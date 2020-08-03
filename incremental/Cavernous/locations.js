@@ -69,6 +69,7 @@ class Location {
 			if (this.remainingEnter == 0){
 				if (this.type.getEnterAction(this.entered).complete(this.x, this.y, this.creature)){
 					if (this.type == "Goblin") getMessage("Goblin").display();
+					if (this.type == "Goblin Champion") getMessage("Won").display();
 					// If it was a fight it's not over.
 					if (this.creature){
 						this.remainingEnter = this.start();
