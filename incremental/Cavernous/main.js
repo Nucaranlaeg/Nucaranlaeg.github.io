@@ -191,7 +191,6 @@ function load(){
 	while (clones.length < saveGame.cloneData.count){
 		Clone.addNewClone(true);
 	}
-	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
 	queues = ActionQueue.fromJSON(saveGame.cloneData.queues);
 	savedQueues = [];
 	for (let i = 0; i < saveGame.stored.length; i++){

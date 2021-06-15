@@ -2,7 +2,6 @@ let settings = {
 	usingBankedTime: true,
 	running: true,
 	autoRestart: 0,
-	useAlternateArrows: false,
 	useWASD: false,
 	useDifferentBridges: true,
 	grindMana: false,
@@ -34,12 +33,6 @@ function toggleAutoRestart() {
 	document.querySelector("#auto-restart-toggle").innerHTML = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"][settings.autoRestart];
 	document.querySelector("#auto-restart-toggle").closest(".option").classList.toggle("option-highlighted", settings.autoRestart == 0); 
 	return settings.autoRestart;
-}
-
-function toggleUseAlternateArrows() {
-	settings.useAlternateArrows = !settings.useAlternateArrows;
-	document.querySelector("#use-alternate-arrows-toggle").innerHTML = settings.useAlternateArrows ? "Use default arrows" : "Use alternate arrows";
-	return settings.useAlternateArrows;
 }
 
 function toggleUseWASD() {

@@ -65,7 +65,11 @@ body {
 }
 
 .small-option {
-	width: 21;
+	width: 21px;
+}
+
+.small-option .svg {
+	width: 20px;
 }
 
 .option-row {

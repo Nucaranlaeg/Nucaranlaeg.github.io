@@ -314,13 +314,13 @@ function createActionNode(action){
 	let actionNode = document.querySelector("#action-template").cloneNode(true);
 	actionNode.removeAttribute("id");
 	let character = {
-		"L": settings.useAlternateArrows ? "←" : "🡄",
-		"R": settings.useAlternateArrows ? "→" : "🡆",
-		"U": settings.useAlternateArrows ? "↑" : "🡅",
-		"D": settings.useAlternateArrows ? "↓" : "🡇",
-		"I": settings.useAlternateArrows ? "○" : "🞇",
-		"<": settings.useAlternateArrows ? "⟲" : "⟲",
-		"=": settings.useAlternateArrows ? "=" : "=",
+		"L": leftArrowSVG,
+		"R": rightArrowSVG,
+		"U": upArrowSVG,
+		"D": downArrowSVG,
+		"I": interactSVG,
+		"<": "⟲",
+		"=": "=",
 	}[action];
 	if (!character){
 		character = action[0] == "N" ? runes[action[1]].icon
