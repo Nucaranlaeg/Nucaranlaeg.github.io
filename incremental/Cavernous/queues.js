@@ -173,7 +173,7 @@ class ActionQueue extends Array {
 		
 		let done = index == null ? false // last action, don't skip
 		         : index >= 0 ? this[index].done // middle action, skip if prior is done
-		         : this[0].started; // first action, skip if next is started
+				 : this[0].started; // first action, skip if next is started
 		let newAction = !isNaN(+actionID) ? new QueueReferenceAction(actionID, !done, savedQueues[actionID])
 		              : actionID[0] == "P" ? new QueuePathfindAction(actionID, !done)
 		              : new QueueAction(actionID, !done);
@@ -244,7 +244,7 @@ class ActionQueue extends Array {
 			}
 			if ("NS".includes(prev)) {
 				this.addActionAt(prev + char, null);
-			} else if (!"NS".includes(char)) {
+			} else if (!"NSP".includes(char)) {
 				this.addActionAt(char, null);
 			}
 			prev = char;
