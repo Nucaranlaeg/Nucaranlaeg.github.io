@@ -426,6 +426,11 @@ function queueToString(queue) {
 	return queue.toString();
 }
 
+function queueToStringStripped(queue) {
+	let strippedQueue = queue.filter((q, i) => !q[1] || (!queue[i-1][1] && q[0] == "I"));
+	return strippedQueue.toString();
+}
+
 function exportQueues() {
 	let exportString = queues.map(queue => queueToString(queue));
 	navigator.clipboard.writeText(JSON.stringify(exportString));

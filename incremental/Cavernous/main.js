@@ -336,7 +336,7 @@ setInterval(function mainLoop() {
 	redrawOptions();
 	updateDropTarget();
 
-	stats.forEach(e=>e.update());
+	stats.forEach(e => e.update());
 	drawMap();
 }, Math.floor(1000 / fps));
 

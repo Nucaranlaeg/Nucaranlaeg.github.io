@@ -169,9 +169,9 @@ let mapNode;
 function drawMap() {
 	if (!isDrawn) drawNewMap();
 	
-	mapDirt.forEach(([x,y])=>drawCell(x, y));
+	mapDirt.forEach(([x,y]) => drawCell(x, y));
 	mapDirt = [];
-	mapStain.forEach(([x,y])=>drawCell(x, y));
+	mapStain.forEach(([x,y]) => drawCell(x, y));
 	
 	mapNode = mapNode || document.querySelector("#map-inner");
 	clampMap();

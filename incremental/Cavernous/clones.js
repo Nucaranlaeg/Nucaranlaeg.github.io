@@ -254,9 +254,9 @@ class Clone {
 					c.performSingleAction();
 				}
 			}
-			maxTime = Math.max(...clones.map(e=>!e.noActionsAvailable && e.damage != Infinity && e.timeAvailable));
+			maxTime = Math.max(...clones.map(e => !e.noActionsAvailable && e.damage != Infinity && e.timeAvailable));
 		}
-		let timeNotSpent = Math.min(...clones.map(e=>e.timeLeft));
+		let timeNotSpent = Math.min(...clones.map(e => e.timeLeft));
 		clones.forEach(c => {
 			if (c.timeLeft > timeNotSpent) c.sustainSpells(c.timeLeft - timeNotSpent);
 		})

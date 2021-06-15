@@ -3,8 +3,8 @@ class Route {
 		if (x instanceof Location) {
 			this.x = x.x;
 			this.y = x.y;
-			let route = queues.map(r => queueToString(r));
-			route = route.filter(e=>e.length)
+			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
+			route = route.filter(e => e.length);
 
 			if (route.every((e,i,a) => e==a[0])) {
 				route = [route[0]];
@@ -140,7 +140,7 @@ class Route {
 
 	static invalidateRouteCosts() {
 		settings.debug && log('route costs invalidated');
-		routes.map(e=>e.invalidateCost = true);
+		routes.map(e => e.invalidateCost = true);
 	}
 
 	showOnLocationUI() {
