@@ -376,7 +376,7 @@ let keyFunctions = {
 		addActionToQueue("B");
 	},
 	"^Backspace": e => {
-		if (!queues.every(e => e.length == 0)) {
+		if (!selectedQueue.every(e => queues[e].length == 0)) {
 			clearQueue(null, settings.noConfirm);
 			return;
 		}

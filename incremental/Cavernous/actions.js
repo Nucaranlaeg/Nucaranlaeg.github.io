@@ -265,9 +265,13 @@ function startChargeRune(completions){
 	}
 	let runes = 0;
 	for (let y = 0; y < map.length; y++){
-		runes += map[y].split("D").length - 1;
+		runes += map[y].split(/[dD]/).length - 1;
 	}
 	return runes;
+}
+
+function completeChargeRune(x, y){
+	setMined(x, y, map[y + yOffset][x + xOffset].toLowerCase());
 }
 
 let actions = [
@@ -294,7 +298,7 @@ let actions = [
 	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
-	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], null, startChargeRune),
+	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeRune),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 ];
 

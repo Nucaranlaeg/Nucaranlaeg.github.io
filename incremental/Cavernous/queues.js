@@ -64,9 +64,6 @@ class QueueAction extends Array {
 class QueueReferenceAction extends QueueAction {
 	constructor(queueID, undone = true, queueReference) {
 		super(queueID, undone, queueReference);
-		if (!queueReference){
-			setTimeout(() => this[2] = savedQueues[queueID]);
-		}
 	}
 
 	get queueReference() {
@@ -74,6 +71,7 @@ class QueueReferenceAction extends QueueAction {
 	}
 
 	get action() {
+		if (!this[2]) this[2] = savedQueues[this[0]];
 		let nextAction = this[2].find(a => a[`${this.clone}_${this.index}`] === undefined);
 		if (!nextAction) return [undefined, -1];
 		return [nextAction[0], this.index];
@@ -165,10 +163,11 @@ class ActionQueue extends Array {
 			return this.removeActionAt(index);
 		}
 		
-		if (isNaN(+actionID) // not queue reference
-		    && !"UDLRI<=".includes(actionID) // not non-rune action
-		    && (!"NSP".includes(actionID[0]) || (isNaN(+actionID[1]) && isNaN(actionID.toString().substring(1,3))))) // not rune action or pathfinding
-		{
+		// Standard action:        [UDLRI<=]
+		// Rune/spell action:      [NS]\d
+		// Queue reference:        \d
+		// Pathfind action:        P-?\d+:-?\d+;
+		if (!actionID.match(/^([UDLRI<=]|[NS]\d|\d|P-?\d+:-?\d+;)$/)){
 			return;
 		}
 		
@@ -264,6 +263,7 @@ function addActionToQueue(action, queue = null){
 	if (queue === null){
 		for (let i = 0; i < selectedQueue.length; i++){
 			addActionToQueue(action, selectedQueue[i]);
+			scrollQueue(selectedQueue[i], cursor[1]);
 		}
 		showFinalLocation();
 		return;
@@ -376,7 +376,7 @@ function selectQueueAction(queue, action, percent){
 
 function scrollQueue(queue, action = null){
 	if (action === null){
-		action = queues[queue].findIndex(a => !a[1]);
+		action = queues[queue].length;
 	}
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
 	this.width = this.width || queueNode.parentNode.clientWidth;

@@ -563,8 +563,12 @@ td.rune-from:before {
 	content: "F";
 }
 
-td.rune-dup:before {
+td.rune-dup:before,
+td.rune-dup-charged:before {
 	content: "D";
+}
+td.rune-dup-charged {
+	background-color: #c9ff68
 }
 
 td.chieftain {
