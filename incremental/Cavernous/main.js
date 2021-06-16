@@ -98,6 +98,7 @@ function resetLoop() {
 		c.attack = c.creature.attack;
 		c.defense = c.creature.defense;
 		c.health = c.creature.health;
+		c.drawHealth();
 	});
 	resetMap();
 	drawMap();

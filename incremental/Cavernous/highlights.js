@@ -33,6 +33,9 @@ function showLocationAfterSteps(index, queueNumber, isDraw = false, isHover = fa
 
 function getQueueOffset(x, y, queue, maxIndex){
 	for (let i = 0; i <= maxIndex; i++){
+		if (!queue || !queue[i]) {
+			return [undefined, undefined];
+		}
 		let action = queue[i][0];
 		if (!isNaN(+action)){
 			[x, y] = getQueueOffset(x, y, savedQueues[action], savedQueues[action].length - 1);

@@ -24,6 +24,10 @@ class Creature {
 		this.x = x;
 		this.y = y;
 	}
+
+	drawHealth(){
+		displayCreatureHealth(this);
+	}
 }
 
 let creatures = [];

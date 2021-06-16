@@ -217,6 +217,7 @@ function completeFight(x, y, creature){
 			creature.health = Math.max(creature.health - 1, 0);
 		}
 		creature.health = Math.max(creature.health - (Math.max(attack - creature.defense, 0) * (clones[currentClone].activeSpells.find(spell => spell.name == "Mystic Blade") ? 2 : 1)), 0);
+		creature.drawHealth();
 	}
 	if (!creature.health){
 		clones.forEach(c => {
