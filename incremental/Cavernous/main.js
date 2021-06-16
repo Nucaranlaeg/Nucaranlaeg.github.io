@@ -298,7 +298,7 @@ setInterval(function mainLoop() {
 			(settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) ||
 			(settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined)) ||
 			!messageBox.hidden) {
-		timeBanked += time / 2;
+		if (!isNaN(time)) timeBanked += time / 2;
 		redrawOptions();
 		updateDropTarget();
 		return;
@@ -323,9 +323,9 @@ setInterval(function mainLoop() {
 	timeLeft = Clone.performActions(timeAvailable);
 
 	let timeUsed = timeAvailable - timeLeft;
-	if (timeUsed > time) {
+	if (timeUsed > time && !isNaN(timeUsed - time)) {
 		timeBanked -= timeUsed - time;
-	} else {
+	} else if (!isNaN(time - timeUsed)){
 		timeBanked += (time - timeUsed) / 2;
 	}
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
