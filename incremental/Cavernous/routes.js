@@ -24,6 +24,7 @@ class Route {
 			this.manaUsed = +(mana.base - mana.current + 0.1).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
+			this.progressBeforeReach = duration - x.remainingPresent / 1000 * (clones.length - this.clonesLost);
 
 			return;
 		}
@@ -53,12 +54,12 @@ class Route {
 	}
 
 	estimateConsumeManaLeft(ignoreInvalidate = false) {
-		let est = getStat("Mana").base - this.manaUsed - this.getConsumeCost() / (clones.length - this.clonesLost);
+		let est = getStat("Mana").base - this.manaUsed - (this.getConsumeCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
 		return !ignoreInvalidate && this.invalidateCost ? est + 100 : est;
 	}
 
 	estimateConsumeTimes() {
-		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost);
+		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost) + this.progressBeforeReach;
 		let times = 0;
 		let cost = this.getConsumeCost(times);
 		while (baseTime + 0.1 * times > cost) {
@@ -68,7 +69,7 @@ class Route {
 	}
 
 	estimateConsumeTimesAtOnce() {
-		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost);
+		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost) + this.progressBeforeReach;
 		let times = 0;
 		let cost = this.getConsumeCost(times);
 		while (baseTime > cost) {
