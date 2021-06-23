@@ -63,18 +63,20 @@ class Zone {
 		mana.current += 0.1;
 	}
 
-	exitZone(){
-		// Replace only routes which are strictly worse than an existing one.
-		this.lastRoute = new ZoneRoute(this);
-		if (!this.routes.some(r => r.isBetter(this.lastRoute))){
-			this.routesChanged = true;
-			for (let i = 0; i < this.routes.length; i++){
-				if (this.lastRoute.isBetter(this.routes[i])){
-					this.routes.splice(i, 1);
-					i--;
+	exitZone(complete = true){
+		if (complete){
+			// Replace only routes which are strictly worse than an existing one.
+			this.lastRoute = new ZoneRoute(this);
+			if (!this.routes.some(r => r.isBetter(this.lastRoute))){
+				this.routesChanged = true;
+				for (let i = 0; i < this.routes.length; i++){
+					if (this.lastRoute.isBetter(this.routes[i])){
+						this.routes.splice(i, 1);
+						i--;
+					}
 				}
+				this.routes.push(this.lastRoute);
 			}
-			this.routes.push(this.lastRoute);
 		}
 		this.display();
 	}
@@ -146,25 +148,35 @@ class Zone {
 			while (parent.firstChild){
 				parent.removeChild(parent.lastChild);
 			}
+			let head = document.createElement("h4");
+			head.innerHTML = "Routes (click to load):";
+			parent.appendChild(head);
 			let routeTemplate = document.querySelector("#zone-route-template");
 			parent.style.display = this.routes.length ? "block" : "none";
 			for (let i = 0; i < this.routes.length; i++){
 				let routeNode = routeTemplate.cloneNode(true);
 				routeNode.removeAttribute("id");
 				routeNode.querySelector(".mana").innerHTML = this.routes[i].mana.toFixed(2);
-				routeNode.querySelector(".stuff").innerHTML = this.routes[i].stuff.map(s => `${s[1]}${getStuff(s[0]).icon}`);
-				routeNode.onclick = this.routes[i].loadRoute.bind(this);
+				let thing;
+				if (this.routes[i].require.length){
+					routeNode.querySelector(".require").innerHTML = this.routes[i].require
+						.map(s => `<span style="color: ${(thing = getStuff(s.name)).colour}">${s.count}${thing.icon}</span>`)
+						.join("") + leftArrowSVG;
+				}
+				routeNode.querySelector(".stuff").innerHTML = this.routes[i].stuff.map(s => `<span style="color: ${(thing = getStuff(s.name)).colour}">${s.count}${thing.icon}</span>`).join("");
+				console.log(this.routes[i].stuff.map(s => `${s.count}${getStuff(s.name).icon}`).join(""))
+				routeNode.onclick = () => this.routes[i].loadRoute(this);
 				parent.appendChild(routeNode);
 			}
 		}
 	}
 }
 
-function moveToZone(zone){
+function moveToZone(zone, complete = true){
 	if (typeof(zone) == "string"){
 		zone = zones.findIndex(z => z.name == zone);
 	}
-	zones[currentZone].exitZone();
+	zones[currentZone].exitZone(complete);
 	currentZone = zone;
 	zones[zone].enterZone();
 }

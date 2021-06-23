@@ -368,7 +368,9 @@ h4#location-name {
 }
 
 .zone .mana {
-	color: #0000ff
+	color: #0000ff;
+	width: 40px;
+	display: inline-block;
 }
 
 .zone > .routes {
@@ -380,13 +382,30 @@ h4#location-name {
 	background: #99bbbb;
 	border: 1px solid #00000033;
 	z-index: 5;
-	pointer-events: none;
 	padding: 2px;
 	color: #000000;
+	cursor: default;
 }
 
 .zone:hover > .routes {
 	visibility: visible;
+}
+
+.routes h4 {
+	margin: 0;
+}
+
+.routes div {
+	cursor: pointer;
+}
+
+.routes div:hover {
+	background-color: #88aaaa;
+}
+
+.routes .require,
+.routes .stuff {
+	display: inline-block;
 }
 
 #map-inner {

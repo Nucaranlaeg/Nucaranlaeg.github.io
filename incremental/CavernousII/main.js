@@ -113,7 +113,7 @@ function resetLoop() {
 			});
 		});
 	});
-	moveToZone(0);
+	moveToZone(0, false);
 	drawMap();
 	save();
 	showFinalLocation();

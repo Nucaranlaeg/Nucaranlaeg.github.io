@@ -26,11 +26,12 @@ class Route {
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
 			this.progressBeforeReach = duration - x.remainingPresent / 1000 * (clones.length - this.clonesLost);
-			this.zoneRequirements = zones.filter((z, i) => i < currentZone).map(z => {
+			this.requirements = zones[currentZone].startStuff.map(s => {
 				return {
-					"mana": z.lastRoute.mana,
-					"stuff": z.lastRoute.stuff,
-				}});
+					"name": s.name,
+					"count": s.count - getStuff(s.name).min,
+				}
+			}).filter(s => s.count > 0);
 
 			return;
 		}
