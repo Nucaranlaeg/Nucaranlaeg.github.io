@@ -117,6 +117,10 @@ body {
 	width: 16px;
 }
 
+svg {
+	pointer-events: none;
+}
+
 .bottom-block {
 	display: inline-block;
 	vertical-align: top;

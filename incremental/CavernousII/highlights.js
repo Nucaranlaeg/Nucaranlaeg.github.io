@@ -13,8 +13,8 @@ function showIntermediateLocation(e){
 
 function showLocationAfterSteps(index, queueNumber, isDraw = false, isHover = false){
 	if (index == -1) return;
-	let x = zones[currentZone].xOffset; y = zones[currentZone].yOffset;
-	[x, y] = getQueueOffset(x, y, queues[queueNumber], index);
+	let x = zones[displayZone].xOffset; y = zones[displayZone].yOffset;
+	[x, y] = getQueueOffset(x, y, zones[displayZone].queues[queueNumber], index);
 	if (x === undefined) return;
 	let target = getMapNode(x, y);
 	if (!target) return;
@@ -42,7 +42,7 @@ function getQueueOffset(x, y, queue, maxIndex){
 			continue;
 		}
 		[x, y] = getActionOffset(x, y, action);
-		if (!hasMapLocation(x, y)) {
+		if (!zones[displayZone].hasMapLocation(x, y)) {
 			return [undefined, undefined];
 		}
 	}
@@ -60,7 +60,7 @@ function getQueueOffsets(x, y, queue){
 			continue;
 		}
 		[x, y] = getActionOffset(x, y, action);
-		if (!hasMapLocation(x, y)) {
+		if (!zones[displayZone].hasMapLocation(x, y)) {
 			positions.push([undefined, undefined]);
 			return positions;
 		}
@@ -73,7 +73,7 @@ function getActionOffset(x, y, action){
 	if (action[0] == "P"){
 		let _;
 		[_, x, y] = action.match(/P(-?\d+):(-?\d+);/);
-		return [+x + zones[currentZone].xOffset, +y + zones[currentZone].yOffset];
+		return [+x + zones[displayZone].xOffset, +y + zones[displayZone].yOffset];
 	}
 	x += (action == "R") - (action == "L");
 	y += (action == "D") - (action == "U");
@@ -91,7 +91,7 @@ function stopHovering(){
 
 function showFinalLocation(isDraw = false){
 	if (selectedQueue[0] !== undefined){
-		showLocationAfterSteps(queues[selectedQueue[0]].length - 1, selectedQueue[0], isDraw);
+		showLocationAfterSteps(zones[displayZone].queues[selectedQueue[0]].length - 1, selectedQueue[0], isDraw);
 	}
 	else if (finalLocation) {
 		finalLocation.classList.remove("final-location");

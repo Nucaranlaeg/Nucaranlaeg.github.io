@@ -91,7 +91,7 @@ class Clone {
 	}
 
 	selectQueueAction(actionIndex, n) {
-		return selectQueueAction(this.id, actionIndex, n);
+		if (currentZone == displayZone) return selectQueueAction(this.id, actionIndex, n);
 	}
 
 	sustainSpells(time) {
@@ -294,13 +294,6 @@ function selectClone(target, event){
 	
 	showCursor();
 	showFinalLocation();
-	// Experimental route-displaying algorithm
-	// if (selectedQueue.length == 1) {
-	// 	let positions = getQueueOffsets(zones[currentZone].xOffset, zones[currentZone].yOffset, queues[selectedQueue[0]]);
-	// 	runExperiment(positions);
-	// } else {
-	// 	runExperiment([]);
-	// }
 }
 
 let clones = [];

@@ -273,7 +273,7 @@ function addActionToQueue(action, queue = null){
 	}
 	if (queues[queue] === undefined) return;
 
-	queues[queue].addActionAt(action, cursor[1]);
+	zones[displayZone].queues[queue].addActionAt(action, cursor[1]);
 
 	scrollQueue(queue, cursor[1]);
 	showCursor();
@@ -351,6 +351,19 @@ function resetQueueHighlight(queue){
 	nodes.forEach(n => n.classList.remove("started"));
 }
 
+function highlightCompletedActions(){
+	for (let i = 0; i < queues.length; i++){
+		let queueBlock = queuesNode.children[i];
+		let queueNode = queueBlock.querySelector('.queue-inner');
+		let nodes = queueNode.children;
+		for (let j = 0; j < queues[i].length; j++){
+			if (queues[i][j][1]) break;
+			nodes[j].classList.add('started');
+			nodes[j].style.backgroundSize = "100%";
+		}
+	}
+}
+
 function selectQueueAction(queue, action, percent){
 	let queueBlock = queuesNode.children[queue];
 	let queueNode = queueBlock.querySelector('.queue-inner');
@@ -392,12 +405,12 @@ function scrollQueue(queue, action = null){
 }
 
 function redrawQueues(){
-	for (let i = 0; i < queues.length; i++){
+	for (let i = 0; i < zones[displayZone].queues.length; i++){
 		let queueNode = document.querySelector(`#queue${i} .queue-inner`);
 		while (queueNode.firstChild) {
 			queueNode.removeChild(queueNode.lastChild);
 		}
-		for (let action of queues[i]){
+		for (let action of zones[displayZone].queues[i]){
 			let node = action.node;
 			queueNode.append(node);
 		}

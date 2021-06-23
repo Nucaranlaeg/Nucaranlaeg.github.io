@@ -1,7 +1,7 @@
 const classMapping = {
 	"█": ["wall", "Solid Rock"],
-	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[currentZone].mapLocations[y][x].type.nextCost(zones[currentZone].mapLocations[y][x].completions, zones[currentZone].mapLocations[y][x].priorCompletions)}`],
-	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[currentZone].mapLocations[y][x].type.nextCost(zones[currentZone].mapLocations[y][x].completions, zones[currentZone].mapLocations[y][x].priorCompletions)}`],
+	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions)}`],
+	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions)}`],
 	".": ["tunnel", "Dug Tunnel"],
 	"#": ["rock", "Rock"],
 	"«": ["granite", "Granite"],
@@ -45,15 +45,12 @@ let mapStain = [];
 
 let visibleX = null, visibleY = null;
 
+// Not a view function; consider moving.
 function getMapLocation(x, y, adj = false, zone = null){
 	if (zone !== null){
 		return zones[zone].getMapLocation(x, y, adj);
 	}
 	return zones[currentZone].getMapLocation(x, y, adj);
-}
-
-function hasMapLocation(x, y) {
-	return zones[currentZone].hasMapLocation(x, y);
 }
 
 let mapNodes = [];
@@ -66,19 +63,19 @@ function drawNewMap() {
 	}
 	let rowTemplate = document.querySelector("#row-template");
 	let cellTemplate = document.querySelector("#cell-template");
-	for (let y = 0; y < zones[currentZone].map.length; y++){
+	for (let y = 0; y < zones[displayZone].map.length; y++){
 		mapNodes[y] = [];
 		let rowNode = rowTemplate.cloneNode(true);
 		rowNode.removeAttribute("id");
 		mapNode.append(rowNode);
-		if (zones[currentZone].mapLocations[y]){
-			for (let x = 0; x < zones[currentZone].map[y].length; x++){
+		if (zones[displayZone].mapLocations[y]){
+			for (let x = 0; x < zones[displayZone].map[y].length; x++){
 				let cellNode = cellTemplate.cloneNode(true);
 				cellNode.removeAttribute("id");
 				cellNode.setAttribute("data-x", x);
 				cellNode.setAttribute("data-y", y);
-				if (zones[currentZone].mapLocations[y][x]) {
-					let [className, descriptor, isStained, descriptorMod] = classMapping[zones[currentZone].map[y][x]];
+				if (zones[displayZone].mapLocations[y][x]) {
+					let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
 					className = className.split(" ");
 					for (let i = 0; i < className.length; i++){
 						cellNode.classList.add(className[i]);
@@ -93,12 +90,7 @@ function drawNewMap() {
 		}
 	}
 	isDrawn = true;
-	for (let i = 0; i < clones.length; i++){
-		let clone = clones[i];
-		let node = mapNodes[clone.y + zones[currentZone].yOffset][clone.x + zones[currentZone].xOffset];
-		node.classList.add("occupied");
-		clone.occupiedNode = node;
-	}
+	displayClones();
 	mapStain = [];
 }
 
@@ -106,7 +98,7 @@ let isDrawn = false;
 
 function drawCell(x, y) {
 	let cell = mapNodes[y][x];
-	let [className, descriptor, isStained, descriptorMod] = classMapping[zones[currentZone].map[y][x]];
+	let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
 	cell.className = className;
 	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
@@ -116,20 +108,28 @@ let mapNode;
 function drawMap() {
 	if (!isDrawn) drawNewMap();
 	
-	mapDirt.forEach(([x,y]) => drawCell(x, y));
-	mapDirt = [];
-	mapStain.forEach(([x,y]) => drawCell(x, y));
-	
+	if (currentZone == displayZone){
+		mapDirt.forEach(([x,y]) => drawCell(x, y));
+		mapDirt = [];
+		mapStain.forEach(([x,y]) => drawCell(x, y));
+	}
+
 	mapNode = mapNode || document.querySelector("#map-inner");
 	clampMap();
-	for (let i = 0; i < clones.length; i++){
-		let clone = clones[i];
-		clone.occupiedNode && clone.occupiedNode.classList.remove("occupied");
-		let node = mapNodes[clone.y + zones[currentZone].yOffset][clone.x + zones[currentZone].xOffset];
-		node.classList.add("occupied");
-		clone.occupiedNode = node;
-	}
+	displayClones();
 	showFinalLocation(true);
+}
+
+function displayClones(){
+	if (currentZone == displayZone){
+		for (let i = 0; i < clones.length; i++){
+			let clone = clones[i];
+			clone.occupiedNode && clone.occupiedNode.classList.remove("occupied");
+			let node = mapNodes[clone.y + zones[displayZone].yOffset][clone.x + zones[displayZone].xOffset];
+			node.classList.add("occupied");
+			clone.occupiedNode = node;
+		}
+	}
 }
 
 function clampMap() {
@@ -137,9 +137,9 @@ function clampMap() {
 	let xMax = -999;
 	let yMin = 999;
 	let yMax = -999;
-	for (let y = 0; y < zones[currentZone].mapLocations.length; y++) {
-		for (let x = 0; x < zones[currentZone].mapLocations[y].length; x++) {
-			if (zones[currentZone].mapLocations[y][x]) {
+	for (let y = 0; y < zones[displayZone].mapLocations.length; y++) {
+		for (let x = 0; x < zones[displayZone].mapLocations[y].length; x++) {
+			if (zones[displayZone].mapLocations[y][x]) {
 				xMin = Math.min(xMin, x);
 				xMax = Math.max(xMax, x);
 				yMin = Math.min(yMin, y);
@@ -191,8 +191,8 @@ function setMined(x, y, icon){
 function viewCell(e){
 	let x = e.target.getAttribute("data-x"), y = e.target.getAttribute("data-y");
 	let type = [...e.target.classList].find(x => x !== "occupied" && x !== "final-location");
-	if (zones[currentZone].mapLocations[y] && zones[currentZone].mapLocations[y][x]){
-		let location = zones[currentZone].mapLocations[y][x];
+	if (zones[displayZone].mapLocations[y] && zones[displayZone].mapLocations[y][x]){
+		let location = zones[displayZone].mapLocations[y][x];
 		for (const icon in classMapping){
 			if (classMapping[icon][0] == type){
 				type = getLocationType(getLocationTypeBySymbol(icon));
@@ -211,11 +211,11 @@ function viewCell(e){
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
 				}
-				visibleX = x - zones[currentZone].xOffset;
-				visibleY = y - zones[currentZone].yOffset;
+				visibleX = x - zones[displayZone].xOffset;
+				visibleY = y - zones[displayZone].yOffset;
 				if ((type.name == "Mana-infused Rock" || type.name == "Mana Spring")) {
 					document.querySelector("#location-route").hidden = true;
-					let route = getBestRoute(visibleX, visibleY, currentZone);
+					let route = getBestRoute(visibleX, visibleY, displayZone);
 					if (route) {
 						route.showOnLocationUI();
 					} else {
@@ -237,11 +237,11 @@ function getMapNode(x, y) {
 }
 
 function getOffsetMapNode(x, y) {
-	return getMapNode(x + zones[currentZone].xOffset, y + zones[currentZone].yOffset);
+	return getMapNode(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
 }
 
 function getMapTile(x, y) {
-	return zones[currentZone].map[y] && zones[currentZone].map[y][x];
+	return zones[displayZone].map[y] && zones[displayZone].map[y][x];
 }
 
 function displayCreatureHealth(creature){

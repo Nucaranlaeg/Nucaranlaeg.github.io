@@ -1,4 +1,5 @@
 let currentZone = 0;
+let displayZone = 0;
 
 class Zone {
 	constructor(name, map, challengeReward = null){
@@ -142,7 +143,13 @@ class Zone {
 		}
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".mana").innerHTML = `+${this.manaGain}`;
-		this.onclick = () => {throw "VIEWING OTHER MAPS NOT IMPLEMENTED"};
+		this.node.onclick = () => {
+			displayZone = zones.findIndex(z => z.name == this.name);
+			isDrawn = false;
+			drawMap();
+			redrawQueues();
+			if (currentZone == displayZone) highlightCompletedActions();
+		};
 		if (this.routesChanged){
 			let parent = this.node.querySelector(".routes");
 			while (parent.firstChild){
@@ -177,6 +184,7 @@ function moveToZone(zone, complete = true){
 		zone = zones.findIndex(z => z.name == zone);
 	}
 	zones[currentZone].exitZone(complete);
+	if (currentZone == displayZone) displayZone = zone;
 	currentZone = zone;
 	zones[zone].enterZone();
 }
