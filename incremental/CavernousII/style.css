@@ -1,0 +1,968 @@
+:root {
+	--cell-size: 12px;
+}
+
+body {
+	padding: 10px;
+	background: #aacccc;
+}
+
+#templates {
+	display: none;
+}
+
+.version {
+	text-align: center;
+	font-size: 10px;
+	position: absolute;
+	bottom: 0;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.block {
+	border: 1px solid #00000033;
+	display: inline-block;
+	padding: 2px;
+	text-align: center;
+	position: relative;
+}
+
+.block-row:not([hidden]), .block-row.option {
+	border: 1px solid #00000033;
+	display: flex;
+	padding: 2px;
+	text-align: center;
+	/* position: relative; */
+	height: auto;
+	justify-content: space-evenly;
+}
+
+#stats {
+	z-index: -1;
+}
+
+.stat {
+	height: 20px;
+	width: 194px;
+}
+
+.stat > .name {
+	float: left;
+}
+
+.stat > .effect {
+	float: right;
+}
+
+.stat > .index {
+	float: right;
+}
+
+.option {
+	height: 20px;
+	width: 194px;
+}
+
+.small-option {
+	width: 21px;
+}
+
+.small-option .svg {
+	width: 20px;
+}
+
+.option-row {
+	position: relative;
+}
+
+.option-row > .block.option {
+	position: static;
+}
+
+.option.option--half-width {
+	width: 46%;
+}
+
+.option.option-highlighted {
+	background: #ffff0077;
+}
+
+.option.double-height {
+	height: 40px;
+}
+
+.action {
+	line-height: 20px;
+	min-width: 16px;
+	user-select: none;
+	text-align: center;
+	background-clip: content-box;
+	box-sizing: border-box;
+	width: 16px;
+	background: linear-gradient(#01322066,#01322066);
+	background-repeat: no-repeat;
+}
+
+.action.started {
+	/* background-color: #01322066; */
+}
+
+.action:not(.started) {
+	background: transparent;
+	transition: background-color 0.4s;
+}
+
+.character {
+	width: 16px;
+}
+
+.bottom-block {
+	display: inline-block;
+	vertical-align: top;
+	width: 100%;
+	height: auto;
+	box-sizing: border-box;
+	border: 1px solid #00000077;
+	border-radius: 5px;
+	padding: 0 2px;
+	margin: 1px 0;
+	position: relative;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: thin;
+	scrollbar-color: #88aaaa #aacccc;
+	white-space: nowrap;
+}
+
+.bottom-block.saved-queue.drop-below {
+	border-bottom: 2px solid;
+	margin-bottom: 0;
+}
+
+.bottom-block.saved-queue.drop-above {
+	border-top: 2px solid;
+	margin-top: 0;
+}
+
+#saved-queues .bottom-block > *,
+#saved-queues .bottom-block > *,
+#saved-queues .bottom-block > *,
+#saved-queues .bottom-block > * {
+	height: 16px;
+	vertical-align: bottom;
+}
+
+.bottom-block::-webkit-scrollbar {
+	height: 8px;
+}
+
+.bottom-block::-webkit-scrollbar-thumb {
+	background-color: #88aaaa;
+}
+
+.queue-inner {
+	display: inline-flex;
+	flex-direction: row;
+	min-width: calc(100% - 120px);
+	padding-right: 16px;
+}
+
+.queue-time {
+	/* display: inline-block; */
+	/* width: 130px; */
+	/* text-align: center; */
+	/* position: sticky; */
+	/* margin-top: -3px; */
+	/* right: 100px; */
+	/* background-color: #aaccccd0; */
+	/* font-size: 0; */
+	position: absolute;
+	bottom: 6px;
+	right: 8px;
+}
+
+.queue-time #time-spent {font-family: "Lucida Console", monospace;font-size: 14px;min-width: 3.1em;display: inline-block;text-align: right;font-variant-numeric: tabular-nums;}
+
+#queues {
+	margin-top: 10px;
+	/* will-change: opacity; */
+}
+
+.queue {
+	user-select: none;
+}
+
+.selected-clone,
+.saved-queue:focus {
+	border-color: #008000aa;
+	background-color: #00ff0056;
+}
+
+.queue > span {
+	flex: 1;
+}
+
+.queue > .name {
+	flex: 2;
+}
+
+.stuff {
+	display: none;
+	width: 100%;
+	user-select: none;
+}
+
+#stuff-inner {
+	column-count: 3;
+	column-gap: 8px;
+	width: 194px;
+	position: relative;
+}
+
+.block.stuff {
+	position: static;
+}
+
+.block > .description {
+	visibility: hidden;
+	position: absolute;
+	margin-top: 7px;
+	left: 5px;
+	width: 180px;
+	background: #99bbbb;
+	border: 1px solid #00000033;
+	z-index: 5;
+	pointer-events: none;
+	padding: 2px;
+	color: #000000;
+}
+
+.small-option.block > .description {
+	left: unset;
+	right: 0;
+	width: auto;
+	white-space: nowrap;
+	bottom: 100%;
+	margin-bottom: 3px;
+}
+
+.block > .big-description {
+	width: 360px;
+}
+
+.block.stuff > .description {
+	top: calc(100% + 3px);
+	backface-visibility: hidden;
+}
+
+.block:hover:not(.dragging) .description {
+	visibility: visible;
+}
+
+.progress-indicator {
+	width: 0;
+	height: 100%;
+	background-color: #00000012;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.stuff .name {
+	font-size: 12px;
+}
+
+.current-action {
+	border: 2px solid #008000;
+	margin-top: -1px;
+	margin-left: -1px;
+}
+
+.drag-highlight-top {
+	border-top-color: #800000;
+}
+
+.drag-highlight-bottom {
+	border-bottom-color: #800000;
+}
+
+.action .name {
+	font-size: 0.9em;
+}
+
+.clickable {
+	cursor: pointer;
+}
+
+.half-width {
+	width: 46%;
+}
+
+#add-count {
+	width: 50px;
+	margin-top: -1px;
+}
+
+.vertical-blocks {
+	display: flex;
+	justify-content: space-between;
+	position: relative;
+	z-index: 1;
+}
+
+.vertical-block {
+	/* will-change: opacity; */
+	flex-shrink: 0;
+	width: 200px;
+	height: 600px;
+	border: 2px solid #00000077;
+	border-radius: 5px;
+	padding: 2px;
+	position: relative;
+	user-select: none;
+}
+
+.bottom-vertical-block {
+	position: absolute;
+	bottom: 2px;
+}
+
+.wide {
+	/* width: 500px; */
+	width: auto;
+	flex-grow: 0.5;
+}
+
+h3, h4 {
+	text-align: center;
+}
+
+h4#location-name {
+	padding: 0;
+	margin: 0;
+}
+
+#map {
+	padding: 2px 0 0px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+#zone-select {
+	white-space: nowrap;
+	overflow-x: scroll;
+	scrollbar-width: thin;
+	scrollbar-color: #5b6d6d #aacccc;
+}
+
+.zone {
+	display: inline-block;
+	padding: 2px;
+	cursor: pointer;
+}
+
+.zone:not(:first-child) {
+	border-left: 1px solid #5b6d6d;
+}
+
+.zone .mana {
+	color: #0000ff
+}
+
+.zone > .routes {
+	visibility: hidden;
+	position: absolute;
+	margin-top: -2px;
+	left: 5px;
+	width: 180px;
+	background: #99bbbb;
+	border: 1px solid #00000033;
+	z-index: 5;
+	pointer-events: none;
+	padding: 2px;
+	color: #000000;
+}
+
+.zone:hover > .routes {
+	visibility: visible;
+}
+
+#map-inner {
+	border-collapse: collapse;
+	table-layout: fixed;
+	/* width: calc(12px * 45); */
+	font-size: var(--cell-size);
+	align-self: center;
+}
+
+td {
+	width: 1em;
+	height: 1em;
+	position: relative;
+	line-height: 1;
+	padding: 0;
+	font-size: inherit;
+}
+
+body.test-16px td {
+	width: 16px;
+	height: 16px;
+	font-size: 16px;
+}
+
+td.occupied:before {
+	border: 0.1em solid rgb(255, 0, 0);
+	outline: 0.05em solid red;
+	/* width: 14px; */
+	/* height: 14px; */
+	/* margin-left: -2px; */
+	/* top: -1px; */
+	/* left: -1px; */
+	z-index: 10;
+	content: " ";
+}
+
+td.final-location:before,
+td.hover-location:before {
+	border: 0.1em solid #0000ff;
+	outline: 0.05em solid blue;
+	width: 100%;
+	height: 100%;
+	/* margin-left: -2px; */
+	/* top: 0;*/
+	/* left: 0; */
+	z-index: 10;
+	content: " ";
+	box-sizing: border-box;
+	/* line-height: 0.1; */
+}
+
+td.hover-location:before {
+	border-color: #ff00ff;
+}
+
+body.test-16px td.occupied:before,
+body.test-16px td.final-location:before,
+body.test-16px td.hover-location:before {
+	border-width: 2px;
+}
+
+td.wall {
+	/* background-color: #000000; */
+	background: repeating-linear-gradient(45deg, #000000, #000000 1px, #ffffff66 1px, #666666 2px);
+}
+
+td.tunnel {
+	background-color: #eeeeee;
+}
+
+td.rock {
+	background-color: #a52a2a;
+}
+
+td.granite {
+	background-color: #ce9d84;
+}
+
+td.gold {
+	background-color: #ffd700;
+}
+
+td.mana,
+td.mined-mana {
+	background-color: #2a78a5;
+}
+
+td.mined-mana:before {
+	content: "*";
+}
+
+td.clone-machine {
+	background-color: #9acd32;
+}
+
+td.iron {
+	background-color: #777777;
+}
+
+td.furnace,
+td.furnace2 {
+	background-color: #777777;
+}
+
+td.furnace:before,
+td.furnace2:before {
+	content: "#";
+	/* top: -1px; */
+}
+
+td.vaporizer {
+	background-color: #9acd32;
+}
+
+td.vaporizer:before {
+	content: "#";
+ 	/* top: -1px; */
+}
+
+td.fountain {
+	background-color: #008000;
+}
+
+td.fountain:before {
+	content: "+";
+ 	/* top: -1px;*/
+	/* left: 1px; */
+	font-weight: bolder;
+}
+
+td.bridge,
+td.bridge2,
+td.sword,
+td.sword2,
+td.shield,
+td.shield2,
+td.armour,
+td.armour2 {
+	background-color: #444444;
+}
+
+td.bridge:before,
+td.bridge2:before {
+	content: "⎶";
+	/* top: -1px; */
+	/* left: 0px; */
+}
+
+td.sword:before,
+td.sword2:before {
+	content: "⚔";
+	/* top: -1px; */
+	/* left: 0px; */
+}
+
+td.shield:before,
+td.shield2:before {
+	content: "⛨";
+	/* top: 0px; */
+	/* left: 0px; */
+	font-size: 0.916em;
+	padding-top: 15%;
+	padding-left: 6%;
+}
+
+td.armour:before,
+td.armour2:before {
+	content: "]";
+	/* top: -1px; */
+	/* left: 4px; */
+	font-size: 0.833em;
+	font-weight: bold;
+	padding-bottom: 0.2em;
+}
+
+td.pit {
+	background-color: #000000;
+}
+
+td.lava {
+	background-color: #ff0000;
+}
+
+td.lava:before {
+	content: "~";
+	/* top: 1px;*/
+	/* left: 1px; */
+	font-size: 1.416em;
+	text-shadow: 0px -4px 0px black;
+	line-height: 0.1;
+}
+
+td.book {
+	background-color: #c99868;
+}
+
+td.book:before {
+	content: "🕮";
+	/* top: 0px;*/
+	/* left: 0px; */
+	font-size: 0.9em;
+}
+
+td.rune-weak,
+td.rune-to,
+td.rune-from,
+td.rune-dup {
+	background-color: #c99868;
+}
+
+td.rune-weak:before {
+	content: "W";
+}
+
+td.rune-to:before {
+	content: "T";
+}
+
+td.rune-from:before {
+	content: "F";
+}
+
+td.rune-dup:before,
+td.rune-dup-charged:before {
+	content: "D";
+}
+td.rune-dup-charged {
+	background-color: #c9ff68
+}
+
+td.chieftain {
+	background-color: #cc0000;
+}
+
+td.goblin {
+	background-color: #ff0000;
+}
+
+td.hobgoblin {
+	background-color: #cc0000;
+}
+
+td.champion {
+	background-color: #550000;
+}
+
+td.chieftain:before,
+td.hobgoblin:before,
+td.champion:before,
+td.goblin:before {
+	content: "웃";
+	font-size: 0.91666em;
+}
+
+td.hobgoblin:before {
+	text-shadow: 0 0 1px;
+}
+
+.enemy-hp {
+	background-color: #008f0080;
+	height: 33%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+td.coal {
+	background-color: #222222;
+}
+
+td.coal:before {
+	content: "○";
+	color: #ffffff;
+	font-size: 1.166em;
+	padding-bottom: 10%;
+}
+
+td.zone {
+	background-color: #3939ff;
+}
+
+td.zone:before {
+	content: "Θ";
+	color: #1d8d1d;
+	font-size: 1.166em;
+	padding-bottom: 10%;
+}
+
+td.challenge {
+	background-color: #17ac17;
+}
+
+td.challenge:before {
+	content: "√";
+	color: #1a461a;
+	font-size: 1.166em;
+	padding-bottom: 10%;
+}
+
+td::before {
+	position: absolute;
+	top: 0;
+	left: 0;
+	text-align: center;
+	height: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	/* border: 2px solid transparent; */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+td:after {
+	padding: 2px;
+	display: none;
+	position: absolute;
+	top: 2px;
+	left: 10px;
+	width: max-content;
+	background-color: #fef4c5;
+	border: 1px solid #d4b943;
+	border-radius: 2px;
+	z-index: 15;
+	pointer-events: none;
+	content: attr(data-content);
+	font-size: 16px;
+}
+
+td:hover:after {
+	display: block;
+}
+
+#message-box {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #00000099;
+	z-index: 100;
+}
+
+#message-wrapper {
+	position: absolute;
+	top: 30%;
+	left: 30%;
+	right: 30%;
+	width: 30%;
+	background-color: #aacccc;
+	padding: 10px;
+	border-radius: 20px;
+	border: 2px solid #00000044;
+	text-align: center;
+}
+
+.message-link {
+	cursor: pointer;
+}
+
+.queue-buttons {
+	position: sticky;
+	display: inline-block;
+	right: 2px;
+	z-index: 15;
+}
+
+.queue-buttons .button {
+	border-radius: 5px;
+	border: none;
+	margin-top: -3px;
+}
+
+.damage, .work-progress {
+	background-color: #ff0000aa;
+	position: sticky;
+	left: 0;
+	top: 0px;
+	pointer-events: none;
+	height: 3px;
+	z-index: 30;
+	opacity: 1;
+	transition: opacity 0.4s;
+}
+
+.damage[style*="100%"] {
+	opacity: 0;
+}
+.work-progress {
+	background-color: #0000ff55;
+	width: 0%;
+	transition: opacity 0.35s 0.05s;
+}
+
+.work-progress[style*=" 0%"] {
+	opacity: 0;
+	transition: opacity 0s;
+}
+
+.dead-clone {
+	background-color: #ff000055;
+}
+
+.dead-clone.selected-clone {
+	background-color: #ff450055;
+}
+
+.out-of-mana {
+	background-color: #607d8b55;
+	transition: background-color 0.4s;
+}
+
+#saved-queues {
+	margin-top: 10px;
+	padding: 5px 10px 5px 5px;
+	border: 1px solid #999;
+	border-radius: 10px;
+	user-select: none;
+}
+
+#saved-queues-inner {
+	will-change: opacity;
+}
+
+.saved-queue .queue-inner {
+	min-width: calc(100% - 212px);
+}
+
+.saved-name {
+	width: 100px;
+	height: 23px;
+	margin-top: -2px;
+	border: none;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 5px;
+	margin-left: -2px;
+	text-align: center;
+}
+
+.icon-select {
+	border: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	height: 20px;
+	width: 20px;
+	vertical-align: top;
+}
+
+.colour-select {
+	display: inline-block;
+	margin-top: -2px;
+	height: 24px;
+	width: 24px;
+	border: none;
+	padding: 0;
+	vertical-align: top;
+}
+
+.cursor {
+	display: none;
+	height: 100%;
+	width: 2px;
+	background-color: black;
+	position: absolute;
+	top: 0;
+}
+
+.cursor.visible {
+	display: block;
+	animation-name: blink;
+	animation-duration: 2s;
+	animation-iteration-count: infinite;
+}
+
+@keyframes blink {
+	from {opacity: 1;}
+	to {opacity: 0.5;}
+}
+
+#runes,
+#spells {
+	/* display: none; */
+}
+
+#runes h3, div#spells h3, .bottom-vertical-block h3 {margin: 0.5em;}
+
+#runes.active-pane,
+#spells.active-pane {
+	display: block;
+}
+
+.rune-spell-toggle {
+	display: none;
+}
+
+.not-available {
+	background-color: #ff000055;
+}
+
+#search-saved {
+	margin-bottom: 2px;
+}
+
+
+
+
+
+.bottom-block:not(:hover)>.queue-buttons {
+	/* right: -100px; */
+	/* transition: right 0.4s 1s; */
+	opacity: 0;
+}
+
+.queue-buttons {
+	/* transition: opacity 0.4s; */
+}
+
+.bottom-block:not(:hover)>.queue-time {
+	right: 4px;
+	transition: right 0.4s 1s;
+}
+
+.queue-time {
+	/* transition: right 0.4s; */
+	/* white-space: nowrap; */
+}
+
+.hidden-action,
+.block-row.hidden-action {
+	display: none;
+}
+
+/*******
+ * testing t2 ^ icons 
+ *******/
+
+/* ^ triangle */
+.test1 td.furnace2:not(:hover):after,
+.test1 td.bridge2:not(:hover):after,
+.test1 td.sword2:not(:hover):after,
+.test1 td.armour2:not(:hover):after {
+	/* border: 2px solid red; */
+	border-color: transparent transparent red transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	display: block;
+	border-radius: 0;
+	left: unset;
+	top: 0;
+	padding: 0;
+	background: transparent;
+	border-width: 0px 2px 4px 2px;
+	right: 0;
+	z-index: 10;
+}
+
+/* RU triangle */
+.test2 td.furnace2:not(:hover):after,
+.test2 td.bridge2:not(:hover):after,
+.test2 td.sword2:not(:hover):after,
+.test2 td.armour2:not(:hover):after {
+	border-color: red red transparent transparent;
+	border-width: 2px 2px 2px 2px;
+	left: unset;
+	right: 0;
+}
+
+/* LU triangle */
+.test3 td.furnace2:not(:hover):after,
+.test3 td.bridge2:not(:hover):after,
+.test3 td.sword2:not(:hover):after,
+.test3 td.armour2:not(:hover):after {
+	border-color: red transparent transparent red;
+	border-width: 2px 2px 2px 2px;
+	right: unset;
+	left: 0;
+}

@@ -1,0 +1,331 @@
+<meta charset="UTF-8">
+<head>
+	<title>Cavernous</title>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<script type="text/javascript" defer src="icons.js"></script>
+	<script type="text/javascript" defer src="settings.js"></script>
+	<script type="text/javascript" defer src="stats.js"></script>
+	<script type="text/javascript" defer src="actions.js"></script>
+	<script type="text/javascript" defer src="creatures.js"></script>
+	<script type="text/javascript" defer src="location_types.js"></script>
+	<script type="text/javascript" defer src="locations.js"></script>
+	<script type="text/javascript" defer src="zone_routes.js"></script>
+	<script type="text/javascript" defer src="zones.js"></script>
+	<script type="text/javascript" defer src="map.js"></script>
+	<script type="text/javascript" defer src="routes.js"></script>
+	<script type="text/javascript" defer src="queues.js"></script>
+	<script type="text/javascript" defer src="saved_queues.js"></script>
+	<script type="text/javascript" defer src="highlights.js"></script>
+	<script type="text/javascript" defer src="stuff.js"></script>
+	<script type="text/javascript" defer src="spells.js"></script>
+	<script type="text/javascript" defer src="runes.js"></script>
+	<script type="text/javascript" defer src="clones.js"></script>
+	<script type="text/javascript" defer src="messages.js"></script>
+	<!-- <script type="text/javascript" defer src="experiment.js"></script> -->
+	
+	<script type="text/javascript" defer src="main.js"></script>
+</head>
+<body>
+	<div id="templates">
+		<div id="stat-template" class="stat block">
+			<span class="name"></span>
+			<span class="icon"></span>
+			<span class="effect"></span>
+			<div class="description"></div>
+		</div>
+		<div id="rune-template" class="stat block">
+			<span class="name"></span>
+			<span class="icon"></span>
+			<span class="index"></span>
+			<div class="description"></div>
+		</div>
+		<div id="spell-template" class="stat block spell">
+			<span class="name"></span>
+			<span class="icon"></span>
+			<span class="index"></span>
+			<div class="description"></div>
+		</div>
+		<div id="stuff-template" class="stuff block">
+			<div class="name"></div>
+			<span class="count"></span>
+			<span class="icon"></span>
+			<div class="stuff-cut">
+				<span class="count2"></span>
+				<span class="icon2"></span>
+			</div>
+			<div class="description"></div>
+		</div>
+		<div id="action-template" class="action" onmouseover="showIntermediateLocation(event)" onmouseout="stopHovering()" onclick="setCursor(event, this)">
+			<div class="character"></div>
+		</div>
+		<table>
+			<tr id="row-template"></tr>
+			<tr>
+				<td id="cell-template"></td>
+			</tr>
+		</table>
+		<div id="queue-template" class="bottom-block" onclick="selectClone(this, event)" ondrop="savedQueueDrop(event, this)" ondragover="queueDragOver(event)">
+			<div class="damage" style="width: 100%;"></div>
+			<div class="queue-inner" onclick="maybeClearCursor(event, this)"></div>
+			<div class="queue-buttons">
+				<span class="button" onclick="saveQueue(this)">Save</span>
+				<span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</span>
+			</div>
+			<div class="cursor"></div>
+			<div class="work-progress"></div>
+		</div>
+		<div id="zone-template" class="zone">
+			<div class="name"></div>
+			<div class="mana"></div>
+			<div class="routes"></div>
+		</div>
+		<div id="zone-route-template">
+			<span class="mana"></span>
+			<span class="stuff"></span>
+		</div>
+		<div id="saved-queue-template"
+			 class="bottom-block saved-queue"
+			 tabindex="-1"
+			 draggable="true"
+			 onclick="selectSavedQueue(event, this)"
+			 ondblclick="insertSavedQueue(event, this)"
+			 ondragstart="startSavedQueueDrag(event, this)"
+			 ondrop="savedQueueMove(event, this)"
+			 ondragover="savedQueueDragOver(event, this)"
+			 ondragleave="savedQueueDragOut(this)"
+			 >
+			<input class="saved-name" onchange="setSavedQueueName(this)">
+			<select class="icon-select" onchange="setSavedQueueIcon(this)"></select>
+			<input type="color" class="colour-select" onchange="setSavedQueueColour(this)">
+			<div class="queue-inner"></div>
+			<div class="queue-buttons"><span class="button" onclick="deleteSavedQueue(this)">Delete</span></div>
+		</div>
+		<div id="message-link-template" class="message-link" onclick="viewMessage(event, this)"></div>
+	</div>
+	<div class="vertical-blocks">
+		<div id="options" class="vertical-block">
+			<h3>Options</h3>
+			<div id="options-inner">
+				<div class="option block clickable" onclick="toggleBankedTime()">
+					<span id="time-banked-toggle">Using</span> Time (B)
+					<span id="time-banked">0</span>
+					<div class="description">If you're offline or your computer runs slowly, time is banked (at 50% efficiency) - you can use it to speed up the game!</div>
+				</div>
+				<div class="option block clickable" onclick="toggleRunning()">
+					<span id="running-toggle">Running</span> (P)
+					<div class="description">Pause the game to more easily adjust your queue.</div>
+				</div>
+				<div class="option block clickable" onclick="toggleAutoRestart()">
+					<span id="auto-restart-toggle">Wait when any complete</span> (<span id="auto-restart-key">W</span>)
+					<div class="description">Restart to improve your skills when the queue is empty.</div>
+				</div>
+				<div class="option block clickable" onclick="resetLoop()">
+					<span class="name">Travel back in time (R)</span>
+					<div class="description">Return to your little room.</div>
+				</div>
+				<div class="option block clickable" onclick="viewMessages()">
+					<span class="name">View messages</span>
+					<div class="description">Reminisce about the 'story'.</div>
+				</div>
+				<div class="option block clickable" onclick="toggleGrindMana()" ondblclick="Route.invalidateRouteCosts()">
+					<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
+					<div class="description">
+						Loops through your best paths to each mana rock.<br>
+						Double click to revisit all known mana rocks.
+					</div>
+				</div>
+				<div class="option block clickable" onclick="toggleUseWASD()">
+					<span id="use-wasd-toggle">Use WASD</span>
+					<div class="description">Some people.</div>
+				</div>
+				<div class="block">
+					Mouse over to see key bindings.
+					<div class="description big-description">
+						Arrow keys to move<br>
+						Space to act at your location<br>
+						Backspace removes a command<br>
+						1-3 to inscribe a rune<br>
+						Ctrl-backspace clears the whole queue<br>
+						Tab selects the next clone<br>
+						Drag from a saved queue to add to an active queue<br>
+						Ctrl-drag adds all the actions instead.
+					</div>
+				</div>
+				<div class="option block clickable" onclick="save()">
+					<span class="name">Manually Save</span>
+					<div class="description">The game automatically saves every time a reset occurs.</div>
+				</div>
+				<div class="option block clickable" ondblclick="deleteSave()">
+					<span class="name">Clear Save (double click)</span>
+					<div class="description">Are you sure you want to restart the game?</div>
+				</div>
+				<div class="option-row">
+					<div class="option block clickable option--half-width" onclick="exportGame()">
+						<span class="name">Export</span>
+						<div class="description">This will put your save on your clipboard.</div>
+					</div>
+					<div class="option block clickable option--half-width" onclick="importGame()">
+						<span class="name">Import</span>
+						<div class="description">Paste your save in the box.</div>
+					</div>
+				</div>
+				<div class="option-row">
+					<div class="option block clickable option--half-width" onclick="exportQueues()">
+						<span class="name">Export Queue</span>
+						<div class="description">This will put your current queues on your clipboard.</div>
+					</div>
+					<div class="option block clickable option--half-width" onclick="importQueues()">
+						<span class="name">Import Queue</span>
+						<div class="description">Paste queues in the box.</div>
+					</div>
+				</div>
+			</div>
+			<div class="version" title="Developers: Nucaranlaeg, Dimava, Gnomez">
+				<a href="https://discord.gg/EXAHXBr">Discord</a><br>
+				Version <span id="version">2.0.0</span><br>
+				©2020
+			</div>
+		</div>
+		<div id="stats" class="vertical-block">
+			<h3>Stats</h3>
+			<div class="queue-time">
+				Time spent: <span id="time-spent">0</span>s
+			</div>
+		</div>
+		<div id="stuff" class="vertical-block">
+			<h3>Stuff</h3>
+			<div id="stuff-inner"></div>
+			<div id="runes">
+				<hr>
+				<h3 title="Press the rune's number to insert it into your queue.">Runes</h3>
+			</div>
+			<div id="spells">
+				<hr>
+				<h3 title="Press ctrl and the spell's number to insert it into your queue.">Spells</h3>
+			</div>
+		</div>
+		<div id="map" class="vertical-block wide" onclick="viewCell(event)">
+			<!-- <canvas id="mapCanvas" style="position:absolute;z-index:5;width:10px;height:10px;"></canvas> -->
+			<h3>Map</h3>
+			<div id="zone-select"></div>
+			<table id="map-inner"></table>
+		</div>
+		<div id="location" class="vertical-block">
+			<h3>Selected Location</h3>
+			<h4 id="location-name"></h4>
+			<div id="location-description"></div>
+			<div id="location-next"></div>
+			<div id="location-route">
+				<button id="route-button" class="button" onclick="loadRoute()">
+					Load best route to this rock
+					<input type="hidden" id="x-loc">
+					<input type="hidden" id="y-loc">
+				</button>
+				<div id="route-has-route">
+					Route time: <span id="route-best-time"></span>s<br>
+					Mana used: <span id="route-best-mana-used"></span><br>
+					Clones lost: <span id="route-best-clones-lost"></span><br>
+					Est. mana left: <span id="route-best-mana-left"></span>s<br>
+					Probably 
+						<span id="route-best-unminable" hidden>cannot be consumed</span>
+						<span id="route-best-minable">can be consumed about <u>123</u> times<span hidden></span></span>
+					right now<br>
+					<span id="route-best-invalidated" hidden>Route values wil be reset on the next visit.</span>
+				</div>
+				<div id="route-not-visited">
+					There is no known routes to this location.
+				</div>
+			</div>
+			<button id="pathfind-button" onclick="keyFunctions.KeyF()">Pathfind Here (F)</button>
+			<div class="bottom-vertical-block">
+				<hr>
+				<h3>Actions</h3>
+				<div class="block-row">
+					<div class="small-option block clickable" onclick="addActionToQueue('U')">
+						<span id="add-action-up">🡅</span>
+						<div class="description">Move up</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('L')">
+						<span id="add-action-left">🡄</span>
+						<div class="description">Move left</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('D')">
+						<span id="add-action-down">🡇</span>
+						<div class="description">Move down</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('R')">
+						<span id="add-action-right">🡆</span>
+						<div class="description">Move right</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('I')">
+						<span id="add-action-interact">🞇</span>
+						<div class="description">Interact</div>
+					</div>
+				</div>
+				<div class="block-row hidden-action">
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit1()">
+						<span id="add-action-weaken">W</span>
+						<div class="description">Weaken Rune</div>
+					</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit2()">
+						<span id="add-action-teleport-to">T</span>
+						<div class="description">Teleport To Rune</div>
+					</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit3()">
+						<span id="add-action-teleport-from">F</span>
+						<div class="description">Teleport From Rune</div>
+					</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit4()">
+						<span id="add-action-duplication">D</span>
+						<div class="description">Duplication Rune</div>
+					</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions['>Digit1']()">
+						<span id="add-action-arcane-shield">A</span>
+						<div class="description">Arcane Shield Spell</div>
+					</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions['>Digit2']()">
+						<span id="add-action-mystic-blade">M</span>
+						<div class="description">Mystic Blade Spell</div>
+					</div>
+				</div>
+				<div class="block-row">
+					<div class="small-option block clickable" onclick="keyFunctions['^KeyA']()">
+						<span id="add-action-interact">All</span>
+						<div class="description">Select all</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions.Backspace()">
+						<span id="add-action-interact">&lt;=</span>
+						<div class="description">Erase</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions['^Backspace']()">
+						<span id="add-action-interact">X</span>
+						<div class="description">Clear</div>
+					</div>
+				</div>
+				<div class="option block clickable" onclick="addActionToQueue('<')">
+					<span id="repeat-last-action">Repeat following action(s)</span>
+					<div class="description">Repeat all actions after this action.</div>
+				</div>
+				<div class="option block clickable" onclick="addActionToQueue('=')">
+					<span id="sync-clones">Sync Clones</span> (=)
+					<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="queues"></div>
+	<div id="saved-queues">
+		<div>
+			Search saved queues:
+			<input id="search-saved" onkeyup="filterSaved(this)" />
+			<button id="save-all" onclick="saveAllQueues()">Save All Queues</button>
+		</div>
+		<div id="saved-queues-inner"></div>
+	</div>
+	<div id="message-box" onclick="hideMessages()" hidden>
+		<div id="message-wrapper">
+			<h3 id="message-title"></h3>
+			<div id="message-text"></div>
+		</div>
+	</div>
+</body>

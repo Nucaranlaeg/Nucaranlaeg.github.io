@@ -1,0 +1,254 @@
+const classMapping = {
+	"█": ["wall", "Solid Rock"],
+	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[currentZone].mapLocations[y][x].type.nextCost(zones[currentZone].mapLocations[y][x].completions, zones[currentZone].mapLocations[y][x].priorCompletions)}`],
+	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[currentZone].mapLocations[y][x].type.nextCost(zones[currentZone].mapLocations[y][x].completions, zones[currentZone].mapLocations[y][x].priorCompletions)}`],
+	".": ["tunnel", "Dug Tunnel"],
+	"#": ["rock", "Rock"],
+	"«": ["granite", "Granite"],
+	"♥": ["clone-machine", "Strange Machine"],
+	"+": ["gold", "Gold Ore"],
+	"%": ["iron", "Iron Ore"],
+	"╬": ["furnace", "Furnace"],
+	"▣": ["furnace2", "Steel Furnace"],
+	"=": ["vaporizer", "Vaporizer"],
+	"⎶": ["bridge", "Anvil - Bridge"],
+	"&": ["bridge2", "Anvil - Upgrade Bridge"],
+	" ": ["pit", "Bottomless Pit"],
+	"~": ["lava", "Bottomless Lava"],
+	'"': ["book", "Book"],
+	")": ["sword", "Anvil - Sword"],
+	"[": ["shield", "Anvil - Shield"],
+	"]": ["armour", "Anvil - Armour"],
+	"(": ["sword2", "Anvil - Upgrade Sword"],
+	"{": ["shield2", "Anvil - Upgrade Shield"],
+	"}": ["armour2", "Anvil - Upgrade Armour"],
+	"^": ["fountain", "Fountain"],
+	"W": ["rune-weak", "Weaken Rune"],
+	"T": ["rune-to", "Teleport To Rune"],
+	"F": ["rune-from", "Teleport From Rune"],
+	"D": ["rune-dup", "Duplication Rune"],
+	"d": ["rune-dup-charged", "Duplication Rune"],
+	"○": ["coal", "Coal"],
+	"g": ["goblin", "Goblin"],
+	"c": ["chieftain", "Goblin Chieftain"],
+	"h": ["hobgoblin", "Hobgoblin"],
+	"m": ["champion", "Goblin Champion"],
+	"Θ": ["zone", "Zone Portal"],
+	"√": ["challenge", "Challenge Portal"],
+};
+
+// The tiles that can be pathfinded through.
+const walkable = "*.♥╬▣=⎶&\"()[]{}^WTFDd";
+
+let mapDirt = [];
+let mapStain = [];
+
+let visibleX = null, visibleY = null;
+
+function getMapLocation(x, y, adj = false, zone = null){
+	if (zone !== null){
+		return zones[zone].getMapLocation(x, y, adj);
+	}
+	return zones[currentZone].getMapLocation(x, y, adj);
+}
+
+function hasMapLocation(x, y) {
+	return zones[currentZone].hasMapLocation(x, y);
+}
+
+let mapNodes = [];
+
+function drawNewMap() {
+	mapNodes = [];
+	let mapNode = document.querySelector("#map-inner");
+	while (mapNode.firstChild){
+		mapNode.removeChild(mapNode.lastChild);
+	}
+	let rowTemplate = document.querySelector("#row-template");
+	let cellTemplate = document.querySelector("#cell-template");
+	for (let y = 0; y < zones[currentZone].map.length; y++){
+		mapNodes[y] = [];
+		let rowNode = rowTemplate.cloneNode(true);
+		rowNode.removeAttribute("id");
+		mapNode.append(rowNode);
+		if (zones[currentZone].mapLocations[y]){
+			for (let x = 0; x < zones[currentZone].map[y].length; x++){
+				let cellNode = cellTemplate.cloneNode(true);
+				cellNode.removeAttribute("id");
+				cellNode.setAttribute("data-x", x);
+				cellNode.setAttribute("data-y", y);
+				if (zones[currentZone].mapLocations[y][x]) {
+					let [className, descriptor, isStained, descriptorMod] = classMapping[zones[currentZone].map[y][x]];
+					className = className.split(" ");
+					for (let i = 0; i < className.length; i++){
+						cellNode.classList.add(className[i]);
+					}
+					cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
+				} else {
+					cellNode.classList.add("blank");
+				}
+				rowNode.append(cellNode);
+				mapNodes[y][x] = cellNode;
+			}
+		}
+	}
+	isDrawn = true;
+	for (let i = 0; i < clones.length; i++){
+		let clone = clones[i];
+		let node = mapNodes[clone.y + zones[currentZone].yOffset][clone.x + zones[currentZone].xOffset];
+		node.classList.add("occupied");
+		clone.occupiedNode = node;
+	}
+	mapStain = [];
+}
+
+let isDrawn = false;
+
+function drawCell(x, y) {
+	let cell = mapNodes[y][x];
+	let [className, descriptor, isStained, descriptorMod] = classMapping[zones[currentZone].map[y][x]];
+	cell.className = className;
+	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
+}
+
+let mapNode;
+
+function drawMap() {
+	if (!isDrawn) drawNewMap();
+	
+	mapDirt.forEach(([x,y]) => drawCell(x, y));
+	mapDirt = [];
+	mapStain.forEach(([x,y]) => drawCell(x, y));
+	
+	mapNode = mapNode || document.querySelector("#map-inner");
+	clampMap();
+	for (let i = 0; i < clones.length; i++){
+		let clone = clones[i];
+		clone.occupiedNode && clone.occupiedNode.classList.remove("occupied");
+		let node = mapNodes[clone.y + zones[currentZone].yOffset][clone.x + zones[currentZone].xOffset];
+		node.classList.add("occupied");
+		clone.occupiedNode = node;
+	}
+	showFinalLocation(true);
+}
+
+function clampMap() {
+	let xMin = 999;
+	let xMax = -999;
+	let yMin = 999;
+	let yMax = -999;
+	for (let y = 0; y < zones[currentZone].mapLocations.length; y++) {
+		for (let x = 0; x < zones[currentZone].mapLocations[y].length; x++) {
+			if (zones[currentZone].mapLocations[y][x]) {
+				xMin = Math.min(xMin, x);
+				xMax = Math.max(xMax, x);
+				yMin = Math.min(yMin, y);
+				yMax = Math.max(yMax, y);
+			}
+		}
+	}
+
+	for (let y = 0; y < mapNodes.length; y++) {
+		for (let x = 0; x < mapNodes[y].length; x++) {
+			let node = mapNodes[y][x];
+			let toHide = xMin > x || x > xMax || yMin > y || y > yMax;
+			if (node.hidden != toHide) {
+				node.hidden = toHide;
+			}
+		}
+	}
+
+	let size = Math.max(xMax - xMin + 1, yMax - yMin + 1);
+	size = yMax - yMin + 1;
+	let scale = Math.floor(440 / size);
+	mapNode.style.setProperty("--cell-count", size + "px");
+	mapNode.style.setProperty("--cell-size", scale + "px");
+}
+
+function setMined(x, y, icon){
+	x += zones[currentZone].xOffset;
+	y += zones[currentZone].yOffset;
+	let old = zones[currentZone].map[y][x];
+	let tile = icon || {
+		"#": ".",
+		"«": ".",
+		"¤": "*",
+		"+": ".",
+		"%": ".",
+		" ": ".",
+		"g": ".",
+		"○": ".",
+		"c": ".",
+		"h": ".",
+		"m": ".",
+	}[old] || old;
+	zones[currentZone].map[y] = zones[currentZone].map[y].slice(0, x) + tile + zones[currentZone].map[y].slice(x + 1);
+	if (tile !== old) {
+		mapDirt.push([x, y]);
+	}
+}
+
+function viewCell(e){
+	let x = e.target.getAttribute("data-x"), y = e.target.getAttribute("data-y");
+	let type = [...e.target.classList].find(x => x !== "occupied" && x !== "final-location");
+	if (zones[currentZone].mapLocations[y] && zones[currentZone].mapLocations[y][x]){
+		let location = zones[currentZone].mapLocations[y][x];
+		for (const icon in classMapping){
+			if (classMapping[icon][0] == type){
+				type = getLocationType(getLocationTypeBySymbol(icon));
+				let primaryAction = type.presentAction || type.enterAction;
+				document.querySelector("#location-name").innerHTML = type.name;
+				let description = type.description;
+				if (description.includes("{STATS}")){
+					let statsDesc = `Attack: ${location.creature.attack}\nDefense: ${location.creature.defense}\nHealth: ${location.creature.health}`;
+					description = description.replace("{STATS}", statsDesc);
+				}
+				document.querySelector("#location-description").innerHTML = description.replace(/\n/g, "<br>");
+				if (type.nextCost){
+					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions)}`;
+				} else if (primaryAction) {
+					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(primaryAction.getDuration() / 1000, 2)}s`;
+				} else {
+					document.querySelector("#location-next").innerHTML = "";
+				}
+				visibleX = x - zones[currentZone].xOffset;
+				visibleY = y - zones[currentZone].yOffset;
+				if ((type.name == "Mana-infused Rock" || type.name == "Mana Spring")) {
+					document.querySelector("#location-route").hidden = true;
+					let route = getBestRoute(visibleX, visibleY, currentZone);
+					if (route) {
+						route.showOnLocationUI();
+					} else {
+						document.querySelector("#route-has-route").hidden = true;
+						document.querySelector("#route-not-visited").hidden = true;
+					}
+				} else {
+					document.querySelector("#location-route").hidden = true;
+				}
+
+				return;
+			}
+		}
+	}
+}
+
+function getMapNode(x, y) {
+	return mapNodes[y] && mapNodes[y][x];
+}
+
+function getOffsetMapNode(x, y) {
+	return getMapNode(x + zones[currentZone].xOffset, y + zones[currentZone].yOffset);
+}
+
+function getMapTile(x, y) {
+	return zones[currentZone].map[y] && zones[currentZone].map[y][x];
+}
+
+function displayCreatureHealth(creature){
+	let node = getOffsetMapNode(creature.x, creature.y);
+	if (creature.health > 0 && creature.health < creature.creature.health){
+		node.innerHTML = `<div class="enemy-hp" style="width:${Math.floor(creature.health / creature.creature.health * 100)}%"></div>`;
+	} else {
+		node.innerHTML = "";
+	}
+}
