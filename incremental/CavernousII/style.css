@@ -371,6 +371,10 @@ h4#location-name {
 	border-left: 1px solid #5b6d6d;
 }
 
+.active-zone {
+	background-color: #88aaaa;
+}
+
 .zone .mana {
 	color: #0000ff;
 	width: 40px;

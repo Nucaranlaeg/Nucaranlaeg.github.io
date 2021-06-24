@@ -71,8 +71,7 @@ window.ondrop = e => e.preventDefault();
 
 function resetLoop() {
 	let mana = getStat("Mana");
-	getMessage("Time Travel").display(mana.base == 5);
-	if (mana.base == 5) setSetting(toggleAutoRestart, 3);
+	if (getMessage("Time Travel").display(zones[0].manaGain == 0)) setSetting(toggleAutoRestart, 3);
 	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
 	if (mana.base == 6) getMessage("Strip Mining").display();
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
@@ -528,6 +527,7 @@ let keyFunctions = {
 	"KeyF": () => {
 		if (visibleX === undefined || visibleY === undefined) return;
 		addActionToQueue(`P${visibleX}:${visibleY};`);
+		document.activeElement.blur();
 	},
 };
 

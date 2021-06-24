@@ -88,16 +88,19 @@ class Zone {
 			// If we can't make it work, just pick the one which gives us the most mana.
 			// The route we want has probably been deleted.
 			let bestMana = Math.max(...this.routes.map(p => p.mana));
-			this.routes.find(r => r.mana == bestMana).loadRoute(this);
-			return;
+			return this.routes.find(r => r.mana == bestMana).loadRoute(this);
 		}
 		let bestMana = Math.max(...possible.map(p => p.mana));
-		this.routes.find(r => r.mana == bestMana).loadRoute(this);
+		return this.routes.find(r => r.mana == bestMana).loadRoute(this);
 	}
 
 	enterZone(){
 		this.display();
-		if (this.name == "Zone 2" && getMessage("Enter Zone")){
+		let zoneSelect = document.querySelector("#zone-select");
+		let currentActiveZone = zoneSelect.querySelector(".active-zone");
+		if (currentActiveZone) currentActiveZone.classList.remove("active-zone");
+		zoneSelect.children[currentZone].classList.add("active-zone");
+		if (this.name == "Zone 2" && getMessage("Enter New Zone").display()){
 			if (settings.running) toggleRunning();
 		}
 		let mana = getStat("Mana");
@@ -141,11 +144,15 @@ class Zone {
 			let zoneSelect = document.querySelector("#zone-select");
 			zoneSelect.appendChild(this.node);
 		}
+		if (currentZone == displayZone) document.querySelector("#zone-name").innerHTML = this.name;
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".mana").innerHTML = `+${this.manaGain}`;
 		this.node.onclick = () => {
+			document.querySelector("#zone-name").innerHTML = this.name;
 			displayZone = zones.findIndex(z => z.name == this.name);
 			isDrawn = false;
+			mapDirt = [];
+			mapStain = [];
 			drawMap();
 			redrawQueues();
 			if (currentZone == displayZone) highlightCompletedActions();
@@ -171,7 +178,6 @@ class Zone {
 						.join("") + leftArrowSVG;
 				}
 				routeNode.querySelector(".stuff").innerHTML = this.routes[i].stuff.map(s => `<span style="color: ${(thing = getStuff(s.name)).colour}">${s.count}${thing.icon}</span>`).join("");
-				console.log(this.routes[i].stuff.map(s => `${s.count}${getStuff(s.name).icon}`).join(""))
 				routeNode.onclick = () => this.routes[i].loadRoute(this);
 				parent.appendChild(routeNode);
 			}
@@ -213,13 +219,31 @@ let zones = [
 			'██=+###+##%█',
 			'██###█#█████',
 			'█¤##█¤#«««██',
-			'██##██ ██«██',
+			'██#%██ ██«██',
 			'██##██.#««██',
 			'██##¤█###███',
 			'██+#██#█#%██',
 			'███ █⎶###%██',
 			'███#███╬+███',
 			'█√ #Θ███████',
+			'████████████',
+		],
+		null,
+	),
+	new Zone("Zone 3",
+		[
+			'████████████',
+			'███%%¤██¤%#█',
+			'█++.%%████#█',
+			'██+#%## ###█',
+			'█=##█ █ ██#█',
+			'██⎶╬█#█++█#█',
+			'█████#█¤%█%█',
+			'██√█)#████%█',
+			'██g██#####%█',
+			'██###g██[█♥█',
+			'██%%#███#███',
+			'████Θ███#%%█',
 			'████████████',
 		],
 		null,

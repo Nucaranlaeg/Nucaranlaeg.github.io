@@ -97,7 +97,8 @@ function drawNewMap() {
 let isDrawn = false;
 
 function drawCell(x, y) {
-	let cell = mapNodes[y][x];
+	let cell = (mapNodes[y] || [])[x];
+	if (!cell) return;
 	let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
 	cell.className = className;
 	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
@@ -246,6 +247,7 @@ function getMapTile(x, y) {
 
 function displayCreatureHealth(creature){
 	let node = getOffsetMapNode(creature.x, creature.y);
+	if (!node) return;
 	if (creature.health > 0 && creature.health < creature.creature.health){
 		node.innerHTML = `<div class="enemy-hp" style="width:${Math.floor(creature.health / creature.creature.health * 100)}%"></div>`;
 	} else {

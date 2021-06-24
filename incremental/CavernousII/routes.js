@@ -39,8 +39,9 @@ class Route {
 	}
 
 	loadRoute(){
-		for (let i = 0; i < this.zone; i++){
-			zones[i].loadBestRoute(this.zoneRequirements[i]);
+		let reqs = this.requirements;
+		for (let i = this.zone - 1; i > 0; i--){
+			reqs = zones[i].loadBestRoute(reqs);
 		}
 		for (let i = 0; i < this.route.length; i++){
 			if (!this.route[i].endsWith("I")) this.route[i] += "I";

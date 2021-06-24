@@ -112,6 +112,8 @@ let messages = [
 					Your deepening understanding of the mysteries of magic give you the idea of forming your mana into a shield, protecting yourself from danger.
 					You'll preserve your health, but it might take a lot of mana to maintain.  Each clone will have to form one separately.
 					It will last until the end of your next fight.`),
-	new Message("Won", `
-					I can't really figure out how to make the game scale nicely past here.  So at this point, you win!`),
+	new Message("Enter New Zone", `
+					You've found a portal to another zone!
+					Each zone has 3 mana rocks and a challenge which unlocks a new feature.  Just activate it and you're done!
+					You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with (which you can also click on).`),
 ];

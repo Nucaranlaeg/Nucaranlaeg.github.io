@@ -48,6 +48,7 @@ class ZoneRoute {
 				zone.queues[i].fromString(this.route[i] || this.route[this.route.length - 1] || "");
 			}
 		}
+		return this.require;
 	}
 
 	static fromJSON(ar) {
