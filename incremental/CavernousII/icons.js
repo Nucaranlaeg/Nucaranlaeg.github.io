@@ -32,6 +32,21 @@ cx="50.000019"
 cy="50.000023"
 rx="37.573391"
 ry="37.573414" />` + svgEnd;
+const smithingSVG = svgStart.replace(/"14"/g, '"22"') + `<path
+style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.70587;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+d="M 91.9799,91.807365 18.079698,16.036452 25.563263,8.5529065 101.33436,82.452928 Z"
+sodipodi:nodetypes="ccccc" />
+<rect
+style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1.02885;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+width="24.971128"
+height="13.971112"
+x="22.162033"
+y="7.162077"
+transform="matrix(0.70710772,0.70710584,-0.70710756,0.70710601,0,0)" />
+<path
+style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+d="M 18.115658,40.012506 8.6448037,30.806257 21.500632,17.265495 C 34.342634,4.4235229 48.2233,-2.5167945 52.503969,1.763861 L 62.503992,11.763863 C 58.223325,7.4832065 44.342658,14.423523 31.500655,27.265494 Z"
+sodipodi:nodetypes="ccccccc" />` + svgEnd;
 
 document.querySelector("#add-action-up").innerHTML = upArrowSVG.replace(/"14"/g, '"22"');
 document.querySelector("#add-action-down").innerHTML = downArrowSVG.replace(/"14"/g, '"22"');
