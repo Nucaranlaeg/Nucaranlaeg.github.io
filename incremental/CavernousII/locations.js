@@ -1,7 +1,8 @@
 class Location {
-	constructor(x, y, type){
+	constructor(x, y, zone, type){
 		this.x = x;
 		this.y = y;
+		this.zone = zone;
 		this.type = getLocationType(type);
 		let creature = getCreature(type);
 		if (creature) {

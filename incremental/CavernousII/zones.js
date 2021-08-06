@@ -6,6 +6,7 @@ class Zone {
 		this.name = name;
 		this.originalMap = map;
 		this.challengeReward = challengeReward;
+		this.challengeComplete = false;
 		this.map = map.slice();
 		this.yOffset = map.findIndex(row => row.includes("."));
 		this.xOffset = map[this.yOffset].indexOf(".");
@@ -16,10 +17,11 @@ class Zone {
 		this.routesChanged = true;
 		this.node = null;
 		this.startStuff = [];
-
+		
 		while (this.mapLocations.length < map.length){
 			this.mapLocations.push([]);
 		}
+		setTimeout(() => {this.index = zones.findIndex(z => z == this)});
 	}
 
 	getMapLocation(x, y, adj = false){
@@ -38,7 +40,7 @@ class Zone {
 		if (x < 0 || x >= this.map[0].length || y < 0 || y >= this.map.length) return;
 		if (!this.mapLocations[y][x]){
 			let mapSymbol = this.map[y][x];
-			this.mapLocations[y][x] = new Location(x - this.xOffset, y - this.yOffset, getLocationTypeBySymbol(mapSymbol));
+			this.mapLocations[y][x] = new Location(x - this.xOffset, y - this.yOffset, this, getLocationTypeBySymbol(mapSymbol));
 			classMapping[mapSymbol][2] ? mapStain.push([x, y]) : mapDirt.push([x, y]);
 		}
 		return this.mapLocations[y][x];
@@ -50,6 +52,7 @@ class Zone {
 
 	resetZone(){
 		this.map = this.originalMap.slice();
+		if (this.challengeComplete) this.map = this.map.map(row => row.replace("√", "#"));
 		this.mapLocations.forEach((ml, y) => {
 			ml.forEach((l, x) => {
 				l.reset();
@@ -62,13 +65,21 @@ class Zone {
 		let mana = getStat("Mana");
 		mana.base = +(mana.base + 0.1).toFixed(2);
 		mana.current += 0.1;
+		if (this.index){
+			zones[this.index - 1].mineComplete();
+		}
 	}
 
 	exitZone(complete = true){
 		if (complete){
 			// Replace only routes which are strictly worse than an existing one.
 			this.lastRoute = new ZoneRoute(this);
-			if (!this.routes.some(r => r.isBetter(this.lastRoute))){
+			let sameRoute = this.routes.find(r => r.isSame(this.lastRoute));
+			if (sameRoute){
+				sameRoute.mana = Math.min(this.lastRoute.mana, sameRoute.mana);
+				sameRoute.manaRequired = Math.min(this.lastRoute.manaRequired, sameRoute.manaRequired);
+			} else if (!this.routes.some(r => r.isBetter(this.lastRoute))){
+				this.routes.forEach(r => console.log(r, this.lastRoute, r.isBetter(this.lastRoute)))
 				this.routesChanged = true;
 				for (let i = 0; i < this.routes.length; i++){
 					if (this.lastRoute.isBetter(this.routes[i])){
@@ -82,16 +93,18 @@ class Zone {
 		this.display();
 	}
 
-	loadBestRoute(requirements){
-		let possible = this.routes.filter(r => r.isBetter(requirements));
-		if (possible.length == 0){
-			// If we can't make it work, just pick the one which gives us the most mana.
-			// The route we want has probably been deleted.
-			let bestMana = Math.max(...this.routes.map(p => p.mana));
-			return this.routes.find(r => r.mana == bestMana).loadRoute(this);
+	getBestRoute(requirements = []){
+		let possible = this.routes;
+		if (requirements instanceof ZoneRoute){
+			possible = possible.filter(r => r.manaRequired < requirements.manaRequired);
+		} else {
+			requirements = {
+				"require": requirements,
+				"manaRequired": -Infinity,
+			}
 		}
-		let bestMana = Math.max(...possible.map(p => p.mana));
-		return this.routes.find(r => r.mana == bestMana).loadRoute(this);
+		possible = possible.filter(r => r.isValidPredecessor(requirements));
+		return possible.sort((a, b) => b.mana - a.mana);
 	}
 
 	enterZone(){
@@ -106,6 +119,8 @@ class Zone {
 		let mana = getStat("Mana");
 		mana.current += this.manaGain;
 		mana.base += this.manaGain;
+		mana.min = mana.current;
+		this.startMana = mana.current;
 		if (this.queues === null){
 			this.queues = ActionQueue.fromJSON([[]]);
 		}
@@ -157,8 +172,8 @@ class Zone {
 			redrawQueues();
 			if (currentZone == displayZone) highlightCompletedActions();
 		};
+		let parent = this.node.querySelector(".routes");
 		if (this.routesChanged){
-			let parent = this.node.querySelector(".routes");
 			while (parent.firstChild){
 				parent.removeChild(parent.lastChild);
 			}
@@ -175,13 +190,34 @@ class Zone {
 				if (this.routes[i].require.length){
 					routeNode.querySelector(".require").innerHTML = this.routes[i].require
 						.map(s => `<span style="color: ${(thing = getStuff(s.name)).colour}">${s.count}${thing.icon}</span>`)
-						.join("") + leftArrowSVG;
+						.join("") + rightArrowSVG;
 				}
 				routeNode.querySelector(".stuff").innerHTML = this.routes[i].stuff.map(s => `<span style="color: ${(thing = getStuff(s.name)).colour}">${s.count}${thing.icon}</span>`).join("");
-				routeNode.onclick = () => this.routes[i].loadRoute(this);
+				routeNode.onclick = () => {
+					this.routes[i].loadRoute(this);
+					parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
+					routeNode.classList.add("active");
+				}
+				routeNode.querySelector(".delete-route").onclick = this.deleteRoute.bind(this, i);
 				parent.appendChild(routeNode);
 			}
 		}
+		let currentRoute = (this.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
+		let routeIndex = this.routes.findIndex(r => (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute);
+		if (routeIndex > -1) parent.children[routeIndex + 1].classList.add("active");
+	}
+
+	deleteRoute(index, event){
+		this.routes.splice(index, 1);
+		this.display();
+		event.stopPropagation();
+	}
+
+	completeChallenge(){
+		if (this.challengeComplete) return;
+		this.challengeComplete = true;
+		this.challengeReward();
+		getMessage(`Zone ${this.index + 1} Challenge`).display();
 	}
 }
 
@@ -208,10 +244,17 @@ let zones = [
 			'█«█###██##██',
 			'█«█#+#██#+██',
 			'█«█+#####███',
-			'█√████=█¤███',
+			'█√████=█¤█%█',
+			'█#█+#█████#█',
+			'█#█+██#○█¤%█',
+			'█##########█',
 			'████████████',
 		],
-		null,
+		() => {
+			getAction("Collect Mana").increaseStat("Speed", 0.05);
+			getRune("Teleport From").unlock();
+			getRune("Teleport To").unlock();
+		},
 	),
 	new Zone("Zone 2",
 		[
@@ -219,16 +262,22 @@ let zones = [
 			'██=+###+##%█',
 			'██###█#█████',
 			'█¤##█¤#«««██',
-			'██#%██ ██«██',
+			'██#%██ ██«¤█',
 			'██##██.#««██',
-			'██##¤█###███',
+			'██##██###███',
 			'██+#██#█#%██',
 			'███ █⎶###%██',
 			'███#███╬+███',
 			'█√ #Θ███████',
+			'█#████%%+##█',
+			'█##%█+#███#█',
+			'██####██¤+#█',
 			'████████████',
 		],
-		null,
+		() => {
+			["Mine Iron", "Mine Coal"].forEach(ore => getAction(ore).increaseStat("Smithing", 0.05));
+			getRune("Weaken").unlock();
+		},
 	),
 	new Zone("Zone 3",
 		[
@@ -239,12 +288,39 @@ let zones = [
 			'█=##█ █ ██#█',
 			'██⎶╬█#█++█#█',
 			'█████#█¤%█%█',
-			'██√█)#████%█',
-			'██g██#####%█',
+			'█Θ#█)#████%█',
+			'██%██#####%█',
 			'██###g██[█♥█',
-			'██%%#███#███',
-			'████Θ███#%%█',
+			'█#g%#¤██#███',
+			'█#██████#%%█',
+			'█+████#█████',
+			'█+#%### √#¤█',
+			'████##██##██',
+			'█++█████%+██',
+			'█^###%%██ ██',
+			'█%%█###%##██',
 			'████████████',
+		],
+		() => {
+			["Create Sword", "Upgrade Sword", "Create Shield", "Upgrade Shield", "Create Armour", "Upgrade Armour"].forEach(action => getAction(action).increaseStat("Combat", 0.25));
+			getRune("Duplication").unlock();
+		},
+	),
+	new Zone("Zone 4",
+		[
+			'█████████████████',
+			'█¤#####█#%##██%+█',
+			'██#█.█#+#█╬«+««██',
+			'██#███#████#██«██',
+			'█⎶#█%##+%###██«██',
+			'██%█#███#██ ██%██',
+			'█##+#██#+ ##«+««█',
+			'█#█%█#%#█%█#███%█',
+			'█#####███###██##█',
+			'█+█#█~#%# █##%#██',
+			'█#█g██#███████+██',
+			'███=¤█+#+##+¤████',
+			'█████████████████',
 		],
 		null,
 	),

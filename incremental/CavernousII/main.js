@@ -38,7 +38,12 @@ function getLocationType(name) {
 }
 
 function getLocationTypeBySymbol(symbol) {
-	return locationTypes.find(a => a.symbol == symbol).name;
+	try {
+		return locationTypes.find(a => a.symbol == symbol).name;
+	} catch {
+		console.log(symbol);
+		return locationTypes.find(a => a.symbol == symbol).name;
+	}
 }
 
 function getMessage(name) {
@@ -112,6 +117,8 @@ function resetLoop() {
 			});
 		});
 	});
+	updateRunes(this.current);
+	updateSpells(this.base);
 	moveToZone(0, false);
 	drawMap();
 	save();
@@ -156,6 +163,7 @@ function save(){
 				});
 			}) : [[]],
 			"routes": zone.routes,
+			"challenge": zone.challengeComplete,
 		};
 	})
 	let cloneData = {
@@ -201,6 +209,12 @@ function load(){
 	for (let i = 0; i < saveGame.playerStats.length; i++){
 		getStat(saveGame.playerStats[i].name).base = saveGame.playerStats[i].base;
 	}
+	for (let i = 0; i < saveGame.messageData.length; i++){
+		let message = getMessage(saveGame.messageData[i][0]);
+		if (message){
+			message.displayed = saveGame.messageData[i][1];
+		}
+	}
 	for (let i = 0; i < saveGame.zoneData.length; i++){
 		let zone = zones.find(z => z.name == saveGame.zoneData[i].name);
 		for (let j = 0; j < saveGame.zoneData[i].locations.length; j++){
@@ -210,6 +224,7 @@ function load(){
 		zone.queues = ActionQueue.fromJSON(saveGame.zoneData[i].queues);
 		zone.routes = ZoneRoute.fromJSON(saveGame.zoneData[i].routes);
 		if (saveGame.zoneData[i].locations.length) zone.display();
+		if (saveGame.zoneData[i].challenge) zone.completeChallenge();
 	}
 	clones = [];
 	while (clones.length < saveGame.cloneData.count){
@@ -226,12 +241,6 @@ function load(){
 	drawSavedQueues();
 	lastAction = saveGame.time.saveTime;
 	timeBanked = saveGame.time.timeBanked;
-	for (let i = 0; i < saveGame.messageData.length; i++){
-		let message = getMessage(saveGame.messageData[i][0]);
-		if (message){
-			message.displayed = saveGame.messageData[i][1];
-		}
-	}
 	if (saveGame.routes){
 		routes = Route.fromJSON(saveGame.routes);
 	}
@@ -365,6 +374,7 @@ setInterval(function mainLoop() {
 
 function setup(){
 	Clone.addNewClone();
+	zones[0].enterZone();
 	selectClone(0);
 	getMapLocation(0,0);
 	drawMap();
@@ -397,7 +407,7 @@ let keyFunctions = {
 		addActionToQueue("B");
 	},
 	"^Backspace": e => {
-		if (!selectedQueue.every(e => queues[e].length == 0)) {
+		if (!selectedQueue.every(e => zones[displayZone].queues[e].length == 0)) {
 			clearQueue(null, settings.noConfirm);
 			return;
 		}

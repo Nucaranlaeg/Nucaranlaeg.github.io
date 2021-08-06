@@ -1,12 +1,12 @@
 class Spell {
-	constructor(name, icon, skill, castManaCost, sustainManaCost, endOnCombat, description){
+	constructor(name, icon, castManaCost, sustainManaCost, endOnCombat, description){
 		this.name = name;
 		this.icon = icon;
-		this.skill = skill;
 		this.castManaCost = castManaCost;
 		this.sustainManaCost = sustainManaCost;
 		this.endOnCombat = endOnCombat;
 		this.description = description;
+		this.unlocked = false;
 	}
 
 	createNode(index) {
@@ -57,13 +57,13 @@ function updateSpells(base){
 		getMessage("Arcane Shield").display();
 	}
 	for (let i = 0; i < spells.length; i++){
-		if (spells[i].skill < base){
+		if (spells[i].unlocked){
 			spells[i].createNode(i);
 		}
 	}
 }
 
 let spells = [
-	new Spell("Arcane Shield", "A", 75, 0, 1, true, "Shield yourself with magic!  Any damage taken will be deducted from your mana instead of injuring you."),
-	new Spell("Mystic Blade", "M", 100, 0, 5, true, "Sharpen your blades with arcane might!  Any damage you deal will be doubled."),
+	new Spell("Arcane Shield", "A", 0, 1, true, "Shield yourself with magic!  Any damage taken will be deducted from your mana instead of injuring you."),
+	new Spell("Mystic Blade", "M", 0, 5, true, "Sharpen your blades with arcane might!  Any damage you deal will be doubled."),
 ];

@@ -48,11 +48,6 @@ class Stat {
 	update() {
 		if (!this.dirty) return;
 		this.updateValue();
-		if (this.name == "Runic Lore"){
-			updateRunes(this.current);
-		} else if (this.name == "Magic"){
-			updateSpells(this.base);
-		}
 		if (!this.node){
 			this.createNode();
 			this.effectNode = this.node.querySelector(".effect");
@@ -107,6 +102,7 @@ class Stat {
 		if (this.current < -1) alert('Error: overspend mana\nplease send to devs');
 		if (this.current < 0) this.current = 0;
 		this.dirty = true;
+		this.min = Math.min(this.current, this.min);
 	}
 }
 

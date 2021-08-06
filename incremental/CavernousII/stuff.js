@@ -28,7 +28,7 @@ class Stuff {
 		}
 		this.min = Math.min(this.count, this.min);
 	}
-
+	
 	createNode() {
 		if (this.node) return;
 		let stuffTemplate = document.querySelector("#stuff-template");
@@ -42,9 +42,13 @@ class Stuff {
 		document.querySelector("#stuff-inner").appendChild(el);
 		this.node = el.querySelector(".count");
 	}
-
+	
 	resetMin() {
-		this.min = this.count;
+		if (this.effect == calcCombatStats){
+			this.min = 0;
+		} else {
+			this.min = this.count;
+		}
 	}
 }
 

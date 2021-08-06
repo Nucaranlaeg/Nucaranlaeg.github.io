@@ -21,7 +21,7 @@ class Route {
 			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
 
 			let mana = getStat("Mana");
-			let duration = mineManaRockCost(0, x.priorCompletions);
+			let duration = mineManaRockCost(0, x.priorCompletions, x.zone);
 			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
@@ -38,10 +38,29 @@ class Route {
 		Object.assign(this, x);
 	}
 
+	pickRoute(zone, route){
+		let possible;
+		possible = zones[zone].getBestRoute(route);
+		if (zone == 0){
+			return possible[0] ? [possible[0]] : null;
+		}
+		for (let i = 0; i < possible.length; i++){
+			let routes = this.pickRoute(zone - 1, possible[i]);
+			if (routes !== null){
+				return [...routes, possible[i]];
+			}
+		}
+		return null;
+	}
+
 	loadRoute(){
-		let reqs = this.requirements;
-		for (let i = this.zone - 1; i > 0; i--){
-			reqs = zones[i].loadBestRoute(reqs);
+		if (this.zone > 0){
+			let routes = this.pickRoute(this.zone - 1, this.requirements);
+			if (routes !== null){
+				for (let i = 0; i < routes.length; i++){
+					routes[i].loadRoute(zones[i]);
+				}
+			}
 		}
 		for (let i = 0; i < this.route.length; i++){
 			if (!this.route[i].endsWith("I")) this.route[i] += "I";
@@ -61,7 +80,7 @@ class Route {
 	getConsumeCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, false, this.zone);
 		let mul = getAction("Collect Mana").getBaseDuration();
-		return mineManaRockCost(0, loc.completions + loc.priorCompletions + relativeLevel) * mul;
+		return mineManaRockCost(0, loc.completions + loc.priorCompletions + relativeLevel, loc.zone) * mul;
 	}
 
 	estimateConsumeManaLeft(ignoreInvalidate = false) {
@@ -193,7 +212,7 @@ function setBestRoute(x, y, totalTimeAvailable){
 function loadRoute(){
 	let x = document.querySelector("#x-loc").value;
 	let y = document.querySelector("#y-loc").value;
-	let bestRoute = getBestRoute(x, y, currentZone);
+	let bestRoute = getBestRoute(x, y, displayZone);
 	if (bestRoute) bestRoute.loadRoute();
 	document.activeElement.blur();
 }

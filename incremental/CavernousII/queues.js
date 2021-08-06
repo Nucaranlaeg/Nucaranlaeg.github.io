@@ -89,8 +89,16 @@ class QueuePathfindAction extends QueueAction {
 	constructor(actionID, undone = true) {
 		super(actionID, undone);
 		let [_, targetX, targetY] = this.actionID.match(/P(-?\d+):(-?\d+);/);
-		this.targetX = +targetX + zones[currentZone].xOffset;
-		this.targetY = +targetY + zones[currentZone].yOffset;
+		this.targetXOffset = +targetX;
+		this.targetYOffset = +targetY;
+	}
+
+	get targetX() {
+		return this.targetXOffset + zones[currentZone].xOffset;
+	}
+
+	get targetY() {
+		return this.targetYOffset + zones[currentZone].yOffset;
 	}
 
 	get action() {
@@ -281,9 +289,9 @@ function addActionToQueue(action, queue = null){
 
 function addRuneAction(index, type){
 	if (type == 'rune'){
-		if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index);
+		if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index + ";");
 	} else if (type == 'spell') {
-		if (index < spells.length && spells[index].canAddToQueue()) addActionToQueue("S" + index);
+		if (index < spells.length && spells[index].canAddToQueue()) addActionToQueue("S" + index + ";");
 	}
 }
 
@@ -305,7 +313,7 @@ function clearQueue(queue = null, noConfirm = false){
 		return;
 	}
 	if (!noConfirm && !confirm("Really clear queue?")) return;
-	queues[queue].clear();
+	zones[displayZone].queues[queue].clear();
 	if (cursor[0] == queue){
 		cursor[1] = null;
 	}

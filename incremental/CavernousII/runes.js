@@ -1,13 +1,13 @@
 class Rune {
-	constructor(name, icon, skill, isInscribable, manaCost, description, createEvent, activateAction){
+	constructor(name, icon, isInscribable, manaCost, description, createEvent, activateAction){
 		this.name = name;
 		this.icon = icon;
-		this.skill = skill;
 		this.isInscribable = isInscribable;
 		this.manaCost = manaCost;
 		this.description = description;
 		this.createEvent = createEvent;
 		this.activateAction = activateAction;
+		this.unlocked = false;
 	}
 
 	createNode(index) {
@@ -50,6 +50,10 @@ class Rune {
 		if (this.createEvent) this.createEvent(x, y);
 		return true;
 	}
+
+	unlock(){
+		this.unlocked = true;
+	}
 }
 
 function updateRunes(current){
@@ -57,7 +61,7 @@ function updateRunes(current){
 		getMessage("Runic Lore").display();
 	}
 	for (let i = 0; i < runes.length; i++){
-		if (runes[i].skill < current){
+		if (runes[i].unlocked){
 			runes[i].createNode(i);
 		} else {
 			runes[i].notAvailable();
@@ -85,9 +89,13 @@ function canPlaceTeleport(){
 	return simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]])();
 }
 
+function getRune(name){
+	return runes.find(a => a.name == name);
+}
+
 let runes = [
-	new Rune("Weaken", "W", 5, simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, "This rune weakens any orthogonally adjacent enemies, decreasing their attack and defense by 1.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget<br>Runic Lore 5", weakenCreatures),
-	new Rune("Teleport To", "T", 15, canPlaceTeleport, 0, "This rune allows someone or something to come through from another place.  Only one can be placed.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget<br>Runic Lore 10"),
-	new Rune("Teleport From", "F", 25, simpleRequire([["Iron Ore", 2]]), 1000, "This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>2 Iron Ore<br>Runic Lore 15", null, "Teleport"),
-new Rune("Duplication", "D", 75, () => true, 1000, "Mine more resources with this rune.  After placing it, interact with it to charge it up.  You'll receive +1 of each orthogonally adjacent resource (when mined), though each rune placed makes it harder to charge others.<br>Requires:<br>Runic Lore 75", null, "Charge Duplication"),
+	new Rune("Weaken", "W", simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, "This rune weakens any orthogonally adjacent enemies, decreasing their attack and defense by 1.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget", weakenCreatures),
+	new Rune("Teleport To", "T", canPlaceTeleport, 0, "This rune allows someone or something to come through from another place.  Only one can be placed.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget"),
+	new Rune("Teleport From", "F", simpleRequire([["Iron Ore", 2]]), 1000, "This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>2 Iron Ore", null, "Teleport"),
+	new Rune("Duplication", "D", () => true, 1000, "Mine more resources with this rune.  After placing it, interact with it to charge it up.  You'll receive +1 of each orthogonally adjacent resource (when mined), though each rune placed makes it harder to charge others.", null, "Charge Duplication"),
 ];

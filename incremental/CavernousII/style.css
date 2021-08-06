@@ -416,6 +416,22 @@ h4#location-name {
 	display: inline-block;
 }
 
+.routes .active {
+	background-color: #88aa88;
+}
+
+.delete-route {
+	border-radius: 25%;
+	position: absolute;
+	right: 0px;
+	width: 14px;
+	text-align: center;
+}
+
+.delete-route:hover {
+	background-color: #ff3333cc;
+}
+
 #map-inner {
 	border-collapse: collapse;
 	table-layout: fixed;

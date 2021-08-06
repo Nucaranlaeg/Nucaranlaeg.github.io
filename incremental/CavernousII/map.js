@@ -1,7 +1,7 @@
 const classMapping = {
 	"█": ["wall", "Solid Rock"],
-	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions)}`],
-	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions)}`],
+	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone])}`],
+	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone])}`],
 	".": ["tunnel", "Dug Tunnel"],
 	"#": ["rock", "Rock"],
 	"«": ["granite", "Granite"],
@@ -34,7 +34,7 @@ const classMapping = {
 	"h": ["hobgoblin", "Hobgoblin"],
 	"m": ["champion", "Goblin Champion"],
 	"Θ": ["zone", "Zone Portal"],
-	"√": ["challenge", "Challenge Portal"],
+	"√": ["challenge", "Challenge"],
 };
 
 // The tiles that can be pathfinded through.
@@ -99,6 +99,8 @@ let isDrawn = false;
 function drawCell(x, y) {
 	let cell = (mapNodes[y] || [])[x];
 	if (!cell) return;
+	let location = zones[displayZone].mapLocations[y][x];
+	if (!location) return;
 	let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
 	cell.className = className;
 	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
@@ -182,6 +184,7 @@ function setMined(x, y, icon){
 		"c": ".",
 		"h": ".",
 		"m": ".",
+		"√": ".",
 	}[old] || old;
 	zones[currentZone].map[y] = zones[currentZone].map[y].slice(0, x) + tile + zones[currentZone].map[y].slice(x + 1);
 	if (tile !== old) {
@@ -206,7 +209,7 @@ function viewCell(e){
 				}
 				document.querySelector("#location-description").innerHTML = description.replace(/\n/g, "<br>");
 				if (type.nextCost){
-					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions)}`;
+					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone)}`;
 				} else if (primaryAction) {
 					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(primaryAction.getDuration() / 1000, 2)}s`;
 				} else {

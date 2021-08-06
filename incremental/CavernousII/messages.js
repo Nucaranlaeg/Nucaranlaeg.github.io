@@ -114,6 +114,18 @@ let messages = [
 					It will last until the end of your next fight.`),
 	new Message("Enter New Zone", `
 					You've found a portal to another zone!
-					Each zone has 3 mana rocks and a challenge which unlocks a new feature.  Just activate it and you're done!
+					Each zone has at least 3 mana rocks and a challenge which unlocks something and gives a bonus.  Just reach it to complete it!
 					You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with (which you can also click on).`),
+	new Message("Zone 1 Challenge", `
+					You've completed a challenge!
+					You've unlocked the Teleport From and Teleport To runes.  Place one of each, then activate the Teleport From rune to instantly travel to the Teleport To rune!
+					Absorbing mana is now affected slightly by Speed.`),
+	new Message("Zone 2 Challenge", `
+					You've completed a challenge!
+					You've unlocked the Weaken rune.  Place it next to an enemy to reduce its attack and defense by 1.
+					Mining ores is now affected slightly by Smithing.`),
+	new Message("Zone 3 Challenge", `
+					You've completed a challenge!
+					You've unlocked the Duplication rune.  Place it next to valuables and charge it up (before mining them) to get extra resources!
+					Smithing armour and weapons is now affected by Combat.`),
 ];

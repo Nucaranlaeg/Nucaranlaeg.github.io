@@ -41,6 +41,15 @@ class Action {
 		}
 		return duration;	
 	}
+
+	increaseStat(stat, amount){
+		let index = this.stats.findIndex(s => s.name == stat);
+		if (index == -1){
+			this.stats.push([getStat(stat), amount]);
+		} else {
+			this.stats[index][1] += amount;
+		}
+	}
 }
 
 function completeMove(x, y){
@@ -97,12 +106,12 @@ function tickCollectMana(x, y) {
 	Route.updateBestRoute(location);
 }
 
-function mineManaRockCost(completions, priorCompletions) {
-	return completions ? 0 : Math.pow(1.1, priorCompletions);
+function mineManaRockCost(completions, priorCompletions, zone) {
+	return completions ? 0 : Math.pow(1.1 + 0.1 * zone.index, priorCompletions);
 }
 
 function startCollectMana(completions, priorCompletions) {
-	return completions ? 0 : Math.pow(1.1, priorCompletions);
+	return mineManaRockCost(completions, priorCompletions, zones[currentZone]);
 }
 
 function startCreateClone(completions, priorCompletions){
@@ -276,8 +285,9 @@ function activatePortal(){
 	moveToZone(currentZone + 1);
 }
 
-function completeChallenge(){
-	throw "NOT IMPLEMENTED";
+function completeChallenge(x, y){
+	zones[currentZone].completeChallenge();
+	completeMove(x, y);
 }
 
 let actions = [
