@@ -48,18 +48,17 @@ class Rune {
 		location.setTemporaryPresent(this);
 		setMined(x, y, this.icon);
 		if (this.createEvent) this.createEvent(x, y);
+		getStat("Runic Lore").gainSkill(this.isInscribable.itemCount || 0);
 		return true;
 	}
 
 	unlock(){
 		this.unlocked = true;
+		updateRunes();
 	}
 }
 
-function updateRunes(current){
-	if (current > 5){
-		getMessage("Runic Lore").display();
-	}
+function updateRunes(){
 	for (let i = 0; i < runes.length; i++){
 		if (runes[i].unlocked){
 			runes[i].createNode(i);
@@ -84,9 +83,10 @@ function weakenCreatures(x, y){
 	}
 }
 
-function canPlaceTeleport(){
+function canPlaceTeleport(spend){
+	this.itemCount = 2;
 	if (startTeleport() > 0) return false;
-	return simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]])();
+	return simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]])(spend);
 }
 
 function getRune(name){
@@ -95,6 +95,7 @@ function getRune(name){
 
 let runes = [
 	new Rune("Weaken", "W", simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, "This rune weakens any orthogonally adjacent enemies, decreasing their attack and defense by 1.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget", weakenCreatures),
+	new Rune("Wither", "H", simpleRequire([["Salt", 1], ["Iron Ore", 1], ["Gold Nugget", 1]]), 0, "This rune allows you to kill even hardy plants.  Interact with it to charge it up.<br>Requires:<br>1 Salt<br>1 Iron Ore<br>1 Gold Nugget", null, "Charge Wither"),
 	new Rune("Teleport To", "T", canPlaceTeleport, 0, "This rune allows someone or something to come through from another place.  Only one can be placed.<br>Requires:<br>1 Iron Bar<br>1 Gold Nugget"),
 	new Rune("Teleport From", "F", simpleRequire([["Iron Ore", 2]]), 1000, "This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>2 Iron Ore", null, "Teleport"),
 	new Rune("Duplication", "D", () => true, 1000, "Mine more resources with this rune.  After placing it, interact with it to charge it up.  You'll receive +1 of each orthogonally adjacent resource (when mined), though each rune placed makes it harder to charge others.", null, "Charge Duplication"),

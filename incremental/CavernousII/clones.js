@@ -8,6 +8,7 @@ class Clone {
 	enterZone() {
 		this.x = 0;
 		this.y = 0;
+		this.walkTime = 0;
 	}
 
 	reset() {
@@ -32,7 +33,11 @@ class Clone {
 				amount = 0;
 			}
 		}
-		this.damage += amount;
+		if (getStat("Health").current - this.damage > 0.1){
+			this.damage = Math.min(getStat("Health").current - 0.05, this.damage + amount);
+		} else {
+			this.damage += amount;
+		}
 		if (this.damage < 0) this.damage = 0;
 		if (this.damage >= getStat("Health").current){
 			this.damage = Infinity;
@@ -101,6 +106,11 @@ class Clone {
 	executeAction(time, action, actionIndex) {
 		currentClone = this.id;
 		let actionToDo = action.action;
+		// Failed pathfind
+		if (actionToDo[0] === undefined){
+			this.completeNextAction();
+			return time;
+		}
 
 		let actionXOffset = {
 			"R": 1,

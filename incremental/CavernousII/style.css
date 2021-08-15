@@ -501,12 +501,24 @@ td.tunnel {
 	background-color: #eeeeee;
 }
 
-td.rock {
+td.limestone {
 	background-color: #a52a2a;
 }
 
-td.granite {
+td.travertine {
 	background-color: #ce9d84;
+}
+
+td.granite {
+	background-color: #644f44;
+}
+
+td.mushroom {
+	background-color: #135513;
+}
+
+td.kudzushroom {
+	background-color: #034503;
 }
 
 td.gold {
@@ -528,6 +540,16 @@ td.clone-machine {
 
 td.iron {
 	background-color: #777777;
+}
+
+td.salt {
+	background-color: #ffffff;
+}
+
+td.salt:before {
+	content: "░";
+	font-size: 1.06em;
+	top: -5px;
 }
 
 td.furnace,
@@ -568,29 +590,26 @@ td.sword2,
 td.shield,
 td.shield2,
 td.armour,
-td.armour2 {
+td.armour2,
+td.axe,
+td.pick,
+td.hammer {
 	background-color: #444444;
 }
 
 td.bridge:before,
 td.bridge2:before {
 	content: "⎶";
-	/* top: -1px; */
-	/* left: 0px; */
 }
 
 td.sword:before,
 td.sword2:before {
 	content: "⚔";
-	/* top: -1px; */
-	/* left: 0px; */
 }
 
 td.shield:before,
 td.shield2:before {
 	content: "⛨";
-	/* top: 0px; */
-	/* left: 0px; */
 	font-size: 0.916em;
 	padding-top: 15%;
 	padding-left: 6%;
@@ -599,11 +618,21 @@ td.shield2:before {
 td.armour:before,
 td.armour2:before {
 	content: "]";
-	/* top: -1px; */
-	/* left: 4px; */
 	font-size: 0.833em;
 	font-weight: bold;
 	padding-bottom: 0.2em;
+}
+
+td.axe:before {
+	content: "¢";
+}
+
+td.pick:before {
+	content: "⛏";
+}
+
+td.hammer:before {
+	content: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 100 100' fill='black'><g><path d='M 91.9799,91.807365 18.079698,16.036452 25.563263,8.5529065 101.33436,82.452928 Z' /> <rect width='24.971128' height='13.971112' x='22.162033' y='7.162077' transform='matrix(0.70710772,0.70710584,-0.70710756,0.70710601,0,0)' /> <path d='M 18.115658,40.012506 8.6448037,30.806257 21.500632,17.265495 C 34.342634,4.4235229 48.2233,-2.5167945 52.503969,1.763861 L 62.503992,11.763863 C 58.223325,7.4832065 44.342658,14.423523 31.500655,27.265494 Z' /></g></svg>");
 }
 
 td.pit {
@@ -635,6 +664,7 @@ td.book:before {
 }
 
 td.rune-weak,
+td.rune-wither,
 td.rune-to,
 td.rune-from,
 td.rune-dup {
@@ -643,6 +673,10 @@ td.rune-dup {
 
 td.rune-weak:before {
 	content: "W";
+}
+
+td.rune-wither:before {
+	content: "H";
 }
 
 td.rune-to:before {

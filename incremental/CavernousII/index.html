@@ -69,7 +69,7 @@
 			<div class="queue-inner" onclick="maybeClearCursor(event, this)"></div>
 			<div class="queue-buttons">
 				<span class="button" onclick="saveQueue(this)">Save</span>
-				<span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''))">Clear</span>
+				<span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''), settings.warnings)">Clear</span>
 			</div>
 			<div class="cursor"></div>
 			<div class="work-progress"></div>
@@ -181,6 +181,10 @@
 						<div class="description">Paste queues in the box.</div>
 					</div>
 				</div>
+				<div class="option block clickable" onclick="toggleWarnings()">
+					<span id="warnings">Showing Warnings</span>
+					<div class="description">The game warns on clearing queues.</div>
+				</div>
 			</div>
 			<div class="version" title="Developers: Nucaranlaeg, Dimava, Gnomez">
 				<a href="https://discord.gg/EXAHXBr">Discord</a><br>
@@ -270,14 +274,18 @@
 						<div class="description">Weaken Rune</div>
 					</div>
 					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit2()">
+						<span id="add-action-wither">H</span>
+						<div class="description">Wither Rune</div>
+					</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit3()">
 						<span id="add-action-teleport-to">T</span>
 						<div class="description">Teleport To Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit3()">
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit4()">
 						<span id="add-action-teleport-from">F</span>
 						<div class="description">Teleport From Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit4()">
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit5()">
 						<span id="add-action-duplication">D</span>
 						<div class="description">Duplication Rune</div>
 					</div>

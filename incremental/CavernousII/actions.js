@@ -27,7 +27,7 @@ class Action {
 	}
 
 	getDuration(durationMult = 1){
-		let duration = this.baseDuration * durationMult;
+		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
 		for (let i = 0; i < this.stats.length; i++){
 			duration *= Math.pow(this.stats[i][0].value, this.stats[i][1]);
 		}
@@ -35,7 +35,7 @@ class Action {
 	}
 
 	getBaseDuration() {
-		let duration = this.baseDuration / 1000;
+		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) / 1000;
 		for (let i = 0; i < this.stats.length; i++) {
 			duration *= Math.pow(this.stats[i][0].baseValue, this.stats[i][1]);
 		}
@@ -93,6 +93,11 @@ function completeCoalMine(x, y){
 	completeMove(x, y);
 }
 
+function completeSaltMine(x, y){
+	getStuff("Salt").update(getDuplicationAmount(x, y));
+	completeMove(x, y);
+}
+
 function completeCollectMana(x, y) {
 	let location = getMapLocation(x, y);
 	Route.updateBestRoute(location);
@@ -107,7 +112,7 @@ function tickCollectMana(x, y) {
 }
 
 function mineManaRockCost(completions, priorCompletions, zone) {
-	return completions ? 0 : Math.pow(1.1 + 0.1 * zone.index, priorCompletions);
+	return completions ? 0 : Math.pow(1.1 + 0.05 * zone.index, priorCompletions);
 }
 
 function startCollectMana(completions, priorCompletions) {
@@ -157,6 +162,7 @@ function simpleRequire(requirement){
 		}
 		return 1;
 	}
+	haveEnough.itemCount = requirement.reduce((a, c) => a + c[1], 0);
 	return haveEnough;
 }
 
@@ -266,7 +272,7 @@ function completeTeleport(){
 	}
 }
 
-function startChargeRune(completions){
+function startChargeDuplicate(completions){
 	if (completions > 0){
 		return 0;
 	}
@@ -281,6 +287,36 @@ function completeChargeRune(x, y){
 	setMined(x, y, zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset].toLowerCase());
 }
 
+function tickWither(usedTime, {x, y}){
+	x += zones[currentZone].xOffset;
+	y += zones[currentZone].yOffset;
+	let adjacentPlants = [
+		"♣♠".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
+		"♣♠".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
+		"♣♠".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
+		"♣♠".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
+	].filter(p=>p);
+	adjacentPlants.forEach(loc => {
+		loc.wither += usedTime;
+		if (loc.wither > loc.type.getEnterAction(loc.entered).start(loc.completions, loc.priorCompletions)){
+			setMined(loc.x, loc.y);
+		}
+	});
+}
+
+function completeWither(x, y){
+	x += zones[currentZone].xOffset;
+	y += zones[currentZone].yOffset;
+	let adjacentPlants = [
+		"♣♠".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
+		"♣♠".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
+		"♣♠".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
+		"♣♠".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
+	].filter(p=>p);
+	if (!adjacentPlants.length) return false;
+	return true;
+}
+
 function activatePortal(){
 	moveToZone(currentZone + 1);
 }
@@ -290,13 +326,19 @@ function completeChallenge(x, y){
 	completeMove(x, y);
 }
 
+function getChopTime(base, increaseRate){
+	return () => base + increaseRate * queueTime;
+}
+
 let actions = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
-	new Action("Mine Granite", 10000, [["Mining", 1], ["Speed", 0.2]], completeMove),
+	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMove),
+	new Action("Mine Granite", 250000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Gold", 1000, [["Mining", 1], ["Speed", 0.2]], completeGoldMine),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
+	new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana),
 	new Action("Create Clone", 1000, [], completeCreateClone, startCreateClone),
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire([["Iron Ore", 1]])),
@@ -315,10 +357,16 @@ let actions = [
 	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight),
 	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
-	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeRune),
+	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate),
+	new Action("Charge Wither", 100, [["Runic Lore", 1]], completeWither, null, tickWither),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 	new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
 	new Action("Complete Challenge", 1000, [["Speed", 1]], completeChallenge),
+	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
+	new Action("Kudzu Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, startWalk, tickWalk),
+	new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
+	new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
+	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),
 ];
 
 function getAction(name) {

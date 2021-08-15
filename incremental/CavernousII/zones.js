@@ -79,7 +79,6 @@ class Zone {
 				sameRoute.mana = Math.min(this.lastRoute.mana, sameRoute.mana);
 				sameRoute.manaRequired = Math.min(this.lastRoute.manaRequired, sameRoute.manaRequired);
 			} else if (!this.routes.some(r => r.isBetter(this.lastRoute))){
-				this.routes.forEach(r => console.log(r, this.lastRoute, r.isBetter(this.lastRoute)))
 				this.routesChanged = true;
 				for (let i = 0; i < this.routes.length; i++){
 					if (this.lastRoute.isBetter(this.routes[i])){
@@ -95,9 +94,7 @@ class Zone {
 
 	getBestRoute(requirements = []){
 		let possible = this.routes;
-		if (requirements instanceof ZoneRoute){
-			possible = possible.filter(r => r.manaRequired < requirements.manaRequired);
-		} else {
+		if (!(requirements instanceof ZoneRoute)){
 			requirements = {
 				"require": requirements,
 				"manaRequired": -Infinity,
@@ -121,6 +118,7 @@ class Zone {
 		mana.base += this.manaGain;
 		mana.min = mana.current;
 		this.startMana = mana.current;
+		this.zoneStartTime = queueTime;
 		if (this.queues === null){
 			this.queues = ActionQueue.fromJSON([[]]);
 		}
@@ -142,7 +140,9 @@ class Zone {
 				mapDirt.push([x, y]);
 			});
 		});
-		skipActionComplete = true;
+		if (this.name != "Zone 1"){
+			skipActionComplete = true;
+		}
 		this.startStuff = stuff.filter(s => s.count > 0).map(s => {
 			s.resetMin();
 			return {
@@ -217,7 +217,6 @@ class Zone {
 		if (this.challengeComplete) return;
 		this.challengeComplete = true;
 		this.challengeReward();
-		getMessage(`Zone ${this.index + 1} Challenge`).display();
 	}
 }
 
@@ -234,94 +233,77 @@ function moveToZone(zone, complete = true){
 let zones = [
 	new Zone("Zone 1",
 		[
-			'████████████',
-			'█««###███♥██',
-			'█«█#######██',
-			'█«█####██#██',
-			'█«█Θ#███¤#██',
-			'█«████.##███',
-			'█«█+#██##¤██',
-			'█«█###██##██',
-			'█«█#+#██#+██',
-			'█«█+#####███',
-			'█√████=█¤█%█',
-			'█#█+#█████#█',
-			'█#█+██#○█¤%█',
-			'█##########█',
-			'████████████',
+			'████████████████',
+			'██####% █████%██',
+			'██%██#█##%█¢#♠♥█',
+			'███###███¤██#███',
+			'██+♠████%♠%█#╬██',
+			'█¤█+██.###♠=#⎶██',
+			'█%##███#+█#+##██',
+			'███###█¤██##█♠██',
+			'███#█#██¤♠ ♠█++█',
+			'█#  █#████♠♠████',
+			'█♠███#█████♠♠♠██',
+			'█♠%█#####+#██♠██',
+			'█#%█+##███####██',
+			'█#%█##♠#%████ Θ█',
+			'██%███#█#%#█████',
+			'█¤#¥██++██#£░╖√█',
+			'████████████████',
 		],
 		() => {
-			getAction("Collect Mana").increaseStat("Speed", 0.05);
-			getRune("Teleport From").unlock();
-			getRune("Teleport To").unlock();
-		},
+			getMessage("Unlocked Duplication Rune").display();
+			getRune("Duplication").unlock();
+		}
 	),
 	new Zone("Zone 2",
 		[
-			'████████████',
-			'██=+###+##%█',
-			'██###█#█████',
-			'█¤##█¤#«««██',
-			'██#%██ ██«¤█',
-			'██##██.#««██',
-			'██##██###███',
-			'██+#██#█#%██',
-			'███ █⎶###%██',
-			'███#███╬+███',
-			'█√ #Θ███████',
-			'█#████%%+##█',
-			'█##%█+#███#█',
-			'██####██¤+#█',
-			'████████████',
+			'████████████████',
+			'██████████#+████',
+			'█%#+██+#█╬#█████',
+			'█%█¤██###%#%)+#█',
+			'█%#««█%█+█████¤█',
+			'████«███ █##♥███',
+			'█+#█%#█¤#█=█#%██',
+			'██#██##♠#####███',
+			'█##%█+██.███##██',
+			'█+#%██████¤██%#█',
+			'███%«««%+#♣««g#█',
+			'█+████████ ██##█',
+			'█+########√#████',
+			'███████████###^█',
+			'██¤█%█###████#██',
+			'█Θ+«%#«█««««««██',
+			'████████████████',
 		],
 		() => {
-			["Mine Iron", "Mine Coal"].forEach(ore => getAction(ore).increaseStat("Smithing", 0.05));
+			getMessage("Unlocked Weaken Rune").display();
 			getRune("Weaken").unlock();
-		},
+		}
 	),
 	new Zone("Zone 3",
 		[
-			'████████████',
-			'███%%¤██¤%#█',
-			'█++.%%████#█',
-			'██+#%## ###█',
-			'█=##█ █ ██#█',
-			'██⎶╬█#█++█#█',
-			'█████#█¤%█%█',
-			'█Θ#█)#████%█',
-			'██%██#####%█',
-			'██###g██[█♥█',
-			'█#g%#¤██#███',
-			'█#██████#%%█',
-			'█+████#█████',
-			'█+#%### √#¤█',
-			'████##██##██',
-			'█++█████%+██',
-			'█^###%%██ ██',
-			'█%%█###%##██',
-			'████████████',
+			'████████████████',
+			'████+███████████',
+			'███«««██████████',
+			'██¤+█«+█¤███████',
+			'█+██=«gg⎶███████',
+			'█%%██.██████████',
+			'█♣%%%%╬█████████',
+			'█♣█ ██[█████████',
+			'█+█ ████████████',
+			'█###░√██████████',
+			'█+██████████████',
+			'█#██████████████',
+			'█#♠#%%██████████',
+			'██#██%██████████',
+			'█%#+█%██████████',
+			'██+¤████████████',
+			'████████████████',
 		],
 		() => {
-			["Create Sword", "Upgrade Sword", "Create Shield", "Upgrade Shield", "Create Armour", "Upgrade Armour"].forEach(action => getAction(action).increaseStat("Combat", 0.25));
-			getRune("Duplication").unlock();
-		},
-	),
-	new Zone("Zone 4",
-		[
-			'█████████████████',
-			'█¤#####█#%##██%+█',
-			'██#█.█#+#█╬«+««██',
-			'██#███#████#██«██',
-			'█⎶#█%##+%###██«██',
-			'██%█#███#██ ██%██',
-			'█##+#██#+ ##«+««█',
-			'█#█%█#%#█%█#███%█',
-			'█#####███###██##█',
-			'█+█#█~#%# █##%#██',
-			'█#█g██#███████+██',
-			'███=¤█+#+##+¤████',
-			'█████████████████',
-		],
-		null,
+			getMessage("Unlocked Wither Rune").display();
+			getRune("Wither").unlock();
+		}
 	),
 ];

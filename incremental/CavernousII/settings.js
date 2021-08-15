@@ -6,6 +6,7 @@ let settings = {
 	useDifferentBridges: true,
 	grindMana: false,
 	showingRunes: true,
+	warnings: true,
 }
 
 function setSetting(toggler, value, ...args) {
@@ -47,6 +48,12 @@ function toggleGrindMana() {
 	document.querySelector("#grind-mana-toggle").innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
 	document.querySelector("#grind-mana-toggle").closest(".option").classList.toggle("option-highlighted", settings.grindMana); 
 	return settings.grindMana;
+}
+
+function toggleWarnings() {
+	settings.warnings = !settings.warnings;
+	document.querySelector("#warnings").innerHTML = settings.warnings ? "Showing warnings" : "Not showing warnings";
+	return settings.warnings;
 }
 
 function switchRuneList() {

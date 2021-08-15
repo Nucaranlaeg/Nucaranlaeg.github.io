@@ -21,7 +21,7 @@ class Route {
 			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
 
 			let mana = getStat("Mana");
-			let duration = mineManaRockCost(0, x.priorCompletions, x.zone);
+			let duration = mineManaRockCost(0, x.completions + x.priorCompletions, x.zone) * getAction("Collect Mana").getBaseDuration();
 			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
@@ -120,7 +120,7 @@ class Route {
 			routes.push(cur);
 			settings.debug && console.log('found path to %o:\nnow: %o*%os: %oeff',//
 				location, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
-			return cur;
+				return cur;
 		}
 		let prevEff = prev.estimateConsumeManaLeft();
 		if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {

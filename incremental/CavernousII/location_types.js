@@ -39,12 +39,14 @@ function startCollectManaCost(completions, priorCompletions, zone){
 }
 
 let locationTypes = [
-	new LocationType("Solid Rock", "█", "Rock, too hard to dig through.", null, null, null),
+	new LocationType("Solid Rock", "█", "Some kind of rock, too hard to dig through.", null, null, null),
 	new LocationType("Tunnel", ".", "A bare stone passage, empty of any ornamentation.", "Walk", null, null),
-	new LocationType("Rock", "#", "A whole bunch of rock.", "Mine", null, null),
-	new LocationType("Granite", "«", "A whole bunch of rock, but much harder than usual.", "Mine Granite", null, null),
+	new LocationType("Limestone", "#", "A whole bunch of relatively soft rock.", "Mine", null, null),
+	new LocationType("Travertine", "«", "A whole bunch of rock, but much harder than usual.", "Mine Travertine", null, null),
+	new LocationType("Granite", "╖", "This stone just doesn't want to budge.", "Mine Granite", null, null),
 	new LocationType("Gold ore", "+", "Rocks with veins of gold ore.", "Mine Gold", null, null),
 	new LocationType("Iron ore", "%", "Rocks with veins of iron ore.", "Mine Iron", null, null),
+	new LocationType("Salt", "░", "A wall of rock salt.  It only takes so long to mine it because want to sort out the salt and not carry a ton of gravel with you.", "Mine Salt", null, null),
 	new LocationType("Mana-infused Rock", "¤", "A whole bunch of rock.  But this time, it glows!", "Mine", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Mana Spring", "*", "Pure mana, flowing out of the rock.  Each time you absorb the mana, the cost to do so next time increases.", "Walk", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Clone Machine", "♥", "A strange machine labelled 'Clone Machine'.  What could it do?", "Walk", "Create Clone", storeCompletions, getNextCloneAmountCost),
@@ -58,6 +60,7 @@ let locationTypes = [
 	new LocationType("Hobgoblin", "h", "A large creature looking something like the goblins.  It looks ready to fight.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Goblin Champion", "m", "The largest of the goblins.  You're going to have to work hard to take him down.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
+	new LocationType("Wither Rune", "H", "This rune kills plants next to it.", "Walk", null, null),
 	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
 	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to another place.", "Walk", null, null),
 	new LocationType("Duplication Rune", "D", "This rune increases the yield of mining next to it.", "Walk", null, null),
@@ -74,4 +77,9 @@ let locationTypes = [
 	new LocationType("Anvil - Upgrade Armour", "}", "An anvil on which you can upgrade an iron suit of armour into a steel suit of armour using 2 steel bars.", "Walk", "Upgrade Armour", null),
 	new LocationType("Portal", "Θ", "A portal to another zone.", "Walk", "Portal", null),
 	new LocationType("Complete Challenge", "√", "A strange energy field where you can obtain additional powers.", "Complete Challenge", null, null),
+	new LocationType("Mushroom", "♠", "A giant mushroom which grows quickly.  It's harder to cut the longer you wait.", "Chop", null, null),
+	new LocationType("Kudzushroom", "♣", "A giant mushroom which grows quickly.  It grows so fast each clone needs to make its own way every time.", "Kudzu Chop", null, null, null, Infinity),
+	new LocationType("Anvil - Axe", "¢", "An anvil on which you can make an axe out of an iron bar.", "Walk", "Create Axe", null),
+	new LocationType("Anvil - Pick", "¥", "An anvil on which you can make a pick out of an iron bar.", "Walk", "Create Pick", null),
+	new LocationType("Anvil - Hammer", "£", "An anvil on which you can make a hammer out of an iron bar.", "Walk", "Create Hammer", null),
 ];

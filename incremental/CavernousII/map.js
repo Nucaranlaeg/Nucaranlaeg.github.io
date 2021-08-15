@@ -3,11 +3,15 @@ const classMapping = {
 	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone])}`],
 	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone])}`],
 	".": ["tunnel", "Dug Tunnel"],
-	"#": ["rock", "Rock"],
-	"«": ["granite", "Granite"],
+	"#": ["limestone", "Limestone"], // Mohs 3
+	"«": ["travertine", "Travertine"], // Mohs 6
+	"╖": ["granite", "Granite"], // Mohs 5
+	"???": ["basalt", "Basalt"], // Mohs 6, unused
+	"????": ["chert", "Chert"], // Mohs 7, unused
 	"♥": ["clone-machine", "Strange Machine"],
 	"+": ["gold", "Gold Ore"],
 	"%": ["iron", "Iron Ore"],
+	"░": ["salt", "Salt"],
 	"╬": ["furnace", "Furnace"],
 	"▣": ["furnace2", "Steel Furnace"],
 	"=": ["vaporizer", "Vaporizer"],
@@ -24,6 +28,7 @@ const classMapping = {
 	"}": ["armour2", "Anvil - Upgrade Armour"],
 	"^": ["fountain", "Fountain"],
 	"W": ["rune-weak", "Weaken Rune"],
+	"H": ["rune-wither", "Wither Rune"],
 	"T": ["rune-to", "Teleport To Rune"],
 	"F": ["rune-from", "Teleport From Rune"],
 	"D": ["rune-dup", "Duplication Rune"],
@@ -35,10 +40,15 @@ const classMapping = {
 	"m": ["champion", "Goblin Champion"],
 	"Θ": ["zone", "Zone Portal"],
 	"√": ["challenge", "Challenge"],
+	"♠": ["mushroom", "Mushroom"],
+	"♣": ["kudzushroom", "Kudzushroom"],
+	"¢": ["axe", "Anvil - Axe"],
+	"¥": ["pick", "Anvil - Pick"],
+	"£": ["hammer", "Anvil - Hammer"],
 };
 
 // The tiles that can be pathfinded through.
-const walkable = "*.♥╬▣=⎶&\"()[]{}^WTFDd";
+const walkable = "*.♥╬▣=⎶&\"()[]{}^WHTFDd¢¥£";
 
 let mapDirt = [];
 let mapStain = [];
@@ -174,6 +184,7 @@ function setMined(x, y, icon){
 	let old = zones[currentZone].map[y][x];
 	let tile = icon || {
 		"#": ".",
+		"♠": ".",
 		"«": ".",
 		"¤": "*",
 		"+": ".",
@@ -185,6 +196,8 @@ function setMined(x, y, icon){
 		"h": ".",
 		"m": ".",
 		"√": ".",
+		"░": ".",
+		"╖": ".",
 	}[old] || old;
 	zones[currentZone].map[y] = zones[currentZone].map[y].slice(0, x) + tile + zones[currentZone].map[y].slice(x + 1);
 	if (tile !== old) {

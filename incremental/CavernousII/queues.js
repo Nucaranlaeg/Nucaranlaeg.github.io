@@ -299,7 +299,7 @@ function clearQueue(queue = null, noConfirm = false){
 	if (queue === null){
 		if (selectedQueue.length == 0) return;
 		if (selectedQueue.length == 1) {
-			clearQueue(selectedQueue[0]);
+			clearQueue(selectedQueue[0], noConfirm);
 		} else {
 			if (selectedQueue.length == queues.length) {
 				if (!noConfirm && !confirm("Really clear ALL queues?")) return;

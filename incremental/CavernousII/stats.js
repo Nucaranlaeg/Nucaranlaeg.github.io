@@ -12,7 +12,11 @@ class Stat {
 	}
 
 	updateValue() {
-		this.value = 100 / (100 + this.current + this.bonus);
+		if (this.current > 100){
+			this.value = 100 / (100 + this.current + this.bonus);
+		} else {
+			this.value = 100 / (100 + (this.current * (100 + this.bonus) / 100));
+		}
 		this.dirty = true;
 	}
 
@@ -104,11 +108,18 @@ class Stat {
 		this.dirty = true;
 		this.min = Math.min(this.current, this.min);
 	}
+
+	getBonus(amount) {
+		this.bonus += amount;
+		this.dirty = true;
+		this.update();
+	}
 }
 
 let stats = [
-	new Stat("Mana", "", "How long you can resist being pulled back to your cave.", 5, false),
+	new Stat("Mana", "", "How long you can resist being pulled back to your cave.", 0, false),
 	new Stat("Mining", "⛏", "Your skill at mining, reducing the time it takes to do mining-type tasks."),
+	new Stat("Woodcutting", "", "How good you are at chopping down mushrooms of various kinds."),
 	new Stat("Magic", "★", "Your understanding of arcane mysteries."),
 	new Stat("Speed", "", "How quick you are."),
 	new Stat("Smithing", smithingSVG, "Your skill at turning raw ores into usable objects."),

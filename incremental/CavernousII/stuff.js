@@ -20,7 +20,7 @@ class Stuff {
 		this.count += newCount;
 		// Ensure we never have 0.9999989 gold.
 		this.count = Math.round(this.count * 10) / 10;
-		this.effect();
+		this.effect(newCount);
 		// Check if the number is an integer - if it's not, display one decimal place.
 		this.node.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 1);
 		if (this.count > 0){
@@ -71,8 +71,14 @@ function calcCombatStats() {
 	clones.forEach(c => c.styleDamage());
 }
 
+function getStatBonus(name, amount){
+	let stat = getStat(name);
+	return (mult) => stat.getBonus(amount * mult);
+}
+
 let stuff = [
 	new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
+	new Stuff("Salt", "⌂", "A pile of salt.  You're not hungry, so what's this good for?", "#ffffff", 0),
 	new Stuff("Iron Ore", "•", "A chunck of iron ore.  Not useful in its current form.", "#777777", 0),
 	new Stuff("Iron Bar", "❚", "An iron rod.  Has a faint smell of bacon.", "#777777", 0),
 	new Stuff("Iron Bridge", "⎶", "A small iron bridge.", "#777777", 0),
@@ -85,6 +91,9 @@ let stuff = [
 	new Stuff("Steel Sword", ")", "A steel sword.  Sharp! (+2 attack)  Max 1 weapon per clone.", "#222222", 0, calcCombatStats),
 	new Stuff("Steel Shield", "[", "A steel shield.  This should help you not die. (+2 defense)  Max 1 shield per clone.", "#222222", 0, calcCombatStats),
 	new Stuff("Steel Armour", "]", "A suit of steel armour.  This should help you take more hits. (+15 health)  Max 1 armour per clone.", "#222222", 0, calcCombatStats),
+	new Stuff("Iron Axe", "¢", "An iron axe.  Gives +10 (or +10%) to Woodcutting.", "#777777", 0, getStatBonus("Woodcutting", 10)),
+	new Stuff("Iron Pick", "⛏", "An iron pickaxe.  Gives +10 (or +10%) to Mining.", "#777777", 0, getStatBonus("Mining", 10)),
+	new Stuff("Iron Hammer", smithingSVG, "An iron hammer.  Gives +10 (or +10%) to smithing.", "#777777", 0, getStatBonus("Smithing", 10)),
 ];
 
 function setContrast(colour) {

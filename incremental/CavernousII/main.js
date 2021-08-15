@@ -38,12 +38,7 @@ function getLocationType(name) {
 }
 
 function getLocationTypeBySymbol(symbol) {
-	try {
-		return locationTypes.find(a => a.symbol == symbol).name;
-	} catch {
-		console.log(symbol);
-		return locationTypes.find(a => a.symbol == symbol).name;
-	}
+	return locationTypes.find(a => a.symbol == symbol).name;
 }
 
 function getMessage(name) {
@@ -117,7 +112,7 @@ function resetLoop() {
 			});
 		});
 	});
-	updateRunes(this.current);
+	updateRunes();
 	updateSpells(this.base);
 	moveToZone(0, false);
 	drawMap();
@@ -240,7 +235,7 @@ function load(){
 	ensureLegalQueues();
 	drawSavedQueues();
 	lastAction = saveGame.time.saveTime;
-	timeBanked = saveGame.time.timeBanked;
+	timeBanked = +saveGame.time.timeBanked;
 	if (saveGame.routes){
 		routes = Route.fromJSON(saveGame.routes);
 	}
@@ -327,10 +322,10 @@ setInterval(function mainLoop() {
 	}
 	if (!settings.running ||
 			mana.current == 0 ||
-			(settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) ||
-			(settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined)) ||
+			(settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined && (q[q.length - 1] || [""])[0] !== "=")) ||
+			(settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined || clones[i].damage == Infinity) && clones.some(c => c.damage < Infinity)) ||
 			!messageBox.hidden) {
-		if (!isNaN(time)) timeBanked += time / 2;
+		if (!isNaN(time / 2)) timeBanked += time / 2;
 		redrawOptions();
 		updateDropTarget();
 		return;
@@ -357,7 +352,7 @@ setInterval(function mainLoop() {
 	let timeUsed = timeAvailable - timeLeft;
 	if (timeUsed > time && !isNaN(timeUsed - time)) {
 		timeBanked -= timeUsed - time;
-	} else if (!isNaN(time - timeUsed)){
+	} else if (!isNaN((time - timeUsed) / 2)){
 		timeBanked += (time - timeUsed) / 2;
 	}
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
@@ -408,17 +403,8 @@ let keyFunctions = {
 	},
 	"^Backspace": e => {
 		if (!selectedQueue.every(e => zones[displayZone].queues[e].length == 0)) {
-			clearQueue(null, settings.noConfirm);
+			clearQueue(null, !settings.warnings);
 			return;
-		}
-		if (!settings.noConfirm &&
-			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == false &&
-			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == true &&
-			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == true &&
-			confirm("Press No-Yes-Yes-No to disable confirmations forever!") == false) {
-
-			alert("Queue clear confirmations were succesfully disabled!");
-			settings.noConfirm = true;
 		}
 	},
 	"KeyW": () => {

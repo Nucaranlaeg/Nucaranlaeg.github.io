@@ -17,6 +17,7 @@ class Location {
 		this.enterDuration = 0;
 		this.presentDuration = 0;
 		this.temporaryPresent = null;
+		this.wither = 0;
 	}
 	
 	start() {
@@ -33,7 +34,8 @@ class Location {
 		}
 		let enterAction = this.type.getEnterAction(this.entered);
 		if (!enterAction) return false;
-		this.remainingEnter = enterAction.start(this.completions, this.priorCompletions);
+		this.remainingEnter = enterAction.start(this.completions, this.priorCompletions) - this.wither;
+		this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(), this.remainingEnter);
 		this.enterDuration = this.remainingEnter;
 		return this.remainingEnter;
 	}
@@ -42,7 +44,7 @@ class Location {
 		let usedTime, percent;
 		if (clones[currentClone].x == this.x && clones[currentClone].y == this.y){
 			usedTime = Math.min(time, this.remainingPresent);
-			(this.type.presentAction || this.temporaryPresent).tick(usedTime);
+			(this.type.presentAction || this.temporaryPresent).tick(usedTime, {x: this.x, y: this.y});
 			this.remainingPresent -= usedTime;
 			if (this.remainingPresent == 0){
 				if ((this.type.presentAction || this.temporaryPresent).complete(this.x, this.y)){
@@ -57,7 +59,7 @@ class Location {
 			}
 			percent = this.remainingPresent / (this.presentDuration || 1);
 		} else {
-			if (this.type.getEnterAction(this.entered).name == "Walk"){
+			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)){
 				if (!clones[currentClone].walkTime){
 					// Not sure why this is happening... walktime should be set when start() is called the first time.
 					this.start();
@@ -100,5 +102,6 @@ class Location {
 		this.remainingEnter = 0;
 		this.remainingPresent = 0;
 		this.temporaryPresent = null;
+		this.wither = 0;
 	}
 }

@@ -35,8 +35,7 @@ class ZoneRoute {
 	}
 
 	isValidPredecessor(zoneRoute){
-		return this.mana >= zoneRoute.manaRequired - 1e-4
-			&& zoneRoute.require.every(s => (this.stuff.find(t => t.name == s.name) || {"count": -1}).count >= s.count);
+		return (zoneRoute.require || []).every(s => (this.stuff.find(t => t.name == s.name) || {"count": -1}).count >= s.count);
 	}
 
 	isBetter(zoneRoute) {

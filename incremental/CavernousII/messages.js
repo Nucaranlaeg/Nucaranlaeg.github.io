@@ -70,7 +70,8 @@ let messages = [
 	new Message("The Looping of Looping Loops", `
 					The time repeats itself over and over, the cave stays the same.
 
-					Check the <u>Options</u> panel for the <u>Auto-Restart requirement (W)</u>`),
+					Check the <u>Options</u> panel for the <u>Auto-Restart requirement (W)</u>
+					Setting it to "Wait when any complete" will ignore clones that end with a Sync (=) action.`),
 	new Message("Strip Mining", `
 					It's getting harder to extract mana from that rock.
 					You'll have to go out and find another rock to extract mana from.
@@ -102,9 +103,6 @@ let messages = [
 					
 					Each stat is displayed as <u>current</u> (<u>base</u>), and your current value is reset to your base value when you travel back in time.
 					Hovering over a stat displays the percentage of time you save on tasks using that stat.`),
-	new Message("Runic Lore", `
-					You've mastered the basics of runic lore!  A new action is available to you: Inscribe Rune.
-					To use it, press the number corresponding to the desired rune in the runes section of the Stuff panel.`),
 	new Message("Lava Can't Melt Steel Bridges", `
 					You worked so hard on that bridge, and to see it quickly turn to slag after crossing that lava is sad.
 					At least one of your clones made it across.`),
@@ -114,18 +112,18 @@ let messages = [
 					It will last until the end of your next fight.`),
 	new Message("Enter New Zone", `
 					You've found a portal to another zone!
-					Each zone has at least 3 mana rocks and a challenge which unlocks something and gives a bonus.  Just reach it to complete it!
+					Each zone has at least 3 mana rocks - they give more mana but their cost scales faster the deeper you get.  They give 0.1 mana per earlier zone (including the current one), which you'll recieve on entering that zone.
 					You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with (which you can also click on).`),
-	new Message("Zone 1 Challenge", `
-					You've completed a challenge!
-					You've unlocked the Teleport From and Teleport To runes.  Place one of each, then activate the Teleport From rune to instantly travel to the Teleport To rune!
-					Absorbing mana is now affected slightly by Speed.`),
-	new Message("Zone 2 Challenge", `
-					You've completed a challenge!
-					You've unlocked the Weaken rune.  Place it next to an enemy to reduce its attack and defense by 1.
-					Mining ores is now affected slightly by Smithing.`),
-	new Message("Zone 3 Challenge", `
-					You've completed a challenge!
-					You've unlocked the Duplication rune.  Place it next to valuables and charge it up (before mining them) to get extra resources!
-					Smithing armour and weapons is now affected by Combat.`),
+	new Message("Unlocked Weaken Rune", `
+					You've unlocked a rune!
+					To place a rune, press the relevant number, and the rune will be inscribed upon the space that clone is in.  You can inscribe runes only on Dug Tunnel spaces.
+					The Weaken rune reduces the attack and defense of adjacent enemies by 1 point each (but not below 0).
+					You can find the cost to place a rune in that rune's tooltip.`),
+	new Message("Unlocked Wither Rune", `
+					You've unlocked a rune!
+					The Wither rune kills plants next to it.  After placing it, interact with it to charge it up and kill adjacent plants.`),
+	new Message("Unlocked Duplication Rune", `
+					You've unlocked a rune!
+					The Duplication rune gets you more stuff.  After placing it, interact with it to charge it up.
+					Once it's charged, each orthogonally adjacent space will give one extra resource (of the type it already gives).`),
 ];
