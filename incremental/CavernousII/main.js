@@ -481,6 +481,9 @@ let keyFunctions = {
 	"Digit4": () => {
 		addRuneAction(3, 'rune');
 	},
+	"Digit5": () => {
+		addRuneAction(4, 'rune');
+	},
 	"Numpad1": () => {
 		addRuneAction(0, 'rune');
 	},
@@ -492,6 +495,9 @@ let keyFunctions = {
 	},
 	"Numpad4": () => {
 		addRuneAction(3, 'rune');
+	},
+	"Numpad5": () => {
+		addRuneAction(4, 'rune');
 	},
 	">Digit1": () => {
 		addRuneAction(0, 'spell');

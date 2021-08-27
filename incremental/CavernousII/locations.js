@@ -34,6 +34,7 @@ class Location {
 		}
 		let enterAction = this.type.getEnterAction(this.entered);
 		if (!enterAction) return false;
+		clones[currentClone].walkTime = 0;
 		this.remainingEnter = enterAction.start(this.completions, this.priorCompletions) - this.wither;
 		this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(), this.remainingEnter);
 		this.enterDuration = this.remainingEnter;
@@ -84,7 +85,7 @@ class Location {
 				}
 			}
 			percent = this.remainingEnter / (this.enterDuration || 1);
-			if (this.type.getEnterAction().name == "Walk") this.remainingEnter = 100;
+			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)) this.remainingEnter = 100;
 		}
 		return [time - usedTime, percent];
 	}

@@ -91,9 +91,9 @@ let stuff = [
 	new Stuff("Steel Sword", ")", "A steel sword.  Sharp! (+2 attack)  Max 1 weapon per clone.", "#222222", 0, calcCombatStats),
 	new Stuff("Steel Shield", "[", "A steel shield.  This should help you not die. (+2 defense)  Max 1 shield per clone.", "#222222", 0, calcCombatStats),
 	new Stuff("Steel Armour", "]", "A suit of steel armour.  This should help you take more hits. (+15 health)  Max 1 armour per clone.", "#222222", 0, calcCombatStats),
-	new Stuff("Iron Axe", "¢", "An iron axe.  Gives +10 (or +10%) to Woodcutting.", "#777777", 0, getStatBonus("Woodcutting", 10)),
-	new Stuff("Iron Pick", "⛏", "An iron pickaxe.  Gives +10 (or +10%) to Mining.", "#777777", 0, getStatBonus("Mining", 10)),
-	new Stuff("Iron Hammer", smithingSVG, "An iron hammer.  Gives +10 (or +10%) to smithing.", "#777777", 0, getStatBonus("Smithing", 10)),
+	new Stuff("Iron Axe", "¢", "An iron axe.  Gives +10 (or +10%) to Woodcutting, and applies 1% of your Woodcutting skill to combat.", "#777777", 0, getStatBonus("Woodcutting", 10)),
+	new Stuff("Iron Pick", "⛏", "An iron pickaxe.  Gives +10 (or +10%) to Mining, and applies 1% of your Mining skill to combat.", "#777777", 0, getStatBonus("Mining", 10)),
+	new Stuff("Iron Hammer", smithingSVG, "An iron hammer.  Gives +10 (or +10%) to smithing, and applies 1% of your Smithing skill to combat.", "#777777", 0, getStatBonus("Smithing", 10)),
 ];
 
 function setContrast(colour) {

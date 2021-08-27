@@ -78,10 +78,10 @@ class Zone {
 			if (sameRoute){
 				sameRoute.mana = Math.min(this.lastRoute.mana, sameRoute.mana);
 				sameRoute.manaRequired = Math.min(this.lastRoute.manaRequired, sameRoute.manaRequired);
-			} else if (!this.routes.some(r => r.isBetter(this.lastRoute))){
+			} else if (!this.routes.some(r => r.isBetter(this.lastRoute, this.manaGain))){
 				this.routesChanged = true;
 				for (let i = 0; i < this.routes.length; i++){
-					if (this.lastRoute.isBetter(this.routes[i])){
+					if (this.lastRoute.isBetter(this.routes[i], this.manaGain)){
 						this.routes.splice(i, 1);
 						i--;
 					}
@@ -92,16 +92,35 @@ class Zone {
 		this.display();
 	}
 
-	getBestRoute(requirements = []){
-		let possible = this.routes;
-		if (!(requirements instanceof ZoneRoute)){
-			requirements = {
-				"require": requirements,
-				"manaRequired": -Infinity,
+	sumRoute(route, actualRequirements){
+		let routeOptions = this.routes;
+		routeOptions = routeOptions.map(r => {
+			let requirements = (actualRequirements !== null ? actualRequirements : route.require).map(s => {
+				return {
+					"name": s.name,
+					"count": s.count,
+				};
+			});
+			for (let req of requirements){
+				let thing = r.stuff.find(s => s.name == req.name);
+				if (thing){
+					req.count = Math.max(req.count - thing.count, 0);
+				}
 			}
-		}
-		possible = possible.filter(r => r.isValidPredecessor(requirements));
-		return possible.sort((a, b) => b.mana - a.mana);
+			for (let thing of r.require){
+				let req = requirements.find(s => s.name == thing.name);
+				if (req){
+					req.count += thing.count;
+				} else {
+					requirements.push({
+						"name": thing.name,
+						"count": thing.count,
+					});
+				}
+			}
+			return [r, requirements];
+		});
+		return routeOptions.sort((a, b) => b[0].mana - a[0].mana);
 	}
 
 	enterZone(){
@@ -165,6 +184,7 @@ class Zone {
 		this.node.onclick = () => {
 			document.querySelector("#zone-name").innerHTML = this.name;
 			displayZone = zones.findIndex(z => z.name == this.name);
+			maybeClearCursor();
 			isDrawn = false;
 			mapDirt = [];
 			mapStain = [];
@@ -202,6 +222,12 @@ class Zone {
 				parent.appendChild(routeNode);
 			}
 		}
+		this.displaySelectedRoute();
+	}
+	
+	displaySelectedRoute(){
+		let parent = this.node.querySelector(".routes");
+		parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
 		let currentRoute = (this.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
 		let routeIndex = this.routes.findIndex(r => (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute);
 		if (routeIndex > -1) parent.children[routeIndex + 1].classList.add("active");
@@ -225,7 +251,10 @@ function moveToZone(zone, complete = true){
 		zone = zones.findIndex(z => z.name == zone);
 	}
 	zones[currentZone].exitZone(complete);
-	if (currentZone == displayZone) displayZone = zone;
+	if (currentZone == displayZone){
+		displayZone = zone;
+		maybeClearCursor();
+	}
 	currentZone = zone;
 	zones[zone].enterZone();
 }
@@ -234,6 +263,7 @@ let zones = [
 	new Zone("Zone 1",
 		[
 			'████████████████',
+			'███████+##+█████',
 			'██####% █████%██',
 			'██%██#█##%█¢#♠♥█',
 			'███###███¤██#███',
@@ -242,10 +272,10 @@ let zones = [
 			'█%##███#+█#+##██',
 			'███###█¤██##█♠██',
 			'███#█#██¤♠ ♠█++█',
-			'█#  █#████♠♠████',
-			'█♠███#█████♠♠♠██',
-			'█♠%█#####+#██♠██',
-			'█#%█+##███####██',
+			'█#  █#████♠♣████',
+			'█♠███#████+♠♣♠██',
+			'█♠%█#####+███♣██',
+			'█#%█+##██#####██',
 			'█#%█##♠#%████ Θ█',
 			'██%███#█#%#█████',
 			'█¤#¥██++██#£░╖√█',
@@ -259,8 +289,8 @@ let zones = [
 	new Zone("Zone 2",
 		[
 			'████████████████',
-			'██████████#+████',
-			'█%#+██+#█╬#█████',
+			'██████████#+█ ¤█',
+			'█%#+██+#█╬#██ ██',
 			'█%█¤██###%#%)+#█',
 			'█%#««█%█+█████¤█',
 			'████«███ █##♥███',
@@ -290,14 +320,14 @@ let zones = [
 			'█+██=«gg⎶███████',
 			'█%%██.██████████',
 			'█♣%%%%╬█████████',
-			'█♣█ ██[█████████',
-			'█+█ ████████████',
+			'█♣█ ██[#████████',
+			'█+█ ███~#███████',
 			'█###░√██████████',
-			'█+██████████████',
+			'█+███&+█████████',
 			'█#██████████████',
 			'█#♠#%%██████████',
 			'██#██%██████████',
-			'█%#+█%██████████',
+			'█%#+█%○█████████',
 			'██+¤████████████',
 			'████████████████',
 		],

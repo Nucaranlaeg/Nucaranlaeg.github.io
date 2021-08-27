@@ -34,19 +34,15 @@ class ZoneRoute {
 		Object.assign(this, z);
 	}
 
-	isValidPredecessor(zoneRoute){
-		return (zoneRoute.require || []).every(s => (this.stuff.find(t => t.name == s.name) || {"count": -1}).count >= s.count);
-	}
-
-	isBetter(zoneRoute) {
+	isBetter(zoneRoute, zoneMana = 0.1) {
 		return (this.mana >= zoneRoute.mana - 0.1
-			&& this.manaRequired <= zoneRoute.manaRequired + 0.1
+			&& this.manaRequired <= zoneRoute.manaRequired + zoneMana
 			&& zoneRoute.stuff.every(s => (this.stuff.find(t => t.name == s.name) || {"count": -1}).count >= s.count)
 			&& this.require.every(s => (zoneRoute.require.find(t => t.name == s.name) || {"count": -1}).count >= s.count));
 	}
 
 	isSame(zoneRoute) {
-		return this.route.every((r, i) => r == zoneRoute.route[i]);
+		return this.route.length == zoneRoute.length && this.route.every((r, i) => r == zoneRoute.route[i]);
 	}
 
 	loadRoute(zone) {
@@ -62,6 +58,7 @@ class ZoneRoute {
 			}
 		}
 		currentZone = actualCurrentZone;
+		zone.displaySelectedRoute();
 		return this.require;
 	}
 

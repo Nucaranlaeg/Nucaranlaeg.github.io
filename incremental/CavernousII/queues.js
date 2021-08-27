@@ -177,6 +177,9 @@ class ActionQueue extends Array {
 			settings.debug && console.log(`Failed to parse action: ${actionID}`);
 			return;
 		}
+		if (!this[index]){
+			maybeClearCursor();
+		}
 		
 		let done = index == null ? false // last action, don't skip
 		         : index >= 0 ? this[index].done // middle action, skip if prior is done
@@ -434,7 +437,7 @@ function setCursor(event, el){
 }
 
 function maybeClearCursor(event, el){
-	if (event.target == el){
+	if (!event || event.target == el){
 		cursor[1] = null;
 	}
 }

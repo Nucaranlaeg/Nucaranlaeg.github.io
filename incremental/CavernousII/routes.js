@@ -38,16 +38,17 @@ class Route {
 		Object.assign(this, x);
 	}
 
-	pickRoute(zone, route){
-		let possible;
-		possible = zones[zone].getBestRoute(route);
+	pickRoute(zone, route, actualRequirements = null){
+		let routeOptions = zones[zone].sumRoute(route, actualRequirements);
 		if (zone == 0){
-			return possible[0] ? [possible[0]] : null;
+			if (routeOptions.length == 0) return null;
+			route = routeOptions.find(r => r[1].every(s => s.count == 0)) || [];
+			return [route[0]] || null;
 		}
-		for (let i = 0; i < possible.length; i++){
-			let routes = this.pickRoute(zone - 1, possible[i]);
+		for (let i = 0; i < routeOptions.length; i++){
+			let routes = this.pickRoute(zone - 1, routeOptions[i][0], routeOptions[i][1]);
 			if (routes !== null){
-				return [...routes, possible[i]];
+				return [...routes, routeOptions[i][0]];
 			}
 		}
 		return null;
@@ -55,7 +56,7 @@ class Route {
 
 	loadRoute(){
 		if (this.zone > 0){
-			let routes = this.pickRoute(this.zone - 1, this.requirements);
+			let routes = this.pickRoute(this.zone - 1, {"require": this.requirements});
 			if (routes !== null){
 				for (let i = 0; i < routes.length; i++){
 					routes[i].loadRoute(zones[i]);

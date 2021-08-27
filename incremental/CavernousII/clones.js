@@ -9,6 +9,7 @@ class Clone {
 		this.x = 0;
 		this.y = 0;
 		this.walkTime = 0;
+		this.startDamage = this.damage;
 	}
 
 	reset() {
@@ -263,9 +264,9 @@ class Clone {
 					c.performSingleAction();
 				}
 			}
-			maxTime = Math.max(...clones.map(e => !e.noActionsAvailable && e.damage != Infinity && e.timeAvailable));
+			maxTime = Math.max(...clones.map(e => !e.noActionsAvailable && e.damage != Infinity && (e.timeAvailable || 0)));
 		}
-		let timeNotSpent = Math.min(...clones.map(e => e.timeLeft));
+		let timeNotSpent = Math.min(...clones.map(e => e.timeLeft || 0));
 		clones.forEach(c => {
 			if (c.timeLeft > timeNotSpent) c.sustainSpells(c.timeLeft - timeNotSpent);
 		})
@@ -283,7 +284,6 @@ class Clone {
 			if (clones.length == 4) getMessage("Third Clone").display();
 		}
 	}
-
 }
 
 function selectClone(target, event){
