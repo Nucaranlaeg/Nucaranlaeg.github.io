@@ -22,6 +22,9 @@ class ZoneRoute {
 					"count": s.count - getStuff(s.name).min,
 				};
 			}).filter(s => s.count > 0);
+			let health = getStat("Health");
+			// cloneHealth is [min (from start), delta]
+			this.cloneHealth = clones.map(c => [c.minHealth, c.startDamage - c.damage]);
 			this.manaRequired = z.startMana - mana.min;
 			this.require = z.startStuff.map(s => {
 				return {
@@ -38,7 +41,8 @@ class ZoneRoute {
 		return (this.mana >= zoneRoute.mana - 0.1
 			&& this.manaRequired <= zoneRoute.manaRequired + zoneMana
 			&& zoneRoute.stuff.every(s => (this.stuff.find(t => t.name == s.name) || {"count": -1}).count >= s.count)
-			&& this.require.every(s => (zoneRoute.require.find(t => t.name == s.name) || {"count": -1}).count >= s.count));
+			&& this.require.every(s => (zoneRoute.require.find(t => t.name == s.name) || {"count": -1}).count >= s.count))
+			&& this.cloneHealth.every((c, i) => c[0] > (zoneRoute.cloneHealth[i] || [0])[0] - 0.1 && c[1] > (zoneRoute.cloneHealth[i] || [0,0])[1] - 0.1);
 	}
 
 	isSame(zoneRoute) {

@@ -17,6 +17,8 @@ class Route {
 				}
 			}
 			this.route = route;
+			// cloneHealth is [min (from start), delta]
+			this.cloneHealth = clones.map(c => c.minHealth);
 
 			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
 
@@ -38,15 +40,16 @@ class Route {
 		Object.assign(this, x);
 	}
 
-	pickRoute(zone, route, actualRequirements = null){
-		let routeOptions = zones[zone].sumRoute(route, actualRequirements);
+	pickRoute(zone, route, actualRequirements = null, health = clones.map(c => 0)){
+		let routeOptions = zones[zone].sumRoute(route, actualRequirements, health);
 		if (zone == 0){
 			if (routeOptions.length == 0) return null;
-			route = routeOptions.find(r => r[1].every(s => s.count == 0)) || [];
-			return [route[0]] || null;
+			let health = getStat("Health");
+			route = routeOptions.find(r => r[1].every(s => s.count == 0) && r[2].every(h => h < health.base)) || [];
+			return route[0] ? [route[0]] : null;
 		}
 		for (let i = 0; i < routeOptions.length; i++){
-			let routes = this.pickRoute(zone - 1, routeOptions[i][0], routeOptions[i][1]);
+			let routes = this.pickRoute(zone - 1, routeOptions[i][0], routeOptions[i][1], routeOptions[i][2]);
 			if (routes !== null){
 				return [...routes, routeOptions[i][0]];
 			}
@@ -56,7 +59,7 @@ class Route {
 
 	loadRoute(){
 		if (this.zone > 0){
-			let routes = this.pickRoute(this.zone - 1, {"require": this.requirements});
+			let routes = this.pickRoute(this.zone - 1, {"require": this.requirements}, null, this.cloneHealth);
 			if (routes !== null){
 				for (let i = 0; i < routes.length; i++){
 					routes[i].loadRoute(zones[i]);
@@ -89,7 +92,7 @@ class Route {
 			return i > this.zone ? a : a + z.manaGain
 		}, 0);
 		est = est - this.manaUsed - (this.getConsumeCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
-		return !ignoreInvalidate && this.invalidateCost ? est + 100 : est;
+		return !ignoreInvalidate && this.invalidateCost ? est + 1000 : est;
 	}
 
 	estimateConsumeTimes() {

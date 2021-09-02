@@ -10,6 +10,7 @@ class Clone {
 		this.y = 0;
 		this.walkTime = 0;
 		this.startDamage = this.damage;
+		this.minHealth = 0;
 	}
 
 	reset() {
@@ -39,6 +40,7 @@ class Clone {
 		} else {
 			this.damage += amount;
 		}
+		this.minHealth = Math.min(this.minHealth, this.startDamage - this.damage);
 		if (this.damage < 0) this.damage = 0;
 		if (this.damage >= getStat("Health").current){
 			this.damage = Infinity;

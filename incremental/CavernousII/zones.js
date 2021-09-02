@@ -92,7 +92,7 @@ class Zone {
 		this.display();
 	}
 
-	sumRoute(route, actualRequirements){
+	sumRoute(route, actualRequirements, startDamage){
 		let routeOptions = this.routes;
 		routeOptions = routeOptions.map(r => {
 			let requirements = (actualRequirements !== null ? actualRequirements : route.require).map(s => {
@@ -118,7 +118,11 @@ class Zone {
 					});
 				}
 			}
-			return [r, requirements];
+			let health = startDamage.map((h, i) => {
+				if (r.cloneHealth[i] === undefined) return h;
+				return Math.max(h + r.cloneHealth[i][1], 0) + r.cloneHealth[0][0];
+			});
+			return [r, requirements, health];
 		});
 		return routeOptions.sort((a, b) => b[0].mana - a[0].mana);
 	}
