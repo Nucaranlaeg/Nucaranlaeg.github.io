@@ -92,8 +92,7 @@ function stopHovering(){
 function showFinalLocation(isDraw = false){
 	if (selectedQueue[0] !== undefined){
 		showLocationAfterSteps(zones[displayZone].queues[selectedQueue[0]].length - 1, selectedQueue[0], isDraw);
-	}
-	else if (finalLocation) {
+	} else if (finalLocation) {
 		finalLocation.classList.remove("final-location");
 	}
 }

@@ -126,4 +126,7 @@ let messages = [
 					You've unlocked a rune!
 					The Duplication rune gets you more stuff.  After placing it, interact with it to charge it up.
 					Once it's charged, each orthogonally adjacent space will give one extra resource (of the type it already gives).`),
+	new Message("Other Realms", `
+					There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort.
+					Mining mana there will reduce the cost scaling of mana rocks in the Core Realm.`),
 ];

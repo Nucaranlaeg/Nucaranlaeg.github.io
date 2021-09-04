@@ -4,6 +4,8 @@ class ZoneRoute {
 			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
 			route = route.filter(e => e.length);
 			
+			this.realm = currentRealm;
+
 			if (route.every((e,i,a) => e==a[0])) {
 				route = [route[0]];
 			} else {
@@ -46,7 +48,7 @@ class ZoneRoute {
 	}
 
 	isSame(zoneRoute) {
-		return this.route.length == zoneRoute.length && this.route.every((r, i) => r == zoneRoute.route[i]);
+		return this.realm == zoneRoute.realm && this.route.length == zoneRoute.route.length && this.route.every((r, i) => r == zoneRoute.route[i]);
 	}
 
 	loadRoute(zone) {

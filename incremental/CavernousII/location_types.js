@@ -34,8 +34,8 @@ function getNextCloneAmountCost(){
 	return `${getNextCloneAmount()} gold`;
 }
 
-function startCollectManaCost(completions, priorCompletions, zone){
-	return `${writeNumber(this.presentAction.getDuration(mineManaRockCost(completions, priorCompletions, zone)) / 1000, 2)}s`;
+function startCollectManaCost(completions, priorCompletions, zone, x, y){
+	return `${writeNumber(this.presentAction.getDuration(mineManaRockCost(completions, priorCompletions, zone, x, y)) / 1000, 2)}s`;
 }
 
 let locationTypes = [
@@ -64,6 +64,7 @@ let locationTypes = [
 	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
 	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to another place.", "Walk", null, null),
 	new LocationType("Duplication Rune", "D", "This rune increases the yield of mining next to it.", "Walk", null, null),
+	new LocationType("Duplication Rune - Charged", "d", "This rune increases the yield of mining next to it.", "Walk", null, null),
 	new LocationType("Coal", "○", "Bituminous coal is present in these rocks.", "Mine Coal", null, null),
 	new LocationType("Furnace", "╬", "A large box full of fire.", "Walk", "Make Iron Bars", null),
 	new LocationType("Anvil - Bridge", "⎶", "An anvil on which you can make a bridge out of 2 iron.", "Walk", "Create Bridge", null),
@@ -79,6 +80,7 @@ let locationTypes = [
 	new LocationType("Complete Challenge", "√", "A strange energy field where you can obtain additional powers.", "Complete Challenge", null, null),
 	new LocationType("Mushroom", "♠", "A giant mushroom which grows quickly.  It's harder to cut the longer you wait.", "Chop", null, null),
 	new LocationType("Kudzushroom", "♣", "A giant mushroom which grows quickly.  It grows so fast each clone needs to make its own way every time.", "Kudzu Chop", null, null, null, Infinity),
+	new LocationType("Sporeshroom", "α", "A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your clones.", "Spore Chop", null, null),
 	new LocationType("Anvil - Axe", "¢", "An anvil on which you can make an axe out of an iron bar.", "Walk", "Create Axe", null),
 	new LocationType("Anvil - Pick", "¥", "An anvil on which you can make a pick out of an iron bar.", "Walk", "Create Pick", null),
 	new LocationType("Anvil - Hammer", "£", "An anvil on which you can make a hammer out of an iron bar.", "Walk", "Create Hammer", null),

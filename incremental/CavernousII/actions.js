@@ -9,10 +9,10 @@ class Action {
 		this.specialDuration = specialDuration;
 	}
 
-	start(completions, priorCompletions){
+	start(completions, priorCompletions, x, y){
 		let durationMult = 1;
 		if (this.canStart){
-			durationMult = this.canStart(completions, priorCompletions);
+			durationMult = this.canStart(completions, priorCompletions, x, y);
 			if (durationMult <= 0) return durationMult;
 		}
 		return this.getDuration(durationMult);
@@ -33,6 +33,9 @@ class Action {
 			duration *= Math.pow(this.stats[i][0].value, this.stats[i][1]);
 		}
 		duration *= this.specialDuration();
+		if (currentRealm == 1){
+			duration *= 3;
+		}
 		return duration;
 	}
 
@@ -41,7 +44,10 @@ class Action {
 		for (let i = 0; i < this.stats.length; i++) {
 			duration *= Math.pow(this.stats[i][0].baseValue, this.stats[i][1]);
 		}
-		return duration;	
+		if (currentRealm == 1){
+			duration *= 3;
+		}
+		return duration;
 	}
 
 	increaseStat(stat, amount){
@@ -54,14 +60,18 @@ class Action {
 	}
 }
 
+function baseWalkLength(){
+	return 100 * (currentRealm == 1 ? 3 : 1);
+}
+
 function completeMove(x, y){
 	clones[currentClone].x = x;
 	clones[currentClone].y = y;
 	setMined(x, y);
 }
 
-function startWalk(){
-	if (!clones[currentClone].walkTime) clones[currentClone].walkTime = this.getDuration();
+function startWalk(noSetWalkTime){
+	if (!clones[currentClone].walkTime && !noSetWalkTime) clones[currentClone].walkTime = this.getDuration();
 }
 
 function tickWalk(time){
@@ -113,12 +123,17 @@ function tickCollectMana(x, y) {
 	Route.updateBestRoute(location);
 }
 
-function mineManaRockCost(completions, priorCompletions, zone) {
-	return completions ? 0 : Math.pow(1.1 + 0.05 * zone.index, priorCompletions);
+function longZoneCompletionMult(x, y, z) {
+	if (x === undefined || y === undefined) return 1;
+	return 0.99 ** zones[z].getMapLocation(x, y).priorCompletionData[1];
 }
 
-function startCollectMana(completions, priorCompletions) {
-	return mineManaRockCost(completions, priorCompletions, zones[currentZone]);
+function mineManaRockCost(completions, priorCompletions, zone, x, y) {
+	return completions ? 0 : Math.pow(1 + (0.1 + 0.05 * (zone.index + currentRealm)) * longZoneCompletionMult(x, y, zone.index), priorCompletions);
+}
+
+function startCollectMana(completions, priorCompletions, x, y) {
+	return mineManaRockCost(completions, priorCompletions, zones[currentZone], x, y);
 }
 
 function startCreateClone(completions, priorCompletions){
@@ -135,15 +150,16 @@ function getNextCloneAmount(){
 	return clones.length == 1 ? 1 : 5 * Math.pow(2, clones.length - 1);
 }
 
-function simpleConvert(source, target){
+function simpleConvert(source, target, doubleExcempt = false){
 	function convert(){
+		let mult = currentRealm == 1 && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < source.length; i++){
 			let stuff = getStuff(source[i][0]);
-			if (stuff.count < source[i][1]) return;
+			if (stuff.count < source[i][1] * mult) return;
 		}
 		for (let i = 0; i < source.length; i++){
 			let stuff = getStuff(source[i][0]);
-			stuff.update(-source[i][1]);
+			stuff.update(-source[i][1] * mult);
 		}
 		for (let i = 0; i < target.length; i++){
 			let stuff = getStuff(target[i][0]);
@@ -153,14 +169,15 @@ function simpleConvert(source, target){
 	return convert;
 }
 
-function simpleRequire(requirement){
+function simpleRequire(requirement, doubleExcempt = false){
 	function haveEnough(spend){
+		let mult = currentRealm == 1 && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < requirement.length; i++){
 			let stuff = getStuff(requirement[i][0]);
-			if (stuff.count < requirement[i][1]) return -1;
+			if (stuff.count < requirement[i][1] * mult) return -1;
 			// In other functions it's (x, y, creature), so just check that it's exactly true
 			// spend is used for placing runes.
-			if (spend === true) stuff.update(-requirement[i][1]);
+			if (spend === true) stuff.update(-requirement[i][1] * mult);
 		}
 		return 1;
 	}
@@ -238,7 +255,7 @@ function combatDuration(){
 	for (let i = 0; i < combatTools.length; i++){
 		duration *= Math.pow(combatTools[i][2].value, combatTools[i][1] * combatTools[i][0].count);
 	}
-	return duration
+	return duration;
 }
 
 function completeFight(x, y, creature){
@@ -317,8 +334,10 @@ function tickWither(usedTime, {x, y}){
 	].filter(p=>p);
 	adjacentPlants.forEach(loc => {
 		loc.wither += usedTime;
-		if (loc.wither > loc.type.getEnterAction(loc.entered).start(loc.completions, loc.priorCompletions)){
-			setMined(loc.x, loc.y);
+		if (loc.wither > loc.type.getEnterAction(loc.entered).start(true)){
+			setMined(loc.x, loc.y, ".");
+			loc.enterDuration = loc.remainingEnter = Math.min(baseWalkLength(), loc.remainingEnter);
+			loc.entered = Infinity;
 		}
 	});
 }
@@ -349,6 +368,10 @@ function getChopTime(base, increaseRate){
 	return () => base + increaseRate * queueTime;
 }
 
+function tickSpore(usedTime){
+	clones[currentClone].takeDamage(usedTime / 10000);
+}
+
 let actions = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
@@ -360,9 +383,9 @@ let actions = [
 	new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana),
 	new Action("Create Clone", 1000, [], completeCreateClone, startCreateClone),
-	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]]), simpleRequire([["Iron Ore", 1]])),
-	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),
-	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]])),
+	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]], true), simpleRequire([["Iron Ore", 1]], true)),
+	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]], true), simpleRequire([["Iron Bar", 1], ["Coal", 1]], true)),
+	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]], true)),
 	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, haveBridge),
 	new Action("Cross Lava", 6000, [["Smithing", 1], ["Speed", 0.3]], completeCrossLava, haveBridge),
 	new Action("Create Bridge", 5000, [["Smithing", 1]], simpleConvert([["Iron Bar", 2]], [["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
@@ -383,6 +406,7 @@ let actions = [
 	new Action("Complete Challenge", 1000, [["Speed", 1]], completeChallenge),
 	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
 	new Action("Kudzu Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, startWalk, tickWalk),
+	new Action("Spore Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, null, tickSpore),
 	new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),

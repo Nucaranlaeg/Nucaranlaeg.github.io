@@ -9,7 +9,7 @@ class Location {
 			this.creature = new Creature(creature, x, y);
 			creatures.push(this.creature);
 		}
-		this.priorCompletions = 0;
+		this.priorCompletionData = Array(realms.length).fill(0);
 		this.completions = 0;
 		this.entered = 0;
 		this.remainingEnter = 0;
@@ -19,11 +19,15 @@ class Location {
 		this.temporaryPresent = null;
 		this.wither = 0;
 	}
+
+	get priorCompletions() {
+		return this.priorCompletionData[currentRealm];
+	}
 	
 	start() {
 		if (clones[currentClone].x == this.x && clones[currentClone].y == this.y){
 			if (this.type.presentAction){
-				this.remainingPresent = this.type.presentAction.start(this.completions, this.priorCompletions);
+				this.remainingPresent = this.type.presentAction.start(this.completions, this.priorCompletions, this.x, this.y);
 			} else if (this.temporaryPresent){
 				this.remainingPresent = this.temporaryPresent.start(this.completions, this.priorCompletions);
 			} else {
@@ -35,7 +39,7 @@ class Location {
 		let enterAction = this.type.getEnterAction(this.entered);
 		if (!enterAction) return false;
 		clones[currentClone].walkTime = 0;
-		this.remainingEnter = enterAction.start(this.completions, this.priorCompletions) - this.wither;
+		this.remainingEnter = enterAction.start() - this.wither;
 		this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(), this.remainingEnter);
 		this.enterDuration = this.remainingEnter;
 		return this.remainingEnter;
@@ -85,7 +89,7 @@ class Location {
 				}
 			}
 			percent = this.remainingEnter / (this.enterDuration || 1);
-			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)) this.remainingEnter = 100;
+			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)) this.remainingEnter = baseWalkLength();
 		}
 		return [time - usedTime, percent];
 	}
@@ -97,7 +101,7 @@ class Location {
 	}
 
 	reset() {
-		this.priorCompletions = this.type.reset(this.completions, this.priorCompletions);
+		this.priorCompletionData[currentRealm] = this.type.reset(this.completions, this.priorCompletions);
 		this.completions = 0;
 		this.entered = 0;
 		this.remainingEnter = 0;

@@ -78,9 +78,10 @@ class Zone {
 			if (sameRoute){
 				sameRoute.mana = Math.min(this.lastRoute.mana, sameRoute.mana);
 				sameRoute.manaRequired = Math.min(this.lastRoute.manaRequired, sameRoute.manaRequired);
-			} else if (!this.routes.some(r => r.isBetter(this.lastRoute, this.manaGain))){
+			} else if (!this.routes.some(r => r.realm == currentRealm && r.isBetter(this.lastRoute, this.manaGain))){
 				this.routesChanged = true;
 				for (let i = 0; i < this.routes.length; i++){
+					if (this.routes[i].realm != currentRealm) continue;
 					if (this.lastRoute.isBetter(this.routes[i], this.manaGain)){
 						this.routes.splice(i, 1);
 						i--;
@@ -93,7 +94,7 @@ class Zone {
 	}
 
 	sumRoute(route, actualRequirements, startDamage){
-		let routeOptions = this.routes;
+		let routeOptions = this.routes.filter(r => r.realm == currentRealm);
 		routeOptions = routeOptions.map(r => {
 			let requirements = (actualRequirements !== null ? actualRequirements : route.require).map(s => {
 				return {
@@ -182,7 +183,10 @@ class Zone {
 			let zoneSelect = document.querySelector("#zone-select");
 			zoneSelect.appendChild(this.node);
 		}
-		if (currentZone == displayZone) document.querySelector("#zone-name").innerHTML = this.name;
+		if (currentZone == displayZone){
+			document.querySelector("#zone-name").innerHTML = this.name;
+			setTimeout(() => showFinalLocation());
+		}
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".mana").innerHTML = `+${this.manaGain}`;
 		this.node.onclick = () => {
@@ -205,8 +209,9 @@ class Zone {
 			head.innerHTML = "Routes (click to load):";
 			parent.appendChild(head);
 			let routeTemplate = document.querySelector("#zone-route-template");
-			parent.style.display = this.routes.length ? "block" : "none";
+			parent.style.display = this.routes.some(r => r.realm == currentRealm) ? "block" : "none";
 			for (let i = 0; i < this.routes.length; i++){
+				if (this.routes[i].realm != currentRealm) continue;
 				let routeNode = routeTemplate.cloneNode(true);
 				routeNode.removeAttribute("id");
 				routeNode.querySelector(".mana").innerHTML = this.routes[i].mana.toFixed(2);
@@ -233,7 +238,8 @@ class Zone {
 		let parent = this.node.querySelector(".routes");
 		parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
 		let currentRoute = (this.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
-		let routeIndex = this.routes.findIndex(r => (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute);
+		let routeIndex = this.routes.filter(r => r.realm == currentRealm)
+			.findIndex(r => (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute);
 		if (routeIndex > -1) parent.children[routeIndex + 1].classList.add("active");
 	}
 
@@ -261,6 +267,24 @@ function moveToZone(zone, complete = true){
 	}
 	currentZone = zone;
 	zones[zone].enterZone();
+}
+
+function recalculateMana(){
+	zones.forEach(z => z.manaGain = 0);
+	zones.forEach((z, i) => {
+		z.manaGain = z.mapLocations
+			.flat()
+			.filter(l=>l.type.name == "Mana-infused Rock")
+			.reduce((a, c) => a + c.priorCompletions, 0);
+		z.manaGain /= 10;
+		for (let j = 0; j < i; j++){
+			zones[j].manaGain += z.manaGain;
+		}
+	});
+	zones.forEach(z => {
+		z.manaGain = +(z.manaGain).toFixed(2);
+		z.display();
+	});
 }
 
 let zones = [
@@ -318,26 +342,53 @@ let zones = [
 	new Zone("Zone 3",
 		[
 			'████████████████',
-			'████+███████████',
-			'███«««██████████',
-			'██¤+█«+█¤███████',
-			'█+██=«gg⎶███████',
-			'█%%██.██████████',
-			'█♣%%%%╬█████████',
-			'█♣█ ██[#████████',
-			'█+█ ███~#███████',
-			'█###░√██████████',
-			'█+███&+█████████',
-			'█#██████████████',
-			'█#♠#%%██████████',
-			'██#██%██████████',
-			'█%#+█%○█████████',
-			'██+¤████████████',
+			'████+█████♥█%%██',
+			'███«««████¤██%+█',
+			'██¤+█«+█¤█+%█#+█',
+			'█+██=«gg⎶█g██##█',
+			'█%%██.████♣▣█#██',
+			'█♣%%%%╬██+####██',
+			'█♣█ ██[#█+███#(█',
+			'█+█ ███~#%█^█#██',
+			'█###░√█████♠█#██',
+			'█+███&+]██Θc##██',
+			'█#█████##██#█#+█',
+			'█#♠#%%██+█+#██#█',
+			'██#██%██#██░█%%█',
+			'█%#+█%○█##█¤█%%█',
+			'██+¤█████████%██',
 			'████████████████',
 		],
 		() => {
 			getMessage("Unlocked Wither Rune").display();
 			getRune("Wither").unlock();
+		}
+	),
+	
+	new Zone("Zone 4",
+		[
+			'████████████████',
+			'███.╖╖√++███«%«█',
+			'███α████+█¤█%««█',
+			'█+█╖█++███~█«%%█',
+			'█««♣««███+~█%««█',
+			'█=█α█%█¤█«██«%«█',
+			'███«███««««+«█╖█',
+			'██+«╖¤██«█████○█',
+			'███«███⎶ █«α«+«█',
+			'█%««♣««++█α█+█{█',
+			'█○██«█████«α████',
+			'███««c««███¤█╖#█',
+			'█╬««███╖««███╖██',
+			'███}█+███c█«««██',
+			'█+███♠♠♠«++«████',
+			'█+++♠♠████¤█████',
+			'████████████████',
+		],
+		() => {
+			getMessage("Other Realms").display();
+			realms[0].unlock();
+			realms[1].unlock();
 		}
 	),
 ];

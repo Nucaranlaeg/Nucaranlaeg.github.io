@@ -9,6 +9,7 @@
 	<script type="text/javascript" defer src="creatures.js"></script>
 	<script type="text/javascript" defer src="location_types.js"></script>
 	<script type="text/javascript" defer src="locations.js"></script>
+	<script type="text/javascript" defer src="realms.js"></script>
 	<script type="text/javascript" defer src="zone_routes.js"></script>
 	<script type="text/javascript" defer src="zones.js"></script>
 	<script type="text/javascript" defer src="map.js"></script>
@@ -78,6 +79,10 @@
 			<div class="name"></div>
 			<div class="mana"></div>
 			<div class="routes"></div>
+		</div>
+		<div id="realm-template" class="realm">
+			<div class="name"></div>
+			<div class="description"></div>
 		</div>
 		<div id="zone-route-template">
 			<span class="mana"></span>
@@ -213,6 +218,7 @@
 		<div id="map" class="vertical-block wide" onclick="viewCell(event)">
 			<!-- <canvas id="mapCanvas" style="position:absolute;z-index:5;width:10px;height:10px;"></canvas> -->
 			<h3>Map (<span id="zone-name">Zone 1</span>)</h3>
+			<div id="realm-select"></div>
 			<div id="zone-select"></div>
 			<table id="map-inner"></table>
 		</div>

@@ -1,7 +1,7 @@
 const classMapping = {
 	"█": ["wall", "Solid Rock"],
-	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone])}`],
-	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone])}`],
+	"¤": ["mana", "Mana-infused Rock", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone], x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`],
+	"*": ["mined-mana", "Mana Spring", true, (d, x, y) => `${d} ${zones[displayZone].mapLocations[y][x].type.nextCost(zones[displayZone].mapLocations[y][x].completions, zones[displayZone].mapLocations[y][x].priorCompletions, zones[displayZone], x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`],
 	".": ["tunnel", "Dug Tunnel"],
 	"#": ["limestone", "Limestone"], // Mohs 3
 	"«": ["travertine", "Travertine"], // Mohs 6
@@ -42,6 +42,7 @@ const classMapping = {
 	"√": ["challenge", "Challenge"],
 	"♠": ["mushroom", "Mushroom"],
 	"♣": ["kudzushroom", "Kudzushroom"],
+	"α": ["sporeshroom", "Sporeshroom"],
 	"¢": ["axe", "Anvil - Axe"],
 	"¥": ["pick", "Anvil - Pick"],
 	"£": ["hammer", "Anvil - Hammer"],
@@ -185,6 +186,7 @@ function setMined(x, y, icon){
 	let tile = icon || {
 		"#": ".",
 		"♠": ".",
+		"α": ".",
 		"«": ".",
 		"¤": "*",
 		"+": ".",
@@ -222,7 +224,7 @@ function viewCell(e){
 				}
 				document.querySelector("#location-description").innerHTML = description.replace(/\n/g, "<br>");
 				if (type.nextCost){
-					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone)}`;
+					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone, x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`;
 				} else if (primaryAction) {
 					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(primaryAction.getDuration() / 1000, 2)}s`;
 				} else {

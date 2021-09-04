@@ -4,6 +4,7 @@ class Route {
 			this.x = x.x;
 			this.y = x.y;
 			this.zone = currentZone;
+			this.realm = currentRealm;
 			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
 			route = route.filter(e => e.length);
 
@@ -23,7 +24,7 @@ class Route {
 			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
 
 			let mana = getStat("Mana");
-			let duration = mineManaRockCost(0, x.completions + x.priorCompletions, x.zone) * getAction("Collect Mana").getBaseDuration();
+			let duration = mineManaRockCost(0, x.completions + x.priorCompletions, x.zone, this.x, this.y) * getAction("Collect Mana").getBaseDuration();
 			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
@@ -84,7 +85,7 @@ class Route {
 	getConsumeCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, false, this.zone);
 		let mul = getAction("Collect Mana").getBaseDuration();
-		return mineManaRockCost(0, loc.completions + loc.priorCompletions + relativeLevel, loc.zone) * mul;
+		return mineManaRockCost(0, loc.completions + loc.priorCompletions + relativeLevel, loc.zone, this.x, this.y) * mul;
 	}
 
 	estimateConsumeManaLeft(ignoreInvalidate = false) {
@@ -139,7 +140,7 @@ class Route {
 	}
 
 	static getBestRoute(x, y, z) {
-		return routes.find(r => r.x == x && r.y == y && r.zone == z);
+		return routes.find(r => r.x == x && r.y == y && r.zone == z && r.realm == currentRealm);
 	}
 
 	static migrate(ar) {
@@ -155,6 +156,7 @@ class Route {
 		let bestEff = -999;
 		let bestRoute = routes[0];
 		for (let r of routes) {
+			if (r.realm != currentRealm) continue;
 			let eff = r.estimateConsumeManaLeft();
 			if (eff > bestEff) {
 				bestEff = eff;
@@ -200,11 +202,11 @@ class Route {
 }
 
 function getBestRoute(x, y, z){
-	return routes.find(r => r.x == x && r.y == y && r.zone == z);
+	return routes.find(r => r.x == x && r.y == y && r.zone == z && r.realm == currentRealm);
 }
 
 function setBestRoute(x, y, totalTimeAvailable){
-	let bestRoute = routes.findIndex(r => r.x == x && r.y == y);
+	let bestRoute = routes.findIndex(r => r.x == x && r.y == y && r.realm == currentRealm);
 	if (bestRoute == -1 || routes[bestRoute].totalTimeAvailable < totalTimeAvailable){
 		if (bestRoute > -1){
 			routes.splice(bestRoute, 1);

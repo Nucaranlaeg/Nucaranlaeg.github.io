@@ -71,7 +71,7 @@ window.ondrop = e => e.preventDefault();
 
 function resetLoop() {
 	let mana = getStat("Mana");
-	if (getMessage("Time Travel").display(zones[0].manaGain == 0)) setSetting(toggleAutoRestart, 3);
+	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && currentRealm == 0)) setSetting(toggleAutoRestart, 3);
 	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
 	if (mana.base == 6) getMessage("Strip Mining").display();
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
@@ -144,14 +144,13 @@ function save(){
 			for (let x = 0; x < zone.mapLocations[y].length; x++){
 				if (zone.mapLocations[y][x]){
 					let loc = zone.mapLocations[y][x];
-					zoneLocations.push([x - zone.xOffset, y - zone.yOffset, loc.type.reset(loc.completions, loc.priorCompletions)]);
+					zoneLocations.push([x - zone.xOffset, y - zone.yOffset, loc.priorCompletionData]);
 				}
 			}
 		}
 		return {
 			"name": zone.name,
 			"locations": zoneLocations,
-			"manaGain": zone.manaGain,
 			"queues": zone.queues ? zone.queues.map(queue => {
 				return queue.map(q => {
 					return q[0];
@@ -163,7 +162,7 @@ function save(){
 	})
 	let cloneData = {
 		"count": clones.length,
-	}
+	};
 	let stored = savedQueues.map(q => {
 		return {
 			"queue": q,
@@ -182,6 +181,7 @@ function save(){
 		version,
 		playerStats,
 		zoneData,
+		currentRealm,
 		cloneData,
 		stored,
 		time,
@@ -213,14 +213,16 @@ function load(){
 	for (let i = 0; i < saveGame.zoneData.length; i++){
 		let zone = zones.find(z => z.name == saveGame.zoneData[i].name);
 		for (let j = 0; j < saveGame.zoneData[i].locations.length; j++){
-			zone.getMapLocation(saveGame.zoneData[i].locations[j][0], saveGame.zoneData[i].locations[j][1], true).priorCompletions = saveGame.zoneData[i].locations[j][2];
+			let zoneLocation = zone.getMapLocation(saveGame.zoneData[i].locations[j][0], saveGame.zoneData[i].locations[j][1], true);
+			zoneLocation.priorCompletionData = saveGame.zoneData[i].locations[j][2];
+			while (zoneLocation.priorCompletionData.length < realms.length) zoneLocation.priorCompletionData.push(0);
 		}
-		zone.manaGain = saveGame.zoneData[i].manaGain;
 		zone.queues = ActionQueue.fromJSON(saveGame.zoneData[i].queues);
 		zone.routes = ZoneRoute.fromJSON(saveGame.zoneData[i].routes);
 		if (saveGame.zoneData[i].locations.length) zone.display();
 		if (saveGame.zoneData[i].challenge) zone.completeChallenge();
 	}
+	recalculateMana();
 	clones = [];
 	while (clones.length < saveGame.cloneData.count){
 		Clone.addNewClone(true);
@@ -239,17 +241,19 @@ function load(){
 	if (saveGame.routes){
 		routes = Route.fromJSON(saveGame.routes);
 	}
-
+	
 	loadSettings(saveGame.settings);
-
+	
 	selectClone(0);
 	redrawQueues();
-
+	
 	// Fix attack and defense
 	getStat("Attack").base = 0;
 	getStat("Defense").base = 0;
 	stats.map(s => s.update());
-
+	
+	changeRealms(saveGame.currentRealm);
+	
 	drawMap();
 	resetLoop();
 

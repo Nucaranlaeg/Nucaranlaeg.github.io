@@ -354,6 +354,47 @@ h4#location-name {
 	justify-content: space-between;
 }
 
+#realm-select {
+	white-space: nowrap;
+	overflow-x: scroll;
+	scrollbar-width: thin;
+	scrollbar-color: #5b6d6d #aacccc;
+}
+
+.realm {
+	display: inline-block;
+	padding: 2px;
+	cursor: pointer;
+}
+
+.realm:not(:first-child) {
+	border-left: 1px solid #5b6d6d;
+}
+
+.realm .description {
+	visibility: hidden;
+	position: absolute;
+	margin-top: 2px;
+	left: 5px;
+	width: 250px;
+	background: #99bbbb;
+	border: 1px solid #00000033;
+	z-index: 5;
+	pointer-events: none;
+	padding: 2px;
+	color: #000000;
+	white-space: normal;
+}
+
+.realm:hover .description {
+	visibility: visible;
+}
+
+.active-realm {
+	background-color: #88aaaa;
+}
+
+
 #zone-select {
 	white-space: nowrap;
 	overflow-x: scroll;
@@ -510,7 +551,7 @@ td.travertine {
 }
 
 td.granite {
-	background-color: #644f44;
+	background-color: #795039;
 }
 
 td.mushroom {
@@ -519,6 +560,10 @@ td.mushroom {
 
 td.kudzushroom {
 	background-color: #034503;
+}
+
+td.sporeshroom {
+	background-color: #32805c;
 }
 
 td.gold {
@@ -944,17 +989,21 @@ td:hover:after {
 	to {opacity: 0.5;}
 }
 
-#runes,
+#runes {
+	display: flex;
+	flex-direction: column;
+}
+
 #spells {
-	/* display: none; */
+	display: none;
 }
 
 #runes h3, div#spells h3, .bottom-vertical-block h3 {margin: 0.5em;}
 
-#runes.active-pane,
+/* #runes.active-pane,
 #spells.active-pane {
 	display: block;
-}
+} */
 
 .rune-spell-toggle {
 	display: none;
@@ -968,7 +1017,9 @@ td:hover:after {
 	margin-bottom: 2px;
 }
 
-
+hr {
+	width: 100%;
+}
 
 
 
