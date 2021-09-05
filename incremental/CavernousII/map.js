@@ -226,7 +226,7 @@ function viewCell(e){
 				if (type.nextCost){
 					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone, x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`;
 				} else if (primaryAction) {
-					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(primaryAction.getDuration() / 1000, 2)}s`;
+					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(primaryAction.getProjectedDuration() / 1000, 2)}s`;
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
 				}

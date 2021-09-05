@@ -242,7 +242,7 @@ class Clone {
 
 	static performActions(time) {
 		let maxSingleTickTime = settings.debug_maxSingleTickTime || 99;
-		let goldToManaBaseTime = getAction("Turn Gold to Mana").getBaseDuration() / clones.length * 1000;
+		let goldToManaBaseTime = getAction("Turn Gold to Mana").getDuration() / clones.length * 1000;
 		if (maxSingleTickTime > goldToManaBaseTime / 2) {
 			maxSingleTickTime = goldToManaBaseTime / 2;
 		}
@@ -267,6 +267,7 @@ class Clone {
 				}
 			}
 			maxTime = Math.max(...clones.map(e => !e.noActionsAvailable && e.damage != Infinity && (e.timeAvailable || 0)));
+			if (maxTime < 0.001) break;
 		}
 		let timeNotSpent = Math.min(...clones.map(e => e.timeLeft || 0));
 		clones.forEach(c => {

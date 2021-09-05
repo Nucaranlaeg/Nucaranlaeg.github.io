@@ -29,9 +29,6 @@ class Action {
 
 	getDuration(durationMult = 1){
 		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
-		for (let i = 0; i < this.stats.length; i++){
-			duration *= Math.pow(this.stats[i][0].value, this.stats[i][1]);
-		}
 		duration *= this.specialDuration();
 		if (currentRealm == 1){
 			duration *= 3;
@@ -50,6 +47,16 @@ class Action {
 		return duration;
 	}
 
+	getProjectedDuration(durationMult = 1){
+		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
+		duration *= this.getSkillDiv();
+		duration *= this.specialDuration();
+		if (currentRealm == 1){
+			duration *= 3;
+		}
+		return duration;
+	}
+
 	increaseStat(stat, amount){
 		let index = this.stats.findIndex(s => s.name == stat);
 		if (index == -1){
@@ -57,6 +64,14 @@ class Action {
 		} else {
 			this.stats[index][1] += amount;
 		}
+	}
+
+	getSkillDiv(){
+		let mult = 1;
+		for (let i = 0; i < this.stats.length; i++){
+			mult *= Math.pow(this.stats[i][0].value, this.stats[i][1]);
+		}
+		return mult;
 	}
 }
 

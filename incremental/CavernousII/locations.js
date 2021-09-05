@@ -48,7 +48,8 @@ class Location {
 	tick(time) {
 		let usedTime, percent;
 		if (clones[currentClone].x == this.x && clones[currentClone].y == this.y){
-			usedTime = Math.min(time, this.remainingPresent);
+			let skillDiv = (this.type.presentAction || this.temporaryPresent).getSkillDiv();
+			usedTime = Math.min(time / skillDiv, this.remainingPresent);
 			(this.type.presentAction || this.temporaryPresent).tick(usedTime, {x: this.x, y: this.y});
 			this.remainingPresent -= usedTime;
 			if (this.remainingPresent == 0){
@@ -71,7 +72,8 @@ class Location {
 				}
 				this.remainingEnter = clones[currentClone].walkTime;
 			}
-			usedTime = Math.min(time, this.remainingEnter);
+			let skillDiv = this.type.getEnterAction(this.entered).getSkillDiv();
+			usedTime = Math.min(time / skillDiv, this.remainingEnter);
 			this.type.getEnterAction(this.entered).tick(usedTime, this.creature);
 			this.remainingEnter -= usedTime;
 			if (this.remainingEnter == 0){
