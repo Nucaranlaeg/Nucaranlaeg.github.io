@@ -94,8 +94,8 @@ class Clone {
 		selectedQueue = selectedQueue.filter(e => e != this.id);
 	}
 
-	completeNextAction() {
-		return completeNextAction();
+	completeNextAction(force) {
+		return completeNextAction(force);
 	}
 
 	selectQueueAction(actionIndex, n) {
@@ -110,8 +110,8 @@ class Clone {
 		currentClone = this.id;
 		let actionToDo = action.action;
 		// Failed pathfind
-		if (actionToDo[0] === undefined){
-			this.completeNextAction();
+		if (actionToDo === null || actionToDo[0] === undefined){
+			this.completeNextAction(true);
 			return time;
 		}
 

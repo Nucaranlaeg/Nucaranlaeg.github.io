@@ -93,7 +93,7 @@ let stuff = [
 	new Stuff("Steel Armour", "]", "A suit of steel armour.  This should help you take more hits. (+15 health)  Max 1 armour per clone.", "#222222", 0, calcCombatStats),
 	new Stuff("Iron Axe", "¢", "An iron axe.  Gives +15 (or +15%) to Woodcutting, and applies 1% of your Woodcutting skill to combat.", "#777777", 0, getStatBonus("Woodcutting", 15)),
 	new Stuff("Iron Pick", "⛏", "An iron pickaxe.  Gives +15 (or +15%) to Mining, and applies 1% of your Mining skill to combat.", "#777777", 0, getStatBonus("Mining", 15)),
-	new Stuff("Iron Hammer", smithingSVG, "An iron hammer.  Gives +15 (or +15%) to smithing, and applies 1% of your Smithing skill to combat.", "#777777", 0, getStatBonus("Smithing", 15)),
+	new Stuff("Iron Hammer", hammerSVG, "An iron hammer.  Gives +15 (or +15%) to smithing, and applies 1% of your Smithing skill to combat.", "#777777", 0, getStatBonus("Smithing", 15)),
 ];
 
 function setContrast(colour) {
@@ -103,4 +103,22 @@ function setContrast(colour) {
 
 function getStuff(name) {
 	return stuff.find(a => a.name == name);
+}
+
+function displayStuff(node, route){
+	function displaySingleThing(thing) {
+		let stuff;
+		return `<span style="color: ${(stuff = getStuff(thing.name)).colour}">${thing.count}${stuff.icon}</span>`;
+	}
+	if ((route.require || route.requirements).length){
+		node.querySelector(".require").innerHTML = (route.require || route.requirements)
+			.map(displaySingleThing)
+			.join("") + (route.require ? rightArrowSVG : "");
+	}
+	if (route.stuff){
+		node.querySelector(".stuff").innerHTML = route.stuff.map(displaySingleThing).join("");
+	} else {
+		let stuffNode = node.querySelector(".stuff");
+		if (stuffNode) stuffNode.innerHTML = "";
+	}
 }

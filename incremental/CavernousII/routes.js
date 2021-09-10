@@ -97,11 +97,12 @@ class Route {
 	}
 
 	estimateConsumeTimes() {
-		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost) + this.progressBeforeReach;
 		let times = 0;
-		let cost = this.getConsumeCost(times);
-		while (baseTime + 0.1 * times > cost) {
-			cost = this.getConsumeCost(++times);
+		let currentLeft = this.estimateConsumeManaLeft();
+		let currentCost = this.getConsumeCost(times);
+		let nextDiff = 0;
+		while (currentLeft + 0.1 * times * this.zone > nextDiff) {
+			nextDiff = (this.getConsumeCost(++times) - currentCost) / (clones.length - this.clonesLost);
 		}
 		return times;
 	}
@@ -171,7 +172,7 @@ class Route {
 
 	static invalidateRouteCosts() {
 		settings.debug && console.log('route costs invalidated');
-		routes.map(e => e.invalidateCost = true);
+		routes.filter(r => r.realm == currentRealm).forEach(r => r.invalidateCost = true);
 	}
 
 	showOnLocationUI() {
@@ -197,6 +198,8 @@ class Route {
 
 		document.querySelector("#x-loc").value = this.x;
 		document.querySelector("#y-loc").value = this.y;
+
+		displayStuff(document.querySelector("#route-requirements"), this);
 		
 	}
 }

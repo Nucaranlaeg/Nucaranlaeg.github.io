@@ -197,6 +197,7 @@ function savedQueueMove(event, el){
 
 function drawSavedQueues(){
 	let node = document.querySelector("#saved-queues-inner");
+	if (!node) return;
 	while (node.firstChild){
 		node.removeChild(node.lastChild);
 	}

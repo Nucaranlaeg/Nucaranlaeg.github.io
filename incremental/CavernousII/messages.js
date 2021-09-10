@@ -106,6 +106,10 @@ let messages = [
 	new Message("Lava Can't Melt Steel Bridges", `
 					You worked so hard on that bridge, and to see it quickly turn to slag after crossing that lava is sad.
 					At least one of your clones made it across.`),
+	new Message("Mass Manufacturing", `
+					You've sure got a lot of iron!  You can use the Repeat-Interact action to forge it all into bars.  Use ctrl-shift to insert a Repeat-Interact action into your queue.
+					You might not need it now, but later in the game it can really help with making sure your clones line up. when forging bars or vaporizing gold.
+					Unlike normal interact, if you don't have the resources to start an interact action, it'll just skip it entirely.`),
 	new Message("Arcane Shield", `
 					Your deepening understanding of the mysteries of magic give you the idea of forming your mana into a shield, protecting yourself from danger.
 					You'll preserve your health, but it might take a lot of mana to maintain.  Each clone will have to form one separately.
@@ -128,5 +132,5 @@ let messages = [
 					Once it's charged, each orthogonally adjacent space will give one extra resource (of the type it already gives).`),
 	new Message("Other Realms", `
 					There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort.
-					Mining mana there will reduce the cost scaling of mana rocks in the Core Realm.`),
+					Mining mana there will reduce the cost scaling of that mana rock in all Realms.`),
 ];

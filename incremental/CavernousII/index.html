@@ -69,8 +69,8 @@
 			<div class="damage" style="width: 100%;"></div>
 			<div class="queue-inner" onclick="maybeClearCursor(event, this)"></div>
 			<div class="queue-buttons">
-				<span class="button" onclick="saveQueue(this)">Save</span>
-				<span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''), settings.warnings)">Clear</span>
+				<!-- <span class="button" onclick="saveQueue(this)">Save</span> -->
+				<!-- <span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''), settings.warnings)">Clear</span> -->
 			</div>
 			<div class="cursor"></div>
 			<div class="work-progress"></div>
@@ -140,6 +140,10 @@
 						Loops through your best paths to each mana rock.<br>
 						Double click to revisit all known mana rocks.
 					</div>
+				</div>
+				<div class="option block clickable" onclick="toggleLoadPrereqs()">
+					<span id="load-prereq-toggle">Load only the route selected</span> (Q)
+					<div class="description">Adjust what happens when clicking on a zone route.</div>
 				</div>
 				<div class="option block clickable" onclick="toggleUseWASD()">
 					<span id="use-wasd-toggle">Use WASD</span>
@@ -235,6 +239,7 @@
 				</button>
 				<div id="route-has-route">
 					Route time: <span id="route-best-time"></span>s<br>
+					Stuff used: <span id="route-requirements"><span class="require"></span></span><br>
 					Mana used: <span id="route-best-mana-used"></span><br>
 					Clones lost: <span id="route-best-clones-lost"></span><br>
 					Est. mana left: <span id="route-best-mana-left"></span>s<br>
@@ -272,6 +277,10 @@
 					<div class="small-option block clickable" onclick="addActionToQueue('I')">
 						<span id="add-action-interact">🞇</span>
 						<div class="description">Interact</div>
+					</div>
+					<div class="small-option block clickable" onclick="addActionToQueue('T')">
+						<span id="add-action-repeat-interact">🞇</span>
+						<div class="description">Repeatedly Interact</div>
 					</div>
 				</div>
 				<div class="block-row hidden-action">
@@ -330,14 +339,14 @@
 		</div>
 	</div>
 	<div id="queues"></div>
-	<div id="saved-queues">
+	<!-- <div id="saved-queues">
 		<div>
 			Search saved queues:
 			<input id="search-saved" onkeyup="filterSaved(this)" />
 			<button id="save-all" onclick="saveAllQueues()">Save All Queues</button>
 		</div>
 		<div id="saved-queues-inner"></div>
-	</div>
+	</div> -->
 	<div id="message-box" onclick="hideMessages()" hidden>
 		<div id="message-wrapper">
 			<h3 id="message-title"></h3>

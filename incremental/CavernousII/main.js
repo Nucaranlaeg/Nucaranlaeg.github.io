@@ -21,16 +21,16 @@ function getNextAction(clone = currentClone) {
 	return [action, index];
 }
 
-function completeNextAction(clone = currentClone) {
+function completeNextAction(force) {
 	if (skipActionComplete){
 		skipActionComplete = false;
 		return;
 	}
-	let index = queues[clone].findIndex(a => a[1]);
-	let action = queues[clone][index];
-	clones[clone].currentCompletions = null;
+	let index = queues[currentClone].findIndex(a => a[1]);
+	let action = queues[currentClone][index];
+	clones[currentClone].currentCompletions = null;
 	if (!action) return;
-	action.complete(clone, index);
+	action.complete(force);
 }
 
 function getLocationType(name) {
@@ -401,6 +401,9 @@ let keyFunctions = {
 	},
 	"Space": e => {
 		addActionToQueue("I");
+	},
+	"^Space": e => {
+		addActionToQueue("T");
 	},
 	"Backspace": e => {
 		addActionToQueue("B");

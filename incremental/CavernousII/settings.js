@@ -5,6 +5,7 @@ let settings = {
 	useWASD: false,
 	useDifferentBridges: true,
 	grindMana: false,
+	loadPrereqs: false,
 	showingRunes: true,
 	warnings: true,
 }
@@ -50,6 +51,12 @@ function toggleGrindMana() {
 	return settings.grindMana;
 }
 
+function toggleLoadPrereqs() {
+	settings.loadPrereqs = !settings.loadPrereqs;
+	document.querySelector("#load-prereq-toggle").innerHTML = settings.loadPrereqs ? "Load prereqs" : "Load only zone route";
+	return settings.loadPrereqs;
+}
+
 function toggleWarnings() {
 	settings.warnings = !settings.warnings;
 	document.querySelector("#warnings").innerHTML = settings.warnings ? "Showing warnings" : "Not showing warnings";
@@ -72,6 +79,8 @@ function loadSettings(savedSettings) {
 	setSetting(toggleAutoRestart, savedSettings.autoRestart);
 
 	setSetting(toggleGrindMana, !!savedSettings.grindMana);
+
+	setSetting(toggleLoadPrereqs, !!savedSettings.loadPrereqs);
 
 	setSetting(switchRuneList, !!savedSettings.showingRunes);
 

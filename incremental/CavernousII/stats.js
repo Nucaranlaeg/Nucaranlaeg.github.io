@@ -122,7 +122,7 @@ let stats = [
 	new Stat("Woodcutting", "", "How good you are at chopping down mushrooms of various kinds."),
 	new Stat("Magic", "★", "Your understanding of arcane mysteries."),
 	new Stat("Speed", "", "How quick you are."),
-	new Stat("Smithing", smithingSVG, "Your skill at turning raw ores into usable objects."),
+	new Stat("Smithing", hammerSVG, "Your skill at turning raw ores into usable objects."),
 	new Stat("Runic Lore", "🕮", "A measure of your understanding of magical runes."),
 	new Stat("Spellcraft", "", "Wield the energies you've torn from the ground in powerful ways."),
 	new Stat("Combat", "", "Your ability to kill things.", 0),

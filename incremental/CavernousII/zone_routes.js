@@ -24,7 +24,6 @@ class ZoneRoute {
 					"count": s.count - getStuff(s.name).min,
 				};
 			}).filter(s => s.count > 0);
-			let health = getStat("Health");
 			// cloneHealth is [min (from start), delta]
 			this.cloneHealth = clones.map(c => [c.minHealth, c.startDamage - c.damage]);
 			this.manaRequired = z.startMana - mana.min;
@@ -51,7 +50,24 @@ class ZoneRoute {
 		return this.realm == zoneRoute.realm && this.route.length == zoneRoute.route.length && this.route.every((r, i) => r == zoneRoute.route[i]);
 	}
 
-	loadRoute(zone) {
+	pickRoute(zone, route, actualRequirements = null, health = clones.map(c => 0)){
+		let routeOptions = zones[zone].sumRoute(route, actualRequirements, health);
+		if (zone == 0){
+			if (routeOptions.length == 0) return null;
+			let health = getStat("Health");
+			route = routeOptions.find(r => r[1].every(s => s.count == 0) && r[2].every(h => h < health.base)) || [];
+			return route[0] ? [route[0]] : null;
+		}
+		for (let i = 0; i < routeOptions.length; i++){
+			let routes = this.pickRoute(zone - 1, routeOptions[i][0], routeOptions[i][1], routeOptions[i][2]);
+			if (routes !== null){
+				return [...routes, routeOptions[i][0]];
+			}
+		}
+		return null;
+	}
+
+	loadRoute(zone, cascade = true) {
 		let actualCurrentZone = currentZone;
 		currentZone = zone.index;
 		for (let i = 0; i < zone.queues.length; i++){
@@ -65,6 +81,14 @@ class ZoneRoute {
 		}
 		currentZone = actualCurrentZone;
 		zone.displaySelectedRoute();
+		if (settings.loadPrereqs && zone.index > 0 && cascade){
+			let routes = this.pickRoute(zone.index - 1, this, null, this.cloneHealth.map(c => c[0]));
+			if (routes !== null){
+				for (let i = 0; i < routes.length; i++){
+					routes[i].loadRoute(zones[i]);
+				}
+			}
+		}
 		return this.require;
 	}
 

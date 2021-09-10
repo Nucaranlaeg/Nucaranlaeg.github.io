@@ -40,6 +40,8 @@ class QueueAction extends Array {
 			return new QueueReferenceAction(ch);
 		} else if (ch[0] == "P") {
 			return new QueuePathfindAction(ch);
+		} else if (ch[0] == "T") {
+			return new QueueRepeatInteractAction(ch);
 		}
 		return new QueueAction(ch);
 	}
@@ -82,6 +84,23 @@ class QueueReferenceAction extends QueueAction {
 		let nextAction = this[2].find(a => a[`${this.clone}_${this.index}`] === undefined);
 		nextAction[`${this.clone}_${this.index}`] = false;
 		if (this[2].every(a => a[`${this.clone}_${this.index}`] === false)) this[1] = false;
+	}
+}
+
+class QueueRepeatInteractAction extends QueueAction {
+	get action(){
+		let presentAction = zones[currentZone].getMapLocation(clones[this.clone].x, clones[this.clone].y).type.presentAction;
+		if (presentAction && presentAction.canStart() > 0){
+			return this[0];
+		}
+		return null;
+	}
+
+	complete(force = false){
+		let presentAction = zones[currentZone].getMapLocation(clones[this.clone].x, clones[this.clone].y).type.presentAction;
+		if (presentAction === null || presentAction.canStart() < 0 || force){
+			this[1] = false;
+		}
 	}
 }
 
@@ -171,9 +190,10 @@ class ActionQueue extends Array {
 		
 		// Standard action:        [UDLRI<=]
 		// Rune/spell action:      [NS]\d+;
+		// Repeat-Forge:           T
 		// Queue reference:        Q\d+;
 		// Pathfind action:        P-?\d+:-?\d+;
-		if (!actionID.match(/^([UDLRI<=]|[NS]\d+;|Q\d+;|P-?\d+:-?\d+;)$/)){
+		if (!actionID.match(/^([UDLRI<=]|[NS]\d+;|T|Q\d+;|P-?\d+:-?\d+;)$/)){
 			settings.debug && console.log(`Failed to parse action: ${actionID}`);
 			return;
 		}
@@ -186,6 +206,7 @@ class ActionQueue extends Array {
 				 : this[0].started; // first action, skip if next is started
 		let newAction = actionID[0] == "Q" ? new QueueReferenceAction(actionID, !done, savedQueues[getActionValue(actionID)])
 		              : actionID[0] == "P" ? new QueuePathfindAction(actionID, !done)
+		              : actionID[0] == "T" ? new QueueRepeatInteractAction(actionID, !done)
 		              : new QueueAction(actionID, !done);
 		
 		if (index == null) {
@@ -333,6 +354,7 @@ function createActionNode(action){
 		"U": upArrowSVG,
 		"D": downArrowSVG,
 		"I": interactSVG,
+		"T": repeatInteractSVG,
 		"<": "⟲",
 		"=": "=",
 	}[action];

@@ -18,12 +18,12 @@ class Action {
 		return this.getDuration(durationMult);
 	}
 
-	tick(usedTime, creature){
+	tick(usedTime, creature, baseTime){
 		for (let i = 0; i < this.stats.length; i++){
-			this.stats[i][0].gainSkill(usedTime / 1000 * this.stats[i][1]);
+			this.stats[i][0].gainSkill(baseTime / 1000 * this.stats[i][1]);
 		}
 		if (this.tickExtra){
-			this.tickExtra(usedTime, creature);
+			this.tickExtra(usedTime, creature, baseTime);
 		}
 	}
 
@@ -111,7 +111,9 @@ function completeGoldMine(x, y){
 }
 
 function completeIronMine(x, y){
-	getStuff("Iron Ore").update(getDuplicationAmount(x, y));
+	let iron = getStuff("Iron Ore");
+	iron.update(getDuplicationAmount(x, y));
+	if (iron.count >= 10) getMessage("Mass Manufacturing").display();
 	completeMove(x, y);
 }
 
@@ -132,7 +134,7 @@ function completeCollectMana(x, y) {
 	setMined(x, y, ".");
 }
 
-function tickCollectMana(x, y) {
+function tickCollectMana() {
 	let clone = clones[currentClone];
 	let location = getMapLocation(clone.x, clone.y);
 	Route.updateBestRoute(location);
@@ -140,7 +142,7 @@ function tickCollectMana(x, y) {
 
 function longZoneCompletionMult(x, y, z) {
 	if (x === undefined || y === undefined) return 1;
-	return 0.99 ** zones[z].getMapLocation(x, y).priorCompletionData[1];
+	return 0.99 ** (zones[z].getMapLocation(x, y).priorCompletionData[1] ** 0.75);
 }
 
 function mineManaRockCost(completions, priorCompletions, zone, x, y) {
@@ -249,10 +251,10 @@ function completeCrossLava(x, y){
 	getMapLocation(x, y).entered = Infinity;
 }
 
-function tickFight(usedTime, creature){
-	clones[currentClone].takeDamage(Math.max(creature.attack - getStat("Defense").current, 0) * usedTime / 1000);
+function tickFight(usedTime, creature, baseTime){
+	clones[currentClone].takeDamage(Math.max(creature.attack - getStat("Defense").current, 0) * baseTime / 1000);
 	if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current){
-		clones[currentClone].takeDamage(usedTime / 1000);
+		clones[currentClone].takeDamage(baseTime / 1000);
 	}
 }
 

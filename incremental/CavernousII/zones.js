@@ -76,7 +76,7 @@ class Zone {
 			this.lastRoute = new ZoneRoute(this);
 			let sameRoute = this.routes.find(r => r.isSame(this.lastRoute));
 			if (sameRoute){
-				sameRoute.mana = Math.min(this.lastRoute.mana, sameRoute.mana);
+				sameRoute.mana = Math.max(this.lastRoute.mana, sameRoute.mana);
 				sameRoute.manaRequired = Math.min(this.lastRoute.manaRequired, sameRoute.manaRequired);
 			} else if (!this.routes.some(r => r.realm == currentRealm && r.isBetter(this.lastRoute, this.manaGain))){
 				this.routesChanged = true;
@@ -146,11 +146,6 @@ class Zone {
 		if (this.queues === null){
 			this.queues = ActionQueue.fromJSON([[]]);
 		}
-		while (this.queues.length < clones.length){
-			let q = new ActionQueue();
-			q.index = this.queues.length;
-			this.queues.push(q);
-		}
 		queues = this.queues;
 		queues.forEach((_, i) => {
 			resetQueueHighlight(i);
@@ -177,6 +172,11 @@ class Zone {
 	}
 
 	display(){
+		while (this.queues.length < clones.length){
+			let q = new ActionQueue();
+			q.index = this.queues.length;
+			this.queues.push(q);
+		}
 		if (!this.node){
 			this.node = document.querySelector("#zone-template").cloneNode(true);
 			this.node.removeAttribute("id");
@@ -187,6 +187,8 @@ class Zone {
 			document.querySelector("#zone-name").innerHTML = this.name;
 			setTimeout(() => showFinalLocation());
 		}
+		// Scroll queues so that there isn't a huge amount of blank queue displayed (especially when it shouldn't scroll)
+		queues.forEach((q, i) => scrollQueue(i, 0));
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".mana").innerHTML = `+${this.manaGain}`;
 		this.node.onclick = () => {
@@ -215,13 +217,7 @@ class Zone {
 				let routeNode = routeTemplate.cloneNode(true);
 				routeNode.removeAttribute("id");
 				routeNode.querySelector(".mana").innerHTML = this.routes[i].mana.toFixed(2);
-				let thing;
-				if (this.routes[i].require.length){
-					routeNode.querySelector(".require").innerHTML = this.routes[i].require
-						.map(s => `<span style="color: ${(thing = getStuff(s.name)).colour}">${s.count}${thing.icon}</span>`)
-						.join("") + rightArrowSVG;
-				}
-				routeNode.querySelector(".stuff").innerHTML = this.routes[i].stuff.map(s => `<span style="color: ${(thing = getStuff(s.name)).colour}">${s.count}${thing.icon}</span>`).join("");
+				displayStuff(routeNode, this.routes[i]);
 				routeNode.onclick = () => {
 					this.routes[i].loadRoute(this);
 					parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
@@ -342,11 +338,11 @@ let zones = [
 	new Zone("Zone 3",
 		[
 			'████████████████',
-			'████+█████♥█%%██',
+			'████+█████%█%%██',
 			'███«««████¤██%+█',
 			'██¤+█«+█¤█+%█#+█',
 			'█+██=«gg⎶█g██##█',
-			'█%%██.████♣▣█#██',
+			'█%%██.████♣▣█#♥█',
 			'█♣%%%%╬██+####██',
 			'█♣█ ██[#█+███#(█',
 			'█+█ ███~#%█^█#██',
@@ -369,12 +365,12 @@ let zones = [
 		[
 			'████████████████',
 			'███.╖╖√++███«%«█',
-			'███α████+█¤█%««█',
+			'███α████+█¤█%«▣█',
 			'█+█╖█++███~█«%%█',
 			'█««♣««███+~█%««█',
 			'█=█α█%█¤█«██«%«█',
 			'███«███««««+«█╖█',
-			'██+«╖¤██«█████○█',
+			'█&+«╖¤██«█████○█',
 			'███«███⎶ █«α«+«█',
 			'█%««♣««++█α█+█{█',
 			'█○██«█████«α████',

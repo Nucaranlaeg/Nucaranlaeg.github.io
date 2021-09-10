@@ -264,6 +264,7 @@ function getMapTile(x, y) {
 }
 
 function displayCreatureHealth(creature){
+	if (currentZone != displayZone) return;
 	let node = getOffsetMapNode(creature.x, creature.y);
 	if (!node) return;
 	if (creature.health > 0 && creature.health < creature.creature.health){
