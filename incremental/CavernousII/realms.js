@@ -44,5 +44,8 @@ let realms = [
 	// Double mana cost on everything.
 	// All stuff costs except for making bars and vaporizing gold is doubled.
 	new Realm("Long Realm", "A realm where everything takes thrice as long and costs twice as much (except bars and vaporizing gold).  It will help you slow down how quickly mana rocks become harder to mine."),
-	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything.  You'll learn how to get mana more efficiently."),
+
+	// All rock-type locations become mushroom-type locations.
+	// Mushroom growth rate is doubled.
+	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow twice as fast.  You'll learn how to get mana from gold more efficiently."),
 ];

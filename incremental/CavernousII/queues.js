@@ -385,14 +385,19 @@ function resetQueueHighlight(queue){
 }
 
 function highlightCompletedActions(){
-	for (let i = 0; i < queues.length; i++){
+	if (!queuesNode) return;
+	for (let i = 0; i < zones[displayZone].queues.length; i++){
 		let queueBlock = queuesNode.children[i];
 		let queueNode = queueBlock.querySelector('.queue-inner');
 		let nodes = queueNode.children;
-		for (let j = 0; j < queues[i].length; j++){
-			if (queues[i][j][1]) break;
-			nodes[j].classList.add('started');
-			nodes[j].style.backgroundSize = "100%";
+		for (let j = 0; j < zones[displayZone].queues[i].length; j++){
+			if (zones[displayZone].queues[i][j][1]){
+				nodes[j].classList.remove('started');
+				nodes[j].style.backgroundSize = "0%";
+			} else {
+				nodes[j].classList.add('started');
+				nodes[j].style.backgroundSize = "100%";
+			}
 		}
 	}
 }
@@ -448,6 +453,7 @@ function redrawQueues(){
 			queueNode.append(node);
 		}
 	}
+	highlightCompletedActions();
 }
 
 function setCursor(event, el){

@@ -200,7 +200,6 @@ class Zone {
 			mapStain = [];
 			drawMap();
 			redrawQueues();
-			if (currentZone == displayZone) highlightCompletedActions();
 		};
 		let parent = this.node.querySelector(".routes");
 		if (this.routesChanged){
