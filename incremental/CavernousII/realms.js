@@ -45,9 +45,22 @@ function getVerdantRealmManaMult(){
 				.flat()
 				.filter(l => l.type.name == "Mana-infused Rock")
 				.reduce((a, c) => a + c.priorCompletionData[2], 0);
-		}, 0) * 0.1;
+		}, 0) * 0.0005;
 	}
 	return realm.manaMult + 1;
+}
+
+const verdantMapping = {
+	"#": "♠", // Limestone -> Mushroom
+	"√": "♠", // Limestone (Challenge) -> Mushroom
+	"«": "♣", // Travertine -> Kudzushroom
+	"╖": "α", // Granite -> Sporeshroom
+	"???": "???", // Basalt
+	"????": "????", // Chert
+}
+
+function convertMapToVerdant(map){
+	return map.map(row => [...row].map(cell => verdantMapping[cell] || cell).join(""));
 }
 
 let realms = [
@@ -60,7 +73,7 @@ let realms = [
 
 	// All rock-type locations become mushroom-type locations.
 	// Mushroom growth rate is doubled.
-	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow twice as fast.  You'll learn how to get mana from gold more efficiently."),
+	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion)."),
 ];
 
 function getRealm(name) {

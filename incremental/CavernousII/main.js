@@ -291,8 +291,10 @@ function importGame(){
 	let temp = localStorage[saveName];
 	localStorage[saveName] = saveString;
 	try {
+		queues = [];
 		load();
 	} catch {
+		queues = [];
 		localStorage[saveName] = temp;
 		load();
 	}

@@ -383,7 +383,7 @@ function completeChallenge(x, y){
 }
 
 function getChopTime(base, increaseRate){
-	return () => base + increaseRate * queueTime;
+	return () => base + increaseRate * queueTime * (currentRealm == 2 ? 5 : 1);
 }
 
 function tickSpore(usedTime){

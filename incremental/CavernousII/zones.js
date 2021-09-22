@@ -61,6 +61,9 @@ class Zone {
 
 	resetZone(){
 		this.map = this.originalMap.slice();
+		if (currentRealm == 2){
+			this.map = convertMapToVerdant(this.map);
+		}
 		if (this.challengeComplete) this.map = this.map.map(row => row.replace("√", "#"));
 		this.mapLocations.forEach((ml, y) => {
 			ml.forEach((l, x) => {
@@ -78,7 +81,7 @@ class Zone {
 			zones[this.index - 1].mineComplete();
 		}
 		if (currentRealm == 2 && this.index == 0 && getRealm("Verdant Realm").manaMult !== null){
-			getRealm("Verdant Realm").manaMult += 0.01;
+			getRealm("Verdant Realm").manaMult += 0.0005;
 		}
 	}
 
@@ -423,6 +426,7 @@ let zones = [
 			'████████████████',
 		],
 		() => {
+			getMessage("Further Realms").display();
 			realms[2].unlock();
 		}
 	),
