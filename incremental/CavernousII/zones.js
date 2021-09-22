@@ -46,6 +46,15 @@ class Zone {
 		return this.mapLocations[y][x];
 	}
 
+	getAdjLocations(x, y){
+		x += this.xOffset;
+		y += this.yOffset;
+		return [[x-1, y], [x+1, y], [x, y+1], [x, y-1]].map(adj => {
+			if (adj[0] < 0 || adj[0] >= this.map[0].length || adj[1] < 0 || adj[1] >= this.map.length) return;
+			return [this.map[adj[1]][adj[0]], this.mapLocations[adj[1]][adj[0]]];
+		}).filter(x => x);
+	}
+
 	hasMapLocation(x, y) {
 		return this.mapLocations[y] && this.mapLocations[y][x] != undefined;
 	}
@@ -67,6 +76,9 @@ class Zone {
 		mana.current += 0.1;
 		if (this.index){
 			zones[this.index - 1].mineComplete();
+		}
+		if (currentRealm == 2 && this.index == 0 && getRealm("Verdant Realm").manaMult !== null){
+			getRealm("Verdant Realm").manaMult += 0.01;
 		}
 	}
 
@@ -249,6 +261,11 @@ class Zone {
 		this.challengeComplete = true;
 		this.challengeReward();
 	}
+
+	tick(time){
+		// Optimize by keeping a list of watery locations?
+		this.mapLocations.forEach(row => row.forEach(loc => loc.zoneTick(time)));
+	}
 }
 
 function moveToZone(zone, complete = true){
@@ -269,7 +286,7 @@ function recalculateMana(){
 	zones.forEach((z, i) => {
 		z.manaGain = z.mapLocations
 			.flat()
-			.filter(l=>l.type.name == "Mana-infused Rock")
+			.filter(l => l.type.name == "Mana-infused Rock")
 			.reduce((a, c) => a + c.priorCompletions, 0);
 		z.manaGain /= 10;
 		for (let j = 0; j < i; j++){
@@ -278,7 +295,7 @@ function recalculateMana(){
 	});
 	zones.forEach(z => {
 		z.manaGain = +(z.manaGain).toFixed(2);
-		z.display();
+		if (z.queues) z.display();
 	});
 }
 
@@ -359,7 +376,6 @@ let zones = [
 			getRune("Wither").unlock();
 		}
 	),
-	
 	new Zone("Zone 4",
 		[
 			'████████████████',
@@ -373,10 +389,10 @@ let zones = [
 			'███«███⎶ █«α«+«█',
 			'█%««♣««++█α█+█{█',
 			'█○██«█████«α████',
-			'███««c««███¤█╖#█',
+			'███««c««███¤█╖Θ█',
 			'█╬««███╖««███╖██',
 			'███}█+███c█«««██',
-			'█+███♠♠♠«++«████',
+			'█^███♠♠♠+α+«████',
 			'█+++♠♠████¤█████',
 			'████████████████',
 		],
@@ -384,6 +400,30 @@ let zones = [
 			getMessage("Other Realms").display();
 			realms[0].unlock();
 			realms[1].unlock();
+		}
+	),
+	new Zone("Zone 5",
+		[
+			'████████████████',
+			'█%█+█████√╖█████',
+			'█+0.╖█████«0████',
+			'█%██╖█=█¤█«█████',
+			'████«««««««█¤♠██',
+			'██««««««««███♠██',
+			'██«««█««««««♠♠██',
+			'██«««██«««««█+██',
+			'██«««««««██«████',
+			'█««««««█««█«████',
+			'█«██««««««««+███',
+			'█+██████«««█████',
+			'█%«██████+██████',
+			'██«█████████████',
+			'██+█████████████',
+			'██~¤████████████',
+			'████████████████',
+		],
+		() => {
+			realms[2].unlock();
 		}
 	),
 ];

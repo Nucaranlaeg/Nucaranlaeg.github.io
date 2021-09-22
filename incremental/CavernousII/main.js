@@ -313,6 +313,7 @@ let fps = 60;
 setInterval(function mainLoop() {
 	let time = Date.now() - lastAction;
 	let mana = getStat("Mana");
+	if (isNaN(mana.current) && settings.running) toggleRunning();
 	lastAction = Date.now();
 	queuesNode = queuesNode || document.querySelector("#queues");
 	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
@@ -352,8 +353,9 @@ setInterval(function mainLoop() {
 	let timeLeft = timeAvailable;
 
 	timeLeft = Clone.performActions(timeAvailable);
-
 	let timeUsed = timeAvailable - timeLeft;
+	zones[currentZone].tick(timeUsed);
+
 	if (timeUsed > time && !isNaN(timeUsed - time)) {
 		timeBanked -= timeUsed - time;
 	} else if (!isNaN((time - timeUsed) / 2)){

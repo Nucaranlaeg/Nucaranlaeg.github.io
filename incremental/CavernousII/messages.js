@@ -91,7 +91,10 @@ let messages = [
 					It's probably a good thing that you can get along with yourself - it would get messy quick if you couldn't.`),
 	new Message("Third Clone", `
 					You've created yet another clone.
-					Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...`),
+					Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...
+					You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.`),
+	new Message("Fourth Clone", `
+					Time seems to be a bit unstable.  How many of you must there be before you escape the final zone?`),
 	new Message("Goblin", `
 					What you thought was a strange statue in the passage suddenly moves to attack you as you approach!  This place is stranger than you'd thought.`),
 	new Message("Death", `

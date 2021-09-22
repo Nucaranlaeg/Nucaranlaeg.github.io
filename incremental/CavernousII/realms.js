@@ -37,6 +37,19 @@ function changeRealms(newRealm){
 	resetLoop();
 }
 
+function getVerdantRealmManaMult(){
+	let realm = getRealm("Verdant Realm");
+	if (realm.manaMult === undefined || realm.manaMult === null){
+		realm.manaMult = zones.reduce((a, z) => {
+			return a + z.mapLocations
+				.flat()
+				.filter(l => l.type.name == "Mana-infused Rock")
+				.reduce((a, c) => a + c.priorCompletionData[2], 0);
+		}, 0) * 0.1;
+	}
+	return realm.manaMult + 1;
+}
+
 let realms = [
 	// Default realm, no special effects.
 	new Realm("Core Realm", "Where you started.  Hopefully, how you'll leave this cave complex."),
@@ -49,3 +62,7 @@ let realms = [
 	// Mushroom growth rate is doubled.
 	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow twice as fast.  You'll learn how to get mana from gold more efficiently."),
 ];
+
+function getRealm(name) {
+	return realms.find(a => a.name == name);
+}

@@ -18,6 +18,7 @@ class Location {
 		this.presentDuration = 0;
 		this.temporaryPresent = null;
 		this.wither = 0;
+		this.water = this.type.startWater;
 	}
 
 	get priorCompletions() {
@@ -96,7 +97,7 @@ class Location {
 		return [time - usedTime, percent];
 	}
 
-	setTemporaryPresent(rune){
+	setTemporaryPresent(rune) {
 		if (this.type.presentAction) return false;
 		this.temporaryPresent = getAction(rune.activateAction);
 		return true;
@@ -110,5 +111,19 @@ class Location {
 		this.remainingPresent = 0;
 		this.temporaryPresent = null;
 		this.wither = 0;
+		this.water = this.type.startWater;
+	}
+
+	zoneTick(time) {
+		if (!this.water) return;
+		zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]) => {
+			if (!walkable.includes(tile)) return;
+			let prev_level = Math.floor(loc.water * 10);
+			// 1 water should add 0.025 water per second to each adjacent location.
+			loc.water = Math.min(1, loc.water + (this.water / 200) ** 2 * time);
+			if (prev_level != Math.floor(loc.water * 10)){
+				mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
+			}
+		});
 	}
 }

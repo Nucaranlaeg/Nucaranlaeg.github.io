@@ -46,6 +46,7 @@ const classMapping = {
 	"¢": ["axe", "Anvil - Axe"],
 	"¥": ["pick", "Anvil - Pick"],
 	"£": ["hammer", "Anvil - Hammer"],
+	"0": ["spring", "Spring"],
 };
 
 // The tiles that can be pathfinded through.
@@ -92,6 +93,9 @@ function drawNewMap() {
 						cellNode.classList.add(className[i]);
 					}
 					cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
+					if (location.water > 0.1) {
+						cell.classList.add(`watery-${Math.floor(location.water * 10)}`);
+					}
 				} else {
 					cellNode.classList.add("blank");
 				}
@@ -114,6 +118,9 @@ function drawCell(x, y) {
 	if (!location) return;
 	let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
 	cell.className = className;
+	if (location.water > 0.1) {
+		cell.classList.add(`watery-${Math.floor(location.water * 10)}`);
+	}
 	cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
 
@@ -229,6 +236,11 @@ function viewCell(e){
 					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(primaryAction.getProjectedDuration() / 1000, 2)}s`;
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
+				}
+				if (location.water) {
+					document.querySelector("#location-water").innerHTML = `Water level: ${writeNumber(location.water, 2)}`;
+				} else {
+					document.querySelector("#location-water").innerHTML = "";
 				}
 				visibleX = x - zones[displayZone].xOffset;
 				visibleY = y - zones[displayZone].yOffset;

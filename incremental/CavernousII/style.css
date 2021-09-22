@@ -809,6 +809,21 @@ td.challenge:before {
 	padding-bottom: 10%;
 }
 
+td.spring {
+	background-color: #1111a7;
+}
+
+td.watery-1 { box-shadow: inset 1em 1em #1111a710; }
+td.watery-2 { box-shadow: inset 1em 1em #1111a720; }
+td.watery-3 { box-shadow: inset 1em 1em #1111a730; }
+td.watery-4 { box-shadow: inset 1em 1em #1111a740; }
+td.watery-5 { box-shadow: inset 1em 1em #1111a750; }
+td.watery-6 { box-shadow: inset 1em 1em #1111a760; }
+td.watery-7 { box-shadow: inset 1em 1em #1111a770; }
+td.watery-8 { box-shadow: inset 1em 1em #1111a780; }
+td.watery-9 { box-shadow: inset 1em 1em #1111a790; }
+td.watery-10 { box-shadow: inset 1em 1em #1111a7a0; }
+
 td::before {
 	position: absolute;
 	top: 0;

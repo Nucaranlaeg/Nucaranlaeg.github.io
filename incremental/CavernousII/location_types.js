@@ -1,5 +1,5 @@
 class LocationType {
-	constructor(name, symbol, description, enterAction, presentAction, reset, nextCost, enterCount, canWorkTogether = true){
+	constructor(name, symbol, description, enterAction, presentAction, reset, nextCost, enterCount, canWorkTogether = true, startWater = 0){
 		this.name = name;
 		this.symbol = symbol;
 		this.description = description;
@@ -11,6 +11,7 @@ class LocationType {
 			this.extraReset = reset;
 		}
 		this.canWorkTogether = canWorkTogether;
+		this.startWater = startWater;
 	}
 
 	getEnterAction(entered) {
@@ -84,4 +85,5 @@ let locationTypes = [
 	new LocationType("Anvil - Axe", "¢", "An anvil on which you can make an axe out of an iron bar.", "Walk", "Create Axe", null),
 	new LocationType("Anvil - Pick", "¥", "An anvil on which you can make a pick out of an iron bar.", "Walk", "Create Pick", null),
 	new LocationType("Anvil - Hammer", "£", "An anvil on which you can make a hammer out of an iron bar.", "Walk", "Create Hammer", null),
+	new LocationType("Spring", "0", "Deep water - it'll spread out and drown you if you're not careful!", "Walk", null, null, null, null, true, 1),
 ];

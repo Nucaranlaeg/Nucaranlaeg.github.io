@@ -106,6 +106,11 @@ class Clone {
 		this.activeSpells.forEach(s => s.sustain(time));
 	}
 
+	drown(time) {
+		let location = zones[currentZone].getMapLocation(this.x, this.y, true);
+		this.takeDamage(location.water ** 2 * (-time) / 1000);
+	}
+
 	executeAction(time, action, actionIndex) {
 		currentClone = this.id;
 		let actionToDo = action.action;
@@ -206,6 +211,7 @@ class Clone {
 			let startTime = time;
 			time = this.executeAction(time, nextAction, actionIndex);
 			this.sustainSpells(startTime - time);
+			this.drown(time);
 			this.timeAvailable = time;
 			return time;
 		} 
@@ -285,6 +291,7 @@ class Clone {
 			if (clones.length == 2) getMessage("First Clone").display();
 			if (clones.length == 3) getMessage("Second Clone").display();
 			if (clones.length == 4) getMessage("Third Clone").display();
+			if (clones.length == 4) getMessage("Fourth Clone").display();
 		}
 	}
 }

@@ -222,7 +222,8 @@ function completeGoldMana(){
 	let gold = getStuff("Gold Nugget");
 	if (gold.count < 1) return true;
 	gold.update(-1);
-	getStat("Mana").current += 5;
+	let manaMult = getVerdantRealmManaMult();
+	getStat("Mana").current += 5 * manaMult;
 }
 
 function completeCrossPit(x, y){
@@ -386,7 +387,7 @@ function getChopTime(base, increaseRate){
 }
 
 function tickSpore(usedTime){
-	clones[currentClone].takeDamage(usedTime / 10000);
+	clones[currentClone].takeDamage(usedTime / 5000);
 }
 
 let actions = [
