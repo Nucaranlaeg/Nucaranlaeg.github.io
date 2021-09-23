@@ -12,7 +12,7 @@ class Stat {
 	}
 
 	updateValue() {
-		if (this.current > 100){
+		if (this.current < 100){
 			this.value = 100 / (100 + this.current + this.bonus);
 		} else {
 			this.value = 100 / (100 + (this.current * (100 + this.bonus) / 100));
