@@ -61,6 +61,7 @@ let messages = [
 					Is that because you now know a little of the cave you're in?
 					Given time, you're sure you can find a way out.
 					And while you haven't, it would be good to use the <u>spacebar</u> to extract mana from those rocks.
+					If you haven't found a mana rock, maybe keep looking!
 
 					<b>Controls:</b>
 					<u>Backspace</u> to remove last action
@@ -105,6 +106,7 @@ let messages = [
 					Despite going back in time, your skills are slowly improving.  You can perform actions faster than before!
 					
 					Each stat is displayed as <u>current</u> (<u>base</u>), and your current value is reset to your base value when you travel back in time.
+					You'll need to achieve a high enough current value for your base to increase.
 					Hovering over a stat displays the percentage of time you save on tasks using that stat.`),
 	new Message("Lava Can't Melt Steel Bridges", `
 					You worked so hard on that bridge, and to see it quickly turn to slag after crossing that lava is sad.
