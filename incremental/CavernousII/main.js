@@ -293,6 +293,8 @@ function importGame(){
 	let temp = localStorage[saveName];
 	localStorage[saveName] = saveString;
 	try {
+		let queueNode = document.querySelector(`#queues`);
+		queueNode.innerHTML = "";
 		queues = [];
 		load();
 	} catch {
