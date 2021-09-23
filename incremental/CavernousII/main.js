@@ -127,7 +127,7 @@ function resetLoop() {
 
 let URLParams = (new URL(document.location)).searchParams;
 let saveName = URLParams.get('save') || '';
-saveName = `saveGame${saveName && '_'}${saveName}`;
+saveName = `saveGameII${saveName && '_'}${saveName}`;
 let savingDisabled = URLParams.get('saving') == 'disabled';
 
 function save(){

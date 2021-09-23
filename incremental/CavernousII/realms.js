@@ -33,7 +33,7 @@ function changeRealms(newRealm){
 	let realmSelect = document.querySelector("#realm-select");
 	let currentActiveRealm = realmSelect.querySelector(".active-realm");
 	if (currentActiveRealm) currentActiveRealm.classList.remove("active-realm");
-	realmSelect.children[currentRealm].classList.add("active-realm");
+	if (realmSelect.children[currentRealm]) realmSelect.children[currentRealm].classList.add("active-realm");
 	resetLoop();
 }
 
