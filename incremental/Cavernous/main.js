@@ -535,3 +535,5 @@ function applyCustomStyling() {
 		document.querySelector(".vertical-blocks").style.justifyContent = settings.debug_verticalBlocksJustify;
 	}
 }
+
+getMessage("New Game").display(true);

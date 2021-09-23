@@ -38,6 +38,10 @@ body {
 	justify-content: space-evenly;
 }
 
+.sequel {
+	background-color: #1fa01f77;
+}
+
 #stats {
 	z-index: -1;
 }

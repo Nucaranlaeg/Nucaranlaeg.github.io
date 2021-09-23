@@ -114,4 +114,6 @@ let messages = [
 					It will last until the end of your next fight.`),
 	new Message("Won", `
 					I can't really figure out how to make the game scale nicely past here.  So at this point, you win!`),
+	new Message("New Game", `
+					Cavernous now has a (much improved) sequel!  Find it at https://nucaranlaeg.github.io/incremental/CavernousII/ or click the link on the side.`)
 ];
