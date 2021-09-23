@@ -355,14 +355,14 @@ function createActionNode(action){
 		"D": downArrowSVG,
 		"I": interactSVG,
 		"T": repeatInteractSVG,
-		"<": "⟲",
-		"=": "=",
+		"<": repeatListSVG,
+		"=": syncSVG,
 	}[action];
 	if (!character){
 		let value = getActionValue(action);
 		character = action[0] == "N" ? runes[value].icon
 		          : action[0] == "S" ? spells[value].icon
-		          : action[0] == "P" ? "?"
+		          : action[0] == "P" ? pathfindSVG
 		          : "";
 	}
 	actionNode.querySelector(".character").innerHTML = character;
