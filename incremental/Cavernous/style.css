@@ -38,6 +38,10 @@ body {
 	justify-content: space-evenly;
 }
 
+.sequel {
+	background-color: #1fa01f77;
+}
+
 #stats {
 	z-index: -1;
 }
@@ -65,7 +69,11 @@ body {
 }
 
 .small-option {
-	width: 21;
+	width: 21px;
+}
+
+.small-option .svg {
+	width: 20px;
 }
 
 .option-row {
@@ -592,13 +600,19 @@ td.hobgoblin:before,
 td.champion:before,
 td.goblin:before {
 	content: "웃";
-	/* top: 0px; */
-	/* left: 0px; */
 	font-size: 0.91666em;
 }
 
 td.hobgoblin:before {
 	text-shadow: 0 0 1px;
+}
+
+.enemy-hp {
+	background-color: #008f0080;
+	height: 33%;
+	position: absolute;
+	top: 0;
+	left: 0;
 }
 
 td.coal {

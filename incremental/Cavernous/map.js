@@ -169,9 +169,9 @@ let mapNode;
 function drawMap() {
 	if (!isDrawn) drawNewMap();
 	
-	mapDirt.forEach(([x,y])=>drawCell(x, y));
+	mapDirt.forEach(([x,y]) => drawCell(x, y));
 	mapDirt = [];
-	mapStain.forEach(([x,y])=>drawCell(x, y));
+	mapStain.forEach(([x,y]) => drawCell(x, y));
 	
 	mapNode = mapNode || document.querySelector("#map-inner");
 	clampMap();
@@ -288,6 +288,10 @@ function getMapNode(x, y) {
 	return mapNodes[y] && mapNodes[y][x];
 }
 
+function getOffsetMapNode(x, y) {
+	return getMapNode(x + xOffset, y + yOffset);
+}
+
 function getMapTile(x, y) {
 	return map[y] && map[y][x];
 }
@@ -300,4 +304,13 @@ function resetMap() {
 		});
 	})
 	map = originalMap.slice();
+}
+
+function displayCreatureHealth(creature){
+	let node = getOffsetMapNode(creature.x, creature.y);
+	if (creature.health > 0 && creature.health < creature.creature.health){
+		node.innerHTML = `<div class="enemy-hp" style="width:${Math.floor(creature.health / creature.creature.health * 100)}%"></div>`;
+	} else {
+		node.innerHTML = "";
+	}
 }

@@ -98,6 +98,7 @@ function resetLoop() {
 		c.attack = c.creature.attack;
 		c.defense = c.creature.defense;
 		c.health = c.creature.health;
+		c.drawHealth();
 	});
 	resetMap();
 	drawMap();
@@ -191,7 +192,6 @@ function load(){
 	while (clones.length < saveGame.cloneData.count){
 		Clone.addNewClone(true);
 	}
-	while (settings.useAlternateArrows != saveGame.settings.useAlternateArrows && saveGame.settings.useAlternateArrows !== undefined) toggleUseAlternateArrows();
 	queues = ActionQueue.fromJSON(saveGame.cloneData.queues);
 	savedQueues = [];
 	for (let i = 0; i < saveGame.stored.length; i++){
@@ -299,7 +299,7 @@ setInterval(function mainLoop() {
 			(settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined)) ||
 			(settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined)) ||
 			!messageBox.hidden) {
-		timeBanked += time / 2;
+		if (!isNaN(time)) timeBanked += time / 2;
 		redrawOptions();
 		updateDropTarget();
 		return;
@@ -324,9 +324,9 @@ setInterval(function mainLoop() {
 	timeLeft = Clone.performActions(timeAvailable);
 
 	let timeUsed = timeAvailable - timeLeft;
-	if (timeUsed > time) {
+	if (timeUsed > time && !isNaN(timeUsed - time)) {
 		timeBanked -= timeUsed - time;
-	} else {
+	} else if (!isNaN(time - timeUsed)){
 		timeBanked += (time - timeUsed) / 2;
 	}
 	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
@@ -337,7 +337,7 @@ setInterval(function mainLoop() {
 	redrawOptions();
 	updateDropTarget();
 
-	stats.forEach(e=>e.update());
+	stats.forEach(e => e.update());
 	drawMap();
 }, Math.floor(1000 / fps));
 
@@ -535,3 +535,5 @@ function applyCustomStyling() {
 		document.querySelector(".vertical-blocks").style.justifyContent = settings.debug_verticalBlocksJustify;
 	}
 }
+
+getMessage("New Game").display(true);

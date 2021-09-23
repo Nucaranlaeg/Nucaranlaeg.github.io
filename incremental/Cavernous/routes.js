@@ -3,8 +3,8 @@ class Route {
 		if (x instanceof Location) {
 			this.x = x.x;
 			this.y = x.y;
-			let route = queues.map(r => queueToString(r));
-			route = route.filter(e=>e.length)
+			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
+			route = route.filter(e => e.length);
 
 			if (route.every((e,i,a) => e==a[0])) {
 				route = [route[0]];
@@ -24,6 +24,7 @@ class Route {
 			this.manaUsed = +(mana.base - mana.current + 0.1).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
+			this.progressBeforeReach = duration - x.remainingPresent / 1000 * (clones.length - this.clonesLost);
 
 			return;
 		}
@@ -53,12 +54,12 @@ class Route {
 	}
 
 	estimateConsumeManaLeft(ignoreInvalidate = false) {
-		let est = getStat("Mana").base - this.manaUsed - this.getConsumeCost() / (clones.length - this.clonesLost);
+		let est = getStat("Mana").base - this.manaUsed - (this.getConsumeCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
 		return !ignoreInvalidate && this.invalidateCost ? est + 100 : est;
 	}
 
 	estimateConsumeTimes() {
-		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost);
+		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost) + this.progressBeforeReach;
 		let times = 0;
 		let cost = this.getConsumeCost(times);
 		while (baseTime + 0.1 * times > cost) {
@@ -68,7 +69,7 @@ class Route {
 	}
 
 	estimateConsumeTimesAtOnce() {
-		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost);
+		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost) + this.progressBeforeReach;
 		let times = 0;
 		let cost = this.getConsumeCost(times);
 		while (baseTime > cost) {
@@ -140,7 +141,7 @@ class Route {
 
 	static invalidateRouteCosts() {
 		settings.debug && log('route costs invalidated');
-		routes.map(e=>e.invalidateCost = true);
+		routes.map(e => e.invalidateCost = true);
 	}
 
 	showOnLocationUI() {

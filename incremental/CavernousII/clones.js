@@ -5,13 +5,19 @@ class Clone {
 		this.createQueue();
 	}
 
-	reset() {
+	enterZone() {
 		this.x = 0;
 		this.y = 0;
+		this.walkTime = 0;
+		this.startDamage = this.damage;
+		this.minHealth = 0;
+	}
+
+	reset() {
+		this.enterZone();
 		this.currentProgress = 0;
 		this.damage = 0;
 		this.styleDamage();
-		this.syncs = 0;
 		this.repeated = false;
 		this.walkTime = 0;
 		this.activeSpells = [];
@@ -29,7 +35,12 @@ class Clone {
 				amount = 0;
 			}
 		}
-		this.damage += amount;
+		if (getStat("Health").current - this.damage > 0.1){
+			this.damage = Math.min(getStat("Health").current - 0.05, this.damage + amount);
+		} else {
+			this.damage += amount;
+		}
+		this.minHealth = Math.min(this.minHealth, this.startDamage - this.damage);
 		if (this.damage < 0) this.damage = 0;
 		if (this.damage >= getStat("Health").current){
 			this.damage = Infinity;
@@ -58,7 +69,6 @@ class Clone {
 
 	select(allowMultiple = false) {
 		if (!allowMultiple) {
-
 			for (let index of selectedQueue) {
 				if (index != this.id) clones[index].deselect();
 			}
@@ -66,11 +76,8 @@ class Clone {
 				cursor = [this.id, null];
 			}
 			selectedQueue = [this.id];
-
 		} else {
-
 			cursor = [0, null];
-
 		}
 
 		document.querySelector(`#queue${this.id}`).classList.add("selected-clone");
@@ -87,34 +94,44 @@ class Clone {
 		selectedQueue = selectedQueue.filter(e => e != this.id);
 	}
 
-	completeNextAction() {
-		return completeNextAction();
+	completeNextAction(force) {
+		return completeNextAction(force);
 	}
 
 	selectQueueAction(actionIndex, n) {
-		return selectQueueAction(this.id, actionIndex, n);
+		if (currentZone == displayZone) return selectQueueAction(this.id, actionIndex, n);
 	}
 
 	sustainSpells(time) {
 		this.activeSpells.forEach(s => s.sustain(time));
 	}
 
+	drown(time) {
+		let location = zones[currentZone].getMapLocation(this.x, this.y, true);
+		this.takeDamage(location.water ** 2 * (-time) / 1000);
+	}
+
 	executeAction(time, action, actionIndex) {
 		currentClone = this.id;
 		let actionToDo = action.action;
+		// Failed pathfind
+		if (actionToDo === null || actionToDo[0] === undefined){
+			this.completeNextAction(true);
+			return time;
+		}
 
-		let xOffset = {
+		let actionXOffset = {
 			"R": 1,
 			"L": -1,
 		}[actionToDo[0]] || 0;
-		let yOffset = {
+		let actionYOffset = {
 			"U": -1,
 			"D": 1,
 		}[actionToDo[0]] || 0;
-		let hasOffset = !!xOffset || !!yOffset;
+		let hasOffset = !!actionXOffset || !!actionYOffset;
 
 		if (actionToDo[0][0] == "N"){
-			if (runes[actionToDo[1]].create(this.x + xOffset, this.y + yOffset)){
+			if (runes[actionToDo[1]].create(this.x + actionXOffset, this.y + actionYOffset)){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
 				return time;
@@ -148,7 +165,7 @@ class Clone {
 			return 0;
 		}
 
-		let location = getMapLocation(this.x + xOffset, this.y + yOffset);
+		let location = getMapLocation(this.x + actionXOffset, this.y + actionYOffset);
 		if (this.currentCompletions === null) this.currentCompletions = location.completions;
 
 		if ((!hasOffset && location.canWorkTogether && this.currentProgress
@@ -194,6 +211,7 @@ class Clone {
 			let startTime = time;
 			time = this.executeAction(time, nextAction, actionIndex);
 			this.sustainSpells(startTime - time);
+			this.drown(time);
 			this.timeAvailable = time;
 			return time;
 		} 
@@ -230,7 +248,7 @@ class Clone {
 
 	static performActions(time) {
 		let maxSingleTickTime = settings.debug_maxSingleTickTime || 99;
-		let goldToManaBaseTime = getAction("Turn Gold to Mana").getBaseDuration() / clones.length * 1000;
+		let goldToManaBaseTime = getAction("Turn Gold to Mana").getDuration() / clones.length * 1000;
 		if (maxSingleTickTime > goldToManaBaseTime / 2) {
 			maxSingleTickTime = goldToManaBaseTime / 2;
 		}
@@ -254,9 +272,10 @@ class Clone {
 					c.performSingleAction();
 				}
 			}
-			maxTime = Math.max(...clones.map(e => !e.noActionsAvailable && e.damage != Infinity && e.timeAvailable));
+			maxTime = Math.max(...clones.map(e => !e.noActionsAvailable && e.damage != Infinity && (e.timeAvailable || 0)));
+			if (maxTime < 0.001) break;
 		}
-		let timeNotSpent = Math.min(...clones.map(e => e.timeLeft));
+		let timeNotSpent = Math.min(...clones.map(e => e.timeLeft || 0));
 		clones.forEach(c => {
 			if (c.timeLeft > timeNotSpent) c.sustainSpells(c.timeLeft - timeNotSpent);
 		})
@@ -272,9 +291,9 @@ class Clone {
 			if (clones.length == 2) getMessage("First Clone").display();
 			if (clones.length == 3) getMessage("Second Clone").display();
 			if (clones.length == 4) getMessage("Third Clone").display();
+			if (clones.length == 4) getMessage("Fourth Clone").display();
 		}
 	}
-
 }
 
 function selectClone(target, event){
@@ -295,13 +314,6 @@ function selectClone(target, event){
 	
 	showCursor();
 	showFinalLocation();
-	// Experimental route-displaying algorithm
-	// if (selectedQueue.length == 1) {
-	// 	let positions = getQueueOffsets(xOffset, yOffset, queues[selectedQueue[0]]);
-	// 	runExperiment(positions);
-	// } else {
-	// 	runExperiment([]);
-	// }
 }
 
 let clones = [];
