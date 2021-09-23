@@ -158,9 +158,6 @@ class Zone {
 		mana.min = mana.current;
 		this.startMana = mana.current;
 		this.zoneStartTime = queueTime;
-		if (this.queues === null){
-			this.queues = ActionQueue.fromJSON([[]]);
-		}
 		queues = this.queues;
 		queues.forEach((_, i) => {
 			resetQueueHighlight(i);
@@ -187,6 +184,9 @@ class Zone {
 	}
 
 	display(){
+		if (this.queues === null){
+			this.queues = ActionQueue.fromJSON([[]]);
+		}
 		while (this.queues.length < clones.length){
 			let q = new ActionQueue();
 			q.index = this.queues.length;
