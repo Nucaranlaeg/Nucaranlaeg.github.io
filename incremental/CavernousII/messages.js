@@ -86,7 +86,7 @@ let messages = [
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.
-					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out.
+					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out by cooperating on the same task.
 					
 					Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`),
 	new Message("Second Clone", `
@@ -125,7 +125,7 @@ let messages = [
 					It will last until the end of your next fight.`),
 	new Message("Enter New Zone", `
 					You've found a portal to another zone!
-					Each zone has at least 3 mana rocks - they give more mana but their cost scales faster the deeper you get.  They give 0.1 mana per earlier zone (including the current one), which you'll recieve on entering that zone.
+					Each zone has at least 3 mana rocks - they give more mana but their cost scales faster the deeper you get.  They give 0.1 mana to each zone up to the current one, which you'll receive on entering that zone.
 					You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with (which you can also click on).`),
 	new Message("Unlocked Weaken Rune", `
 					You've unlocked a rune!

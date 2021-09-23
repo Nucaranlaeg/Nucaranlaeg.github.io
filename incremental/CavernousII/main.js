@@ -115,6 +115,8 @@ function resetLoop() {
 	updateRunes();
 	updateSpells(this.base);
 	moveToZone(0, false);
+	getStat("Mana").dirty = true;
+	getStat("Mana").update();
 	drawMap();
 	save();
 	showFinalLocation();

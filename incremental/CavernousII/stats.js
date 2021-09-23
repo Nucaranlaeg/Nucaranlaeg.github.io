@@ -53,6 +53,7 @@ class Stat {
 		if (!this.dirty) return;
 		this.updateValue();
 		if (!this.node){
+			if (this.base == 0 || (["Health", "Attack", "Defense"].includes(this.name) && getStat("Combat").base == 0)) return;
 			this.createNode();
 			this.effectNode = this.node.querySelector(".effect");
 			this.descriptionNode = this.node.querySelector(".description");
