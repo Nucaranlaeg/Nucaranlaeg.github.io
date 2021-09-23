@@ -74,6 +74,7 @@ function resetLoop() {
 	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && currentRealm == 0)) setSetting(toggleAutoRestart, 3);
 	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
 	if (mana.base == 6) getMessage("Strip Mining").display();
+	if (mana.base == 7.4) getMessage("Buy More Time").display();
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
 	stats.forEach(s => {
 		s.reset();

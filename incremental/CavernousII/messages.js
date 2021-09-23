@@ -83,10 +83,14 @@ let messages = [
 
 					Check the <u>Options</u> panel for the <u>Auto-Grind</u>
 					to automatically select the fastest path`),
+	new Message("Buy More Time", `
+					Have you found the Vaporizer yet?  Interacting with it will turn your gold into mana!
+					You can probably mine those rocks a few additional times with that.`),
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.
 					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out by cooperating on the same task.
+					Two clones can work in the same space, taking half the time it takes one clone to complete the job.
 					
 					Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`),
 	new Message("Second Clone", `
