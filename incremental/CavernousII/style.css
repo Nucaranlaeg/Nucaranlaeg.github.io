@@ -356,7 +356,7 @@ h4#location-name {
 
 #realm-select {
 	white-space: nowrap;
-	overflow-x: scroll;
+	/* overflow-x: scroll; */
 	scrollbar-width: thin;
 	scrollbar-color: #5b6d6d #aacccc;
 }
@@ -397,7 +397,7 @@ h4#location-name {
 
 #zone-select {
 	white-space: nowrap;
-	overflow-x: scroll;
+	/* overflow-x: scroll; */
 	scrollbar-width: thin;
 	scrollbar-color: #5b6d6d #aacccc;
 }
