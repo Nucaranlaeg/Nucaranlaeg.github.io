@@ -113,7 +113,7 @@ function completeGoldMine(x, y){
 function completeIronMine(x, y){
 	let iron = getStuff("Iron Ore");
 	iron.update(getDuplicationAmount(x, y));
-	if (iron.count >= 10) getMessage("Mass Manufacturing").display();
+	if (iron.count >= 5) getMessage("Mass Manufacturing").display();
 	completeMove(x, y);
 }
 

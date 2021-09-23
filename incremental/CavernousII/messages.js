@@ -111,7 +111,7 @@ let messages = [
 					At least one of your clones made it across.`),
 	new Message("Mass Manufacturing", `
 					You've sure got a lot of iron!  You can use the Repeat-Interact action to forge it all into bars.  Use ctrl-shift to insert a Repeat-Interact action into your queue.
-					You might not need it now, but later in the game it can really help with making sure your clones line up. when forging bars or vaporizing gold.
+					You might not need it now, but later in the game it can really help with making sure your clones line up when forging bars or vaporizing gold.
 					Unlike normal interact, if you don't have the resources to start an interact action, it'll just skip it entirely.`),
 	new Message("Arcane Shield", `
 					Your deepening understanding of the mysteries of magic give you the idea of forming your mana into a shield, protecting yourself from danger.

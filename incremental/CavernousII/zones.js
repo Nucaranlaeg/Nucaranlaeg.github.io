@@ -298,7 +298,7 @@ function recalculateMana(){
 	});
 	zones.forEach(z => {
 		z.manaGain = +(z.manaGain).toFixed(2);
-		if (z.queues) z.display();
+		if (z.queues && z.mapLocations.some(r => r.some(x => x))) z.display();
 	});
 }
 
