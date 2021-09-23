@@ -74,6 +74,9 @@ let realms = [
 	// All rock-type locations become mushroom-type locations.
 	// Mushroom growth rate is doubled.
 	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion)."),
+
+	// Clones cannot help each other at all.
+	new Realm("Solo Realm", "A realm where clones are incapable of coordinating.  You'll work on your independence and drive, which will make you healthier."),
 ];
 
 function getRealm(name) {

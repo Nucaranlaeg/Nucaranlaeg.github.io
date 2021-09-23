@@ -86,10 +86,14 @@ let messages = [
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.
-					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out.`),
+					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out.
+					
+					Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`),
 	new Message("Second Clone", `
 					You've created another clone!  Remember, these clones can work together.
-					It's probably a good thing that you can get along with yourself - it would get messy quick if you couldn't.`),
+					It's probably a good thing that you can get along with yourself - it would get messy quick if you couldn't.
+					
+					Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`),
 	new Message("Third Clone", `
 					You've created yet another clone.
 					Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...
