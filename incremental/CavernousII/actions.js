@@ -156,13 +156,13 @@ function startCollectMana(completions, priorCompletions, x, y) {
 
 function startCreateClone(completions, priorCompletions){
 	let gold = getStuff("Gold Nugget");
-	let needed = getNextCloneAmount(completions + priorCompletions);
+	let needed = getNextCloneAmount();
 	return gold.count >= needed ? 1 : -1;
 }
 
 function completeCreateClone(x, y){
 	let gold = getStuff("Gold Nugget");
-	let needed = getNextCloneAmount(completions + priorCompletions);
+	let needed = getNextCloneAmount();
 	gold.update(-needed);
 	Clone.addNewClone();
 }
