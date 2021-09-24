@@ -52,7 +52,7 @@ function getVerdantRealmManaMult(){
 
 const verdantMapping = {
 	"#": "♠", // Limestone -> Mushroom
-	"√": "♠", // Limestone (Challenge) -> Mushroom
+	"√": "♠", // Limestone (Goal) -> Mushroom
 	"«": "♣", // Travertine -> Kudzushroom
 	"╖": "α", // Granite -> Sporeshroom
 	"???": "???", // Basalt

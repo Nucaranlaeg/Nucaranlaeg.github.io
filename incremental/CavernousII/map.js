@@ -39,7 +39,7 @@ const classMapping = {
 	"h": ["hobgoblin", "Hobgoblin"],
 	"m": ["champion", "Goblin Champion"],
 	"Θ": ["zone", "Zone Portal"],
-	"√": ["challenge", "Challenge"],
+	"√": ["goal", "Goal"],
 	"♠": ["mushroom", "Mushroom"],
 	"♣": ["kudzushroom", "Kudzushroom"],
 	"α": ["sporeshroom", "Sporeshroom"],

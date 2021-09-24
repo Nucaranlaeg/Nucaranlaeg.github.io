@@ -53,7 +53,7 @@ class Stat {
 		if (!this.dirty) return;
 		this.updateValue();
 		if (!this.node){
-			if (this.base == 0 || (["Health", "Attack", "Defense"].includes(this.name) && getStat("Combat").base == 0)) return;
+			if ((this.base == 0 && this.current == 0) || (["Health", "Attack", "Defense"].includes(this.name) && getStat("Combat").base == 0)) return;
 			this.createNode();
 			this.effectNode = this.node.querySelector(".effect");
 			this.descriptionNode = this.node.querySelector(".description");
@@ -65,7 +65,7 @@ class Stat {
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
 			let increaseRequired = ((this.base + 1) ** (1/9) * (this.base + 1)) - 1;
-			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 1)}`;
+			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 2)}`;
 		}
 		this.dirty = false;
 	}

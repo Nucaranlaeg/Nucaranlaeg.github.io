@@ -208,7 +208,7 @@ function canMakeEquip(requirement, equipType){
 		let haveStuff = simpleRequire(requirement)();
 		if (haveStuff <= 0) return haveStuff;
 		let itemCount = stuff.reduce((a, c) => a + (c.name.includes(equipType) ? c.count : 0), 0);
-		if (itemCount >= clones.length) return 0;
+		if (itemCount >= clones.length) return -1;
 		return 1;
 	}
 	return canDo;
@@ -378,8 +378,8 @@ function activatePortal(){
 	moveToZone(currentZone + 1);
 }
 
-function completeChallenge(x, y){
-	zones[currentZone].completeChallenge();
+function completeGoal(x, y){
+	zones[currentZone].completeGoal();
 	completeMove(x, y);
 }
 
@@ -422,7 +422,7 @@ let actions = [
 	new Action("Charge Wither", 100, [["Runic Lore", 1]], completeWither, null, tickWither),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 	new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
-	new Action("Complete Challenge", 1000, [["Speed", 1]], completeChallenge),
+	new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),
 	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
 	new Action("Kudzu Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, startWalk, tickWalk),
 	new Action("Spore Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, null, tickSpore),

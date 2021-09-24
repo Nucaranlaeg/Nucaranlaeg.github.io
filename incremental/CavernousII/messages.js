@@ -76,6 +76,7 @@ let messages = [
 	new Message("Strip Mining", `
 					It's getting harder to extract mana from that rock.
 					You'll have to go out and find another rock to extract mana from.
+					Maybe you can come back to this one later when you have more mana to spend on it.
 
 					Check the right panel to estimate how many more times you can consume this rock`),
 	new Message("All the known ways", `
@@ -120,7 +121,7 @@ let messages = [
 					You worked so hard on that bridge, and to see it quickly turn to slag after crossing that lava is sad.
 					At least one of your clones made it across.`),
 	new Message("Mass Manufacturing", `
-					You've sure got a lot of iron!  You can use the Repeat-Interact action to forge it all into bars.  Use ctrl-shift to insert a Repeat-Interact action into your queue.
+					You've sure got a lot of iron!  You can use the Repeat-Interact action to forge it all into bars.  Use ctrl-space to insert a Repeat-Interact action into your queue.
 					You might not need it now, but later in the game it can really help with making sure your clones line up when forging bars or vaporizing gold.
 					Unlike normal interact, if you don't have the resources to start an interact action, it'll just skip it entirely.`),
 	new Message("Arcane Shield", `
@@ -130,7 +131,7 @@ let messages = [
 	new Message("Enter New Zone", `
 					You've found a portal to another zone!
 					Each zone has at least 3 mana rocks - they give more mana but their cost scales faster the deeper you get.  They give 0.1 mana to each zone up to the current one, which you'll receive on entering that zone.
-					You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with (which you can also click on).`),
+					You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with.  You can click on these routes to load them.  There's an option which lets you load only that route or that route and its prerequisites.`),
 	new Message("Unlocked Weaken Rune", `
 					You've unlocked a rune!
 					To place a rune, press the relevant number, and the rune will be inscribed upon the space that clone is in.  You can inscribe runes only on Dug Tunnel spaces.
@@ -142,7 +143,7 @@ let messages = [
 	new Message("Unlocked Duplication Rune", `
 					You've unlocked a rune!
 					The Duplication rune gets you more stuff.  After placing it, interact with it to charge it up.
-					Once it's charged, each orthogonally adjacent space will give one extra resource (of the type it already gives).`),
+					Once it's charged, each of the 8 adjacent spaces will give one extra resource (of the type it already gives).`),
 	new Message("Other Realms", `
 					There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort.
 					Mining mana there will reduce the cost scaling of that mana rock in all Realms.`),

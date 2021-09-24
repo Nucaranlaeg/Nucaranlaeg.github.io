@@ -160,7 +160,7 @@ function save(){
 				});
 			}) : [[]],
 			"routes": zone.routes,
-			"challenge": zone.challengeComplete,
+			"goal": zone.goalComplete,
 		};
 	})
 	let cloneData = {
@@ -223,7 +223,8 @@ function load(){
 		zone.queues = ActionQueue.fromJSON(saveGame.zoneData[i].queues);
 		zone.routes = ZoneRoute.fromJSON(saveGame.zoneData[i].routes);
 		if (saveGame.zoneData[i].locations.length) zone.display();
-		if (saveGame.zoneData[i].challenge) zone.completeChallenge();
+		// Challenge for < 2.0.6
+		if (saveGame.zoneData[i].goal || saveGame.zoneData[i].challenge) zone.completeGoal();
 	}
 	recalculateMana();
 	clones = [];
@@ -324,13 +325,17 @@ setInterval(function mainLoop() {
 	lastAction = Date.now();
 	queuesNode = queuesNode || document.querySelector("#queues");
 	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
-		queuesNode.classList.add("out-of-mana")
+		queuesNode.classList.add("out-of-mana");
 		getMessage("Out of Mana").display();
 		if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
 			resetLoop();
 		}
 	} else {
-		queuesNode.classList.remove("out-of-mana")
+		queuesNode.classList.remove("out-of-mana");
+	}
+	if (settings.autoRestart == 2 && clones.every(c => c.noActionsAvailable || c.damage == Infinity)){
+		queuesNode.classList.remove("out-of-mana");
+		resetLoop();
 	}
 	if (!settings.running ||
 			mana.current == 0 ||

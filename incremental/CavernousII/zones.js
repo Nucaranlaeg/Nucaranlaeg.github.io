@@ -2,11 +2,11 @@ let currentZone = 0;
 let displayZone = 0;
 
 class Zone {
-	constructor(name, map, challengeReward = null){
+	constructor(name, map, goalReward = null){
 		this.name = name;
 		this.originalMap = map;
-		this.challengeReward = challengeReward;
-		this.challengeComplete = false;
+		this.goalReward = goalReward;
+		this.goalComplete = false;
 		this.map = map.slice();
 		this.yOffset = map.findIndex(row => row.includes("."));
 		this.xOffset = map[this.yOffset].indexOf(".");
@@ -64,7 +64,7 @@ class Zone {
 		if (currentRealm == 2){
 			this.map = convertMapToVerdant(this.map);
 		}
-		if (this.challengeComplete) this.map = this.map.map(row => row.replace("√", "#"));
+		if (this.goalComplete) this.map = this.map.map(row => row.replace("√", "#"));
 		this.mapLocations.forEach((ml, y) => {
 			ml.forEach((l, x) => {
 				l.reset();
@@ -259,10 +259,10 @@ class Zone {
 		event.stopPropagation();
 	}
 
-	completeChallenge(){
-		if (this.challengeComplete) return;
-		this.challengeComplete = true;
-		this.challengeReward();
+	completeGoal(){
+		if (this.goalComplete) return;
+		this.goalComplete = true;
+		this.goalReward();
 	}
 
 	tick(time){
@@ -408,8 +408,8 @@ let zones = [
 	new Zone("Zone 5",
 		[
 			'████████████████',
-			'█%█+█████√╖█████',
-			'█+0.╖█████«0████',
+			'█%█+████████████',
+			'█+0.╖█████«0╖√██',
 			'█%██╖█=█¤█«█████',
 			'████«««««««█¤♠██',
 			'██««««««««███♠██',
@@ -422,7 +422,7 @@ let zones = [
 			'█%«██████+██████',
 			'██«█████████████',
 			'██+█████████████',
-			'██~¤████████████',
+			'██~~~¤██████████',
 			'████████████████',
 		],
 		() => {

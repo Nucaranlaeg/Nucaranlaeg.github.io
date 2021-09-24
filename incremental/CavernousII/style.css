@@ -593,7 +593,7 @@ td.salt {
 
 td.salt:before {
 	content: "░";
-	font-size: 1.06em;
+	font-size: 1.5rem;
 	top: -5px;
 }
 
@@ -798,11 +798,11 @@ td.zone:before {
 	padding-bottom: 10%;
 }
 
-td.challenge {
+td.goal {
 	background-color: #17ac17;
 }
 
-td.challenge:before {
+td.goal:before {
 	content: "√";
 	color: #1a461a;
 	font-size: 1.166em;
