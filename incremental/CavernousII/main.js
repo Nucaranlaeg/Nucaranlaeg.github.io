@@ -342,7 +342,7 @@ setInterval(function mainLoop() {
 			(settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined && (q[q.length - 1] || [""])[0] !== "=")) ||
 			(settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined || clones[i].damage == Infinity) && clones.some(c => c.damage < Infinity)) ||
 			!messageBox.hidden) {
-		if (!isNaN(time / 2)) timeBanked += time / 2;
+		if (!isNaN(time / 1)) timeBanked += time;
 		redrawOptions();
 		updateDropTarget();
 		return;
