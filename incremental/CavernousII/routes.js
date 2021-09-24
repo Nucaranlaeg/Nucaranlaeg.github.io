@@ -59,12 +59,17 @@ class Route {
 	}
 
 	loadRoute(){
+		let success = true;
 		if (this.zone > 0){
 			let routes = this.pickRoute(this.zone - 1, {"require": this.requirements}, null, this.cloneHealth);
 			if (routes !== null){
 				for (let i = 0; i < routes.length; i++){
 					routes[i].loadRoute(zones[i]);
 				}
+				this.loadingFailed = false;
+			} else {
+				success = false;
+				this.loadingFailed = true;
 			}
 		}
 		for (let i = 0; i < this.route.length; i++){
@@ -80,6 +85,7 @@ class Route {
 			}
 		}
 		redrawQueues();
+		return success;
 	}
 
 	getConsumeCost(relativeLevel = 0) {
@@ -154,20 +160,14 @@ class Route {
 	}
 
 	static loadBestRoute() {
-		let bestEff = -999;
-		let bestRoute = routes[0];
-		for (let r of routes) {
-			if (r.realm != currentRealm) continue;
-			let eff = r.estimateConsumeManaLeft();
-			if (eff > bestEff) {
-				bestEff = eff;
-				bestRoute = r;
-			}
+		let effs = routes.map(r => {
+			if (r.realm != currentRealm) return null;
+			return [r.estimateConsumeManaLeft(), r];
+		}).filter(r => r !== null)
+		  .sort((a, b) => b[0] - a[0]);
+		for (let i = 0; i < effs.length; i++){
+			if (effs[i][1].loadRoute()) return;
 		}
-		settings.debug && console.log('best route is now: %o\n %o*%os, eff:%o: %o', //
-			getMapLocation(bestRoute.x, bestRoute.y), (clones.length - bestRoute.clonesLost),//
-			 +(getStat("Mana").base - bestRoute.manaUsed).toFixed(2), +bestEff.toFixed(2), bestRoute);
-		bestRoute.loadRoute();
 	}
 
 	static invalidateRouteCosts() {
@@ -200,7 +200,8 @@ class Route {
 		document.querySelector("#y-loc").value = this.y;
 
 		displayStuff(document.querySelector("#route-requirements"), this);
-		
+
+		document.querySelector("#failed-route").style.display = this.loadingFailed ? "block" : "none";
 	}
 }
 

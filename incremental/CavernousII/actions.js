@@ -161,6 +161,9 @@ function startCreateClone(completions, priorCompletions){
 }
 
 function completeCreateClone(x, y){
+	let gold = getStuff("Gold Nugget");
+	let needed = getNextCloneAmount(completions + priorCompletions);
+	gold.update(-needed);
 	Clone.addNewClone();
 }
 

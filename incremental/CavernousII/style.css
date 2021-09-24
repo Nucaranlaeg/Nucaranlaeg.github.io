@@ -48,19 +48,14 @@ body {
 
 .stat {
 	height: 20px;
-	width: 194px;
+	width: calc(100% - 6px);
+	white-space: nowrap;
+	display: flex;
+	justify-content: space-between;
 }
 
-.stat > .name {
-	float: left;
-}
-
-.stat > .effect {
-	float: right;
-}
-
-.stat > .index {
-	float: right;
+.stat .description {
+	white-space: initial;
 }
 
 .option {
@@ -427,7 +422,7 @@ h4#location-name {
 	position: absolute;
 	margin-top: -2px;
 	left: 5px;
-	width: 250px;
+	width: 300px;
 	background: #99bbbb;
 	border: 1px solid #00000033;
 	z-index: 5;
@@ -459,6 +454,12 @@ h4#location-name {
 
 .routes .active {
 	background-color: #88aa88;
+}
+
+#failed-route {
+	display: none;
+	color: red;
+	font-weight: bold;
 }
 
 .delete-route {

@@ -275,7 +275,7 @@ class ActionQueue extends Array {
 				longAction = "";
 				prev = ";";
 				continue;
-			} else {
+			} else if (!"PQNS".includes(char)) {
 				this.addActionAt(char, null);
 			}
 			prev = char;
