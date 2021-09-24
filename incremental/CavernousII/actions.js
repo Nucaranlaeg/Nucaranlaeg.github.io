@@ -106,14 +106,15 @@ function getDuplicationAmount(x, y){
 }
 
 function completeGoldMine(x, y){
-	getStuff("Gold Nugget").update(getDuplicationAmount(x, y));
+	let gold = getStuff("Gold Nugget");
+	gold.update(getDuplicationAmount(x, y));
+	if (gold.count >= 5) getMessage("Mass Manufacturing").display();
 	completeMove(x, y);
 }
 
 function completeIronMine(x, y){
 	let iron = getStuff("Iron Ore");
 	iron.update(getDuplicationAmount(x, y));
-	if (iron.count >= 5) getMessage("Mass Manufacturing").display();
 	completeMove(x, y);
 }
 
