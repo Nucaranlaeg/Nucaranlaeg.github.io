@@ -349,10 +349,10 @@ function tickWither(usedTime, {x, y}){
 	x += zones[currentZone].xOffset;
 	y += zones[currentZone].yOffset;
 	let adjacentPlants = [
-		"♣♠".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
-		"♣♠".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
-		"♣♠".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
-		"♣♠".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
+		"♣♠α§".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
+		"♣♠α§".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
+		"♣♠α§".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
+		"♣♠α§".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
 	].filter(p=>p);
 	adjacentPlants.forEach(loc => {
 		loc.wither += usedTime;
@@ -368,10 +368,10 @@ function completeWither(x, y){
 	x += zones[currentZone].xOffset;
 	y += zones[currentZone].yOffset;
 	let adjacentPlants = [
-		"♣♠".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
-		"♣♠".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
-		"♣♠".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
-		"♣♠".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
+		"♣♠α§".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
+		"♣♠α§".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
+		"♣♠α§".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
+		"♣♠α§".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
 	].filter(p=>p);
 	if (!adjacentPlants.length) return false;
 	return true;

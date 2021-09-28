@@ -73,6 +73,8 @@ class Location {
 				}
 			}
 			percent = this.remainingPresent / (this.presentDuration || 1);
+			// Don't pass back effective time.
+			usedTime *= skillDiv;
 		} else {
 			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)){
 				if (!clones[currentClone].walkTime){
@@ -101,6 +103,8 @@ class Location {
 			}
 			percent = this.remainingEnter / (this.enterDuration || 1);
 			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)) this.remainingEnter = baseWalkLength();
+			// Don't pass back effective time.
+			usedTime *= skillDiv;
 		}
 		return [time - usedTime, percent];
 	}
