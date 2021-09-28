@@ -34,9 +34,9 @@ class Stat {
 		}
 
 		if (!this.learnable) return;
-		let val = (this.current + 1) ** (0.9 * (this.current > 100 ? 100 / this.current : 1) ** 0.1) - (this.base + 1);
+		let val = (this.current + 1) ** (0.9 * (this.current > 100 ? 100 / this.current : 1) ** 0.05) - (this.base + 1);
 		if (val < 0) return;
-		let prevVal = (prev + 1) ** (0.9 * (prev > 100 ? 100 / prev : 1) ** 0.1) - (this.base + 1);
+		let prevVal = (prev + 1) ** (0.9 * (prev > 100 ? 100 / prev : 1) ** 0.05) - (this.base + 1);
 		if (prevVal < 0) prevVal = 0;
 		let increase = (val - prevVal) / this.statIncreaseDivisor;
 		this.base += increase;
@@ -64,7 +64,7 @@ class Stat {
 			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
-			let increaseRequired = (this.base + 1) ** (0.9 * (this.base > 100 ? this.base / 100 : 1) ** 0.1) - 1;
+			let increaseRequired = (this.base + 1) ** (1/(this.base > 100 ? 1.13303 * (1/this.base) ** 0.05 : 0.9)) - 1;
 			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 2)}`;
 		}
 		this.dirty = false;

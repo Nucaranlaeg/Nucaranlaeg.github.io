@@ -193,7 +193,8 @@ class Clone {
 				return 0;
 			}
 		}
-		let [time, percentRemaining] = location.tick(time);
+		let percentRemaining;
+		[time, percentRemaining] = location.tick(time);
 		this.selectQueueAction(actionIndex, 100 - (percentRemaining * 100));
 		this.currentProgress = location.remainingPresent;
 		if (!percentRemaining){
