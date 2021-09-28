@@ -11,6 +11,7 @@ class Clone {
 		this.walkTime = 0;
 		this.startDamage = this.damage;
 		this.minHealth = 0;
+		this.waiting = false;
 	}
 
 	reset() {

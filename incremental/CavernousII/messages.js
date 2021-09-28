@@ -154,5 +154,5 @@ let messages = [
 	new Message("Further Realms", `
 					There are realms beyond this one, and you've just discovered a way to get to the Verdant Realm!
 					In the Verdant Realm, there is almost nothing that's not some kind of mushroom.
-					Mining mana there will reduce the cost scaling of that mana rock in all Realms.`),
+					Mining mana there will increase the conversion rate between gold and mana.`),
 ];
