@@ -1,9 +1,10 @@
 let currentRealm = 0;
 
 class Realm {
-	constructor(name, description){
+	constructor(name, description, extraDescription = null){
 		this.name = name;
 		this.description = description;
+		this.extraDescription = extraDescription;
 		this.locked = true;
 		this.node = null;
 		setTimeout(() => {this.index = realms.findIndex(r => r == this)});
@@ -19,10 +20,15 @@ class Realm {
 			this.node = document.querySelector("#realm-template").cloneNode(true);
 			this.node.removeAttribute("id");
 			this.node.querySelector(".name").innerHTML = this.name;
-			this.node.querySelector(".description").innerHTML = this.description;
+			this.node.querySelector(".description").innerHTML = this.description + '<div class="extra-description"></div>';
 			let realmSelect = document.querySelector("#realm-select");
 			realmSelect.appendChild(this.node);
 			this.node.onclick = () => changeRealms(this.index);
+			if (this.extraDescription){
+				this.node.onmouseover = () => {
+					this.node.querySelector(".extra-description").innerHTML = this.extraDescription();
+				};
+			}
 		}
 	}
 }
@@ -50,12 +56,16 @@ function getVerdantRealmManaMult(){
 	return realm.manaMult + 1;
 }
 
+function getVerdantMultDesc(){
+	return `Total multiplier: x${writeNumber(getVerdantRealmManaMult(), 4)}`;
+}
+
 const verdantMapping = {
 	"#": "♠", // Limestone -> Mushroom
 	"√": "♠", // Limestone (Goal) -> Mushroom
 	"«": "♣", // Travertine -> Kudzushroom
 	"╖": "α", // Granite -> Sporeshroom
-	"???": "???", // Basalt
+	"╣": "§", // Basalt
 	"????": "????", // Chert
 }
 
@@ -73,7 +83,7 @@ let realms = [
 
 	// All rock-type locations become mushroom-type locations.
 	// Mushroom growth rate is doubled.
-	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion)."),
+	new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion).", getVerdantMultDesc),
 
 	// Clones cannot help each other at all.
 	new Realm("Solo Realm", "A realm where clones are incapable of coordinating.  You'll work on your independence and drive, which will make you healthier."),

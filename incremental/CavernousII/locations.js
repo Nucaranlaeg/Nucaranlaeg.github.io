@@ -3,7 +3,7 @@ class Location {
 		this.x = x;
 		this.y = y;
 		this.zone = zone;
-		this.type = getLocationType(type);
+		this.baseType = getLocationType(type);
 		let creature = getCreature(type);
 		if (creature) {
 			this.creature = new Creature(creature, x, y);
@@ -23,6 +23,14 @@ class Location {
 
 	get priorCompletions() {
 		return this.priorCompletionData[currentRealm];
+	}
+
+	get type() {
+		if (currentRealm != 2) return this.baseType;
+		if (verdantMapping[this.baseType.symbol]){
+			return getLocationType(getLocationTypeBySymbol(verdantMapping[this.baseType.symbol]));
+		}
+		return this.baseType;
 	}
 	
 	start() {
@@ -119,8 +127,8 @@ class Location {
 		zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]) => {
 			if (!walkable.includes(tile)) return;
 			let prev_level = Math.floor(loc.water * 10);
-			// 1 water should add 0.025 water per second to each adjacent location.
-			loc.water = Math.min(1, loc.water + (this.water / 200) ** 2 * time);
+			// 1 water should add 0.04 water per second to each adjacent location.
+			loc.water = Math.min(1, loc.water + (this.water / 158) ** 2 * time);
 			if (prev_level != Math.floor(loc.water * 10)){
 				mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
 			}

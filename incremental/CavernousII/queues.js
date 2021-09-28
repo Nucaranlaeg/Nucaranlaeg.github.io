@@ -90,7 +90,7 @@ class QueueReferenceAction extends QueueAction {
 class QueueRepeatInteractAction extends QueueAction {
 	get action(){
 		let presentAction = zones[currentZone].getMapLocation(clones[this.clone].x, clones[this.clone].y).type.presentAction;
-		if (presentAction && presentAction.canStart() > 0){
+		if (presentAction && presentAction.canStart && presentAction.canStart() > 0){
 			return this[0];
 		}
 		return null;
@@ -492,27 +492,27 @@ function queueToStringStripped(queue) {
 }
 
 function exportQueues() {
-	let exportString = queues.map(queue => queueToString(queue));
+	let exportString = zones[displayZone].queues.map(queue => queueToString(queue));
 	navigator.clipboard.writeText(JSON.stringify(exportString));
 }
 
 function importQueues() {
 	let queueString = prompt("Input your queues");
-	let tempQueues = queues.slice();
+	let tempQueues = zones[displayZone].queues.slice();
 	try {
 		let newQueues = JSON.parse(queueString);
-		if (newQueues.length > queues.length) {
+		if (newQueues.length > zones[displayZone].queues.length) {
 			alert("Could not import queues - too many queues.")
 			return;
 		}
-		queues.map(e => e.clear());
+		zones[displayZone].queues.map(e => e.clear());
 		for (let i = 0; i < newQueues.length; i++) {
-			queues[i].fromString(newQueues[i]);
+			zones[displayZone].queues[i].fromString(newQueues[i]);
 		}
 		redrawQueues();
 	} catch {
 		alert("Could not import queues.");
-		queues = tempQueues;
+		zones[displayZone].queues = tempQueues;
 	}
 }
 

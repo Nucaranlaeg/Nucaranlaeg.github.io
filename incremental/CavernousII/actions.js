@@ -36,12 +36,12 @@ class Action {
 		return duration;
 	}
 
-	getBaseDuration() {
+	getBaseDuration(realm = null) {
 		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) / 1000;
 		for (let i = 0; i < this.stats.length; i++) {
 			duration *= Math.pow(this.stats[i][0].baseValue, this.stats[i][1]);
 		}
-		if (currentRealm == 1){
+		if ((realm !== null ? realm : currentRealm) == 1){
 			duration *= 3;
 		}
 		return duration;
@@ -146,8 +146,8 @@ function longZoneCompletionMult(x, y, z) {
 	return 0.99 ** (zones[z].getMapLocation(x, y).priorCompletionData[1] ** 0.75);
 }
 
-function mineManaRockCost(completions, priorCompletions, zone, x, y) {
-	return completions ? 0 : Math.pow(1 + (0.1 + 0.05 * (zone.index + currentRealm)) * longZoneCompletionMult(x, y, zone.index), priorCompletions);
+function mineManaRockCost(completions, priorCompletions, zone, x, y, realm = null) {
+	return completions ? 0 : Math.pow(1 + (0.1 + 0.05 * (zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(x, y, zone.index), priorCompletions);
 }
 
 function startCollectMana(completions, priorCompletions, x, y) {
@@ -338,7 +338,7 @@ function startChargeDuplicate(completions){
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		runes += zones[currentZone].map[y].split(/[dD]/).length - 1;
 	}
-	return runes;
+	return 2 ** (runes - 1);
 }
 
 function completeChargeRune(x, y){
@@ -399,6 +399,7 @@ let actions = [
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Granite", 350000, [["Mining", 1], ["Speed", 0.2]], completeMove),
+	new Action("Mine Basalt", 4000000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Gold", 1000, [["Mining", 1], ["Speed", 0.2]], completeGoldMine),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
@@ -411,6 +412,7 @@ let actions = [
 	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, haveBridge),
 	new Action("Cross Lava", 6000, [["Smithing", 1], ["Speed", 0.3]], completeCrossLava, haveBridge),
 	new Action("Create Bridge", 5000, [["Smithing", 1]], simpleConvert([["Iron Bar", 2]], [["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
+	new Action("Create Long Bridge", 50000, [["Smithing", 1]], simpleConvert([["Iron Bar", 2]], [["Iron Bridge", 1]]), simpleRequire([["Iron Bar", 2]])),
 	new Action("Upgrade Bridge", 12500, [["Smithing", 1]], simpleConvert([["Steel Bar", 1], ["Iron Bridge", 1]], [["Steel Bridge", 1]]), simpleRequire([["Steel Bar", 1], ["Iron Bridge", 1]])),
 	new Action("Read", 10000, [["Runic Lore", 2]], null),
 	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), canMakeEquip([["Iron Bar", 3]], "Sword")),
@@ -429,6 +431,7 @@ let actions = [
 	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
 	new Action("Kudzu Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, startWalk, tickWalk),
 	new Action("Spore Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, null, tickSpore),
+	new Action("Oyster Chop", getChopTime(1000, 0.2), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
 	new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),

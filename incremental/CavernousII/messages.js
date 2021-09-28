@@ -90,7 +90,7 @@ let messages = [
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.
-					Multiple clones use up the same amount of mana as a single clone, and they can act independently or help each other out by cooperating on the same task.
+					Your clones can act independently or help each other out by cooperating on the same task.  Keeping them idle doesn't save you any mana.
 					Two clones can work in the same space, taking half the time it takes one clone to complete the job.
 					
 					Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`),
@@ -143,7 +143,11 @@ let messages = [
 	new Message("Unlocked Duplication Rune", `
 					You've unlocked a rune!
 					The Duplication rune gets you more stuff.  After placing it, interact with it to charge it up.
-					Once it's charged, each of the 8 adjacent spaces will give one extra resource (of the type it already gives).`),
+					Once it's charged, each of the 8 adjacent spaces will give one extra resource (of the type it already gives).
+					Each Duplication rune placed in a zone takes longer to charge up.`),
+	new Message("Unlocked Teleport Runes", `
+					You've unlocked a rune!  Well, two runes.
+					You can place one To rune per zone, and any number of From runes.  Activating any From rune teleports you to the To rune.`),
 	new Message("Other Realms", `
 					There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort.
 					Mining mana there will reduce the cost scaling of that mana rock in all Realms.`),

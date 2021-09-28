@@ -16,6 +16,7 @@ class Zone {
 		this.routes = [];
 		this.routesChanged = true;
 		this.node = null;
+		this.cacheManaGain = [];
 		this.startStuff = [];
 		
 		while (this.mapLocations.length < map.length){
@@ -62,6 +63,7 @@ class Zone {
 	resetZone(){
 		this.map = this.originalMap.slice();
 		if (currentRealm == 2){
+			// Visual changes
 			this.map = convertMapToVerdant(this.map);
 		}
 		if (this.goalComplete) this.map = this.map.map(row => row.replace("√", "#"));
@@ -77,12 +79,14 @@ class Zone {
 		let mana = getStat("Mana");
 		mana.base = +(mana.base + 0.1).toFixed(2);
 		mana.current += 0.1;
+		this.cacheManaGain[currentRealm] += 0.1;
 		if (this.index){
 			zones[this.index - 1].mineComplete();
 		}
 		if (currentRealm == 2 && this.index == 0 && getRealm("Verdant Realm").manaMult !== null){
 			getRealm("Verdant Realm").manaMult += 0.0005;
 		}
+		this.display();
 	}
 
 	exitZone(complete = true){
@@ -91,8 +95,8 @@ class Zone {
 			this.lastRoute = new ZoneRoute(this);
 			let sameRoute = this.routes.find(r => r.isSame(this.lastRoute));
 			if (sameRoute){
-				sameRoute.mana = Math.max(this.lastRoute.mana, sameRoute.mana);
-				sameRoute.manaRequired = Math.min(this.lastRoute.manaRequired, sameRoute.manaRequired);
+				sameRoute.mana = this.lastRoute.mana, sameRoute.mana;
+				sameRoute.manaRequired = this.lastRoute.manaRequired, sameRoute.manaRequired;
 			} else if (!this.routes.some(r => r.realm == currentRealm && r.isBetter(this.lastRoute, this.manaGain))){
 				this.routesChanged = true;
 				for (let i = 0; i < this.routes.length; i++){
@@ -299,6 +303,7 @@ function recalculateMana(){
 	zones.forEach(z => {
 		z.manaGain = +(z.manaGain).toFixed(2);
 		if (z.queues && z.mapLocations.some(r => r.some(x => x))) z.display();
+		z.cacheManaGain[currentRealm] = z.manaGain;
 	});
 }
 
@@ -413,21 +418,47 @@ let zones = [
 			'█%██╖█=█¤█«█████',
 			'████«««««««█¤♠██',
 			'██««««««««███♠██',
-			'██«««█««««««♠♠██',
+			'██«««█0«««««♠♠██',
 			'██«««██«««««█+██',
 			'██«««««««██«████',
 			'█««««««█««█«████',
 			'█«██««««««««+███',
-			'█+██████«««█████',
-			'█%«██████+██████',
-			'██«█████████████',
-			'██+█████████████',
-			'██~~~¤██████████',
+			'█+█0«███«««█████',
+			'█%«█«s«█+████Θ██',
+			'██«██0«████««╖██',
+			'██+███s«««««████',
+			'██~~~¤██¤███████',
 			'████████████████',
 		],
 		() => {
 			getMessage("Further Realms").display();
 			realms[2].unlock();
+		}
+	),
+	new Zone("Zone 6",
+		[
+			'████████████████',
+			'█%██╬█=███¤█%%+█',
+			'█%%█%█ ██  █%███',
+			'██ %§%. █ █§%§██',
+			'████%██║    █%██',
+			'█+%§ % ██████%♥█',
+			'█%█%██ █%%%  ███',
+			'██+%%█%%§███  +█',
+			'████%███%%+██ +█',
+			'█§§§§█╣Θ█████ ██',
+			'█+████ ███%%§ ¤█',
+			'█%%██  █¤§██%███',
+			'██++█ ███╖╖╖%§§█',
+			'█+++█     ████~█',
+			'███╖████ █████~█',
+			'███╖╖╖╖~╣██√╣╖~█',
+			'████████████████',
+		],
+		() => {
+			getMessage("Unlocked Teleport Runes").display();
+			getRune("Teleport To").unlock();
+			getRune("Teleport From").unlock();
 		}
 	),
 ];

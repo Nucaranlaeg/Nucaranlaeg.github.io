@@ -47,7 +47,10 @@ class ZoneRoute {
 	}
 
 	isSame(zoneRoute) {
-		return this.realm == zoneRoute.realm && this.route.length == zoneRoute.route.length && this.route.every((r, i) => r == zoneRoute.route[i]);
+		return this.realm == zoneRoute.realm
+			&& this.route.length == zoneRoute.route.length
+			&& this.route.every((r, i) => r == zoneRoute.route[i])
+			&& Object.entries(this.require).every(([key, value]) => zoneRoute.require[key] == value);
 	}
 
 	pickRoute(zone, route, actualRequirements = null, health = clones.map(c => 0)){

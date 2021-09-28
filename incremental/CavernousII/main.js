@@ -226,7 +226,10 @@ function load(){
 		// Challenge for < 2.0.6
 		if (saveGame.zoneData[i].goal || saveGame.zoneData[i].challenge) zone.completeGoal();
 	}
-	recalculateMana();
+	for (let i = 0; i < realms.length; i++){
+		currentRealm = i;
+		recalculateMana();
+	}
 	clones = [];
 	while (clones.length < saveGame.cloneData.count){
 		Clone.addNewClone(true);
@@ -370,6 +373,7 @@ setInterval(function mainLoop() {
 
 	if (timeUsed > time && !isNaN(timeUsed - time)) {
 		timeBanked -= timeUsed - time;
+		if (timeBanked <= 0) timeBanked = 0;
 	} else if (!isNaN((time - timeUsed) / 2)){
 		timeBanked += (time - timeUsed) / 2;
 	}
@@ -564,7 +568,7 @@ setTimeout(() => {
 	}
 	document.body.onkeydown = e => {
 		if (!document.querySelector("input:focus")) {
-			let key = `${e.ctrlKey ? '^' : ''}${e.shiftKey ? '>' : ''}${e.code}`;
+			let key = `${e.ctrlKey || e.metaKey ? '^' : ''}${e.shiftKey ? '>' : ''}${e.code}`;
 			if (keyFunctions[key]){
 				e.preventDefault();
 				keyFunctions[key](e);

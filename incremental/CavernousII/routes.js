@@ -35,6 +35,7 @@ class Route {
 					"count": s.count - getStuff(s.name).min,
 				}
 			}).filter(s => s.count > 0);
+			this.allDead = false;
 
 			return;
 		}
@@ -90,13 +91,13 @@ class Route {
 
 	getConsumeCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, false, this.zone);
-		let mul = getAction("Collect Mana").getBaseDuration();
-		return mineManaRockCost(0, loc.completions + loc.priorCompletions + relativeLevel, loc.zone, this.x, this.y) * mul;
+		let mul = getAction("Collect Mana").getBaseDuration(this.realm);
+		return mineManaRockCost(0, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel, loc.zone, this.x, this.y, this.realm) * mul;
 	}
 
 	estimateConsumeManaLeft(ignoreInvalidate = false) {
 		let est = 5 + zones.reduce((a, z, i) => {
-			return i > this.zone ? a : a + z.manaGain
+			return i > this.zone ? a : a + z.cacheManaGain[this.realm]
 		}, 0);
 		est = est - this.manaUsed - (this.getConsumeCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
 		return !ignoreInvalidate && this.invalidateCost ? est + 1000 : est;
@@ -161,7 +162,7 @@ class Route {
 
 	static loadBestRoute() {
 		let effs = routes.map(r => {
-			if (r.realm != currentRealm) return null;
+			if (r.realm != currentRealm || r.allDead) return null;
 			return [r.estimateConsumeManaLeft(), r];
 		}).filter(r => r !== null)
 		  .sort((a, b) => b[0] - a[0]);
@@ -176,7 +177,6 @@ class Route {
 	}
 
 	showOnLocationUI() {
-		
 		document.querySelector("#location-route").hidden = false;
 		document.querySelector("#route-has-route").hidden = false;
 		document.querySelector("#route-not-visited").hidden = true;
@@ -202,6 +202,14 @@ class Route {
 		displayStuff(document.querySelector("#route-requirements"), this);
 
 		document.querySelector("#failed-route").style.display = this.loadingFailed ? "block" : "none";
+		document.querySelector("#dead-route").style.display = this.allDead ? "block" : "none";
+
+		document.querySelector("#delete-route-button").onclick = this.deleteRoute.bind(this);
+	}
+
+	deleteRoute(){
+		routes = routes.filter(r => r != this);
+		showFinalLocation();
 	}
 }
 
@@ -225,6 +233,63 @@ function loadRoute(){
 	let bestRoute = getBestRoute(x, y, displayZone);
 	if (bestRoute) bestRoute.loadRoute();
 	document.activeElement.blur();
+}
+
+function updateGrindStats(){
+	let rockCounts = realms
+	  .filter(r => !r.locked)
+	  .map((r, realm_i) => zones
+	    .filter(z => z.mapLocations.flat().length)
+		.map((z, zone_i) => routes
+		  .filter(t => t.zone == zone_i && t.realm == realm_i)
+		  .reduce((a, t) => a + (t.allDead || t.loadingFailed ? 0.05 : t.estimateConsumeTimes()), 0)));
+	const header = document.querySelector("#grind-stats-header");
+	const body = document.querySelector("#grind-stats");
+	const footer = document.querySelector("#grind-stats-footer");
+	let rowTemplate = document.querySelector("#grind-row-template");
+	let cellTemplate = document.querySelector("#grind-cell-template");
+	while (header.firstChild){
+		header.removeChild(header.lastChild);
+		footer.removeChild(footer.lastChild);
+	}
+	let headerNode = cellTemplate.cloneNode(true);
+	headerNode.removeAttribute("id");
+	header.appendChild(headerNode);
+	let footerNode = cellTemplate.cloneNode(true);
+	footerNode.removeAttribute("id");
+	footerNode.innerHTML = "Total";
+	footer.appendChild(footerNode);
+	while (body.firstChild){
+		body.removeChild(body.lastChild);
+	}
+	for (let i = 0; i < rockCounts.length; i++){
+		let headerNode = cellTemplate.cloneNode(true);
+		headerNode.removeAttribute("id");
+		headerNode.innerHTML = realms[i].name.replace(/ Realm/, "");
+		header.appendChild(headerNode);
+		let footerNode = cellTemplate.cloneNode(true);
+		footerNode.removeAttribute("id");
+		footerNode.innerHTML = rockCounts[i].reduce((a, c) => a + Math.floor(c));
+		footer.appendChild(footerNode);
+	}
+	for (let i = 0; i < rockCounts[0].length; i++){
+		let rowNode = rowTemplate.cloneNode(true);
+		rowNode.removeAttribute("id");
+		let cellNode = cellTemplate.cloneNode(true);
+		cellNode.removeAttribute("id");
+		cellNode.innerHTML = `z${i+1}`;
+		rowNode.appendChild(cellNode);
+		for (let j = 0; j < rockCounts.length; j++){
+			let cellNode = cellTemplate.cloneNode(true);
+			cellNode.removeAttribute("id");
+			cellNode.innerHTML = Math.floor(rockCounts[j][i]);
+			if (rockCounts[j][i] % 1 > 0.01){
+				cellNode.classList.add("failed");
+			}
+			rowNode.appendChild(cellNode);
+		}
+		body.appendChild(rowNode);
+	}
 }
 
 let routes = [];
