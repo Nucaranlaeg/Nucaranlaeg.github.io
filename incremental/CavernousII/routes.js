@@ -237,7 +237,7 @@ function loadRoute(){
 
 function updateGrindStats(){
 	let rockCounts = realms
-	  .filter(r => !r.locked)
+	  .filter(r => !r.locked || r.name == "Core Realm")
 	  .map((r, realm_i) => zones
 	    .filter(z => z.mapLocations.flat().length)
 		.map((z, zone_i) => routes
@@ -248,6 +248,7 @@ function updateGrindStats(){
 	const footer = document.querySelector("#grind-stats-footer");
 	let rowTemplate = document.querySelector("#grind-row-template");
 	let cellTemplate = document.querySelector("#grind-cell-template");
+	if (!rockCounts) return;
 	while (header.firstChild){
 		header.removeChild(header.lastChild);
 		footer.removeChild(footer.lastChild);

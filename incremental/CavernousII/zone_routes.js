@@ -99,3 +99,30 @@ class ZoneRoute {
 		return ar.map(r => new ZoneRoute(r));
 	}
 }
+
+function findUsedZoneRoutes(){
+	let usedZoneRoutes = [];
+	routes.forEach(route => {
+		if (route.zone == 0 || route.realm != currentRealm) return;
+		let used = route.pickRoute(route.zone - 1, {"require": route.requirements}, null, route.cloneHealth);
+		if (used === null){
+			route.failed = true;
+			return;
+		}
+		used.forEach(r => {
+			if (!usedZoneRoutes.includes(r)){
+				usedZoneRoutes.push(r);
+			}
+		});
+	});
+	return usedZoneRoutes;
+}
+
+function clearUnusedZoneRoutes(zone = null){
+	let usedZoneRoutes = findUsedZoneRoutes();
+	zones.forEach(z => {
+		if (zone !== null && zone != z.index) return;
+		z.routes = z.routes.filter(r => usedZoneRoutes.includes(r));
+		z.display();
+	});
+}

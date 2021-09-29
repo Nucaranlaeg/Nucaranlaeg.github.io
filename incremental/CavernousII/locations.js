@@ -48,8 +48,10 @@ class Location {
 		let enterAction = this.type.getEnterAction(this.entered);
 		if (!enterAction) return false;
 		clones[currentClone].walkTime = 0;
-		this.remainingEnter = enterAction.start() - this.wither;
-		this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(), this.remainingEnter);
+		this.remainingEnter = enterAction.start();
+		if (this.remainingEnter !== -1){
+			this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(), this.remainingEnter - this.wither);
+		}
 		this.enterDuration = this.remainingEnter;
 		return this.remainingEnter;
 	}

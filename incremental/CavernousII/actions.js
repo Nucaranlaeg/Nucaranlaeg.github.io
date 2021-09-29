@@ -47,8 +47,9 @@ class Action {
 		return duration;
 	}
 
-	getProjectedDuration(durationMult = 1){
+	getProjectedDuration(durationMult = 1, applyWither = 0){
 		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
+		duration -= applyWither;
 		duration *= this.getSkillDiv();
 		duration *= this.specialDuration();
 		if (currentRealm == 1){
@@ -87,6 +88,7 @@ function completeMove(x, y){
 
 function startWalk(noSetWalkTime){
 	if (!clones[currentClone].walkTime && !noSetWalkTime) clones[currentClone].walkTime = this.getDuration();
+	return 1;
 }
 
 function tickWalk(time){
@@ -283,9 +285,6 @@ function combatDuration(){
 function completeFight(x, y, creature){
 	let attack = getStat("Attack").current;
 	if (creature.health){
-		if (creature.defense >= attack && creature.attack <= getStat("Defense").current){
-			creature.health = Math.max(creature.health - 1, 0);
-		}
 		creature.health = Math.max(creature.health - (Math.max(attack - creature.defense, 0) * (clones[currentClone].activeSpells.find(spell => spell.name == "Mystic Blade") ? 2 : 1)), 0);
 		creature.drawHealth();
 	}

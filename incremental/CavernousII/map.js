@@ -207,6 +207,7 @@ function setMined(x, y, icon){
 		"√": ".",
 		"░": ".",
 		"╖": ".",
+		"╣": ".",
 	}[old] || old;
 	zones[currentZone].map[y] = zones[currentZone].map[y].slice(0, x) + tile + zones[currentZone].map[y].slice(x + 1);
 	if (tile !== old) {
@@ -233,7 +234,7 @@ function viewCell(e){
 				if (type.nextCost){
 					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone, x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`;
 				} else if (primaryAction) {
-					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber((primaryAction.getProjectedDuration() - location.wither) / 1000, 2)}s`;
+					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber((primaryAction.getProjectedDuration(1, location.wither)) / 1000, 2)}s`;
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
 				}

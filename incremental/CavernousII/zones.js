@@ -16,7 +16,7 @@ class Zone {
 		this.routes = [];
 		this.routesChanged = true;
 		this.node = null;
-		this.cacheManaGain = [];
+		this.cacheManaGain = [0];
 		this.startStuff = [];
 		
 		while (this.mapLocations.length < map.length){
@@ -97,6 +97,9 @@ class Zone {
 			if (sameRoute){
 				sameRoute.mana = this.lastRoute.mana, sameRoute.mana;
 				sameRoute.manaRequired = this.lastRoute.manaRequired, sameRoute.manaRequired;
+				sameRoute.stuff = this.lastRoute.stuff;
+				sameRoute.require = this.lastRoute.require;
+				sameRoute.cloneHealth = this.lastRoute.cloneHealth;
 			} else if (!this.routes.some(r => r.realm == currentRealm && r.isBetter(this.lastRoute, this.manaGain))){
 				this.routesChanged = true;
 				for (let i = 0; i < this.routes.length; i++){
@@ -230,6 +233,7 @@ class Zone {
 			parent.appendChild(head);
 			let routeTemplate = document.querySelector("#zone-route-template");
 			parent.style.display = this.routes.some(r => r.realm == currentRealm) ? "block" : "none";
+			let usedRoutes = findUsedZoneRoutes();
 			for (let i = 0; i < this.routes.length; i++){
 				if (this.routes[i].realm != currentRealm) continue;
 				let routeNode = routeTemplate.cloneNode(true);
@@ -242,6 +246,10 @@ class Zone {
 					routeNode.classList.add("active");
 				}
 				routeNode.querySelector(".delete-route").onclick = this.deleteRoute.bind(this, i);
+				if (!usedRoutes.includes(this.routes[i])){
+					routeNode.classList.add("unused");
+					routeNode.title = "This route is not used for any mana rock.";
+				}
 				parent.appendChild(routeNode);
 			}
 		}
@@ -278,6 +286,10 @@ class Zone {
 function moveToZone(zone, complete = true){
 	if (typeof(zone) == "string"){
 		zone = zones.findIndex(z => z.name == zone);
+	}
+	if (!zones[zone]){
+		settings.running = false;
+		return;
 	}
 	zones[currentZone].exitZone(complete);
 	if (currentZone == displayZone){

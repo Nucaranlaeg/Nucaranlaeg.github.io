@@ -64,7 +64,22 @@ class Stat {
 			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
-			let increaseRequired = (this.base + 1) ** (1/(this.base > 100 ? 1.13303 * (1/this.base) ** 0.05 : 0.9)) - 1;
+			let increaseRequired;
+			if (this.base < 100){
+				increaseRequired = (this.base + 1) ** (10/9) - 1;
+			} else {
+				let v = this.base, step = this.base;
+				while (true){
+					let val = (v + 1) ** (1.13303 / v ** 0.05) - (this.base + 1);
+					if (Math.abs(val) < 0.1) break;
+					if (val > 0){
+						v -= step;
+						step /= 2;
+					}
+					if (val < 0) v += step;
+				}
+				increaseRequired = v;
+			}
 			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 2)}`;
 		}
 		this.dirty = false;
