@@ -72,6 +72,7 @@ class Stat {
 				while (true){
 					let val = (v + 1) ** (1.13303 / v ** 0.05) - (this.base + 1);
 					if (Math.abs(val) < 0.1) break;
+					if (step < 0.1) break;
 					if (val > 0){
 						v -= step;
 						step /= 2;
