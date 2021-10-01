@@ -775,7 +775,7 @@ td.rune-wither:before {
 }
 
 td.rune-to:before,
-td.rune-to-charged {
+td.rune-to-charged:before {
 	content: "T";
 }
 td.rune-to-charged {

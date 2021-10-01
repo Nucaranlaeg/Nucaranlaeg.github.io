@@ -322,7 +322,7 @@ function startTeleport(){
 function completeTeleport(){
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		for (let x = 0; x < zones[currentZone].map[y].length; x++){
-			if (zones[currentZone].map[y][x] == "T"){
+			if (zones[currentZone].map[y][x] == "t"){
 				clones[currentClone].x = x - zones[currentZone].xOffset;
 				clones[currentClone].y = y - zones[currentZone].yOffset;
 			}
