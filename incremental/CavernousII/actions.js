@@ -135,7 +135,7 @@ function completeCollectMana(x, y) {
 	Route.updateBestRoute(location);
 	zones[currentZone].mineComplete();
 	setMined(x, y, ".");
-	if (settings.autoRestart == 1 && settings.grindMana) resetLoop();
+	if (settings.autoRestart == 1 && settings.grindMana) shouldReset = true;
 }
 
 function tickCollectMana() {

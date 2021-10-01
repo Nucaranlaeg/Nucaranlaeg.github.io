@@ -59,10 +59,11 @@ function writeNumber(value, decimals = 0) {
 }
 
 function writeTime(value) {
+	if (value == Infinity) return "Infinity";
 	let hours = Math.floor(value / 3600);
 	let minutes = Math.floor((value % 3600) / 60);
 	let seconds = Math.floor((value % 60) * 10) / 10;
-	return hours ? `${hours}:${minutes}:${seconds}` : minutes ? `${minutes}:${seconds}` : seconds;
+	return `${hours ? `${hours}:` : ""}${minutes ? (minutes > 9 ? `${minutes}:` : `0${minutes}:`) : ""}${seconds < 10 && minutes ? `0${seconds}` : seconds}`;
 }
 
 let timeBankNode;
@@ -330,8 +331,13 @@ let queuesNode;
 let queueTimeNode;
 let currentClone = 0;
 let fps = 60;
+let shouldReset = false;
 
 setInterval(function mainLoop() {
+	if (shouldReset){
+		resetLoop();
+		shouldReset = false;
+	}
 	let time = Date.now() - lastAction;
 	let mana = getStat("Mana");
 	if (isNaN(mana.current) && settings.running) toggleRunning();
@@ -407,7 +413,7 @@ function setup(){
 	drawMap();
 	getMessage("Welcome to Cavernous!").display();
 	if (URLParams.has('timeless')) {
-		timeBanked = 1e9;
+		timeBanked = Infinity;
 		settings.debug_speedMultiplier = 50;
 	}
 }
