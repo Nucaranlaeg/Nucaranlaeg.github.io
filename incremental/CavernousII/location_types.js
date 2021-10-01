@@ -63,6 +63,7 @@ let locationTypes = [
 	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
 	new LocationType("Wither Rune", "H", "This rune kills plants next to it.", "Walk", null, null),
 	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
+	new LocationType("Teleport To Rune - Charged", "t", "This rune allows someone or something to come through from another place.", "Walk", null, null),
 	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to another place.", "Walk", null, null),
 	new LocationType("Duplication Rune", "D", "This rune increases the yield of mining in the 8 tiles next to it.", "Walk", null, null),
 	new LocationType("Duplication Rune - Charged", "d", "This rune increases the yield of mining in the 8 tiles next to it.", "Walk", null, null),

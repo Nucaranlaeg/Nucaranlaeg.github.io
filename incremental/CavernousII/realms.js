@@ -35,6 +35,7 @@ class Realm {
 
 function changeRealms(newRealm){
 	currentRealm = newRealm;
+	zones.forEach(z => z.routesChanged = true);
 	recalculateMana();
 	let realmSelect = document.querySelector("#realm-select");
 	let currentActiveRealm = realmSelect.querySelector(".active-realm");

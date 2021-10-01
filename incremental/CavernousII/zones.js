@@ -252,6 +252,7 @@ class Zone {
 				}
 				parent.appendChild(routeNode);
 			}
+			this.routesChanged = false;
 		}
 		this.displaySelectedRoute();
 	}
@@ -262,13 +263,14 @@ class Zone {
 		let currentRoute = (this.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
 		let routeIndex = this.routes.filter(r => r.realm == currentRealm)
 			.findIndex(r => (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute);
-		if (routeIndex > -1) parent.children[routeIndex + 1].classList.add("active");
+		if (routeIndex > -1 && parent.children[routeIndex + 1]) parent.children[routeIndex + 1].classList.add("active");
 	}
 
 	deleteRoute(index, event){
 		this.routes.splice(index, 1);
 		this.display();
 		event.stopPropagation();
+		markRoutesChanged();
 	}
 
 	completeGoal(){
@@ -281,6 +283,10 @@ class Zone {
 		// Optimize by keeping a list of watery locations?
 		this.mapLocations.forEach(row => row.forEach(loc => loc.zoneTick(time)));
 	}
+}
+
+function markRoutesChanged(){
+	zones.forEach(z => z.routesChanged = true);
 }
 
 function moveToZone(zone, complete = true){
@@ -399,7 +405,7 @@ let zones = [
 	new Zone("Zone 4",
 		[
 			'████████████████',
-			'███.╖╖√++███«%«█',
+			'███.╖╖√++█«█«%«█',
 			'███α████+█¤█%«▣█',
 			'█+█╖█++███~█«%%█',
 			'█««♣««███+~█%««█',

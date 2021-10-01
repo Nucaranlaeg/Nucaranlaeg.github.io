@@ -135,6 +135,7 @@ function completeCollectMana(x, y) {
 	Route.updateBestRoute(location);
 	zones[currentZone].mineComplete();
 	setMined(x, y, ".");
+	if (settings.autoRestart == 1 && settings.grindMana) resetLoop();
 }
 
 function tickCollectMana() {
@@ -310,7 +311,7 @@ function completeHeal(){
 function startTeleport(){
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		for (let x = 0; x < zones[currentZone].map[y].length; x++){
-			if (zones[currentZone].map[y][x] == "T"){
+			if (zones[currentZone].map[y][x] == "t"){
 				return 1;
 			}
 		}
@@ -421,9 +422,10 @@ let actions = [
 	new Action("Create Armour", 10000, [["Smithing", 1]], simpleConvert([["Iron Bar", 4]], [["Iron Armour", 1]]), canMakeEquip([["Iron Bar", 4]], "Armour")),
 	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight, combatDuration),
-	new Action("Teleport", 1000, [["Runic Lore", 1]], completeTeleport, startTeleport),
+	new Action("Teleport", 100, [["Runic Lore", 1]], completeTeleport, startTeleport),
 	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate),
 	new Action("Charge Wither", 100, [["Runic Lore", 1]], completeWither, null, tickWither),
+	new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 	new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
 	new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),

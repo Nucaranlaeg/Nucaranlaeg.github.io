@@ -47,7 +47,7 @@ class Route {
 		if (zone == 0){
 			if (routeOptions.length == 0) return null;
 			let health = getStat("Health");
-			route = routeOptions.find(r => r[1].every(s => s.count == 0) && r[2].every(h => h < health.base)) || [];
+			route = routeOptions.find(r => r[1].every(s => s.count == 0) && r[2].every(h => Math.abs(h) < health.base + getEquipHealth(r[1]))) || [];
 			return route[0] ? [route[0]] : null;
 		}
 		for (let i = 0; i < routeOptions.length; i++){
@@ -63,6 +63,8 @@ class Route {
 		let success = true;
 		if (this.zone > 0){
 			let routes = this.pickRoute(this.zone - 1, {"require": this.requirements}, null, this.cloneHealth);
+			markRoutesChanged();
+			this.usedRoutes = routes;
 			if (routes !== null){
 				for (let i = 0; i < routes.length; i++){
 					routes[i].loadRoute(zones[i]);
@@ -131,19 +133,16 @@ class Route {
 		let curEff = cur.estimateConsumeManaLeft();
 		if (!prev) {
 			routes.push(cur);
-			settings.debug && console.log('found path to %o:\nnow: %o*%os: %oeff',//
-				location, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
-				return cur;
+			markRoutesChanged();
+			return cur;
 		}
 		let prevEff = prev.estimateConsumeManaLeft();
 		if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {
 			return prev;
 		}
-		settings.debug && console.log('updated%s path to %o:\nwas: %o*%os, %oeff %o\nnow: %o*%os: %oeff',//
-			prev.invalidateCost ? ' outdated' : '', location, (clones.length - prev.clonesLost), prev.manaUsed, prevEff,//
-			prev, (clones.length - cur.clonesLost), cur.manaUsed, curEff, cur)
 		routes = routes.filter(e => e != prev);
 		routes.push(cur);
+		markRoutesChanged();
 		return cur;
 	}
 
@@ -172,7 +171,6 @@ class Route {
 	}
 
 	static invalidateRouteCosts() {
-		settings.debug && console.log('route costs invalidated');
 		routes.filter(r => r.realm == currentRealm).forEach(r => r.invalidateCost = true);
 	}
 

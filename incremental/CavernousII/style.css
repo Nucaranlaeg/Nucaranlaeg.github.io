@@ -56,6 +56,7 @@ body {
 
 .stat .description {
 	white-space: initial;
+	top: 18px;
 }
 
 .option {
@@ -436,7 +437,7 @@ h4#location-name {
 
 .zone .mana {
 	color: #0000ff;
-	width: 40px;
+	width: 50px;
 	display: inline-block;
 }
 
@@ -445,7 +446,7 @@ h4#location-name {
 	position: absolute;
 	margin-top: -2px;
 	left: 5px;
-	width: 300px;
+	min-width: 200px;
 	background: #99bbbb;
 	border: 1px solid #00000033;
 	z-index: 50;
@@ -473,10 +474,11 @@ h4#location-name {
 .routes .require,
 .routes .stuff {
 	display: inline-block;
+	width: unset;
 }
 
 .routes .active {
-	background-color: #88aa88;
+	background-color: #88cc88;
 }
 
 .routes .unused {
@@ -502,8 +504,7 @@ h4#location-name {
 
 .delete-route {
 	border-radius: 25%;
-	position: absolute;
-	right: 0px;
+	float: right;
 	width: 14px;
 	text-align: center;
 }
@@ -773,8 +774,12 @@ td.rune-wither:before {
 	content: "H";
 }
 
-td.rune-to:before {
+td.rune-to:before,
+td.rune-to-charged {
 	content: "T";
+}
+td.rune-to-charged {
+	background-color: #c9ff68
 }
 
 td.rune-from:before {

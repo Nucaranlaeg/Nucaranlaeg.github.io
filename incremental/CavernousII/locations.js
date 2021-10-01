@@ -32,6 +32,11 @@ class Location {
 		}
 		return this.baseType;
 	}
+
+	get canWorkTogether() {
+		if (this.temporaryPresent && this.temporaryPresent.name == "Teleport") return false;
+		return this.type.canWorkTogether;
+	}
 	
 	start() {
 		if (clones[currentClone].x == this.x && clones[currentClone].y == this.y){
@@ -69,7 +74,7 @@ class Location {
 					this.remainingPresent = this.type.name == "Fountain" ? 100 : 1;
 					this.usedTime = time;
 				} else {
-					if (this.type.canWorkTogether){
+					if (this.canWorkTogether){
 						this.completions++;
 					}
 				}

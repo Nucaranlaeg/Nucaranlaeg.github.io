@@ -194,7 +194,6 @@ class ActionQueue extends Array {
 		// Queue reference:        Q\d+;
 		// Pathfind action:        P-?\d+:-?\d+;
 		if (!actionID.match(/^([UDLRI<=]|[NS]\d+;|T|Q\d+;|P-?\d+:-?\d+;)$/)){
-			settings.debug && console.log(`Failed to parse action: ${actionID}`);
 			return;
 		}
 		if (!this[index]){

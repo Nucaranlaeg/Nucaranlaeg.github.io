@@ -100,14 +100,20 @@ class ZoneRoute {
 	}
 }
 
-function findUsedZoneRoutes(){
+function findUsedZoneRoutes(breakCache = false){
 	let usedZoneRoutes = [];
 	routes.forEach(route => {
 		if (route.zone == 0 || route.realm != currentRealm) return;
-		let used = route.pickRoute(route.zone - 1, {"require": route.requirements}, null, route.cloneHealth);
-		if (used === null){
-			route.failed = true;
-			return;
+		let used;
+		if (!breakCache && route.usedRoutes && route.usedRoutes.every((r, i) => zones[i].routes.some(route => r == route))){
+			used = route.usedRoutes;
+		} else {
+			used = route.pickRoute(route.zone - 1, {"require": route.requirements}, null, route.cloneHealth);
+			route.usedRoutes = used;
+			if (used === null){
+				route.failed = true;
+				return;
+			}
 		}
 		used.forEach(r => {
 			if (!usedZoneRoutes.includes(r)){

@@ -117,8 +117,15 @@ function displayStuff(node, route){
 	}
 	if (route.stuff){
 		node.querySelector(".stuff").innerHTML = route.stuff.map(displaySingleThing).join("");
+		if (route.cloneHealth.some(c => c[1] < 0)){
+			node.querySelector(".stuff").innerHTML += `<span style="color: #ff0000">${route.cloneHealth.filter(c => c[1] < 0).length}♥</span>`;
+		};
 	} else {
 		let stuffNode = node.querySelector(".stuff");
 		if (stuffNode) stuffNode.innerHTML = "";
 	}
+}
+
+function getEquipHealth(stuff){
+	return stuff.reduce((a, s) => a + (s.name == "Iron Armour") * s.count * 5 + (s.name == "Steel Armour") * s.count * 15, 0);
 }

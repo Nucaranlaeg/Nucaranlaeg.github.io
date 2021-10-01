@@ -9,6 +9,8 @@ class Stat {
 		this.node = null;
 		this.value = 1;
 		this.dirty = false;
+		this.lastIncreaseRequired = 0;
+		this.lastIncreaseUpdate = this.base;
 	}
 
 	updateValue() {
@@ -34,9 +36,9 @@ class Stat {
 		}
 
 		if (!this.learnable) return;
-		let val = (this.current + 1) ** (0.9 * (this.current > 100 ? 100 / this.current : 1) ** 0.05) - (this.base + 1);
+		let val = (this.current + 1) ** (0.9 * (this.base > 100 ? 100 / this.base : 1) ** 0.05) - (this.base + 1);
 		if (val < 0) return;
-		let prevVal = (prev + 1) ** (0.9 * (prev > 100 ? 100 / prev : 1) ** 0.05) - (this.base + 1);
+		let prevVal = (prev + 1) ** (0.9 * (this.base > 100 ? 100 / this.base : 1) ** 0.05) - (this.base + 1);
 		if (prevVal < 0) prevVal = 0;
 		let increase = (val - prevVal) / this.statIncreaseDivisor;
 		this.base += increase;
@@ -59,14 +61,16 @@ class Stat {
 			this.descriptionNode = this.node.querySelector(".description");
 		}
 		if (this.name == "Mana"){
-			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 1)}/${writeNumber(this.base, 1)}`;
+			this.effectNode.innerText = `${writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 1)}/${writeNumber(this.base, 1)}`;
 		} else if (!this.learnable){
-			this.effectNode.innerText = writeNumber(this.current + this.bonus, 1);
+			this.effectNode.innerText = writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 1);
 		} else {
-			this.effectNode.innerText = `${writeNumber(this.current + this.bonus, 2)} (${writeNumber(this.base, 2)})`;
+			this.effectNode.innerText = `${writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 2)} (${writeNumber(this.base, 2)})`;
 			let increaseRequired;
 			if (this.base < 100){
 				increaseRequired = (this.base + 1) ** (10/9) - 1;
+			} else if (this.lastIncreaseRequired && this.base - 0.01 < this.lastIncreaseUpdate){
+				increaseRequired = this.lastIncreaseRequired;
 			} else {
 				let v = this.base, step = this.base;
 				while (true){
@@ -80,6 +84,8 @@ class Stat {
 					if (val < 0) v += step;
 				}
 				increaseRequired = v;
+				this.lastIncreaseRequired = increaseRequired;
+				this.lastIncreaseUpdate = this.base;
 			}
 			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 2)}`;
 		}
@@ -145,14 +151,9 @@ let stats = [
 	new Stat("Combat", "", "Your ability to kill things.", 0),
 	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all clones' stats)", 0, false),
 	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),
-	new Stat("Health", "", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false),
+	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false),
 ];
 
 function getStat(name) {
 	return stats.find(a => a.name == name);
-}
-
-function writeNumber(value, decimals = 0) {
-	if (value > 100) decimals = Math.min(decimals, 1);
-	return value.toFixed(decimals);
 }
