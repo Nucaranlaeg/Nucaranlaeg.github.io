@@ -309,7 +309,7 @@ class Clone {
 function selectClone(target, event){
 	if (target.id) {
 		let index = +target.id.replace("queue", "");
-		if (event && event.ctrlKey) {
+		if (event && (event.ctrlKey || event.metaKey)) {
 			if (selectedQueue.includes(index)) {
 				clones[index].deselect();
 			} else {
