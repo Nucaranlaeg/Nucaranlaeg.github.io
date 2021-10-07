@@ -48,7 +48,7 @@ let locationTypes = [
 	new LocationType("Basalt", "╣", "You've hit a wall.", "Mine Basalt", null, null),
 	new LocationType("Gold ore", "+", "Rocks with veins of gold ore.", "Mine Gold", null, null),
 	new LocationType("Iron ore", "%", "Rocks with veins of iron ore.", "Mine Iron", null, null),
-	new LocationType("Salt", "░", "A wall of rock salt.  It only takes so long to mine it because want to sort out the salt and not carry a ton of gravel with you.", "Mine Salt", null, null),
+	new LocationType("Salt", "░", "A wall of rock salt.  It only takes so long to mine it because you want to sort out the salt and not carry a ton of gravel with you.", "Mine Salt", null, null),
 	new LocationType("Mana-infused Rock", "¤", "A whole bunch of rock.  But this time, it glows!", "Mine", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Mana Spring", "*", "Pure mana, flowing out of the rock.  Each time you absorb the mana, the cost to do so next time increases.", "Walk", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType("Clone Machine", "♥", "A strange machine labelled 'Clone Machine'.  What could it do?", "Walk", "Create Clone", storeCompletions, getNextCloneAmountCost),
