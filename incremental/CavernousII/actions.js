@@ -30,8 +30,10 @@ class Action {
 	getDuration(durationMult = 1){
 		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
 		duration *= this.specialDuration();
-		if (currentRealm == 1){
+		if (realms[currentRealm].name == "Long Realm"){
 			duration *= 3;
+		} else if (realms[currentRealm].name == "Compounding Realm"){
+			duration *= 1 + (loopCompletions / 40);
 		}
 		return duration;
 	}
@@ -41,8 +43,10 @@ class Action {
 		for (let i = 0; i < this.stats.length; i++) {
 			duration *= Math.pow(this.stats[i][0].baseValue, this.stats[i][1]);
 		}
-		if ((realm !== null ? realm : currentRealm) == 1){
+		if (realms[realm !== null ? realm : currentRealm].name == "Long Realm"){
 			duration *= 3;
+		} else if (realms[realm !== null ? realm : currentRealm].name == "Compounding Realm"){
+			duration *= 1 + (loopCompletions / 40);
 		}
 		return duration;
 	}
@@ -52,8 +56,10 @@ class Action {
 		duration -= applyWither;
 		duration *= this.getSkillDiv();
 		duration *= this.specialDuration();
-		if (currentRealm == 1){
+		if (realms[currentRealm].name == "Long Realm"){
 			duration *= 3;
+		} else if (realms[currentRealm].name == "Compounding Realm"){
+			duration *= 1 + (loopCompletions / 40);
 		}
 		return duration;
 	}
@@ -77,7 +83,7 @@ class Action {
 }
 
 function baseWalkLength(){
-	return 100 * (currentRealm == 1 ? 3 : 1);
+	return 100 * (realms[currentRealm].name == "Long Realm" ? 3 : 1);
 }
 
 function completeMove(x, y){
@@ -97,13 +103,13 @@ function tickWalk(time){
 
 function getDuplicationAmount(x, y){
 	let amount = 1;
+	let zone = zones[currentZone];
+	x += zone.xOffset;
+	y += zone.yOffset;
 	let rune_locs = [[x-1, y], [x+1, y], [x, y-1], [x, y+1], [x-1, y+1], [x+1, y+1], [x+1, y-1], [x-1, y-1]];
-	for (let i = 0; i < rune_locs.length; i++){
-		let location = getMapLocation(...rune_locs[i], true);
-		if (location.temporaryPresent && location.temporaryPresent.name == "Charge Duplication"){
-			amount += location.completions;
-		}
-	}
+	rune_locs.forEach(([X, Y]) => {
+		amount += (zone.map[Y][X] == "d") * ((getRune("Duplication").upgradeCount * 0.5) + 1);
+	});
 	return amount;
 }
 
@@ -157,26 +163,30 @@ function startCollectMana(completions, priorCompletions, x, y) {
 	return mineManaRockCost(completions, priorCompletions, zones[currentZone], x, y);
 }
 
-function startCreateClone(completions, priorCompletions){
+function startCollectGem(completions, priorCompletions) {
+	return (completions + 1) ** 1.4;
+}
+
+function completeCollectGem(x, y){
+	getStuff("Gem").update(getDuplicationAmount(x, y));
+}
+
+function startActivateMachine(completions, priorCompletions){
 	let gold = getStuff("Gold Nugget");
-	let needed = getNextCloneAmount();
+	let needed = realms[currentRealm].getNextActivateAmount();
 	return gold.count >= needed ? 1 : -1;
 }
 
-function completeCreateClone(x, y){
+function completeActivateMachine(x, y){
 	let gold = getStuff("Gold Nugget");
-	let needed = getNextCloneAmount();
+	let needed = realms[currentRealm].getNextActivateAmount();
 	gold.update(-needed);
-	Clone.addNewClone();
-}
-
-function getNextCloneAmount(){
-	return clones.length == 1 ? 1 : 5 * Math.pow(2, clones.length - 1);
+	realms[currentRealm].activateMachine();
 }
 
 function simpleConvert(source, target, doubleExcempt = false){
 	function convert(){
-		let mult = currentRealm == 1 && !doubleExcempt ? 2 : 1;
+		let mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < source.length; i++){
 			let stuff = getStuff(source[i][0]);
 			if (stuff.count < source[i][1] * mult) return;
@@ -195,7 +205,7 @@ function simpleConvert(source, target, doubleExcempt = false){
 
 function simpleRequire(requirement, doubleExcempt = false){
 	function haveEnough(spend){
-		let mult = currentRealm == 1 && !doubleExcempt ? 2 : 1;
+		let mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < requirement.length; i++){
 			let stuff = getStuff(requirement[i][0]);
 			if (stuff.count < requirement[i][1] * mult) return -1;
@@ -229,7 +239,7 @@ function completeGoldMana(){
 	let gold = getStuff("Gold Nugget");
 	if (gold.count < 1) return true;
 	gold.update(-1);
-	let manaMult = getVerdantRealmManaMult();
+	let manaMult = getRealmMult("Verdant Realm");
 	getStat("Mana").current += 5 * manaMult;
 }
 
@@ -260,10 +270,12 @@ function completeCrossLava(x, y){
 }
 
 function tickFight(usedTime, creature, baseTime){
-	clones[currentClone].takeDamage(Math.max(creature.attack - getStat("Defense").current, 0) * baseTime / 1000);
+	let damage = Math.max(creature.attack - getStat("Defense").current, 0) * baseTime / 1000
 	if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current){
-		clones[currentClone].takeDamage(baseTime / 1000);
+		damage = baseTime / 1000;
 	}
+	let targetClones = clones.filter(c => c.x == clones[currentClone].x && c.y == clones[currentClone].y);
+	targetClones.forEach(c => c.takeDamage(damage / targetClones.length));
 }
 
 let combatTools = [
@@ -325,6 +337,7 @@ function completeTeleport(){
 			if (zones[currentZone].map[y][x] == "t"){
 				clones[currentClone].x = x - zones[currentZone].xOffset;
 				clones[currentClone].y = y - zones[currentZone].yOffset;
+				return;
 			}
 		}
 	}
@@ -338,7 +351,8 @@ function startChargeDuplicate(completions){
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		runes += zones[currentZone].map[y].split(/[dD]/).length - 1;
 	}
-	return 2 ** (runes - 1);
+	let duplication = getRune("Duplication");
+	return 2 ** (runes - 1) * (1 + 0.25 * duplication.upgradeCount);
 }
 
 function completeChargeRune(x, y){
@@ -348,14 +362,23 @@ function completeChargeRune(x, y){
 function tickWither(usedTime, {x, y}){
 	x += zones[currentZone].xOffset;
 	y += zones[currentZone].yOffset;
+	let wither = getRune("Wither");
 	let adjacentPlants = [
 		"♣♠α§".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
 		"♣♠α§".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
 		"♣♠α§".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
 		"♣♠α§".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
 	].filter(p=>p);
+	if (wither.upgradeCount > 0){
+		adjacentPlants.push(...[
+			"♣♠α§".includes(zones[currentZone].map[y-1][x-1]) ? zones[currentZone].mapLocations[y-1][x-1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y+1][x-1]) ? zones[currentZone].mapLocations[y+1][x-1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y+1][x+1]) ? zones[currentZone].mapLocations[y+1][x+1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y-1][x+1]) ? zones[currentZone].mapLocations[y-1][x+1] : null,
+		].filter(p=>p));
+	}
 	adjacentPlants.forEach(loc => {
-		loc.wither += usedTime;
+		loc.wither += usedTime * (wither.upgradeCount ? 2 ** (wither.upgradeCount - 1) : 1);
 		if (loc.wither > loc.type.getEnterAction(loc.entered).start(true)){
 			setMined(loc.x, loc.y, ".");
 			loc.enterDuration = loc.remainingEnter = Math.min(baseWalkLength(), loc.remainingEnter);
@@ -373,6 +396,14 @@ function completeWither(x, y){
 		"♣♠α§".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
 		"♣♠α§".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
 	].filter(p=>p);
+	if (getRune("Wither").upgradeCount > 0){
+		adjacentPlants.push(...[
+			"♣♠α§".includes(zones[currentZone].map[y-1][x-1]) ? zones[currentZone].mapLocations[y-1][x-1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y+1][x-1]) ? zones[currentZone].mapLocations[y+1][x-1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y+1][x+1]) ? zones[currentZone].mapLocations[y+1][x+1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y-1][x+1]) ? zones[currentZone].mapLocations[y-1][x+1] : null,
+		].filter(p=>p));
+	}
 	if (!adjacentPlants.length) return false;
 	return true;
 }
@@ -387,7 +418,7 @@ function completeGoal(x, y){
 }
 
 function getChopTime(base, increaseRate){
-	return () => base + increaseRate * queueTime * (currentRealm == 2 ? 5 : 1);
+	return () => base + increaseRate * queueTime * (realms[currentRealm].name == "Verdant Realm" ? 5 : 1);
 }
 
 function tickSpore(usedTime){
@@ -404,10 +435,12 @@ let actions = [
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
 	new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
+	new Action("Mine Gem", 100000, [["Mining", 0.75], ["Gemcraft", 0.25]], completeMove),
+	new Action("Collect Gem", 100000, [["Smithing", 0.2], ["Gemcraft", 1]], completeCollectGem, startCollectGem),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana),
-	new Action("Create Clone", 1000, [], completeCreateClone, startCreateClone),
+	new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]], true), simpleRequire([["Iron Ore", 1]], true)),
-	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]], true), simpleRequire([["Iron Bar", 1], ["Coal", 1]], true)),
+	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),
 	new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]], true)),
 	new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, haveBridge),
 	new Action("Cross Lava", 6000, [["Smithing", 1], ["Speed", 0.3]], completeCrossLava, haveBridge),
@@ -416,14 +449,14 @@ let actions = [
 	new Action("Upgrade Bridge", 12500, [["Smithing", 1]], simpleConvert([["Steel Bar", 1], ["Iron Bridge", 1]], [["Steel Bridge", 1]]), simpleRequire([["Steel Bar", 1], ["Iron Bridge", 1]])),
 	new Action("Read", 10000, [["Runic Lore", 2]], null),
 	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), canMakeEquip([["Iron Bar", 3]], "Sword")),
-	new Action("Upgrade Sword", 22500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Sword", 1]], [["Steel Sword", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Sword", 1]])),
+	new Action("Upgrade Sword", 22500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Sword", 1]], [["Steel Sword", 1]], true), simpleRequire([["Steel Bar", 2], ["Iron Sword", 1]])),
 	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), canMakeEquip([["Iron Bar", 5]], "Shield")),
-	new Action("Upgrade Shield", 27500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Shield", 1]], [["Steel Shield", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Shield", 1]])),
+	new Action("Upgrade Shield", 27500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Shield", 1]], [["Steel Shield", 1]], true), simpleRequire([["Steel Bar", 2], ["Iron Shield", 1]])),
 	new Action("Create Armour", 10000, [["Smithing", 1]], simpleConvert([["Iron Bar", 4]], [["Iron Armour", 1]]), canMakeEquip([["Iron Bar", 4]], "Armour")),
-	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
+	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]], true), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight, combatDuration),
-	new Action("Teleport", 100, [["Runic Lore", 1]], completeTeleport, startTeleport),
-	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate),
+	new Action("Teleport", 1, [["Runic Lore", 1]], completeTeleport, startTeleport),
+	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate, null, startChargeDuplicate),
 	new Action("Charge Wither", 100, [["Runic Lore", 1]], completeWither, null, tickWither),
 	new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),

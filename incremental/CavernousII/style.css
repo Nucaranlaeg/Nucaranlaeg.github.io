@@ -477,12 +477,12 @@ h4#location-name {
 	width: unset;
 }
 
-.routes .active {
-	background-color: #88cc88;
-}
-
 .routes .unused {
 	background-color: #9999cc;
+}
+
+.routes .active {
+	background-color: #88cc88;
 }
 
 #failed-route {
@@ -624,6 +624,15 @@ td.mined-mana {
 }
 
 td.mined-mana:before {
+	content: "*";
+}
+
+td.gem,
+td.mined-gem {
+	background-color: #90ee90;
+}
+
+td.mined-gem:before {
 	content: "*";
 }
 
@@ -806,7 +815,12 @@ td.skeleton {
 	background-color: #cc0000;
 }
 
+td.champion {
+	background-color: #550000;
+}
+
 td.chieftain:before,
+td.champion:before,
 td.goblin:before {
 	content: "웃";
 	font-size: 0.91666em;

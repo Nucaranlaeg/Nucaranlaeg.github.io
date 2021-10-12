@@ -108,10 +108,11 @@ function findUsedZoneRoutes(breakCache = false){
 		if (!breakCache && route.usedRoutes && route.usedRoutes.every((r, i) => zones[i].routes.some(route => r == route))){
 			used = route.usedRoutes;
 		} else {
+			let time = Date.now();
 			used = route.pickRoute(route.zone - 1, {"require": route.requirements}, null, route.cloneHealth);
 			route.usedRoutes = used;
 			if (used === null){
-				route.failed = true;
+				route.loadingFailed = true;
 				return;
 			}
 		}

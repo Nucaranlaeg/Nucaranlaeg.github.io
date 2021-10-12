@@ -150,6 +150,10 @@
 					<div class="description">Adjust what happens when clicking on a zone route.</div>
 				</div>
 				<h4 class="option-separator">Config</h4>
+				<div class="option block clickable" onclick="toggleFollowZone()">
+					<span id="follow-zone-toggle">Follow on zone complete</span> (Z)
+					<div class="description">Adjust what happens when your clones the zone you're currently viewing.</div>
+				</div>
 				<div class="option block clickable" onclick="findUsedZoneRoutes(true)">
 					<span class="name">Check zone route usage</span>
 					<div class="description">For performance reasons, the blue shading on unused zone routes may not update frequently; this forces an update.</div>
@@ -211,7 +215,7 @@
 			<div class="version" title="By Nucaranlaeg"><!--Some code contributed by Dimava and Gnomez-->
 				<a href="https://paypal.me/SamBenner" target="_blank">Support Development</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br>
-				Version <span id="version">2.1.5</span><br>
+				Version <span id="version">2.2.0</span><br>
 				©2021
 			</div>
 		</div>
@@ -259,10 +263,10 @@
 					Clones lost: <span id="route-best-clones-lost"></span><br>
 					Est. mana left: <span id="route-best-mana-left"></span>s<br>
 					Probably 
-						<span id="route-best-unminable" hidden>cannot be consumed</span>
-						<span id="route-best-minable">can be consumed about <u>123</u> times<span hidden></span></span>
+						<span id="route-best-unminable" hidden>cannot be refined</span>
+						<span id="route-best-minable">can be refined about <u>123</u> times<span hidden></span></span>
 					right now<br>
-					<span id="route-best-invalidated" hidden>Route values wil be reset on the next visit.</span>
+					<span id="route-best-invalidated" hidden>Route values will be reset on the next visit.</span>
 				</div>
 				<div id="route-not-visited">
 					There is no known routes to this location.

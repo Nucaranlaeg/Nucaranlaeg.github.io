@@ -36,9 +36,12 @@ const classMapping = {
 	"D": ["rune-dup", "Duplication Rune"],
 	"d": ["rune-dup-charged", "Duplication Rune"],
 	"○": ["coal", "Coal"],
+	"☼": ["gem", "Gem"],
+	"©": ["mined-gem", "Gem Tunnel"],
 	"g": ["goblin", "Goblin"],
 	"c": ["chieftain", "Goblin Chieftain"],
 	"s": ["skeleton", "Skeleton"],
+	"m": ["champion", "Goblin Champion"],
 	"Θ": ["zone", "Zone Portal"],
 	"√": ["goal", "Goal"],
 	"♠": ["mushroom", "Mushroom"],
@@ -52,7 +55,7 @@ const classMapping = {
 };
 
 // The tiles that can be pathfinded through.
-const walkable = "*.♥╬▣=⎶&║\"()[]{}^WHTFDd¢¥£";
+const walkable = "*.♥╬▣=⎶&║\"()[]{}^WHTtFDd¢¥£©";
 
 let mapDirt = [];
 let mapStain = [];
@@ -192,11 +195,12 @@ function setMined(x, y, icon){
 	y += zones[currentZone].yOffset;
 	let old = zones[currentZone].map[y][x];
 	let tile = icon || {
+		"¤": "*",
+		"☼": "©",
 		"#": ".",
 		"♠": ".",
 		"α": ".",
 		"«": ".",
-		"¤": "*",
 		"+": ".",
 		"%": ".",
 		" ": ".",
@@ -205,6 +209,7 @@ function setMined(x, y, icon){
 		"c": ".",
 		"§": ".",
 		"s": ".",
+		"m": ".",
 		"√": ".",
 		"░": ".",
 		"╖": ".",
@@ -224,12 +229,16 @@ function viewCell(e){
 		for (const icon in classMapping){
 			if (classMapping[icon][0] == type){
 				type = getLocationType(getLocationTypeBySymbol(icon));
-				let primaryAction = type.presentAction || type.enterAction;
-				document.querySelector("#location-name").innerHTML = type.name;
+				let primaryAction = type.presentAction || location.temporaryPresent || type.enterAction;
+				document.querySelector("#location-name").innerHTML = type.name + (type.name == "Mana-infused Rock" || type.name == "Mana Spring" ? ` (${location.priorCompletions})` : "");
 				let description = type.description;
 				if (description.includes("{STATS}")){
 					let statsDesc = `Attack: ${location.creature.attack}\nDefense: ${location.creature.defense}\nHealth: ${location.creature.health}`;
 					description = description.replace("{STATS}", statsDesc);
+				}
+				if (description.match(/\{.*\}/)){
+					let realmDesc = JSON.parse(description.match(/\{.*\}/)[0].replaceAll("'", '"'));
+					description = description.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0]);
 				}
 				document.querySelector("#location-description").innerHTML = description.replace(/\n/g, "<br>");
 				if (type.nextCost){

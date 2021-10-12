@@ -24,11 +24,12 @@ class Route {
 			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
 
 			let mana = getStat("Mana");
-			let duration = mineManaRockCost(0, x.completions + x.priorCompletions, x.zone, this.x, this.y) * getAction("Collect Mana").getBaseDuration();
+			let expectedMul = getAction("Collect Mana").getBaseDuration(this.realm);
+			let duration = mineManaRockCost(0, x.completions + x.priorCompletions, x.zone, this.x, this.y) * expectedMul;
 			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
-			this.progressBeforeReach = duration - x.remainingPresent / 1000 * (clones.length - this.clonesLost);
+			this.progressBeforeReach = duration - x.remainingPresent / 1000 * expectedMul;
 			this.requirements = zones[currentZone].startStuff.map(s => {
 				return {
 					"name": s.name,
@@ -91,38 +92,38 @@ class Route {
 		return success;
 	}
 
-	getConsumeCost(relativeLevel = 0) {
+	getRefineCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, false, this.zone);
 		let mul = getAction("Collect Mana").getBaseDuration(this.realm);
 		return mineManaRockCost(0, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel, loc.zone, this.x, this.y, this.realm) * mul;
 	}
 
-	estimateConsumeManaLeft(ignoreInvalidate = false) {
+	estimateRefineManaLeft(ignoreInvalidate = false) {
 		let est = 5 + zones.reduce((a, z, i) => {
 			return i > this.zone ? a : a + z.cacheManaGain[this.realm]
 		}, 0);
-		est = est - this.manaUsed - (this.getConsumeCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
+		est = est - this.manaUsed - (this.getRefineCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
 		return !ignoreInvalidate && this.invalidateCost ? est + 1000 : est;
 	}
 
-	estimateConsumeTimes() {
+	estimateRefineTimes() {
 		let times = 0;
-		let currentLeft = this.estimateConsumeManaLeft();
-		let currentCost = this.getConsumeCost(times);
+		let currentLeft = this.estimateRefineManaLeft(true);
+		let currentCost = this.getRefineCost(times);
 		let nextDiff = 0;
 		while (currentLeft + 0.1 * times * this.zone > nextDiff) {
-			nextDiff = (this.getConsumeCost(++times) - currentCost) / (clones.length - this.clonesLost);
+			nextDiff = (this.getRefineCost(++times) - currentCost) / (clones.length - this.clonesLost);
 		}
 		return times;
 	}
 
-	estimateConsumeTimesAtOnce() {
+	estimateRefineTimesAtOnce() {
 		let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost) + this.progressBeforeReach;
 		let times = 0;
-		let cost = this.getConsumeCost(times);
+		let cost = this.getRefineCost(times);
 		while (baseTime > cost) {
 			baseTime -= cost;
-			cost = this.getConsumeCost(++times);
+			cost = this.getRefineCost(++times);
 		}
 		return times;
 	}
@@ -130,13 +131,13 @@ class Route {
 	static updateBestRoute(location) {
 		let cur = new Route(location);
 		let prev = Route.getBestRoute(location.x, location.y, currentZone);
-		let curEff = cur.estimateConsumeManaLeft();
+		let curEff = cur.estimateRefineManaLeft();
 		if (!prev) {
 			routes.push(cur);
 			markRoutesChanged();
 			return cur;
 		}
-		let prevEff = prev.estimateConsumeManaLeft();
+		let prevEff = prev.estimateRefineManaLeft();
 		if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {
 			return prev;
 		}
@@ -162,7 +163,7 @@ class Route {
 	static loadBestRoute() {
 		let effs = routes.map(r => {
 			if (r.realm != currentRealm || r.allDead) return null;
-			return [r.estimateConsumeManaLeft(), r];
+			return [r.estimateRefineManaLeft(), r];
 		}).filter(r => r !== null)
 		  .sort((a, b) => b[0] - a[0]);
 		for (let i = 0; i < effs.length; i++){
@@ -183,12 +184,12 @@ class Route {
 		document.querySelector("#route-best-mana-used").innerText = this.manaUsed;
 		document.querySelector("#route-best-clones-lost").innerText = this.clonesLost;
 
-		let est = this.estimateConsumeManaLeft(true);
+		let est = this.estimateRefineManaLeft(true);
 		document.querySelector("#route-best-mana-left").innerText = est.toFixed(2);
 		document.querySelector("#route-best-unminable").hidden = est >= 0;
 		document.querySelector("#route-best-minable").hidden = est < 0;
 		if (est > 0) {
-			let estTimes = this.estimateConsumeTimes();
+			let estTimes = this.estimateRefineTimes();
 			document.querySelector("#route-best-minable u").innerText = estTimes;
 			document.querySelector("#route-best-minable span").hidden = false;
 		}
@@ -240,7 +241,7 @@ function updateGrindStats(){
 	    .filter(z => z.mapLocations.flat().length)
 		.map((z, zone_i) => routes
 		  .filter(t => t.zone == zone_i && t.realm == realm_i)
-		  .reduce((a, t) => a + (t.allDead || t.loadingFailed ? 0.05 : t.estimateConsumeTimes()), 0)));
+		  .reduce((a, t) => a + (t.allDead || t.loadingFailed ? 0.005 : t.estimateRefineTimes()), 0)));
 	const header = document.querySelector("#grind-stats-header");
 	const body = document.querySelector("#grind-stats");
 	const footer = document.querySelector("#grind-stats-footer");

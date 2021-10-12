@@ -38,7 +38,7 @@ class Location {
 			if (this.type.presentAction){
 				this.remainingPresent = this.type.presentAction.start(this.completions, this.priorCompletions, this.x, this.y);
 			} else if (this.temporaryPresent){
-				this.remainingPresent = this.temporaryPresent.start(this.completions, this.priorCompletions);
+				this.remainingPresent = this.temporaryPresent.start(this.completions, this.priorCompletions, this.x, this.y);
 			} else {
 				return false;
 			}
@@ -48,9 +48,9 @@ class Location {
 		let enterAction = this.type.getEnterAction(this.entered);
 		if (!enterAction) return false;
 		clones[currentClone].walkTime = 0;
-		this.remainingEnter = enterAction.start();
+		this.remainingEnter = enterAction.start(this.completions, this.priorCompletions, this.x, this.y);
 		if (this.remainingEnter !== -1){
-			this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(), this.remainingEnter - this.wither);
+			this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(this.completions, this.priorCompletions, this.x, this.y), this.remainingEnter - this.wither);
 		}
 		this.enterDuration = this.remainingEnter;
 		return this.remainingEnter;
@@ -65,6 +65,7 @@ class Location {
 			this.remainingPresent -= usedTime;
 			if (this.remainingPresent == 0){
 				if ((this.type.presentAction || this.temporaryPresent).complete(this.x, this.y)){
+					loopCompletions++;
 					// Something got taken away in the middle of completing this.
 					this.remainingPresent = this.type.name == "Fountain" ? 100 : 1;
 					this.usedTime = time;
@@ -81,7 +82,7 @@ class Location {
 			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)){
 				if (!clones[currentClone].walkTime){
 					// Not sure why this is happening... walktime should be set when start() is called the first time.
-					this.start();
+					this.start(this.completions, this.priorCompletions, this.x, this.y);
 				}
 				this.remainingEnter = clones[currentClone].walkTime;
 			}
@@ -94,12 +95,14 @@ class Location {
 					if (this.type.name == "Goblin") getMessage("Goblin").display();
 					// If it was a fight it's not over.
 					if (this.creature){
-						this.remainingEnter = this.start();
+						this.remainingEnter = this.start(this.completions, this.priorCompletions, this.x, this.y);
 					} else {
+						loopCompletions++;
 						this.remainingEnter = 1;
 						this.usedTime = time;
 					}
 				} else {
+					loopCompletions++;
 					this.entered++;
 				}
 			}
@@ -112,7 +115,9 @@ class Location {
 	}
 
 	setTemporaryPresent(rune) {
-		if (this.type.presentAction) return false;
+		if (this.type.presentAction){
+			return false;
+		}
 		this.temporaryPresent = getAction(rune.activateAction);
 		return true;
 	}

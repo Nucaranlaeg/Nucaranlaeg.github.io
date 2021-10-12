@@ -62,7 +62,7 @@ class Zone {
 
 	resetZone(){
 		this.map = this.originalMap.slice();
-		if (currentRealm == 2){
+		if (realms[currentRealm].name == "Verdant Realm"){
 			// Visual changes
 			this.map = convertMapToVerdant(this.map);
 		}
@@ -83,8 +83,8 @@ class Zone {
 		if (this.index){
 			zones[this.index - 1].mineComplete();
 		}
-		if (currentRealm == 2 && this.index == 0 && getRealm("Verdant Realm").manaMult !== null){
-			getRealm("Verdant Realm").manaMult += 0.0005;
+		if (realms[currentRealm].name == "Verdant Realm" && this.index == 0 && getRealm("Verdant Realm").mult !== null){
+			getRealm("Verdant Realm").mult += 0.0005;
 		}
 		this.display();
 	}
@@ -117,7 +117,37 @@ class Zone {
 
 	sumRoute(route, actualRequirements, startDamage){
 		let routeOptions = this.routes.filter(r => r.realm == currentRealm);
-		routeOptions = routeOptions.map(r => {
+		// routeOptions = routeOptions.map(r => {
+		// 	let requirements = (actualRequirements !== null ? actualRequirements : route.require).map(s => {
+		// 		return {
+		// 			"name": s.name,
+		// 			"count": s.count,
+		// 		};
+		// 	});
+		// 	for (let req of requirements){
+		// 		let thing = r.stuff.find(s => s.name == req.name);
+		// 		if (thing){
+		// 			req.count = Math.max(req.count - thing.count, 0);
+		// 		}
+		// 	}
+		// 	for (let thing of r.require){
+		// 		let req = requirements.find(s => s.name == thing.name);
+		// 		if (req){
+		// 			req.count += thing.count;
+		// 		} else {
+		// 			requirements.push({
+		// 				"name": thing.name,
+		// 				"count": thing.count,
+		// 			});
+		// 		}
+		// 	}
+		// 	let health = startDamage.map((h, i) => {
+		// 		if (r.cloneHealth[i] === undefined) return h;
+		// 		return Math.max(h + r.cloneHealth[i][1], 0) + r.cloneHealth[0][0];
+		// 	});
+		// 	return [r, requirements, health];
+		// });
+		routeOptions = routeOptions.filter(r => {
 			let requirements = (actualRequirements !== null ? actualRequirements : route.require).map(s => {
 				return {
 					"name": s.name,
@@ -126,26 +156,17 @@ class Zone {
 			});
 			for (let req of requirements){
 				let thing = r.stuff.find(s => s.name == req.name);
-				if (thing){
-					req.count = Math.max(req.count - thing.count, 0);
+				if (!thing || req.count > thing.count){
+					return false;
 				}
 			}
-			for (let thing of r.require){
-				let req = requirements.find(s => s.name == thing.name);
-				if (req){
-					req.count += thing.count;
-				} else {
-					requirements.push({
-						"name": thing.name,
-						"count": thing.count,
-					});
-				}
-			}
+			return true;
+		}).map(r => {
 			let health = startDamage.map((h, i) => {
 				if (r.cloneHealth[i] === undefined) return h;
 				return Math.max(h + r.cloneHealth[i][1], 0) + r.cloneHealth[0][0];
 			});
-			return [r, requirements, health];
+			return [r, r.require, health];
 		});
 		return routeOptions.sort((a, b) => b[0].mana - a[0].mana);
 	}
@@ -261,16 +282,17 @@ class Zone {
 		let parent = this.node.querySelector(".routes");
 		parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
 		let currentRoute = (this.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
-		let routeIndex = this.routes.filter(r => r.realm == currentRealm)
-			.findIndex(r => (r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute);
-		if (routeIndex > -1 && parent.children[routeIndex + 1]) parent.children[routeIndex + 1].classList.add("active");
+		this.routes.filter(r => r.realm == currentRealm)
+			.forEach((r, i) => {
+				if ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute && parent.children[i + 1]) parent.children[i + 1].classList.add("active");
+			});
 	}
 
 	deleteRoute(index, event){
 		this.routes.splice(index, 1);
+		markRoutesChanged();
 		this.display();
 		event.stopPropagation();
-		markRoutesChanged();
 	}
 
 	completeGoal(){
@@ -298,7 +320,7 @@ function moveToZone(zone, complete = true){
 		return;
 	}
 	zones[currentZone].exitZone(complete);
-	if (currentZone == displayZone){
+	if (currentZone == displayZone && settings.followZone){
 		displayZone = zone;
 		maybeClearCursor();
 	}
@@ -469,7 +491,7 @@ let zones = [
 			'█%%██  █¤§██%███',
 			'██++█ ███╖╖╖%§§█',
 			'█+++█     ████~█',
-			'███╖████ █████~█',
+			'███╖████ ^████~█',
 			'███╖╖╖╖~╣██√╣╖~█',
 			'████████████████',
 		],
@@ -477,6 +499,57 @@ let zones = [
 			getMessage("Unlocked Teleport Runes").display();
 			getRune("Teleport To").unlock();
 			getRune("Teleport From").unlock();
+		}
+	),
+	new Zone("Zone 7",
+		[
+			'████████████████',
+			'█«««««██████¤███',
+			'█+███«█☼████╬███',
+			'█+«~~««♣██¤█§╣%█',
+			'█++████«█╖╖█§§██',
+			'███ Θ██╖╖ ██§╣%█',
+			'██m ██☼█o§██§███',
+			'█^+██╖§█§§§§§╣(█',
+			'██++¤m╖╖.███████',
+			'██+██╖§█♣╖███╖=█',
+			'██╣██████╖██╖╖██',
+			'█0~╣█████╖██╖███',
+			'███╣██☼╖╖♣♣╖♣╖██',
+			'██√§███╖██╖██╖██',
+			'██████+╖██╖██╖+█',
+			'██+╖╖╖♣█+╖♣╖+███',
+			'████+█████+█████',
+			'████████████████',
+		],
+		() => {
+			getMessage("Compounding Realm").display();
+			realms[3].unlock();
+		}
+	),
+	new Zone("Zone 8",
+		[
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████.███████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+			'████████████████',
+		],
+		() => {
 		}
 	),
 ];

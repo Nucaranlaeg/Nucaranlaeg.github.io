@@ -175,9 +175,7 @@ class Clone {
 		let location = getMapLocation(this.x + actionXOffset, this.y + actionYOffset);
 		if (this.currentCompletions === null) this.currentCompletions = location.completions;
 
-		if ((!hasOffset && location.canWorkTogether && this.currentProgress
-					&& (this.currentProgress < location.remainingPresent || location.remainingPresent == 0))
-				|| (!hasOffset && this.currentCompletions !== null && this.currentCompletions < location.completions)) {
+		if (!hasOffset && this.currentCompletions !== null && this.currentCompletions < location.completions) {
 			this.completeNextAction();
 			this.currentProgress = 0;
 			this.selectQueueAction(actionIndex, 100);

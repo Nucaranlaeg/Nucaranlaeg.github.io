@@ -36,9 +36,10 @@ class Stat {
 		}
 
 		if (!this.learnable) return;
-		let val = (this.current + 1) ** (0.9 * (this.base > 100 ? 100 / this.base : 1) ** 0.05) - (this.base + 1);
+		let scalingStart = 100 + getRealmMult("Compounding Realm");
+		let val = (this.current + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);
 		if (val < 0) return;
-		let prevVal = (prev + 1) ** (0.9 * (this.base > 100 ? 100 / this.base : 1) ** 0.05) - (this.base + 1);
+		let prevVal = (prev + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);
 		if (prevVal < 0) prevVal = 0;
 		let increase = (val - prevVal) / this.statIncreaseDivisor;
 		this.base += increase;
@@ -61,20 +62,21 @@ class Stat {
 			this.descriptionNode = this.node.querySelector(".description");
 		}
 		if (this.name == "Mana"){
-			this.effectNode.innerText = `${writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 1)}/${writeNumber(this.base, 1)}`;
+			this.effectNode.innerText = `${writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 1)} (${writeNumber(this.base, 1)})`;
 		} else if (!this.learnable){
 			this.effectNode.innerText = writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 1);
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 2)} (${writeNumber(this.base, 2)})`;
 			let increaseRequired;
-			if (this.base < 100){
+			let scalingStart = 100 + getRealmMult("Compounding Realm");
+			if (this.base < scalingStart){
 				increaseRequired = (this.base + 1) ** (10/9) - 1;
 			} else if (this.lastIncreaseRequired && this.base - 0.01 < this.lastIncreaseUpdate){
 				increaseRequired = this.lastIncreaseRequired;
 			} else {
 				let v = this.base, step = this.base;
 				while (true){
-					let val = (v + 1) ** (1.13303 / v ** 0.05) - (this.base + 1);
+					let val = (v + 1) ** (0.9 * scalingStart ** 0.05 / this.base ** 0.05) - (this.base + 1);
 					if (Math.abs(val) < 0.1) break;
 					if (step < 0.1) break;
 					if (val > 0){
@@ -149,6 +151,7 @@ let stats = [
 	new Stat("Runic Lore", "🕮", "A measure of your understanding of magical runes."),
 	new Stat("Spellcraft", "", "Wield the energies you've torn from the ground in powerful ways."),
 	new Stat("Combat", "", "Your ability to kill things.", 0),
+	new Stat("Gemcraft", "", "You pick pretty stuff from the walls - in one piece.", 0),
 	new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all clones' stats)", 0, false),
 	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),
 	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false),

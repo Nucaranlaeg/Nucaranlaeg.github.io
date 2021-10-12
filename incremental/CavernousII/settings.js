@@ -8,6 +8,7 @@ let settings = {
 	loadPrereqs: false,
 	showingRunes: true,
 	warnings: true,
+	followZone: true,
 }
 
 function setSetting(toggler, value, ...args) {
@@ -63,6 +64,12 @@ function toggleWarnings() {
 	return settings.warnings;
 }
 
+function toggleFollowZone() {
+	settings.followZone = !settings.followZone;
+	document.querySelector("#follow-zone-toggle").innerHTML = settings.followZone ? "Follow on zone complete" : "Stay on selected zone";
+	return settings.followZone;
+}
+
 function switchRuneList() {
 	settings.showingRunes = !settings.showingRunes;
 	document.querySelector("#runes").classList.toggle("active-pane", settings.showingRunes);
@@ -83,6 +90,8 @@ function loadSettings(savedSettings) {
 	setSetting(toggleLoadPrereqs, !!savedSettings.loadPrereqs);
 
 	setSetting(switchRuneList, !!savedSettings.showingRunes);
+
+	setSetting(switchRuneList, !!savedSettings.followZone);
 
 	Object.assign(settings, savedSettings, settings);
 }

@@ -78,7 +78,7 @@ let messages = [
 					You'll have to go out and find another rock to extract mana from.
 					Maybe you can come back to this one later when you have more mana to spend on it.
 
-					Check the right panel to estimate how many more times you can consume this rock`),
+					Check the right panel to estimate how many more times you can refine this rock`),
 	new Message("All the known ways", `
 					There are many mana rocks, but the shortest path is always the best one.
 
@@ -149,10 +149,17 @@ let messages = [
 					You've unlocked a rune!  Well, two runes.
 					You can place one To rune per zone, and any number of From runes.  Activating any From rune teleports you to the To rune.`),
 	new Message("Other Realms", `
-					There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort.
+					There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort and twice as many resources.
 					Mining mana there will reduce the cost scaling of that mana rock in all Realms.`),
 	new Message("Further Realms", `
 					There are realms beyond this one, and you've just discovered a way to get to the Verdant Realm!
 					In the Verdant Realm, there is almost nothing that's not some kind of mushroom.
 					Mining mana there will increase the conversion rate between gold and mana.`),
+	new Message("Upgraded Duplication Rune", `
+					You've upgraded the Duplication rune!
+					Duplication now gives 50% more resources (you can't do anything with half an item, though, unless you have another half to pair it with).  Further upgrades will increase this by 50% (additively).
+					However, charging a Duplication rune costs 25% more mana per upgrade (additive).`),
+	new Message("Upgraded Wither Rune", `
+					You've upgraded the Wither rune!
+					Wither now affects all diagonally adjacent plants as well as orthogonally adjacent plants.  Further upgrades will double its potency each time.`)
 ];

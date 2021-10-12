@@ -63,7 +63,7 @@ function writeTime(value) {
 	let hours = Math.floor(value / 3600);
 	let minutes = Math.floor((value % 3600) / 60);
 	let seconds = Math.floor((value % 60) * 10) / 10;
-	return `${hours ? `${hours}:` : ""}${minutes ? (minutes > 9 ? `${minutes}:` : `0${minutes}:`) : ""}${seconds < 10 && minutes ? `0${seconds}` : seconds}`;
+	return `${hours ? `${hours}:` : ""}${minutes || hours ? (minutes > 9 ? `${minutes}:` : `0${minutes}:`) : ""}${seconds < 10 && minutes ? `0${seconds.toFixed(1)}` : seconds.toFixed(1)}`;
 }
 
 let timeBankNode;
@@ -79,7 +79,7 @@ window.ondrop = e => e.preventDefault();
 
 function resetLoop() {
 	let mana = getStat("Mana");
-	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && currentRealm == 0)) setSetting(toggleAutoRestart, 3);
+	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm")) setSetting(toggleAutoRestart, 3);
 	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
 	if (mana.base == 6) getMessage("Strip Mining").display();
 	if (mana.base == 7.4) getMessage("Buy More Time").display();
@@ -97,6 +97,7 @@ function resetLoop() {
 	});
 	clones.forEach(c => c.reset());
 	queueTime = 0;
+	loopCompletions = 0;
 	currentActionDetails = null;
 	savedQueues = savedQueues.map(q => {
 		let [name, icon, colour] = [q.name, q.icon, q.colour];
@@ -191,6 +192,12 @@ function save(){
 		if (key == "usedRoutes") return undefined;
 		return value;
 	}));
+	let runeData = runes.map(r => {
+		return {
+			"name": r.name,
+			"upgradeCount": r.upgradeCount,
+		};
+	});
 	saveString = JSON.stringify({
 		version,
 		playerStats,
@@ -202,6 +209,7 @@ function save(){
 		messageData,
 		settings,
 		savedRoutes,
+		runeData,
 	});
 	localStorage[saveName] = btoa(saveString);
 }
@@ -253,11 +261,13 @@ function load(){
 		savedQueues[i].colour = saveGame.stored[i].colour;
 	}
 	ensureLegalQueues();
-	drawSavedQueues();
 	lastAction = saveGame.time.saveTime;
 	timeBanked = +saveGame.time.timeBanked;
 	if (saveGame.routes){
 		routes = Route.fromJSON(saveGame.routes);
+	}
+	for (let i = 0; i < (saveGame.runeData || []).length; i++){
+		runes[i].upgradeCount = saveGame.runeData[i].upgradeCount || 0;
 	}
 	
 	loadSettings(saveGame.settings);
@@ -273,7 +283,6 @@ function load(){
 	changeRealms(saveGame.currentRealm);
 	
 	drawMap();
-	resetLoop();
 
 	applyCustomStyling();
 }
@@ -330,6 +339,7 @@ let queueTime = 0;
 let queuesNode;
 let queueTimeNode;
 let currentClone = 0;
+let loopCompletions = 0;
 let fps = 60;
 let shouldReset = false;
 
@@ -488,6 +498,12 @@ let keyFunctions = {
 	},
 	"KeyG": () => {
 		toggleGrindMana();
+	},
+	"KeyZ": () => {
+		toggleFollowZone();
+	},
+	"KeyQ": () => {
+		toggleLoadPrereqs();
 	},
 	"Tab": e => {
 		selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
