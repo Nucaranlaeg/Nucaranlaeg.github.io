@@ -453,6 +453,13 @@ function redrawQueues(){
 		}
 	}
 	highlightCompletedActions();
+	let timelineEl = document.querySelector(`#timelines`);
+	while (timelineEl.firstChild) {
+		timelineEl.removeChild(timelineEl.lastChild);
+	  }
+	clones.forEach(c => {
+		timelineEl.append(c.timeLineElements[displayZone]);
+	})
 }
 
 function setCursor(event, el){

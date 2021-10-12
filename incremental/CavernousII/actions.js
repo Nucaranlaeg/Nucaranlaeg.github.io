@@ -270,7 +270,7 @@ function completeCrossLava(x, y){
 }
 
 function tickFight(usedTime, creature, baseTime){
-	let damage = Math.max(creature.attack - getStat("Defense").current, 0) * baseTime / 1000
+	let damage = Math.max(creature.attack - getStat("Defense").current, 0) * baseTime / 1000;
 	if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current){
 		damage = baseTime / 1000;
 	}
@@ -281,7 +281,7 @@ function tickFight(usedTime, creature, baseTime){
 let combatTools = [
 	["Iron Axe", 0.01, "Woodcutting"],
 	["Iron Pick", 0.01, "Mining"],
-	["Iron Hammer", 0.01, "Smithing"]
+	["Iron Hammer", 0.01, "Smithing"],
 ];
 
 function combatDuration(){
