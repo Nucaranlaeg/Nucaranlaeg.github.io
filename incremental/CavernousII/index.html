@@ -152,21 +152,13 @@
 					<div class="description">Adjust what happens when clicking on a zone route.</div>
 				</div>
 				<h4 class="option-separator">Config</h4>
-				<div class="option block clickable" onclick="toggleFollowZone()">
-					<span id="follow-zone-toggle">Follow on zone complete</span> (Z)
-					<div class="description">Adjust what happens when your clones the zone you're currently viewing.</div>
-				</div>
-				<div class="option block clickable" onclick="findUsedZoneRoutes(true)">
-					<span class="name">Check zone route usage</span>
-					<div class="description">For performance reasons, the blue shading on unused zone routes may not update frequently; this forces an update.</div>
-				</div>
 				<div class="option block clickable" onclick="viewMessages()">
 					<span class="name">View messages</span>
 					<div class="description">Reminisce about the 'story'.</div>
 				</div>
-				<div class="option block clickable" onclick="toggleUseWASD()">
-					<span id="use-wasd-toggle">Use WASD</span>
-					<div class="description">Some people.</div>
+				<div class="option block clickable" onclick="viewConfig()">
+					<span class="name">View more config</span>
+					<div class="description">There are a bunch more options.</div>
 				</div>
 				<div class="block">
 					Mouse over to see key bindings.
@@ -208,10 +200,6 @@
 						<span class="name">Import Queue</span>
 						<div class="description">Paste queues in the box.</div>
 					</div>
-				</div>
-				<div class="option block clickable" onclick="toggleWarnings()">
-					<span id="warnings">Showing Warnings</span>
-					<div class="description">The game warns on clearing queues.</div>
 				</div>
 			</div>
 			<div class="version" title="By Nucaranlaeg"><!--Some code contributed by Dimava and Gnomez-->
@@ -380,6 +368,30 @@
 		<div id="message-wrapper">
 			<h3 id="message-title"></h3>
 			<div id="message-text"></div>
+		</div>
+	</div>
+	<div id="config-box" onclick="hideConfig()" hidden>
+		<div id="config-wrapper" onclick="(event => event.stopPropagation())(event)">
+			<div class="option block clickable" onclick="toggleFollowZone()">
+				<span id="follow-zone-toggle">Follow on zone complete</span> (Z)
+				<div class="description big-description">Adjust what happens when your clones the zone you're currently viewing.</div>
+			</div>
+			<div class="option block clickable" onclick="findUsedZoneRoutes(true)">
+				<span class="name">Check zone route usage</span>
+				<div class="description big-description">For performance reasons, the blue shading on unused zone routes may not update frequently; this forces an update.</div>
+			</div>
+			<div class="option block clickable" onclick="toggleTimeline()">
+				<span id="timeline-toggle">Hide timeline</span>
+				<div class="description big-description">It's a neat feature, but it might be a little eye-grabbing.</div>
+			</div>
+			<div class="option block clickable" onclick="Route.invalidateRouteCosts()">
+				<span class="name">Revisit all known mana rocks in this realm</span>
+				<div class="description big-description">You can also double-click on the Grind option.</div>
+			</div>
+			<div class="option block clickable" onclick="toggleWarnings()">
+				<span id="warnings">Showing Warnings</span>
+				<div class="description big-description">The game warns on clearing queues.</div>
+			</div>
 		</div>
 	</div>
 </body>

@@ -216,6 +216,10 @@ svg {
 	user-select: none;
 }
 
+#timelines {
+	margin-top: 10px;
+}
+
 .timeline {
 	height: 20px;
 	display: inline-flex;
@@ -242,22 +246,26 @@ svg {
 	background-color: #ffffcc;
 	color: #000000;
 	font-size: 14px;
-	z-index: 1;
+	z-index: 50;
     white-space: pre;
 	pointer-events: none;
-	
+	padding: 2px;
 }
 
 .timeline > div.Walk {
-	background-color: #fff
+	background-color: #ffffff;
 }
 
 .timeline > div.Wait {
-	background-color: #aaa
+	background-color: #aaaaaa;
+}
+
+.timeline > div.Dead {
+	background-color: #000000;
 }
 
 .timeline > div.No-action {
-	background-color: #f8f
+	background-color: #ff88ff;
 }
 
 .timeline > div.Mine,
@@ -268,43 +276,43 @@ svg {
 .timeline > div.Mine-Coal,
 .timeline > div.Mine-Salt
 {
-	background-color: #666
+	background-color: #666666;
 }
 
 .timeline > div.Mine-Gold {
-	background-color: #fe0
+	background-color: #ffee00;
 }
 
 .timeline > div.Turn-Gold-to-Mana,
 .timeline > div.Collect-Mana {
-	background-color: #0088ff
+	background-color: #0088ff;
 }
 
 .timeline > div.Create-Clone {
-	background-color: #00ff00
+	background-color: #00ff00;
 }
 
 .timeline > div.Make-Iron-Bars,
 .timeline > div.Make-Steel-Bars {
-	background-color: #ff8800
+	background-color: #ff8800;
 }
 .timeline > div.Cross-Pit {
-	background-color: #000
+	background-color: #000000;
 }
 
 .timeline > div.Cross-Lava {
-	background-color: #f55
+	background-color: #ff5555;
 }
 
 .timeline > div.Create-Bridge,
 .timeline > div.Create-Long-Bridge,
 .timeline > div.Upgrade-Bridge
 {
-	background-color: #840
+	background-color: #884400;
 }
 
 .timeline > div.Read {
-	background-color: #f0f
+	background-color: #ff00ff;
 }
 .timeline > div.Create-Sword,
 .timeline > div.Upgrade-Sword,
@@ -313,44 +321,44 @@ svg {
 .timeline > div.Create-Armour,
 .timeline > div.Upgrade-Armour
 {
-	background-color: #aa0
+	background-color: #aaaa00;
 }
 
 .timeline > div.Attack-Creature {
-	background-color: #f00
+	background-color: #ff0000;
 }
 .timeline > div.Teleport {
-	background-color: #f09
+	background-color: #ff0099;
 }
 .timeline > div.Charge-Duplication,
 .timeline > div.Charge-Wither,
 .timeline > div.Charge-Teleport
 {
-	background-color: #909
+	background-color: #990099;
 }
 .timeline > div.Heal {
-	background-color: #0f0
+	background-color: #00ff00;
 }
 .timeline > div.Portal{}
 .timeline > div.Complete-Goal{}
 
 .timeline > div.Chop {
-	background-color: #090
+	background-color: #009900;
 }
 .timeline > div.Kudzu-Chop {
-	background-color: #070
+	background-color: #007700;
 }
 .timeline > div.Spore-Chop {
 	background-color:#32805c;
 }
 .timeline > div.Oyster-Chop {
-	background-color: #f50
+	background-color: #ff5500;
 }
 .timeline > div.Create-Axe,
 .timeline > div.Create-Pick,
 .timeline > div.Create-Hammer
 {
-	background-color: #af0
+	background-color: #aaff00;
 }
 
 .selected-clone,
@@ -1071,8 +1079,8 @@ td:hover:after {
 #message-wrapper {
 	position: absolute;
 	top: 30%;
-	left: 30%;
-	right: 30%;
+	left: 20%;
+	right: 20%;
 	width: 30%;
 	background-color: #aacccc;
 	padding: 10px;
@@ -1083,6 +1091,38 @@ td:hover:after {
 
 .message-link {
 	cursor: pointer;
+}
+
+#message-text {
+	column-count: 3;
+}
+
+#config-box {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #00000099;
+	z-index: 100;
+}
+
+#config-wrapper {
+	position: absolute;
+	top: 30%;
+	left: 30%;
+	right: 30%;
+	width: 30%;
+	background-color: #aacccc;
+	padding: 10px;
+	border-radius: 20px;
+	border: 2px solid #00000044;
+	text-align: center;
+	user-select: none;
+}
+
+#config-wrapper .option {
+	width: 100%;
 }
 
 .queue-buttons {
