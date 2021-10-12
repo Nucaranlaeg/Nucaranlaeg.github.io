@@ -216,6 +216,111 @@ svg {
 	user-select: none;
 }
 
+.timeline {
+	height: 20px;
+}
+
+.timeline > div.Walk {
+	background-color: #fff
+}
+
+.timeline > div.Wait {
+	background-color: #aaa
+}
+
+.timeline > div.Mine,
+.timeline > div.Mine-Travertine,
+.timeline > div.Mine-Granite,
+.timeline > div.Mine-Basalt,
+.timeline > div.Mine-Iron,
+.timeline > div.Mine-Coal,
+.timeline > div.Mine-Salt
+{
+	background-color: #666
+}
+
+.timeline > div.Mine-Gold {
+	background-color: #fe0
+}
+
+.timeline > div.Turn-Gold-to-Mana,
+.timeline > div.Collect-Mana {
+	background-color: #0088ff
+}
+
+.timeline > div.Create-Clone {
+	background-color: #00ff00
+}
+
+.timeline > div.Make-Iron-Bars,
+.timeline > div.Make-Steel-Bars {
+	background-color: #ff8800
+}
+.timeline > div.Cross-Pit {
+	background-color: #000
+}
+
+.timeline > div.Cross-Lava {
+	background-color: #f55
+}
+
+.timeline > div.Create-Bridge,
+.timeline > div.Create-Long-Bridge,
+.timeline > div.Upgrade-Bridge
+{
+	background-color: #840
+}
+
+.timeline > div.Read {
+	background-color: #f0f
+}
+.timeline > div.Create-Sword,
+.timeline > div.Upgrade-Sword,
+.timeline > div.Create-Shield,
+.timeline > div.Upgrade-Shield,
+.timeline > div.Create-Armour,
+.timeline > div.Upgrade-Armour
+{
+	background-color: #aa0
+}
+
+.timeline > div.Attack-Creature {
+	background-color: #f00
+}
+.timeline > div.Teleport {
+	background-color: #f09
+}
+.timeline > div.Charge-Duplication,
+.timeline > div.Charge-Wither,
+.timeline > div.Charge-Teleport
+{
+	background-color: #909
+}
+.timeline > div.Heal {
+	background-color: #0f0
+}
+.timeline > div.Portal{}
+.timeline > div.Complete-Goal{}
+
+.timeline > div.Chop {
+	background-color: #090
+}
+.timeline > div.Kudzu-Chop {
+	background-color: #070
+}
+.timeline > div.Spore-Chop {
+	background-color:#32805c;
+}
+.timeline > div.Oyster-Chop {
+	background-color: #f50
+}
+.timeline > div.Create-Axe,
+.timeline > div.Create-Pick,
+.timeline > div.Create-Hammer
+{
+	background-color: #af0
+}
+
 .selected-clone,
 .saved-queue:focus {
 	border-color: #008000aa;
