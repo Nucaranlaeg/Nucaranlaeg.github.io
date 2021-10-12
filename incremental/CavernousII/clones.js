@@ -24,12 +24,16 @@ class Clone {
 		this.walkTime = 0;
 		this.activeSpells = [];
 		this.waiting = false;
-		this.timeLine = []
-		this.timeLineElements.forEach(el => {
-			while (el.firstChild) {
-				el.removeChild(el.lastChild);
+		this.resetTimeLine()
+	}
+
+	resetTimeLine() {
+		for (var i = 0; i < this.timeLines.length; i++) {
+			this.timeLines[i] = []
+			while (this.timeLineElements[i].firstChild) {
+				this.timeLineElements[i].removeChild(this.timeLineElements[i].lastChild);
 			}
-		})
+		}
 	}
 
 	takeDamage(amount) {
@@ -142,9 +146,12 @@ class Clone {
 		let lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1]
 		if(lastEntry?.type == action.name){
 			lastEntry.time += time
+			lastEntry.el.dataset.time = Math.round(lastEntry.time)
 			lastEntry.el.style.flexGrow = lastEntry.time
 		} else {
 			let entryElement = document.createElement('div')
+			entryElement.dataset.name = action.name
+			entryElement.dataset.time = Math.round(time)
 			entryElement.style.flexGrow = time
 			entryElement.classList.add(action.name.replace(/ /g, '-'))
 			this.timeLineElements[currentZone].append(entryElement)
@@ -179,7 +186,7 @@ class Clone {
 				this.addToTimeline({name:"Create rune"},0)
 				return time;
 			} else {
-				this.addToTimeline({name:"Create rune"},time - 0)
+				this.addToTimeline({name:"Wait"},initialTime - 0)
 				return 0;
 			}
 		}
@@ -190,7 +197,7 @@ class Clone {
 				this.addToTimeline({name:"Cast spell"},0)
 				return time;
 			} else {
-				this.addToTimeline({name:"Cast spell"},time - 0)
+				this.addToTimeline({name:"Wait"},initialTime - 0)
 				return 0;
 			}
 		}
@@ -209,7 +216,7 @@ class Clone {
 				this.addToTimeline({name:"Sync"},0)
 				return time;
 			}
-			this.addToTimeline({name:"Wait"},time - 0)
+			this.addToTimeline({name:"Wait"},initialTime - 0)
 			return 0;
 		}
 
@@ -223,7 +230,7 @@ class Clone {
 			this.completeNextAction();
 			this.currentProgress = 0;
 			this.selectQueueAction(actionIndex, 100);
-			this.addToTimeline(this.x == location.x && this.y == location.y ?(location.type.presentAction || location.temporaryPresent) : locationEnterAction,initialTime - time);
+			this.addToTimeline(!hasOffset ? (location.type.presentAction || location.temporaryPresent) : locationEnterAction,initialTime - time);
 			return time;
 		}
 		if ((location.remainingPresent <= 0 && !hasOffset) || (location.remainingEnter <= 0 && hasOffset)) {
@@ -232,10 +239,10 @@ class Clone {
 				this.completeNextAction();
 				this.currentProgress = 0;
 				this.selectQueueAction(actionIndex, 100);
-				this.addToTimeline(this.x == location.x && this.y == location.y ?(location.type.presentAction || location.temporaryPresent) : locationEnterAction,initialTime - time);
+				this.addToTimeline(!hasOffset ? (location.type.presentAction || location.temporaryPresent) : locationEnterAction,initialTime - time);
 				return time;
 			} else if (startStatus < 0){
-				this.addToTimeline(this.x == location.x && this.y == location.y ?(location.type.presentAction || location.temporaryPresent) : locationEnterAction,initialTime - time);
+				this.addToTimeline({name:"Wait"},initialTime - 0);
 				return 0;
 			}
 		}
@@ -257,6 +264,7 @@ class Clone {
 
 	performSingleAction(time = this.timeAvailable) {
 		if (time <= 0 || this.noActionsAvailable || this.damage == Infinity) return 0;
+		let initialTime = time
 		currentClone = this.id;
 		let [nextAction, actionIndex] = getNextAction();
 		this.timeAvailable = time;
@@ -287,11 +295,12 @@ class Clone {
 			this.timeAvailable = time;
 			return time;
 		}
-	
+		
 		this.timeLeft = time;
 		this.noActionsAvailable = true;
 		this.drown(this.timeAvailable);
 		this.timeAvailable = 0;
+		this.addToTimeline({name:"No action"},initialTime - 0)
 		return 0;
 	}
 

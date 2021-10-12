@@ -218,6 +218,34 @@ svg {
 
 .timeline {
 	height: 20px;
+	display: inline-flex;
+	flex-direction: row;
+	min-width: calc(100% - 120px);
+
+	vertical-align: top;
+	width: 100%;
+	box-sizing: border-box;
+	border: 1px solid #00000077;
+	overflow-y: visible;
+	scrollbar-width: thin;
+	scrollbar-color: #88aaaa #aacccc;
+	white-space: nowrap;
+}
+
+.timeline > div {
+    position: relative;
+}
+.timeline > div:hover::after {
+	content: attr(data-name)"\a"attr(data-time)"ms";
+	position: absolute;
+    margin-top: -34px;
+	background-color: #ffffcc;
+	color: #000000;
+	font-size: 14px;
+	z-index: 1;
+    white-space: pre;
+	pointer-events: none;
+	
 }
 
 .timeline > div.Walk {
@@ -226,6 +254,10 @@ svg {
 
 .timeline > div.Wait {
 	background-color: #aaa
+}
+
+.timeline > div.No-action {
+	background-color: #f8f
 }
 
 .timeline > div.Mine,
