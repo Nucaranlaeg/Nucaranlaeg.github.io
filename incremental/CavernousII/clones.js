@@ -1,6 +1,7 @@
 class Clone {
 	constructor(id){
 		this.id = id;
+		this.createTimeline()
 		this.reset();
 		this.createQueue();
 	}
@@ -23,6 +24,16 @@ class Clone {
 		this.walkTime = 0;
 		this.activeSpells = [];
 		this.waiting = false;
+		this.resetTimeLine()
+	}
+
+	resetTimeLine() {
+		for (var i = 0; i < this.timeLines.length; i++) {
+			this.timeLines[i] = []
+			while (this.timeLineElements[i].firstChild) {
+				this.timeLineElements[i].removeChild(this.timeLineElements[i].lastChild);
+			}
+		}
 	}
 
 	takeDamage(amount) {
@@ -74,6 +85,18 @@ class Clone {
 		queues.push(q);
 	}
 
+	createTimeline(){
+		this.timeLines = []
+		let timelineTemplate = document.querySelector("#timeline-template");
+		this.timeLineElements = []
+		for (let i = 0;i < zones.length; i++){
+			this.timeLines[i] = []
+			this.timeLineElements[i] = timelineTemplate.cloneNode(true);
+			this.timeLineElements[i].id = `zone${i+1}-timeline${clones.length}`;
+			document.querySelector("#timelines").append(this.timeLineElements[i]);
+		}
+	}
+
 	select(allowMultiple = false) {
 		if (!allowMultiple) {
 			for (let index of selectedQueue) {
@@ -118,7 +141,26 @@ class Clone {
 		this.takeDamage(location.water ** 2 * time / 1000);
 	}
 
+	addToTimeline(action, time){
+		if(action === null) return;
+		let lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1]
+		if(lastEntry?.type == action.name){
+			lastEntry.time += time
+			lastEntry.el.dataset.time = Math.round(lastEntry.time)
+			lastEntry.el.style.flexGrow = lastEntry.time
+		} else {
+			let entryElement = document.createElement('div')
+			entryElement.dataset.name = action.name
+			entryElement.dataset.time = Math.round(time)
+			entryElement.style.flexGrow = time
+			entryElement.classList.add(action.name.replace(/ /g, '-'))
+			this.timeLineElements[currentZone].append(entryElement)
+			this.timeLines[currentZone].push({type:action.name,time:time,el:entryElement})
+		}
+	}
+
 	executeAction(time, action, actionIndex) {
+		let initialTime = time
 		currentClone = this.id;
 		let actionToDo = action.action;
 		// Failed pathfind
@@ -141,8 +183,10 @@ class Clone {
 			if (runes[actionToDo[1]].create(this.x + actionXOffset, this.y + actionYOffset)){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
+				this.addToTimeline({name:"Create rune"},0)
 				return time;
 			} else {
+				this.addToTimeline({name:"Wait"},initialTime - 0)
 				return 0;
 			}
 		}
@@ -150,8 +194,10 @@ class Clone {
 			if (spells[actionToDo[1]].cast()){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
+				this.addToTimeline({name:"Cast spell"},0)
 				return time;
 			} else {
+				this.addToTimeline({name:"Wait"},initialTime - 0)
 				return 0;
 			}
 		}
@@ -167,18 +213,22 @@ class Clone {
 				this.waiting = queueTime;
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
+				this.addToTimeline({name:"Sync"},0)
 				return time;
 			}
+			this.addToTimeline({name:"Wait"},initialTime - 0)
 			return 0;
 		}
 
 		let location = getMapLocation(this.x + actionXOffset, this.y + actionYOffset);
+		let locationEnterAction = location.type.getEnterAction(location.entered)
 		if (this.currentCompletions === null) this.currentCompletions = location.completions;
 
 		if (!hasOffset && this.currentCompletions !== null && this.currentCompletions < location.completions) {
 			this.completeNextAction();
 			this.currentProgress = 0;
 			this.selectQueueAction(actionIndex, 100);
+			this.addToTimeline(!hasOffset ? (location.type.presentAction || location.temporaryPresent) : locationEnterAction,initialTime - time);
 			return time;
 		}
 		if ((location.remainingPresent <= 0 && !hasOffset) || (location.remainingEnter <= 0 && hasOffset)) {
@@ -187,8 +237,10 @@ class Clone {
 				this.completeNextAction();
 				this.currentProgress = 0;
 				this.selectQueueAction(actionIndex, 100);
+				this.addToTimeline(!hasOffset ? (location.type.presentAction || location.temporaryPresent) : locationEnterAction,initialTime - time);
 				return time;
 			} else if (startStatus < 0){
+				this.addToTimeline({name:"Wait"},initialTime - 0);
 				return 0;
 			}
 		}
@@ -200,6 +252,7 @@ class Clone {
 			this.completeNextAction();
 			this.currentProgress = 0;
 		}
+		this.addToTimeline(!hasOffset ? (location.type.presentAction || location.temporaryPresent) : locationEnterAction, initialTime - time);
 		return time;
 	}
 
@@ -209,6 +262,7 @@ class Clone {
 
 	performSingleAction(time = this.timeAvailable) {
 		if (time <= 0 || this.noActionsAvailable || this.damage == Infinity) return 0;
+		let initialTime = time
 		currentClone = this.id;
 		let [nextAction, actionIndex] = getNextAction();
 		this.timeAvailable = time;
@@ -239,11 +293,12 @@ class Clone {
 			this.timeAvailable = time;
 			return time;
 		}
-	
+		
 		this.timeLeft = time;
 		this.noActionsAvailable = true;
 		this.drown(this.timeAvailable);
 		this.timeAvailable = 0;
+		this.addToTimeline({name:"No action"},initialTime - 0)
 		return 0;
 	}
 
