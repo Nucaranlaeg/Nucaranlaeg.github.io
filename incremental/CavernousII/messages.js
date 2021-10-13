@@ -157,8 +157,7 @@ let messages = [
 					Mining mana there will increase the conversion rate between gold and mana.`),
 	new Message("Upgraded Duplication Rune", `
 					You've upgraded the Duplication rune!
-					Duplication now gives 50% more resources (you can't do anything with half an item, though, unless you have another half to pair it with).  Further upgrades will increase this by 50% (additively).
-					However, charging a Duplication rune costs 25% more mana per upgrade (additive).`),
+					Duplication now gives 25% more resources (you can't do anything with less than a full item, though, unless you have enough quarter items).  Further upgrades will increase this by 25% (additively).`),
 	new Message("Upgraded Wither Rune", `
 					You've upgraded the Wither rune!
 					Wither now affects all diagonally adjacent plants as well as orthogonally adjacent plants.  Further upgrades will double its potency each time.`)

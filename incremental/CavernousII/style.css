@@ -1093,10 +1093,6 @@ td:hover:after {
 	cursor: pointer;
 }
 
-#message-text {
-	/* column-count: 3; */
-}
-
 #config-box {
 	position: fixed;
 	top: 0;

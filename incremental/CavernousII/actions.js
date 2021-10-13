@@ -29,7 +29,6 @@ class Action {
 
 	getDuration(durationMult = 1){
 		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
-		duration *= this.specialDuration();
 		if (realms[currentRealm].name == "Long Realm"){
 			duration *= 3;
 		} else if (realms[currentRealm].name == "Compounding Realm"){
