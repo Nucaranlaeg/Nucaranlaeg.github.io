@@ -502,6 +502,11 @@ function exportQueues() {
 	navigator.clipboard.writeText(JSON.stringify(exportString));
 }
 
+function longExportQueues() {
+	let exportString = zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q);
+	navigator.clipboard.writeText(JSON.stringify(exportString));
+}
+
 function importQueues() {
 	let queueString = prompt("Input your queues");
 	let tempQueues = zones[displayZone].queues.slice();
@@ -522,6 +527,27 @@ function importQueues() {
 	}
 }
 
+function longImportQueues() {
+	let queueString = prompt("Input your queues");
+	let tempQueues = zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "");
+	try {
+		let newQueues = JSON.parse(queueString);
+		if (newQueues.length > zones.length || newQueues.some(q => q.length > clones.length)) {
+			alert("Could not import queues - too many queues.")
+			return;
+		}
+		newQueues.forEach((q, i) => {
+			zones[i].queues.map(e => e.clear());
+			for (let j = 0; j < q.length; j++) {
+				zones[i].queues[j].fromString(q[j]);
+			}
+		});
+		redrawQueues();
+	} catch {
+		alert("Could not import queues.");
+		longImportQueues(tempQueues);
+	}
+}
 
 
 

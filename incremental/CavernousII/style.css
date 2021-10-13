@@ -339,8 +339,6 @@ svg {
 .timeline > div.Heal {
 	background-color: #00ff00;
 }
-.timeline > div.Portal{}
-.timeline > div.Complete-Goal{}
 
 .timeline > div.Chop {
 	background-color: #009900;
@@ -995,6 +993,7 @@ td.coal:before {
 	padding-bottom: 10%;
 }
 
+.timeline > div.Portal,
 td.zone {
 	background-color: #3939ff;
 }
@@ -1006,6 +1005,7 @@ td.zone:before {
 	padding-bottom: 10%;
 }
 
+.timeline > div.Complete-Goal,
 td.goal {
 	background-color: #17ac17;
 }

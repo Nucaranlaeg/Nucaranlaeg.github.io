@@ -108,7 +108,7 @@ function getDuplicationAmount(x, y){
 	y += zone.yOffset;
 	let rune_locs = [[x-1, y], [x+1, y], [x, y-1], [x, y+1], [x-1, y+1], [x+1, y+1], [x+1, y-1], [x-1, y-1]];
 	rune_locs.forEach(([X, Y]) => {
-		amount += (zone.map[Y][X] == "d") * ((getRune("Duplication").upgradeCount * 0.5) + 1);
+		amount += (zone.map[Y][X] == "d") * ((getRune("Duplication").upgradeCount * 0.25) + 1);
 	});
 	return amount;
 }
@@ -351,8 +351,7 @@ function startChargeDuplicate(completions){
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		runes += zones[currentZone].map[y].split(/[dD]/).length - 1;
 	}
-	let duplication = getRune("Duplication");
-	return 2 ** (runes - 1) * (1 + 0.25 * duplication.upgradeCount);
+	return 2 ** (runes - 1);
 }
 
 function completeChargeRune(x, y){
