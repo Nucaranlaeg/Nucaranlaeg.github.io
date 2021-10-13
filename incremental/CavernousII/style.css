@@ -1094,7 +1094,7 @@ td:hover:after {
 }
 
 #message-text {
-	column-count: 3;
+	/* column-count: 3; */
 }
 
 #config-box {
