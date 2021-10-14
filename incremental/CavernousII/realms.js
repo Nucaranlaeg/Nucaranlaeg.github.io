@@ -61,7 +61,7 @@ function getRealmMult(name){
 			return a + z.mapLocations
 				.flat()
 				.filter(l => l.type.name == "Mana-infused Rock")
-				.reduce((a, c) => a + c.priorCompletionData[2], 0);
+				.reduce((a, c) => a + c.priorCompletionData[realm.index], 0);
 		}, 0) * realm.multPerRock;
 	}
 	return realm.mult + 1;

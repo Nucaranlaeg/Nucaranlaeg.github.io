@@ -509,6 +509,12 @@ h4#location-name {
 	margin: 0;
 }
 
+#location-details {
+	max-height: 67%;
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
 #map {
 	padding: 2px 0 0px;
 	display: flex;
@@ -1091,6 +1097,12 @@ td:hover:after {
 
 .message-link {
 	cursor: pointer;
+}
+
+#message-text {
+	max-height: 40vh;
+	overflow-y: auto;
+	scrollbar-width: thin;
 }
 
 #config-box {

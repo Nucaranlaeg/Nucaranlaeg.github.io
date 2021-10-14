@@ -102,7 +102,8 @@ let messages = [
 	new Message("Third Clone", `
 					You've created yet another clone.
 					Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...
-					You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.`),
+					You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.
+					Careful with syncing too much, though, as syncs less than 500ms after another sync are ignored.`),
 	new Message("Fourth Clone", `
 					Time seems to be a bit unstable.  How many of you must there be before you escape the final zone?`),
 	new Message("Goblin", `
@@ -155,6 +156,10 @@ let messages = [
 					There are realms beyond this one, and you've just discovered a way to get to the Verdant Realm!
 					In the Verdant Realm, there is almost nothing that's not some kind of mushroom.
 					Mining mana there will increase the conversion rate between gold and mana.`),
+	new Message("Compounding Realm", `
+					In the Compounding Realm, you feel like you're moving through molasses.
+					Each action you take makes subsequent actions take 1% longer.
+					However, mining mana there will increase your ability to learn past 100.`),
 	new Message("Upgraded Duplication Rune", `
 					You've upgraded the Duplication rune!
 					Duplication now gives 25% more resources (you can't do anything with less than a full item, though, unless you have enough quarter items).  Further upgrades will increase this by 25% (additively).`),
