@@ -73,7 +73,7 @@ function toggleFollowZone() {
 
 function toggleTimeline() {
 	settings.timeline = !settings.timeline;
-	document.querySelector("#timeline-toggle").innerHTML = settings.timeline ? "Hide timeline" : "Show timeline";
+	document.querySelector("#timeline-toggle").innerHTML = settings.timeline ? "Showing timeline" : "Hiding timeline";
 	document.querySelector("#timelines").hidden = !settings.timeline;
 	return settings.timeline;
 }
@@ -92,9 +92,9 @@ function loadSettings(savedSettings) {
 	setSetting(toggleAutoRestart, savedSettings.autoRestart);
 	setSetting(toggleGrindMana, !!savedSettings.grindMana);
 	setSetting(toggleLoadPrereqs, !!savedSettings.loadPrereqs);
+	setSetting(toggleFollowZone, !!savedSettings.followZone);
+	setSetting(toggleTimeline, !!savedSettings.timeline);
 	setSetting(switchRuneList, !!savedSettings.showingRunes);
-	setSetting(switchRuneList, !!savedSettings.followZone);
-	setSetting(switchRuneList, !!savedSettings.timeline);
 
 	Object.assign(settings, savedSettings, settings);
 }

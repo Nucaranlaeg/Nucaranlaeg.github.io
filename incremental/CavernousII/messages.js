@@ -158,7 +158,7 @@ let messages = [
 					Mining mana there will increase the conversion rate between gold and mana.`),
 	new Message("Compounding Realm", `
 					In the Compounding Realm, you feel like you're moving through molasses.
-					Each action you take makes subsequent actions take 1% longer.
+					Each time you move, subsequent actions will take 1% longer.
 					However, mining mana there will increase your ability to learn past 100.`),
 	new Message("Upgraded Duplication Rune", `
 					You've upgraded the Duplication rune!

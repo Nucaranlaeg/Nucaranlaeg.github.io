@@ -65,9 +65,8 @@ class Location {
 			this.remainingPresent -= usedTime;
 			if (this.remainingPresent == 0){
 				if ((this.type.presentAction || this.temporaryPresent).complete(this.x, this.y)){
-					loopCompletions++;
 					// Something got taken away in the middle of completing this.
-					this.remainingPresent = this.type.name == "Fountain" ? 100 : 1;
+					this.remainingPresent = 100;
 					this.usedTime = time;
 				} else {
 					if (this.type.canWorkTogether){

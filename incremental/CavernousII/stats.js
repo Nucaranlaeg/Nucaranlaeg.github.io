@@ -36,7 +36,7 @@ class Stat {
 		}
 
 		if (!this.learnable) return;
-		let scalingStart = 100 + getRealmMult("Compounding Realm");
+		let scalingStart = 99 + getRealmMult("Compounding Realm");
 		let val = (this.current + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);
 		if (val < 0) return;
 		let prevVal = (prev + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);

@@ -132,6 +132,30 @@ td.failed {
 	transition: background-color 0.4s;
 }
 
+.interact-count {
+	position: absolute;
+	top: 0px;
+	height: 5px;
+	border: 1px solid black;
+	border-bottom: none;
+	text-align: center;
+	font-size: smaller;
+	pointer-events: none;
+}
+
+.interact-count::before {
+	content: attr(data-count);
+	text-align: center;
+	margin-top: -4px;
+	position: absolute;
+	background-color: #aaccccdd;
+	margin-left: -3px;
+}
+
+.interact-count.double-digit::before {
+	margin-left: -6px;
+}
+
 .character {
 	width: 16px;
 }
@@ -237,17 +261,17 @@ svg {
 }
 
 .timeline > div {
-    position: relative;
+	position: relative;
 }
 .timeline > div:hover::after {
 	content: attr(data-name)"\a"attr(data-time)"ms";
 	position: absolute;
-    margin-top: -34px;
+	margin-top: -34px;
 	background-color: #ffffcc;
 	color: #000000;
 	font-size: 14px;
 	z-index: 50;
-    white-space: pre;
+	white-space: pre;
 	pointer-events: none;
 	padding: 2px;
 }

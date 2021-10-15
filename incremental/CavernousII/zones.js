@@ -86,6 +86,9 @@ class Zone {
 		if (realms[currentRealm].name == "Verdant Realm" && this.index == 0 && getRealm("Verdant Realm").mult !== null){
 			getRealm("Verdant Realm").mult += 0.0005;
 		}
+		if (realms[currentRealm].name == "Compounding Realm" && this.index == 0 && getRealm("Compounding Realm").mult !== null){
+			getRealm("Compounding Realm").mult += 0.05;
+		}
 		this.display();
 	}
 

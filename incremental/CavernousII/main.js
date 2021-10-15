@@ -273,6 +273,7 @@ function load(){
 	loadSettings(saveGame.settings);
 	
 	selectClone(0);
+	queuesNode = queuesNode || document.querySelector("#queues");
 	redrawQueues();
 	
 	// Fix attack and defense
@@ -352,7 +353,6 @@ setInterval(function mainLoop() {
 	let mana = getStat("Mana");
 	if (isNaN(mana.current) && settings.running) toggleRunning();
 	lastAction = Date.now();
-	queuesNode = queuesNode || document.querySelector("#queues");
 	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
 		queuesNode.classList.add("out-of-mana");
 		getMessage("Out of Mana").display();

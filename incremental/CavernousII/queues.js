@@ -300,6 +300,9 @@ function addActionToQueue(action, queue = null){
 			scrollQueue(selectedQueue[i], cursor[1]);
 		}
 		showFinalLocation();
+		if ("IB".includes(action)){
+			countMultipleInteracts();
+		}
 		return;
 	}
 	if (queues[queue] === undefined) return;
@@ -308,6 +311,9 @@ function addActionToQueue(action, queue = null){
 
 	scrollQueue(queue, cursor[1]);
 	showCursor();
+	if ("IB".includes(action)){
+		countMultipleInteracts();
+	}
 }
 
 function addRuneAction(index, type){
@@ -401,6 +407,35 @@ function highlightCompletedActions(){
 	}
 }
 
+function countMultipleInteracts(){
+	if (!queuesNode) return;
+	queuesNode.querySelectorAll(".interact-count").forEach(node => {
+		node.parentNode.removeChild(node);
+	});
+	for (let i = 0; i < zones[displayZone].queues.length; i++){
+		let queueBlock = queuesNode.children[i];
+		let queueNode = queueBlock.querySelector('.queue-inner');
+		let nodes = queueNode.children;
+		let interactCount = 0;
+		for (let j = 0; j < zones[displayZone].queues[i].length + 1; j++){
+			if (zones[displayZone].queues[i][j]?.[0] == "I"){
+				interactCount++;
+			} else if (interactCount > 3) {
+				let node = document.createElement("div");
+				node.classList.add("interact-count");
+				node.setAttribute("data-count", interactCount);
+				node.style.left = `${(j - interactCount) * 16 + 2}px`;
+				node.style.width = `${interactCount * 16 - 2}px`;
+				if (interactCount > 9) node.classList.add("double-digit");
+				queueNode.insertBefore(node, nodes[j - interactCount]);
+				interactCount = 0;
+			} else {
+				interactCount = 0;
+			}
+		}
+	}
+}
+
 function selectQueueAction(queue, action, percent){
 	let queueBlock = queuesNode.children[queue];
 	let queueNode = queueBlock.querySelector('.queue-inner');
@@ -453,6 +488,7 @@ function redrawQueues(){
 		}
 	}
 	highlightCompletedActions();
+	countMultipleInteracts();
 	let timelineEl = document.querySelector(`#timelines`);
 	while (timelineEl.firstChild) {
 		timelineEl.removeChild(timelineEl.lastChild);
@@ -464,7 +500,7 @@ function redrawQueues(){
 
 function setCursor(event, el){
 	let nodes = Array.from(el.parentNode.children);
-	cursor[1] = nodes.findIndex(e => e == el) - (event.offsetX < 8);
+	cursor[1] = nodes.filter(n => !n.classList.contains("interact-count")).findIndex(e => e == el) - (event.offsetX < 8);
 	if (nodes.length - 1 == cursor[1]) cursor[1] = null;
 	cursor[0] = el.parentNode.parentNode.id.replace("queue", "");
 	showCursor();
@@ -529,6 +565,7 @@ function importQueues() {
 
 function longImportQueues() {
 	let queueString = prompt("Input your queues");
+	if (!queueString) return;
 	let tempQueues = zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "");
 	try {
 		let newQueues = JSON.parse(queueString);
