@@ -3,7 +3,7 @@ let hoverLocation;
 
 function showIntermediateLocation(e){
 	let queueNode = e.target.parentNode.parentNode;
-	let index = Array.from(queueNode.children).findIndex(node => node == e.target.parentNode);
+	let index = Array.from(queueNode.children).filter(n => !n.classList.contains("interact-count")).findIndex(node => node == e.target.parentNode);
 	let queueNumber = queueNode.parentNode.id.replace("queue", "");
 	if (isNaN(+queueNumber)){
 		return;

@@ -351,6 +351,7 @@ setInterval(function mainLoop() {
 	}
 	let time = Date.now() - lastAction;
 	let mana = getStat("Mana");
+	queuesNode = queuesNode || document.querySelector("#queues");
 	if (isNaN(mana.current) && settings.running) toggleRunning();
 	lastAction = Date.now();
 	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){

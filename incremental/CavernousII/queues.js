@@ -394,7 +394,7 @@ function highlightCompletedActions(){
 	for (let i = 0; i < zones[displayZone].queues.length; i++){
 		let queueBlock = queuesNode.children[i];
 		let queueNode = queueBlock.querySelector('.queue-inner');
-		let nodes = queueNode.children;
+		let nodes = [...queueNode.children].filter(n => !n.classList.contains("interact-count"));
 		for (let j = 0; j < zones[displayZone].queues[i].length; j++){
 			if (zones[displayZone].queues[i][j][1]){
 				nodes[j].classList.remove('started');
@@ -440,7 +440,7 @@ function selectQueueAction(queue, action, percent){
 	let queueBlock = queuesNode.children[queue];
 	let queueNode = queueBlock.querySelector('.queue-inner');
 	this.width = this.width || queueNode.parentNode.clientWidth;
-	let nodes = queueNode.children;
+	let nodes = [...queueNode.children].filter(n => !n.classList.contains("interact-count"));
 	let node = nodes[action];
 	if (!node && percent == 100){
 		// This occurs whenever there's a zone change
