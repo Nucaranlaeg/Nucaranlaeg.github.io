@@ -89,7 +89,7 @@ class Stat {
 				this.lastIncreaseRequired = increaseRequired;
 				this.lastIncreaseUpdate = this.base;
 			}
-			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 2)}`;
+			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)\nIncrease at: ${writeNumber(increaseRequired, 2)}\nClick to load best grind route (projected gain: ${writeNumber(GrindRoute.getBestRoute(this.name)?.projectedGain || 0, 3)})`;
 		}
 		this.dirty = false;
 	}
@@ -101,6 +101,7 @@ class Stat {
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".icon").innerHTML = this.icon.length ? this.icon : "&nbsp";
 		this.node.querySelector(".description").innerHTML = this.description;
+		this.node.onclick = this.loadGrindRoute.bind(this);
 		document.querySelector("#stats").appendChild(this.node);
 		if (this.name == "Runic Lore"){
 			if (!document.querySelector(".active-pane")){
@@ -109,6 +110,10 @@ class Stat {
 		} else if (this.name == "Spellcraft" || (this.name == "Magic" && this.base >= 75)){
 			document.querySelectorAll(".rune-spell-toggle").forEach(n => n.style.display = "inline-block");
 		}
+	}
+
+	loadGrindRoute() {
+		GrindRoute.getBestRoute(this.name)?.loadRoute();
 	}
 
 	reset() {

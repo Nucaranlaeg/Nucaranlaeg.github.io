@@ -142,7 +142,13 @@ class Clone {
 	}
 
 	addToTimeline(action, time = 0){
-		if (action === null || !settings.timeline) return;
+		if (action === null) return;
+		// Loop log
+		if (!loopActions[action.name]) loopActions[action.name] = 0;
+		loopActions[action.name] += time;
+
+		// Timeline
+		if (!settings.timeline) return;
 		let lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
 		if (lastEntry?.type == action.name){
 			lastEntry.time += time;

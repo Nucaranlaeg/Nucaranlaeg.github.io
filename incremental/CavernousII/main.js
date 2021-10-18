@@ -84,7 +84,8 @@ function resetLoop() {
 	if (mana.base == 6) getMessage("Strip Mining").display();
 	if (mana.base == 7.4) getMessage("Buy More Time").display();
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
-	stats.forEach(s => {
+	stats.forEach((s, i) => {
+		GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 		s.reset();
 		s.update();
 	});
@@ -133,6 +134,67 @@ function resetLoop() {
 	if (isNaN(timeBanked)){
 		timeBanked = 0;
 	}
+	setStartData();
+}
+
+let loopActions = {};
+let loopStatStart = [];
+let loopLogVisible = false;
+const loopLogBox = document.querySelector("#loop-log-box");
+const logEntryTemplate = document.querySelector("#log-entry-template");
+logEntryTemplate.removeAttribute("id");
+
+function setStartData(){
+	loopActions = {};
+	loopStatStart = stats.map(s => s.base);
+}
+
+function displayLoopLog(){
+	loopLogBox.hidden = false;
+	loopLogVisible = true;
+	let loopActionNode = loopLogBox.querySelector("#loop-actions");
+	let loopStatNode = loopLogBox.querySelector("#loop-stats");
+	while (loopActionNode.firstChild){
+		loopActionNode.removeChild(loopActionNode.lastChild);
+	}
+	while (loopStatNode.firstChild){
+		loopStatNode.removeChild(loopStatNode.lastChild);
+	}
+	let actions = Object.entries(loopActions);
+	actions = actions.sort((a, b) => b[1] - a[1]);
+	let totalActionNode = logEntryTemplate.cloneNode(true);
+	totalActionNode.querySelector(".name").innerHTML = "Total clone-seconds";
+	totalActionNode.querySelector(".value").innerHTML = writeNumber(actions.reduce((a, c) => a + c[1], 0) / 1000, 1);
+	totalActionNode.style.fontWeight = "bold";
+	loopActionNode.append(totalActionNode);
+	let totalStatNode = logEntryTemplate.cloneNode(true);
+	totalStatNode.querySelector(".name").innerHTML = "Total stats gained";
+	totalStatNode.style.fontWeight = "bold";
+	loopStatNode.append(totalStatNode);
+	for (let i = 0; i < actions.length; i++){
+		let node = logEntryTemplate.cloneNode(true);
+		node.classList.add(actions[i][0].replace(/ /g, '-'));
+		node.querySelector(".name").innerHTML = actions[i][0];
+		node.querySelector(".value").innerHTML = writeNumber(actions[i][1] / 1000, 1);
+		loopActionNode.append(node);
+		node.style.color = setRGBContrast(window.getComputedStyle(node).backgroundColor);
+	}
+	let totalStats = 0;
+	for (let i = 0; i < loopStatStart.length; i++){
+		if (stats[i].name == "Mana") continue;
+		if (loopStatStart[i] == stats[i].base) continue;
+		let node = logEntryTemplate.cloneNode(true);
+		node.querySelector(".name").innerHTML = stats[i].name;
+		node.querySelector(".value").innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
+		totalStats += stats[i].base - loopStatStart[i];
+		loopStatNode.append(node);
+	}
+	totalStatNode.querySelector(".value").innerHTML = writeNumber(totalStats, 3);
+}
+
+function hideLoopLog(){
+	loopLogBox.hidden = true;
+	loopLogVisible = false;
 }
 
 /********************************************* Saving *********************************************/
@@ -188,10 +250,14 @@ function save(){
 		"timeBanked": timeBanked,
 	}
 	let messageData = messages.map(m => [m.name, m.displayed]);
-	let savedRoutes = JSON.stringify(routes, ((key, value) => {
+	let savedRoutes = JSON.parse(JSON.stringify(routes, ((key, value) => {
 		if (key == "usedRoutes") return undefined;
 		return value;
-	}));
+	})));
+	let savedGrindRoutes = JSON.parse(JSON.stringify(grindRoutes, ((key, value) => {
+		if (key == "usedRoutes") return undefined;
+		return value;
+	})));
 	let runeData = runes.map(r => {
 		return {
 			"name": r.name,
@@ -208,7 +274,8 @@ function save(){
 		time,
 		messageData,
 		settings,
-		savedRoutes,
+		routes: savedRoutes,
+		grindRoutes: savedGrindRoutes,
 		runeData,
 	});
 	localStorage[saveName] = btoa(saveString);
@@ -265,6 +332,9 @@ function load(){
 	timeBanked = +saveGame.time.timeBanked;
 	if (saveGame.routes){
 		routes = Route.fromJSON(saveGame.routes);
+	}
+	if (saveGame.grindRoutes){
+		grindRoutes = GrindRoute.fromJSON(saveGame.grindRoutes);
 	}
 	for (let i = 0; i < (saveGame.runeData || []).length; i++){
 		runes[i].upgradeCount = saveGame.runeData[i].upgradeCount || 0;
@@ -338,7 +408,7 @@ let lastAction = Date.now();
 let timeBanked = 0;
 let queueTime = 0;
 let queuesNode;
-let queueTimeNode;
+let queueTimeNode, queueActionNode;
 let currentClone = 0;
 let loopCompletions = 0;
 let fps = 60;
@@ -409,11 +479,14 @@ setInterval(function mainLoop() {
 	}
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
+	queueActionNode = queueActionNode || document.querySelector("#actions-spent");
+	queueActionNode.innerText = writeNumber(loopCompletions, 0);
 	redrawOptions();
 	updateDropTarget();
 
 	stats.forEach(e => e.update());
 	drawMap();
+	if (loopLogVisible) displayLoopLog();
 }, Math.floor(1000 / fps));
 
 function setup(){

@@ -102,6 +102,13 @@ function setContrast(colour) {
 	return darkness > 125 ? "#000000" : "#ffffff";
 }
 
+function setRGBContrast(colour) {
+	colour = [...colour.matchAll(/\d+/g)];
+	if (colour.length == 4) return "#000000";
+	darkness = (colour[0] * 299 + colour[1] * 587 + colour[2] * 114) / 1000;
+	return darkness > 125 ? "#000000" : "#ffffff";
+}
+
 function getStuff(name) {
 	return stuff.find(a => a.name == name);
 }

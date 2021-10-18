@@ -51,6 +51,7 @@ function changeRealms(newRealm){
 	let currentActiveRealm = realmSelect.querySelector(".active-realm");
 	if (currentActiveRealm) currentActiveRealm.classList.remove("active-realm");
 	if (realmSelect.children[currentRealm]) realmSelect.children[currentRealm].classList.add("active-realm");
+	document.querySelector("#queue-actions").style.display = currentRealm == 3 ? "block" : "none";
 	resetLoop();
 }
 

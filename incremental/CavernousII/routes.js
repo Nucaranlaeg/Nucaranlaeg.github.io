@@ -1,47 +1,5 @@
-class Route {
-	constructor(x) {
-		if (x instanceof Location) {
-			this.x = x.x;
-			this.y = x.y;
-			this.zone = currentZone;
-			this.realm = currentRealm;
-			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
-			route = route.filter(e => e.length);
-
-			if (route.every((e,i,a) => e==a[0])) {
-				route = [route[0]];
-			} else {
-				let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
-				let ununique = route.find(e => e != unique);
-				if (route.every(e => e == unique || e == ununique)) {
-					route = [unique, ununique];
-				}
-			}
-			this.route = route;
-			// cloneHealth is [min (from start), delta]
-			this.cloneHealth = clones.map(c => c.minHealth);
-
-			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
-
-			let mana = getStat("Mana");
-			let expectedMul = getAction("Collect Mana").getBaseDuration(this.realm);
-			let duration = mineManaRockCost(0, x.completions + x.priorCompletions, x.zone, this.x, this.y) * expectedMul;
-			this.manaUsed = +(mana.base - mana.current).toFixed(2);
-
-			this.reachTime = +(queueTime / 1000).toFixed(2);
-			this.progressBeforeReach = duration - x.remainingPresent / 1000 * expectedMul;
-			this.requirements = zones[currentZone].startStuff.map(s => {
-				return {
-					"name": s.name,
-					"count": s.count - getStuff(s.name).min,
-				}
-			}).filter(s => s.count > 0);
-			this.allDead = false;
-
-			return;
-		}
-		Object.assign(this, x);
-	}
+class BaseRoute {
+	constructor(){}
 
 	pickRoute(zone, route, actualRequirements = null, health = clones.map(c => 0)){
 		let routeOptions = zones[zone].sumRoute(route, actualRequirements, health);
@@ -90,6 +48,53 @@ class Route {
 		}
 		redrawQueues();
 		return success;
+	}
+}
+
+class Route extends BaseRoute {
+	constructor(x) {
+		super();
+		if (x instanceof Location) {
+			this.x = x.x;
+			this.y = x.y;
+			this.zone = currentZone;
+			this.realm = currentRealm;
+			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
+			route = route.filter(e => e.length);
+
+			if (route.every((e,i,a) => e==a[0])) {
+				route = [route[0]];
+			} else {
+				let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
+				let ununique = route.find(e => e != unique);
+				if (route.every(e => e == unique || e == ununique)) {
+					route = [unique, ununique];
+				}
+			}
+			this.route = route;
+			// cloneHealth is [min (from start), delta]
+			this.cloneHealth = clones.map(c => c.minHealth);
+
+			this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
+
+			let mana = getStat("Mana");
+			let expectedMul = getAction("Collect Mana").getBaseDuration(this.realm);
+			let duration = mineManaRockCost(0, x.completions + x.priorCompletions, x.zone, this.x, this.y) * expectedMul;
+			this.manaUsed = +(mana.base - mana.current).toFixed(2);
+
+			this.reachTime = +(queueTime / 1000).toFixed(2);
+			this.progressBeforeReach = duration - x.remainingPresent / 1000 * expectedMul;
+			this.requirements = zones[currentZone].startStuff.map(s => {
+				return {
+					"name": s.name,
+					"count": s.count - getStuff(s.name).min,
+				}
+			}).filter(s => s.count > 0);
+			this.allDead = false;
+
+			return;
+		}
+		Object.assign(this, x);
 	}
 
 	getRefineCost(relativeLevel = 0) {

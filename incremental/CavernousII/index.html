@@ -14,6 +14,7 @@
 	<script type="text/javascript" defer src="zones.js"></script>
 	<script type="text/javascript" defer src="map.js"></script>
 	<script type="text/javascript" defer src="routes.js"></script>
+	<script type="text/javascript" defer src="grind_routes.js"></script>
 	<script type="text/javascript" defer src="queues.js"></script>
 	<script type="text/javascript" defer src="saved_queues.js"></script>
 	<script type="text/javascript" defer src="highlights.js"></script>
@@ -112,6 +113,10 @@
 			<div class="queue-buttons"><span class="button" onclick="deleteSavedQueue(this)">Delete</span></div>
 		</div>
 		<div id="message-link-template" class="message-link" onclick="viewMessage(event, this)"></div>
+		<div id="log-entry-template" class="log-entry">
+			<span class="name"></span>
+			<span class="value"></span>
+		</div>
 	</div>
 	<div class="vertical-blocks">
 		<div id="options" class="vertical-block">
@@ -211,6 +216,10 @@
 						<div class="description">Paste queues for all zones in this realm in the box.</div>
 					</div>
 				</div>
+				<div class="option block clickable" onclick="displayLoopLog()">
+					<span class="name">View loop log</span>
+					<div class="description">Might be laggy if it's open while running</div>
+				</div>
 			</div>
 			<div class="version" title="By Nucaranlaeg"><!--Some code contributed by Dimava and Gnomez-->
 				<a href="https://paypal.me/SamBenner" target="_blank">Support Development</a>
@@ -222,6 +231,7 @@
 		<div id="stats" class="vertical-block">
 			<h3>Stats</h3>
 			<div class="queue-time">
+				<div id="queue-actions">Actions: <span id="actions-spent"></span></div>
 				Time spent: <span id="time-spent">0</span>s
 			</div>
 		</div>
@@ -251,6 +261,7 @@
 				<div id="location-description"></div>
 				<div id="location-next"></div>
 				<div id="location-water"></div>
+				<button id="pathfind-button" onclick="keyFunctions.KeyF()">Pathfind Here (F)</button>
 				<div id="location-route">
 					<button id="route-button" class="button" onclick="loadRoute()">
 						Load best route to this rock
@@ -280,7 +291,6 @@
 					</div>
 					<button id="delete-route-button">Forget this route</button>
 				</div>
-				<button id="pathfind-button" onclick="keyFunctions.KeyF()">Pathfind Here (F)</button>
 			</div>
 			<div class="bottom-vertical-block">
 				<hr>
@@ -404,6 +414,13 @@
 				<span id="warnings">Showing warnings</span>
 				<div class="description big-description">The game warns on clearing queues.</div>
 			</div>
+		</div>
+	</div>
+	<div id="loop-log-box" onclick="hideLoopLog()" hidden>
+		<div id="loop-log-wrapper">
+			<h3>Current Run Stats</h3>
+			<div id="loop-stats"></div>
+			<div id="loop-actions" class="timeline"></div>
 		</div>
 	</div>
 </body>
