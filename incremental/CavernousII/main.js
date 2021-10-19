@@ -278,12 +278,18 @@ function save(){
 		grindRoutes: savedGrindRoutes,
 		runeData,
 	});
-	localStorage[saveName] = btoa(saveString);
+	localStorage[saveName] = LZString.compressToBase64(saveString);
 }
 
 function load(){
 	if (!localStorage[saveName]) return setup();
-	let saveGame = JSON.parse(atob(localStorage[saveName]));
+	let saveGame;
+	try {
+		saveGame = JSON.parse(LZString.decompressFromBase64(localStorage[saveName]));
+	} catch {
+		// Prior to 2.2.6
+		saveGame = JSON.parse(atob(localStorage[saveName]));
+	}
 	if (!saveGame.routes) saveGame.routes = JSON.parse(saveGame.savedRoutes);
 	previousVersion = saveGame.version || 2;
 	if (version < previousVersion) {
