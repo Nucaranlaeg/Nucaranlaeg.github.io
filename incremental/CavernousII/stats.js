@@ -52,7 +52,7 @@ class Stat {
 		this.dirty = true;
 	}
 
-	update() {
+	update(forceIncreaseAtUpdate = false) {
 		if (!this.dirty) return;
 		this.updateValue();
 		if (!this.node){
@@ -68,10 +68,10 @@ class Stat {
 		} else {
 			this.effectNode.innerText = `${writeNumber(this.current < 100 ? this.current + this.bonus : this.current * (1 + (this.bonus / 100)), 2)} (${writeNumber(this.base, 2)})`;
 			let increaseRequired;
-			let scalingStart = 100 + getRealmMult("Compounding Realm");
+			let scalingStart = 99 + getRealmMult("Compounding Realm");
 			if (this.base < scalingStart){
 				increaseRequired = (this.base + 1) ** (10/9) - 1;
-			} else if (this.lastIncreaseRequired && this.base - 0.01 < this.lastIncreaseUpdate){
+			} else if (!forceIncreaseAtUpdate && this.lastIncreaseRequired && this.base - 0.01 < this.lastIncreaseUpdate){
 				increaseRequired = this.lastIncreaseRequired;
 			} else {
 				let v = this.base, step = this.base;

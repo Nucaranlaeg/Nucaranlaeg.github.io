@@ -88,6 +88,10 @@ class Zone {
 		}
 		if (realms[currentRealm].name == "Compounding Realm" && this.index == 0 && getRealm("Compounding Realm").mult !== null){
 			getRealm("Compounding Realm").mult += 0.05;
+			stats.filter(s => s.learnable && s.base >= 99 + getRealmMult("Compounding Realm")).forEach(s => {
+				s.dirty = true;
+				s.update(true);
+			});		
 		}
 		this.display();
 	}
