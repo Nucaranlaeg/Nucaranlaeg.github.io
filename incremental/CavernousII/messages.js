@@ -140,7 +140,7 @@ let messages = [
 					You can find the cost to place a rune in that rune's tooltip.`),
 	new Message("Unlocked Wither Rune", `
 					You've unlocked a rune!
-					The Wither rune kills plants next to it.  After placing it, interact with it to charge it up and kill adjacent plants.`),
+					The Wither rune kills plants next to it.  After placing it, interact with it to charge it up and kill orthogonally adjacent plants.`),
 	new Message("Unlocked Duplication Rune", `
 					You've unlocked a rune!
 					The Duplication rune gets you more stuff.  After placing it, interact with it to charge it up.
