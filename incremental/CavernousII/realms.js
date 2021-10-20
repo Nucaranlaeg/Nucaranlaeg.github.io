@@ -73,7 +73,7 @@ function getVerdantMultDesc(){
 }
 
 function getCompoundingMultDesc(){
-	return `Stat slowdown start: ${writeNumber(100 + getRealmMult("Compounding Realm", true), 4)}`;
+	return `Stat slowdown start: ${writeNumber(99 + getRealmMult("Compounding Realm", true), 4)}`;
 }
 
 const verdantMapping = {
@@ -129,7 +129,7 @@ let realms = [
 	// Clones cannot help each other at all.
 	new Realm(
 		"Compounding Realm",
-		"A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.01 points later per mana rock completion).",
+		"A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.05 points later per mana rock completion).",
 		() => Infinity,
 		() => {},
 		getCompoundingMultDesc,
