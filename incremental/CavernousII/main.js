@@ -63,7 +63,7 @@ function writeTime(value) {
 	let hours = Math.floor(value / 3600);
 	let minutes = Math.floor((value % 3600) / 60);
 	let seconds = Math.floor((value % 60) * 10) / 10;
-	return `${hours ? `${hours}:` : ""}${minutes || hours ? (minutes > 9 ? `${minutes}:` : `0${minutes}:`) : ""}${seconds < 10 && minutes ? `0${seconds.toFixed(1)}` : seconds.toFixed(1)}`;
+	return `${hours ? `${hours}:` : ""}${minutes || hours ? (minutes > 9 ? `${minutes}:` : `0${minutes}:`) : ""}${seconds < 10 && minutes ? `0${seconds.toFixed(hours > 99 ? 0 : 1)}` : seconds.toFixed(hours > 99 ? 0 : 1)}`;
 }
 
 let timeBankNode;

@@ -29,6 +29,7 @@ class Action {
 
 	getDuration(durationMult = 1){
 		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
+		duration *= this.specialDuration();
 		if (realms[currentRealm].name == "Long Realm"){
 			duration *= 3;
 		} else if (realms[currentRealm].name == "Compounding Realm"){
@@ -50,11 +51,16 @@ class Action {
 		return duration;
 	}
 
-	getProjectedDuration(durationMult = 1, applyWither = 0){
-		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
-		duration -= applyWither;
+	getProjectedDuration(durationMult = 1, applyWither = 0, useDuration = 0){
+		let duration;
+		if (useDuration > 0){
+			duration = useDuration;
+		} else {
+			duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
+			duration -= applyWither;
+			duration *= this.specialDuration();
+		}
 		duration *= this.getSkillDiv();
-		duration *= this.specialDuration();
 		if (realms[currentRealm].name == "Long Realm"){
 			duration *= 3;
 		} else if (realms[currentRealm].name == "Compounding Realm"){
@@ -319,6 +325,17 @@ function completeHeal(){
 	if (clones[currentClone].damage > 0) return true;
 }
 
+function startChargeTeleport(){
+	for (let y = 0; y < zones[currentZone].map.length; y++){
+		for (let x = 0; x < zones[currentZone].map[y].length; x++){
+			if (zones[currentZone].map[y][x] == "t"){
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
 function startTeleport(){
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		for (let x = 0; x < zones[currentZone].map[y].length; x++){
@@ -346,6 +363,10 @@ function startChargeDuplicate(completions){
 	if (completions > 0){
 		return 0;
 	}
+	return 1;
+}
+
+function duplicateDuration(){
 	let runes = 0;
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		runes += zones[currentZone].map[y].split(/[dD]/).length - 1;
@@ -419,8 +440,8 @@ function getChopTime(base, increaseRate){
 	return () => base + increaseRate * queueTime * (realms[currentRealm].name == "Verdant Realm" ? 5 : 1);
 }
 
-function tickSpore(usedTime){
-	clones[currentClone].takeDamage(usedTime / 5000);
+function tickSpore(usedTime, creature, baseTime){
+	clones[currentClone].takeDamage(baseTime / 1000);
 }
 
 let actions = [
@@ -454,9 +475,9 @@ let actions = [
 	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]], true), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight, combatDuration),
 	new Action("Teleport", 1, [["Runic Lore", 1]], completeTeleport, startTeleport),
-	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate, null, startChargeDuplicate),
+	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate, null, duplicateDuration),
 	new Action("Charge Wither", 100, [["Runic Lore", 1]], completeWither, null, tickWither),
-	new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune),
+	new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeTeleport),
 	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
 	new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
 	new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),

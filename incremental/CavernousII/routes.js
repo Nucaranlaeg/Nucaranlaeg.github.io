@@ -26,7 +26,7 @@ class BaseRoute {
 			this.usedRoutes = routes;
 			if (routes !== null){
 				for (let i = 0; i < routes.length; i++){
-					routes[i].loadRoute(zones[i]);
+					routes[i].loadRoute(zones[i], false);
 				}
 				this.loadingFailed = false;
 			} else {

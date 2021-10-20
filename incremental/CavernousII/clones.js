@@ -129,7 +129,9 @@ class Clone {
 	}
 
 	selectQueueAction(actionIndex, n) {
-		if (currentZone == displayZone) return selectQueueAction(this.id, actionIndex, n);
+		if (currentZone == displayZone){
+			selectQueueAction(this.id, actionIndex, n);
+		}
 	}
 
 	sustainSpells(time) {
@@ -173,6 +175,11 @@ class Clone {
 		if (actionToDo === null || actionToDo[0] === undefined){
 			this.completeNextAction(true);
 			return time;
+		}
+		// Explicit wait
+		if (actionToDo[0] === "W"){
+			this.addToTimeline({name: "Wait"}, initialTime);
+			return 0;
 		}
 
 		let actionXOffset = {

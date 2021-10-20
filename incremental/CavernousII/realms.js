@@ -55,9 +55,9 @@ function changeRealms(newRealm){
 	resetLoop();
 }
 
-function getRealmMult(name){
+function getRealmMult(name, force = false){
 	let realm = getRealm(name);
-	if (realm.mult === undefined || realm.mult === null){
+	if (realm.mult === undefined || realm.mult === null || force){
 		realm.mult = zones.reduce((a, z) => {
 			return a + z.mapLocations
 				.flat()
@@ -69,11 +69,11 @@ function getRealmMult(name){
 }
 
 function getVerdantMultDesc(){
-	return `Total multiplier: x${writeNumber(getRealmMult("Verdant Realm"), 4)}`;
+	return `Total multiplier: x${writeNumber(getRealmMult("Verdant Realm", true), 4)}`;
 }
 
 function getCompoundingMultDesc(){
-	return `Stat slowdown start: ${writeNumber(100 + getRealmMult("Compounding Realm"), 4)}`;
+	return `Stat slowdown start: ${writeNumber(100 + getRealmMult("Compounding Realm", true), 4)}`;
 }
 
 const verdantMapping = {

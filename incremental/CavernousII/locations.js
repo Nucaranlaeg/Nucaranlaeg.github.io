@@ -135,10 +135,10 @@ class Location {
 	zoneTick(time) {
 		if (!this.water) return;
 		zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]) => {
-			if (!walkable.includes(tile)) return;
+			if (!walkable.includes(tile) && !shrooms.includes(tile)) return;
 			let prev_level = Math.floor(loc.water * 10);
 			// 1 water should add 0.04 water per second to each adjacent location.
-			loc.water = Math.min(1, loc.water + (this.water / 158) ** 2 * time);
+			loc.water = Math.min(1, loc.water + (this.water / 158 / (shrooms.includes(tile) ? 2 : 1)) ** 2 * time);
 			if (prev_level != Math.floor(loc.water * 10)){
 				mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
 			}

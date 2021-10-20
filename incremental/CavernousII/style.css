@@ -274,6 +274,7 @@ svg {
 .timeline > div {
 	position: relative;
 }
+
 .timeline:not(#loop-actions) > div:hover::after {
 	content: attr(data-name)"\a"attr(data-time)"ms";
 	position: absolute;
@@ -285,6 +286,10 @@ svg {
 	white-space: pre;
 	pointer-events: none;
 	padding: 2px;
+}
+
+.timeline:not(#loop-actions) > div:last-child:hover::after {
+	right: 0;
 }
 
 .timeline > div.Walk {
@@ -779,7 +784,7 @@ td.granite {
 }
 
 td.basalt {
-	background-color: #2b251d;
+	background: repeating-linear-gradient(-45deg, #2b251d, #2b251d 1px, #4b453d 2px, #5b554d 2px);
 }
 
 td.mushroom {

@@ -91,7 +91,7 @@ class Stat {
 			}
 			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)
 			Increase at: ${writeNumber(increaseRequired, 2)}
-			Real: ${writeNumber(this.current, 2)} + ${writeNumber(this.current < 100 ? this.bonus : this.current * (100 + this.bonus) / 100 - this.current, 2)}
+			Current: ${writeNumber(this.current, 2)} + ${writeNumber(this.current < 100 ? this.bonus : this.current * (100 + this.bonus) / 100 - this.current, 2)}
 			Click to load best grind route (projected +${writeNumber(GrindRoute.getBestRoute(this.name)?.projectedGain || 0, 3)})`;
 		}
 		this.dirty = false;

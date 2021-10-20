@@ -12,7 +12,7 @@ class GrindRoute extends BaseRoute {
 		let stat = getStat(this.statName);
 		let val = (stat.base + this.totalStatGain + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
 		let prevVal = (stat.base + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
-		this.projectedGain = val < 0 ? 0 : (val - prevVal) / stat.statIncreaseDivisor;
+		this.projectedGain = val < 0 ? 0 : (val - (prevVal < 0 ? 0 : prevVal)) / stat.statIncreaseDivisor;
 
 		this.zone = currentZone;
 		this.realm = currentRealm;

@@ -154,7 +154,8 @@ class QueuePathfindAction extends QueueAction {
 			// Remove the most recent from consideration
 			closedList.push([active[0], active[1]]);
 		}
-		return [undefined, -1];
+		// Wait if we don't have a path.
+		return ["W", -1];
 	}
 
 	complete(){
@@ -453,18 +454,23 @@ function selectQueueAction(queue, action, percent){
 		percent += (complete / queues[queue][action][2].length) * 100;
 	}
 	node.style.backgroundSize = `${Math.max(0, percent)}%`;
-	let workProgressBar = queueBlock.querySelector('.work-progress');
-	let lastProgess = +workProgressBar.style.width.replace("%", "");
-	if (percent < lastProgess) {
+	let workProgressBar = queueBlock.querySelector(".work-progress");
+	let lastProgress = +workProgressBar.getAttribute("lastProgress");
+	if (percent < lastProgress || lastProgress == 100) {
 		workProgressBar.style.width = "0%";
-		lastProgess = 0
+		lastProgress = 0;
 	}
-	if (percent < lastProgess + 100/(1*60)){ // 1s@60fps
+	if (percent < lastProgress + 100/(1*60)){ // 1s@60fps
 		workProgressBar.style.width = percent + "%";
-	} else if (lastProgess) {
+	} else if (lastProgress) {
 		workProgressBar.style.width = "0%";
 	}
+	workProgressBar.setAttribute("lastProgress", percent);
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
+}
+
+function clearWorkProgressBars(){
+	[...queuesNode.querySelectorAll(".work-progress")].forEach(bar => bar.style.width = "0%");
 }
 
 function scrollQueue(queue, action = null){
@@ -495,7 +501,8 @@ function redrawQueues(){
 	  }
 	clones.forEach(c => {
 		timelineEl.append(c.timeLineElements[displayZone]);
-	})
+	});
+	clearWorkProgressBars();
 }
 
 function setCursor(event, el){
@@ -507,8 +514,9 @@ function setCursor(event, el){
 }
 
 function maybeClearCursor(event, el){
-	if (!event || event.target == el){
+	if ((!event || event.target == el) && cursor[1] !== null){
 		cursor[1] = null;
+		showCursor();
 	}
 }
 

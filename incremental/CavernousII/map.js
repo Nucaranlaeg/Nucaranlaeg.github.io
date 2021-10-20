@@ -57,6 +57,9 @@ const classMapping = {
 // The tiles that can be pathfinded through.
 const walkable = "*.♥╬▣=⎶&║\"()[]{}^WHTtFDd¢¥£©";
 
+// Water can flow through shrooms, albeit slower.
+const shrooms = "♠♣α§";
+
 let mapDirt = [];
 let mapStain = [];
 
@@ -98,8 +101,8 @@ function drawNewMap() {
 						cellNode.classList.add(className[i]);
 					}
 					cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
-					if (location.water > 0.1) {
-						cell.classList.add(`watery-${Math.floor(location.water * 10)}`);
+					if (zones[displayZone].mapLocations[y][x].water > 0.1) {
+						cellNode.classList.add(`watery-${Math.floor(zones[displayZone].mapLocations[y][x].water * 10)}`);
 					}
 				} else {
 					cellNode.classList.add("blank");
@@ -244,7 +247,10 @@ function viewCell(e){
 				if (type.nextCost){
 					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone, x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`;
 				} else if (primaryAction) {
-					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber((primaryAction.getProjectedDuration(1, location.wither)) / 1000, 2)}s`;
+					let baseTimeDisplay = primaryAction.getProjectedDuration(1, location.wither);
+					let timeDisplay = primaryAction.getProjectedDuration(1, location.wither, location.remainingPresent || location.remainingEnter);
+					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(timeDisplay / 1000, 2)}s`;
+					if (timeDisplay < baseTimeDisplay) document.querySelector("#location-next").innerHTML += ` / ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
 				} else {
 					document.querySelector("#location-next").innerHTML = "";
 				}
