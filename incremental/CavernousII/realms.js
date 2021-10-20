@@ -105,6 +105,7 @@ let realms = [
 		() => (getRune("Duplication").upgradeCount || 0) + 3,
 		() => {
 			getRune("Duplication").upgradeCount++;
+			getRune("Duplication").updateDescription();
 			getMessage("Upgraded Duplication Rune").display();
 		},
 	),
@@ -117,6 +118,7 @@ let realms = [
 		() => (getRune("Wither").upgradeCount || 0) + 3,
 		() => {
 			getRune("Wither").upgradeCount++;
+			getRune("Wither").updateDescription();
 			getMessage("Upgraded Wither Rune").display();
 		},
 		getVerdantMultDesc,
