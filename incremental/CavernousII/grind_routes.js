@@ -7,12 +7,7 @@ class GrindRoute extends BaseRoute {
 		}
 		this.statName = x;
 		this.totalStatGain = totalStatGain;
-
-		let scalingStart = 99 + getRealmMult("Compounding Realm");
-		let stat = getStat(this.statName);
-		let val = (stat.base + this.totalStatGain + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
-		let prevVal = (stat.base + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
-		this.projectedGain = val < 0 ? 0 : (val - (prevVal < 0 ? 0 : prevVal)) / stat.statIncreaseDivisor;
+		this.projectedGain = GrindRoute.calculateProjectedGain(this.statName, this.totalStatGain);
 
 		this.zone = currentZone;
 		this.realm = currentRealm;
@@ -41,6 +36,14 @@ class GrindRoute extends BaseRoute {
 			}
 		}).filter(s => s.count > 0);
 	}
+	
+	static calculateProjectedGain(pStatName, pTotalStatGain){
+		let scalingStart = 99 + getRealmMult("Compounding Realm");
+		let stat = getStat(pStatName);
+		let val = (stat.base + pTotalStatGain + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
+		let prevVal = (stat.base + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
+		return val < 0 ? 0 : (val - (prevVal < 0 ? 0 : prevVal)) / stat.statIncreaseDivisor;
+	}
 
 	static getBestRoute(stat){
 		return grindRoutes.find(r => r.statName == stat);
@@ -52,6 +55,9 @@ class GrindRoute extends BaseRoute {
 		if (!prev || totalStatGain > prev.totalStatGain){
 			grindRoutes = grindRoutes.filter(e => e.statName != stat);
 			grindRoutes.push(new GrindRoute(stat, totalStatGain || 0));
+		}
+		else{
+			prev.projectedGain = GrindRoute.calculateProjectedGain(prev.statName, prev.totalStatGain);
 		}
 	}
 	
