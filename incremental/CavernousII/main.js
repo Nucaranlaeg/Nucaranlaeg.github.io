@@ -61,9 +61,13 @@ function writeNumber(value, decimals = 0) {
 function writeTime(value) {
 	if (value == Infinity) return "Infinity";
 	let hours = Math.floor(value / 3600);
+	hours = `${hours ? `${hours}:` : ""}`
 	let minutes = Math.floor((value % 3600) / 60);
+	minutes = minutes || hours ? (minutes > 9 ? `${minutes}:` : `0${minutes}:`) : "";
 	let seconds = Math.floor((value % 60) * 10) / 10;
-	return `${hours ? `${hours}:` : ""}${minutes || hours ? (minutes > 9 ? `${minutes}:` : `0${minutes}:`) : ""}${seconds < 10 && minutes ? `0${seconds.toFixed(hours > 99 ? 0 : 1)}` : seconds.toFixed(hours > 99 ? 0 : 1)}`;
+	if (value > 100 * 3600) seconds = Math.floor(seconds);
+	seconds = seconds < 10 && minutes ? `0${seconds.toFixed(value > 100 * 3600 ? 0 : 1)}` : seconds.toFixed(value > 100 * 3600 ? 0 : 1);
+	return `${hours}${minutes}${seconds}`;
 }
 
 let timeBankNode;
@@ -486,7 +490,7 @@ setInterval(function mainLoop() {
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	queueActionNode = queueActionNode || document.querySelector("#actions-spent");
-	queueActionNode.innerText = writeNumber(loopCompletions, 0);
+	queueActionNode.innerText = `${writeNumber(loopCompletions, 0)} (x${writeNumber(1 + loopCompletions / 40, 3)})`;
 	redrawOptions();
 	updateDropTarget();
 
@@ -656,6 +660,12 @@ let keyFunctions = {
 	},
 	"Equal": () => {
 		addActionToQueue("=");
+	},
+	">Equal": () => {
+		addActionToQueue("+");
+	},
+	"NumpadAdd": () => {
+		addActionToQueue("+");
 	},
 	"Escape": () => {
 		hideMessages();

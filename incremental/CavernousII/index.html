@@ -174,7 +174,7 @@
 						Arrow keys to move<br>
 						Space to act at your location<br>
 						Backspace removes a command<br>
-						1-3 to inscribe a rune<br>
+						1-5 to inscribe a rune<br>
 						Ctrl-backspace clears the whole queue<br>
 						Tab selects the next clone<br>
 						Ctrl-click selects multiple clones<br>
@@ -334,16 +334,16 @@
 						<div class="description">Wither Rune</div>
 					</div>
 					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit3()">
+						<span id="add-action-duplication">D</span>
+						<div class="description">Duplication Rune</div>
+					</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit4()">
 						<span id="add-action-teleport-to">T</span>
 						<div class="description">Teleport To Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit4()">
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit5()">
 						<span id="add-action-teleport-from">F</span>
 						<div class="description">Teleport From Rune</div>
-					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit5()">
-						<span id="add-action-duplication">D</span>
-						<div class="description">Duplication Rune</div>
 					</div>
 					<div class="small-option block clickable hidden-action" onclick="keyFunctions['>Digit1']()">
 						<span id="add-action-arcane-shield">A</span>
@@ -372,9 +372,15 @@
 					<span id="repeat-last-action">Repeat following action(s)</span>
 					<div class="description">Repeat all actions after this action.</div>
 				</div>
-				<div class="option block clickable" onclick="addActionToQueue('=')">
-					<span id="sync-clones">Sync Clones</span> (=)
-					<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
+				<div class="block-row">
+					<div class="small-option block clickable" style="width:45%" onclick="addActionToQueue('=')">
+						Sync (=)
+						<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
+					</div>
+					<div class="small-option block clickable" style="width:45%" onclick="addActionToQueue('+')">
+						No Sync (+)
+						<div class="description">If a clone takes a No Sync action, it will not be considered for syncing with other clones until it takes another No Sync action.</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -416,6 +422,10 @@
 			<div class="option block clickable" onclick="toggleWarnings()">
 				<span id="warnings">Showing warnings</span>
 				<div class="description big-description">The game warns on clearing queues.</div>
+			</div>
+			<div class="option block clickable" onclick="toggleUseWASD()">
+				<span id="use-wasd-toggle">Use WASD</span>
+				<div class="description big-description">Some people.</div>
 			</div>
 		</div>
 	</div>

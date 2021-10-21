@@ -189,12 +189,12 @@ class ActionQueue extends Array {
 			return this.removeActionAt(index);
 		}
 		
-		// Standard action:        [UDLRI<=]
+		// Standard action:        [UDLRI<=+]
 		// Rune/spell action:      [NS]\d+;
 		// Repeat-Forge:           T
 		// Queue reference:        Q\d+;
 		// Pathfind action:        P-?\d+:-?\d+;
-		if (!actionID.match(/^([UDLRI<=]|[NS]\d+;|T|Q\d+;|P-?\d+:-?\d+;)$/)){
+		if (!actionID.match(/^([UDLRI<=+]|[NS]\d+;|T|Q\d+;|P-?\d+:-?\d+;)$/)){
 			return;
 		}
 		if (!this[index]){
@@ -363,6 +363,7 @@ function createActionNode(action){
 		"T": repeatInteractSVG,
 		"<": repeatListSVG,
 		"=": syncSVG,
+		"+": noSyncSVG,
 	}[action];
 	if (!character){
 		let value = getActionValue(action);

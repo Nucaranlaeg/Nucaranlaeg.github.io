@@ -13,6 +13,7 @@ class Clone {
 		this.startDamage = this.damage;
 		this.minHealth = 0;
 		this.waiting = false;
+		this.noSync = false;
 	}
 
 	reset() {
@@ -21,9 +22,7 @@ class Clone {
 		this.damage = 0;
 		this.styleDamage();
 		this.repeated = false;
-		this.walkTime = 0;
 		this.activeSpells = [];
-		this.waiting = false;
 		this.resetTimeLine()
 	}
 
@@ -218,10 +217,15 @@ class Clone {
 			this.completeNextAction();
 			return time;
 		}
+		if (actionToDo == "+") {
+			this.noSync = !this.noSync;
+			this.completeNextAction();
+			return time;
+		}
 		if (actionToDo == "=") {
 			this.waiting = true;
 			if (clones.every((c, i) => {
-					return (c.waiting === true || (c.waiting && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 5)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 5)) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
 				this.waiting = queueTime;
 				this.selectQueueAction(actionIndex, 100);
@@ -370,7 +374,7 @@ class Clone {
 			if (clones.length == 2) getMessage("First Clone").display();
 			if (clones.length == 3) getMessage("Second Clone").display();
 			if (clones.length == 4) getMessage("Third Clone").display();
-			if (clones.length == 4) getMessage("Fourth Clone").display();
+			if (clones.length == 5) getMessage("Fourth Clone").display();
 		}
 	}
 }

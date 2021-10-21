@@ -455,7 +455,7 @@ let actions = [
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
 	new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
 	new Action("Mine Gem", 100000, [["Mining", 0.75], ["Gemcraft", 0.25]], completeMove),
-	new Action("Collect Gem", 100000, [["Smithing", 0.2], ["Gemcraft", 1]], completeCollectGem, startCollectGem),
+	new Action("Collect Gem", 100000, [["Smithing", 0.1], ["Gemcraft", 1]], completeCollectGem, startCollectGem),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana),
 	new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]], true), simpleRequire([["Iron Ore", 1]], true)),

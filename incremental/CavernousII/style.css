@@ -65,7 +65,7 @@ body {
 }
 
 .small-option {
-	width: 21px;
+	min-width: 21px;
 }
 
 .small-option .svg {
@@ -610,7 +610,7 @@ h4#location-name {
 	scrollbar-color: #5b6d6d #aacccc;
 }
 
-.zone {
+.zone:not(td) {
 	display: inline-block;
 	padding: 2px;
 	cursor: pointer;
