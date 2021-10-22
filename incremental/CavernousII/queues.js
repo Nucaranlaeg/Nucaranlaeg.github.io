@@ -467,7 +467,7 @@ function selectQueueAction(queue, action, percent){
 }
 
 function clearWorkProgressBars(){
-	[...queuesNode.querySelectorAll(".work-progress")].forEach(bar => bar.style.width = "0%");
+	[...(queuesNode?.querySelectorAll(".work-progress") || [])].forEach(bar => bar.style.width = "0%");
 }
 
 function scrollQueue(queue, action = null){

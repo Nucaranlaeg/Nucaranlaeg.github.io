@@ -56,8 +56,10 @@ const classMapping = {
 
 setTimeout(() => {
 	Object.entries(classMapping).forEach(e => {
-		let type = getLocationTypeBySymbol(e[0]);
-		if (type) e[1][1] = type;
+		try {
+			let type = getLocationTypeBySymbol(e[0]);
+			if (type) e[1][1] = type;
+		} catch {}
 	});
 });
 
