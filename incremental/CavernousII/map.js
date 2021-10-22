@@ -60,6 +60,8 @@ const walkable = "*.♥╬▣=⎶&║\"()[]{}^WHTtFDd¢¥£©";
 // Water can flow through shrooms, albeit slower.
 const shrooms = "♠♣α§";
 
+const runesTiles = "WHTtDdF";
+
 let mapDirt = [];
 let mapStain = [];
 
@@ -248,7 +250,7 @@ function viewCell(e){
 					document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone, x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`;
 				} else if (primaryAction) {
 					let baseTimeDisplay = primaryAction.getProjectedDuration(1, location.wither);
-					let timeDisplay = primaryAction.getProjectedDuration(1, location.wither, location.remainingPresent || location.remainingEnter);
+					let timeDisplay = primaryAction.getProjectedDuration(1, location.wither, location.remainingPresent || location.remainingEnter, x, y);
 					document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(timeDisplay / 1000, 2)}s`;
 					if (timeDisplay < baseTimeDisplay) document.querySelector("#location-next").innerHTML += ` / ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
 				} else {

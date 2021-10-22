@@ -15,7 +15,7 @@ class Action {
 			durationMult = this.canStart(completions, priorCompletions, x, y);
 			if (durationMult <= 0) return durationMult;
 		}
-		return this.getDuration(durationMult);
+		return this.getDuration(durationMult, x, y);
 	}
 
 	tick(usedTime, creature, baseTime){
@@ -27,9 +27,9 @@ class Action {
 		}
 	}
 
-	getDuration(durationMult = 1){
+	getDuration(durationMult = 1, x = null, y = null){
 		let duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
-		duration *= this.specialDuration();
+		duration *= this.specialDuration(x, y);
 		if (realms[currentRealm].name == "Long Realm"){
 			duration *= 3;
 		} else if (realms[currentRealm].name == "Compounding Realm"){
@@ -51,14 +51,14 @@ class Action {
 		return duration;
 	}
 
-	getProjectedDuration(durationMult = 1, applyWither = 0, useDuration = 0){
+	getProjectedDuration(durationMult = 1, applyWither = 0, useDuration = 0, x = null, y = null){
 		let duration;
 		if (useDuration > 0){
 			duration = useDuration;
 		} else {
 			duration = (typeof(this.baseDuration) == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
 			duration -= applyWither;
-			duration *= this.specialDuration();
+			duration *= this.specialDuration(x, y);
 		}
 		duration *= this.getSkillDiv();
 		if (realms[currentRealm].name == "Long Realm"){
@@ -325,6 +325,10 @@ function completeHeal(){
 	if (clones[currentClone].damage > 0) return true;
 }
 
+function predictHeal(){
+	return clones[currentClone].damage * getStat("Runic Lore").value;
+}
+
 function startChargeTeleport(){
 	for (let y = 0; y < zones[currentZone].map.length; y++){
 		for (let x = 0; x < zones[currentZone].map[y].length; x++){
@@ -427,6 +431,28 @@ function completeWither(x, y){
 	return true;
 }
 
+function predictWither(x = null, y = null){
+	if (x === null || y === null) return 1;
+	x += zones[currentZone].xOffset;
+	y += zones[currentZone].yOffset;
+	let wither = getRune("Wither");
+	let adjacentPlants = [
+		"♣♠α§".includes(zones[currentZone].map[y-1][x]) ? zones[currentZone].mapLocations[y-1][x] : null,
+		"♣♠α§".includes(zones[currentZone].map[y][x-1]) ? zones[currentZone].mapLocations[y][x-1] : null,
+		"♣♠α§".includes(zones[currentZone].map[y+1][x]) ? zones[currentZone].mapLocations[y+1][x] : null,
+		"♣♠α§".includes(zones[currentZone].map[y][x+1]) ? zones[currentZone].mapLocations[y][x+1] : null,
+	].filter(p=>p);
+	if (wither.upgradeCount > 0){
+		adjacentPlants.push(...[
+			"♣♠α§".includes(zones[currentZone].map[y-1][x-1]) ? zones[currentZone].mapLocations[y-1][x-1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y+1][x-1]) ? zones[currentZone].mapLocations[y+1][x-1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y+1][x+1]) ? zones[currentZone].mapLocations[y+1][x+1] : null,
+			"♣♠α§".includes(zones[currentZone].map[y-1][x+1]) ? zones[currentZone].mapLocations[y-1][x+1] : null,
+		].filter(p=>p));
+	}
+	return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).start(true) - loc.wither)) / 1000;
+}
+
 function activatePortal(){
 	moveToZone(currentZone + 1);
 }
@@ -476,9 +502,9 @@ let actions = [
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight, combatDuration),
 	new Action("Teleport", 1, [["Runic Lore", 1]], completeTeleport, startTeleport),
 	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate, null, duplicateDuration),
-	new Action("Charge Wither", 100, [["Runic Lore", 1]], completeWither, null, tickWither),
+	new Action("Charge Wither", 1000, [["Runic Lore", 1]], completeWither, null, tickWither, predictWither),
 	new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeTeleport),
-	new Action("Heal", 100, [["Runic Lore", 1]], completeHeal, null, tickHeal),
+	new Action("Heal", 1000, [["Runic Lore", 1]], completeHeal, null, tickHeal, predictHeal),
 	new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
 	new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),
 	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
