@@ -406,7 +406,7 @@ class Clone {
 		let count = 0;
 		while (maxTime) {
 			let nextActionTimes = clones.map(c => c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime())
-			.map((t, i, arr) => t[3] ? t[0] : t[0] / arr.reduce((a, c) => a + (c[1] === t[1] && c[2] === t[2]), 0));
+			    .map((t, i, arr) => t[3] ? t[0] : t[0] / arr.reduce((a, c) => a + (c[1] === t[1] && c[2] === t[2]), 0));
 			let nextSingleActionTime = Math.min(...nextActionTimes);
 			clones.filter((c, i) => nextActionTimes[i] == nextSingleActionTime).forEach(c => c.performSingleAction(nextSingleActionTime + 0.001));
 			maxTime = Math.max(...clones.map((e, i) => !e.noActionsAvailable && e.damage != Infinity && nextActionTimes[i] < Infinity && (e.timeAvailable || 0)));

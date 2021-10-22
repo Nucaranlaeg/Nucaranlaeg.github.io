@@ -79,7 +79,14 @@ class Location {
 			usedTime *= skillDiv;
 		} else {
 			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)){
+				console.log(clones[currentClone].walkTime, this.type.getEnterAction(this.entered).name)
+				if (!clones[currentClone].walkTime){
+					// Second and following entrances
+					clones[currentClone].walkTime = this.type.getEnterAction(this.entered).start(this.completions, this.priorCompletions, this.x, this.y);
+				}
 				this.remainingEnter = clones[currentClone].walkTime;
+			} else {
+				clones[currentClone].walkTime = 0;
 			}
 			let skillDiv = this.type.getEnterAction(this.entered).getSkillDiv();
 			usedTime = Math.min(time / skillDiv, this.remainingEnter);
