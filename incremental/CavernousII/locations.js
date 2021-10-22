@@ -79,7 +79,6 @@ class Location {
 			usedTime *= skillDiv;
 		} else {
 			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)){
-				console.log(clones[currentClone].walkTime, this.type.getEnterAction(this.entered).name)
 				if (!clones[currentClone].walkTime){
 					// Second and following entrances
 					clones[currentClone].walkTime = this.type.getEnterAction(this.entered).start(this.completions, this.priorCompletions, this.x, this.y);

@@ -1,3 +1,5 @@
+const SYNC_GAP = 250;
+
 class Clone {
 	constructor(id){
 		this.id = id;
@@ -185,13 +187,14 @@ class Clone {
 		}
 		if (actionToDo[0][0] == "=") {
 			if (!this.waiting || clones.every((c, i) => {
-					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 5)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - SYNC_GAP)) || !queues[i].find(q => q[0] == "=" && q[1])
 					})){
 				return [0, null, null];
 			} else {
 				return [Infinity, null, null];
 			}
 		}
+		if (this.waiting !== false && this.waiting < queueTime - SYNC_GAP) this.waiting = false;
 
 		let actionXOffset = {
 			"R": 1,
@@ -278,6 +281,7 @@ class Clone {
 		}
 		if (actionToDo == "+") {
 			this.noSync = !this.noSync;
+			this.selectQueueAction(actionIndex, 100);
 			this.completeNextAction();
 			return time;
 		}
@@ -289,7 +293,7 @@ class Clone {
 			}
 			this.waiting = true;
 			if (clones.every((c, i) => {
-					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - (settings.debug_maxSingleTickTime || 99) * 5)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - SYNC_GAP)) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
 				this.waiting = queueTime;
 				this.selectQueueAction(actionIndex, 100);
@@ -403,7 +407,6 @@ class Clone {
 		}
 
 		let maxTime = time;
-		let count = 0;
 		while (maxTime) {
 			let nextActionTimes = clones.map(c => c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime())
 			    .map((t, i, arr) => t[3] ? t[0] : t[0] / arr.reduce((a, c) => a + (c[1] === t[1] && c[2] === t[2]), 0));
