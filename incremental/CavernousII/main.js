@@ -38,7 +38,7 @@ function getLocationType(name) {
 }
 
 function getLocationTypeBySymbol(symbol) {
-	return locationTypes.find(a => a.symbol == symbol).name;
+	return locationTypes.find(a => a.symbol == symbol)?.name;
 }
 
 function getMessage(name) {
@@ -147,6 +147,8 @@ let loopLogVisible = false;
 const loopLogBox = document.querySelector("#loop-log-box");
 const logEntryTemplate = document.querySelector("#log-entry-template");
 logEntryTemplate.removeAttribute("id");
+const statLogEntryTemplate = document.querySelector("#stat-log-entry-template");
+statLogEntryTemplate.removeAttribute("id");
 
 function setStartData(){
 	loopActions = {};
@@ -171,7 +173,7 @@ function displayLoopLog(){
 	totalActionNode.querySelector(".value").innerHTML = writeNumber(actions.reduce((a, c) => a + c[1], 0) / 1000, 1);
 	totalActionNode.style.fontWeight = "bold";
 	loopActionNode.append(totalActionNode);
-	let totalStatNode = logEntryTemplate.cloneNode(true);
+	let totalStatNode = statLogEntryTemplate.cloneNode(true);
 	totalStatNode.querySelector(".name").innerHTML = "Total stats gained";
 	totalStatNode.style.fontWeight = "bold";
 	loopStatNode.append(totalStatNode);
@@ -185,15 +187,16 @@ function displayLoopLog(){
 	}
 	let totalStats = 0;
 	for (let i = 0; i < loopStatStart.length; i++){
-		if (stats[i].name == "Mana") continue;
-		if (loopStatStart[i] == stats[i].base) continue;
-		let node = logEntryTemplate.cloneNode(true);
+		if (!stats[i].learnable) continue;
+		if (stats[i].current == loopStatStart[i]) continue;
+		let node = statLogEntryTemplate.cloneNode(true);
 		node.querySelector(".name").innerHTML = stats[i].name;
-		node.querySelector(".value").innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
+		node.querySelector(".current-value").innerHTML = writeNumber(stats[i].current - loopStatStart[i], 3);
+		node.querySelector(".base-value").innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
 		totalStats += stats[i].base - loopStatStart[i];
 		loopStatNode.append(node);
 	}
-	totalStatNode.querySelector(".value").innerHTML = writeNumber(totalStats, 3);
+	totalStatNode.querySelector(".base-value").innerHTML = writeNumber(totalStats, 3);
 }
 
 function hideLoopLog(){

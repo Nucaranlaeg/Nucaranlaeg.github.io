@@ -120,6 +120,13 @@
 			<span class="name"></span>
 			<span class="value"></span>
 		</div>
+		<div id="stat-log-entry-template" class="log-entry">
+			<span class="name"></span>
+			<span>
+				<span class="current-value"></span>
+				(<span class="base-value"></span>)
+			</span>
+		</div>
 	</div>
 	<div class="vertical-blocks">
 		<div id="options" class="vertical-block">
@@ -152,6 +159,8 @@
 							<tr id="grind-stats-header"></tr>
 							<tbody id="grind-stats"></tbody>
 							<tr id="grind-stats-footer"></tr>
+							<tr><td class="failed" colspan="100" style="text-align: left;">Some route failed</td></tr>
+							<tr><td class="unreached" colspan="100" style="text-align: left;">Some mana rock unreached</td></tr>
 						</table>
 					</div>
 				</div>
@@ -227,7 +236,7 @@
 			<div class="version" title="By Nucaranlaeg"><!--Some code contributed by Dimava and Gnomez-->
 				<a href="https://paypal.me/SamBenner" target="_blank">Support Development</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br>
-				Version <span id="version">2.2.6</span><br>
+				Version <span id="version">2.2.7</span><br>
 				©2021
 			</div>
 		</div>

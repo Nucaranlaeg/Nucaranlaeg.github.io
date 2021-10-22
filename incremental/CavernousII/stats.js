@@ -89,10 +89,11 @@ class Stat {
 				this.lastIncreaseRequired = increaseRequired;
 				this.lastIncreaseUpdate = this.base;
 			}
+			let grindRoute = GrindRoute.getBestRoute(this.name);
 			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)
 			Increase at: ${writeNumber(increaseRequired, 2)}
 			Current: ${writeNumber(this.current, 2)} + ${writeNumber(this.current < 100 ? this.bonus : this.current * (100 + this.bonus) / 100 - this.current, 2)}
-			Click to load best grind route (projected +${writeNumber(GrindRoute.getBestRoute(this.name)?.projectedGain || 0, 3)})`;
+			Click to load best grind route (projected +${writeNumber(grindRoute?.projectedGain || 0, 3)}) in ${writeNumber(grindRoute?.totalTime / 1000 || 0, 1)}s`;
 		}
 		this.dirty = false;
 	}

@@ -15,6 +15,9 @@ class LocationType {
 	}
 
 	getEnterAction(entered) {
+		if (this.name == "Complete Goal" && zones[currentZone].goalComplete){
+			return Object.create(getAction("Mine"));
+		}
 		if (entered >= this.enterCount){
 			return Object.create(getAction("Walk"));
 		}
@@ -54,7 +57,7 @@ let locationTypes = [
 	new LocationType("Strange Machine", "♥", "A strange machine labelled '{'0':'Clone Machine','1':'Rune Enhancer','2':'Rune Enhancer'}'.  What could it do?", "Walk", "Activate Machine", null, getNextActivateCost),
 	new LocationType("Vaporizer", "=", "A machine for extracting the magic right out of gold.", "Walk", "Turn Gold to Mana", null),
 	new LocationType("Fountain", "^", "A healing fountain, activated by the runes around its base.", "Walk", "Heal", null, null, null, false),
-	new LocationType("Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
+	new LocationType("Bottomless Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
 	new LocationType("Lava", "~", "A bottomless pit full of lava.  At least, you're not going to be walking on the bottom, so it's bottomless enough for you.  Your bridges might not last very long here, but probably long enough for one clone.", "Cross Lava", null, null, null, Infinity),
 	new LocationType("Runic Book", '"', `A large book sitting open on a pedestal.  It has 4 pages, each with a different rune more complicated than the last.  Runic Lore has a greater effect on this action than normal.`, "Walk", "Read", null),
 	new LocationType("Goblin", "g", "An ugly humanoid more likely to try and kill you than to let you by.\n{STATS}", "Attack Creature", null, null),

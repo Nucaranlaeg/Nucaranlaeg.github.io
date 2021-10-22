@@ -97,8 +97,8 @@ function completeMove(x, y){
 	setMined(x, y);
 }
 
-function startWalk(noSetWalkTime){
-	if (!clones[currentClone].walkTime && !noSetWalkTime) clones[currentClone].walkTime = this.getDuration();
+function startWalk(){
+	if (!clones[currentClone].walkTime) clones[currentClone].walkTime = this.getDuration();
 	return 1;
 }
 
@@ -402,7 +402,7 @@ function tickWither(usedTime, {x, y}){
 	}
 	adjacentPlants.forEach(loc => {
 		loc.wither += usedTime * (wither.upgradeCount ? 2 ** (wither.upgradeCount - 1) : 1);
-		if (loc.wither > loc.type.getEnterAction(loc.entered).start(true)){
+		if (loc.type.getEnterAction(loc.entered).getProjectedDuration(1, loc.wither) <= 0){
 			setMined(loc.x, loc.y, ".");
 			loc.enterDuration = loc.remainingEnter = Math.min(baseWalkLength(), loc.remainingEnter);
 			loc.entered = Infinity;
@@ -450,7 +450,7 @@ function predictWither(x = null, y = null){
 			"♣♠α§".includes(zones[currentZone].map[y-1][x+1]) ? zones[currentZone].mapLocations[y-1][x+1] : null,
 		].filter(p=>p));
 	}
-	return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).start(true) - loc.wither)) / 1000;
+	return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(1, loc.wither))) / 1000;
 }
 
 function activatePortal(){

@@ -80,6 +80,11 @@ function updateRunes(){
 	}
 }
 
+function createDuplication(x, y){
+	let location = getMapLocation(x, y);
+	location.presentDuration = location.remainingPresent = location.temporaryPresent.start();
+}
+
 function weakenCreatures(x, y){
 	let locations = [
 		getMapLocation(x-1, y, true),
@@ -125,7 +130,7 @@ let runes = [
 	new Rune(
 	"Duplication", "D", () => true, 1000,
 	() => {return "Mine more resources with this rune.  After placing it, interact with it to charge it up.  You'll receive +" + (1+(getRune("Duplication").upgradeCount||0)*0.25) + " of each (orthogonally or diagonally) adjacent resource (when mined), though each rune placed in a zone makes it harder to charge others."},
-	null, "Charge Duplication"),
+	createDuplication, "Charge Duplication"),
 	
 	new Rune(
 	"Teleport To", "T", canPlaceTeleport, 0,

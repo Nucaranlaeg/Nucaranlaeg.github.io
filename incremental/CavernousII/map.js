@@ -54,6 +54,13 @@ const classMapping = {
 	"0": ["spring", "Spring"],
 };
 
+setTimeout(() => {
+	Object.entries(classMapping).forEach(e => {
+		let type = getLocationTypeBySymbol(e[0]);
+		if (type) e[1][1] = type;
+	});
+});
+
 // The tiles that can be pathfinded through.
 const walkable = "*.♥╬▣=⎶&║\"()[]{}^WHTtFDd¢¥£©";
 

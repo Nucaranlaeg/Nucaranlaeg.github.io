@@ -408,17 +408,8 @@ class Clone {
 			let nextActionTimes = clones.map(c => c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime())
 			.map((t, i, arr) => t[3] ? t[0] : t[0] / arr.reduce((a, c) => a + (c[1] === t[1] && c[2] === t[2]), 0));
 			let nextSingleActionTime = Math.min(...nextActionTimes);
-			// console.log(JSON.stringify(clones.map(c => c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime())))
-			// console.log(nextActionTimes, nextSingleActionTime, clones.map(c => c.timeAvailable))
 			clones.filter((c, i) => nextActionTimes[i] == nextSingleActionTime).forEach(c => c.performSingleAction(nextSingleActionTime + 0.001));
 			maxTime = Math.max(...clones.map((e, i) => !e.noActionsAvailable && e.damage != Infinity && nextActionTimes[i] < Infinity && (e.timeAvailable || 0)));
-			if (count++ > 1000){
-				toggleRunning();
-				console.log(clones.map(c => c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime()))
-				console.log(nextActionTimes, nextSingleActionTime)
-				console.log(clones.map(c => c.timeAvailable))
-				break;
-			}
 			if (maxTime < 0.001) break;
 		}
 

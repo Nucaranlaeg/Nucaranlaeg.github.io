@@ -7,6 +7,7 @@ class GrindRoute extends BaseRoute {
 		}
 		this.statName = x;
 		this.totalStatGain = totalStatGain;
+		this.totalTime = queueTime;
 		this.projectedGain = GrindRoute.calculateProjectedGain(this.statName, this.totalStatGain);
 
 		this.zone = currentZone;
@@ -55,8 +56,7 @@ class GrindRoute extends BaseRoute {
 		if (!prev || totalStatGain > prev.totalStatGain){
 			grindRoutes = grindRoutes.filter(e => e.statName != stat);
 			grindRoutes.push(new GrindRoute(stat, totalStatGain || 0));
-		}
-		else{
+		} else {
 			prev.projectedGain = GrindRoute.calculateProjectedGain(prev.statName, prev.totalStatGain);
 		}
 	}

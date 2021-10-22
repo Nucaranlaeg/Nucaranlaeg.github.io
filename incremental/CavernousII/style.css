@@ -115,6 +115,10 @@ td.failed {
 	color: #ff0000;
 }
 
+td.unreached {
+	background-color: #33333311;
+}
+
 .action {
 	line-height: 20px;
 	min-width: 16px;

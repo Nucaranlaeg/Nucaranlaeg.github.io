@@ -79,10 +79,6 @@ class Location {
 			usedTime *= skillDiv;
 		} else {
 			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)){
-				if (!clones[currentClone].walkTime){
-					// Not sure why this is happening... walktime should be set when start() is called the first time.
-					this.start(this.completions, this.priorCompletions, this.x, this.y);
-				}
 				this.remainingEnter = clones[currentClone].walkTime;
 			}
 			let skillDiv = this.type.getEnterAction(this.entered).getSkillDiv();

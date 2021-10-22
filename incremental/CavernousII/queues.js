@@ -219,7 +219,7 @@ class ActionQueue extends Array {
 		} else {
 			this.unshift(newAction);
 			this.queueNode.insertAdjacentElement('afterbegin', newAction.node);
-			cursor[1]++;
+			cursor[1] = index + 1;
 		}
 	}
 
@@ -301,9 +301,7 @@ function addActionToQueue(action, queue = null){
 			scrollQueue(selectedQueue[i], cursor[1]);
 		}
 		showFinalLocation();
-		if ("IB".includes(action)){
-			countMultipleInteracts();
-		}
+		countMultipleInteracts();
 		return;
 	}
 	if (queues[queue] === undefined) return;
@@ -312,9 +310,7 @@ function addActionToQueue(action, queue = null){
 
 	scrollQueue(queue, cursor[1]);
 	showCursor();
-	if ("IB".includes(action)){
-		countMultipleInteracts();
-	}
+	countMultipleInteracts();
 }
 
 function addRuneAction(index, type){
