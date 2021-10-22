@@ -488,7 +488,7 @@ setInterval(function mainLoop() {
 	} else if (!isNaN((time - timeUsed) / 2)){
 		timeBanked += (time - timeUsed) / 2;
 	}
-	if (timeLeft && (settings.autoRestart == 1 || settings.autoRestart == 2)){
+	if (timeLeft > 0.001 && (settings.autoRestart == 1 || settings.autoRestart == 2)){
 		resetLoop();
 	}
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");

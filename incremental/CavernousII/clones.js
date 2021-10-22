@@ -173,8 +173,25 @@ class Clone {
 		let [action, actionIndex] = getNextAction();
 		if (action === undefined){
 			// No actions available
-			this.noActionsAvailable = true;
-			return [Infinity, null, null];
+
+			let repeat = this.queue.findIndex(q => q[0] == "<");
+			if (repeat > -1 && repeat < this.queue.length - 1) {
+				this.repeated = true;
+				this.repeatsThisTick++;
+				for (let i = repeat + 1; i < this.queue.length; i++){
+					this.queue[i][1] = true;
+					if (this.queue[i][2]){
+						for (let inner of this.queue[i][2]) {
+							delete inner[`${currentClone}_${i}`];
+						}
+					}
+					this.selectQueueAction(i, 0);
+				}
+			} else {
+				this.noActionsAvailable = true;
+				return [Infinity, null, null];
+			}
+			[action, actionIndex] = getNextAction();
 		}
 		let actionToDo = action.action;
 		if (actionToDo === null){
@@ -368,26 +385,9 @@ class Clone {
 			this.drown(maxTime - timeLeft);
 			this.timeAvailable -= (maxTime - timeLeft);
 			return;
-		} 
-
-		let repeat = this.queue.findIndex(q => q[0] == "<");
-		if (repeat > -1 && this.repeatsThisTick < 10) {
-			this.repeated = true;
-			this.repeatsThisTick++;
-			for (let i = repeat + 1; i < this.queue.length; i++){
-				this.queue[i][1] = true;
-				if (this.queue[i][2]){
-					for (let inner of this.queue[i][2]) {
-						delete inner[`${currentClone}_${i}`];
-					}
-				}
-				this.selectQueueAction(i, 0);
-			}
-			this.drown(this.timeAvailable - maxTime);
-			this.timeAvailable -= maxTime;
-			return;
 		}
 
+		// Shouldn't get to here.
 		this.noActionsAvailable = true;
 		this.drown(this.timeAvailable);
 		this.timeAvailable = 0;
