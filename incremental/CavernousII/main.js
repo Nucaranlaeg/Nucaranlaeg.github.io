@@ -462,7 +462,7 @@ setInterval(function mainLoop() {
 	}
 	let timeAvailable = time;
 	if (settings.usingBankedTime && timeBanked > 0){
-		let speedMultiplier = 2 + mana.base ** 0.25;
+		let speedMultiplier = 3 + mana.base ** 0.4;
 		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
 	}
 	if (timeAvailable > settings.maxTotalTick) {
