@@ -1,3 +1,5 @@
+const MAX_TICK = 250;
+
 let settings = {
 	usingBankedTime: true,
 	running: true,
@@ -10,6 +12,7 @@ let settings = {
 	warnings: true,
 	followZone: true,
 	timeline: true,
+	maxTotalTick: 10000,
 }
 
 function setSetting(toggler, value, ...args) {
@@ -83,6 +86,14 @@ function switchRuneList() {
 	document.querySelector("#runes").classList.toggle("active-pane", settings.showingRunes);
 	document.querySelector("#spells").classList.toggle("active-pane", !settings.showingRunes);
 	return settings.showingRunes;
+}
+
+function setMaxTickTime() {
+	let maxTimeNode = document.querySelector("#max-time");
+	if (!isNaN(+maxTimeNode.value)) {
+		settings.maxTotalTick = Math.max(250, Math.min(10000, maxTimeNode.value));
+	}
+	maxTimeNode.value = settings.maxTotalTick;
 }
 
 function loadSettings(savedSettings) {

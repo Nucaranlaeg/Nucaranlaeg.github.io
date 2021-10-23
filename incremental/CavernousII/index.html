@@ -236,7 +236,7 @@
 			<div class="version" title="By Nucaranlaeg"><!--Some code contributed by Dimava and Gnomez-->
 				<a href="https://paypal.me/SamBenner" target="_blank">Support Development</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br>
-				Version <span id="version">2.2.8</span><br>
+				Version <span id="version">2.2.9</span><br>
 				©2021
 			</div>
 		</div>
@@ -435,6 +435,11 @@
 			<div class="option block clickable" onclick="toggleUseWASD()">
 				<span id="use-wasd-toggle">Use WASD</span>
 				<div class="description big-description">Some people.</div>
+			</div>
+			<div class="option block enter-value">
+				<span class="label" for="max-time">Max tick time (ms)</span>
+				<input id="max-time" onblur="setMaxTickTime()" />
+				<div class="description big-description">Minimum value is 250; set this lower if the game is choppy.  The maximum speed is dependant on your base Mana or capped by this value.</div>
 			</div>
 		</div>
 	</div>

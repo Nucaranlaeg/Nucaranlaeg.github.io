@@ -151,7 +151,7 @@ class Stat {
 }
 
 let stats = [
-	new Stat("Mana", "", "How long you can resist being pulled back to your cave.", 5, false),
+	new Stat("Mana", "", "How long you can resist being pulled back to your cave.  Also increases the maximum speed the game runs at.", 5, false),
 	new Stat("Mining", "⛏", "Your skill at mining, reducing the time it takes to do mining-type tasks."),
 	new Stat("Woodcutting", "", "How good you are at chopping down mushrooms of various kinds."),
 	new Stat("Magic", "★", "Your understanding of arcane mysteries."),

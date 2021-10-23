@@ -140,7 +140,7 @@ class Location {
 			if (!walkable.includes(tile) && !shrooms.includes(tile)) return;
 			let prev_level = Math.floor(loc.water * 10);
 			// 1 water should add 0.04 water per second to each adjacent location.
-			loc.water = Math.min(this.water, loc.water + (this.water / 158 / (shrooms.includes(tile) ? 2 : 1)) ** 2 * time);
+			loc.water = Math.min(Math.max(this.water, loc.water), loc.water + (this.water / 158 / (shrooms.includes(tile) ? 2 : 1)) ** 2 * time);
 			if (prev_level != Math.floor(loc.water * 10)){
 				mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
 			}

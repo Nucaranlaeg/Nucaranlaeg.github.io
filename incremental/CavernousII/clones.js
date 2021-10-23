@@ -1,5 +1,3 @@
-const SYNC_GAP = 250;
-
 class Clone {
 	constructor(id){
 		this.id = id;
@@ -145,7 +143,7 @@ class Clone {
 	}
 
 	addToTimeline(action, time = 0){
-		if (action === null || isNaN(time)) return;
+		if (action === null || time < 1 || isNaN(time)) return;
 		// Loop log
 		if (!loopActions[action.name]) loopActions[action.name] = 0;
 		loopActions[action.name] += time;
@@ -204,14 +202,14 @@ class Clone {
 		}
 		if (actionToDo[0][0] == "=") {
 			if (!this.waiting || clones.every((c, i) => {
-					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - SYNC_GAP)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - MAX_TICK)) || !queues[i].find(q => q[0] == "=" && q[1])
 					})){
 				return [0, null, null];
 			} else {
 				return [Infinity, null, null];
 			}
 		}
-		if (this.waiting !== false && this.waiting < queueTime - SYNC_GAP) this.waiting = false;
+		if (this.waiting !== false && this.waiting < queueTime - MAX_TICK) this.waiting = false;
 
 		let actionXOffset = {
 			"R": 1,
@@ -251,6 +249,7 @@ class Clone {
 		let actionToDo = action.action;
 		// Failed pathfind
 		if (actionToDo === null || actionToDo[0] === undefined){
+			this.selectQueueAction(actionIndex, 100);
 			this.completeNextAction(true);
 			return time;
 		}
@@ -310,7 +309,7 @@ class Clone {
 			}
 			this.waiting = true;
 			if (clones.every((c, i) => {
-					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - SYNC_GAP)) || !queues[i].find(q => q[0] == "=" && q[1])
+					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - MAX_TICK)) || !queues[i].find(q => q[0] == "=" && q[1])
 				})){
 				this.waiting = queueTime;
 				this.selectQueueAction(actionIndex, 100);
@@ -409,7 +408,7 @@ class Clone {
 		let maxTime = time;
 		while (maxTime) {
 			let nextActionTimes = clones.map(c => c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime())
-			    .map((t, i, arr) => t[3] ? t[0] : t[0] / arr.reduce((a, c) => a + (c[1] === t[1] && c[2] === t[2]), 0));
+			  .map((t, i, arr) => t[3] ? t[0] : t[0] / arr.reduce((a, c) => a + (c[1] === t[1] && c[2] === t[2]), 0));
 			let nextSingleActionTime = Math.min(...nextActionTimes);
 			clones.filter((c, i) => nextActionTimes[i] == nextSingleActionTime).forEach(c => c.performSingleAction(nextSingleActionTime + 0.001));
 			maxTime = Math.max(...clones.map((e, i) => !e.noActionsAvailable && e.damage != Infinity && nextActionTimes[i] < Infinity && (e.timeAvailable || 0)));

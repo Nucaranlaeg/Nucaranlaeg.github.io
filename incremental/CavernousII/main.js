@@ -462,13 +462,11 @@ setInterval(function mainLoop() {
 	}
 	let timeAvailable = time;
 	if (settings.usingBankedTime && timeBanked > 0){
-		let speedMultiplier = 3 + mana.base / 5;
-		let speedCap = 10;
-		let hardSpeedCap = SYNC_GAP;
-		timeAvailable = Math.min(time + timeBanked, time * Math.min(speedMultiplier, speedCap), hardSpeedCap);
+		let speedMultiplier = 2 + mana.base ** 0.25;
+		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
 	}
-	if (timeAvailable > 1000) {
-		timeAvailable = 1000;
+	if (timeAvailable > settings.maxTotalTick) {
+		timeAvailable = settings.maxTotalTick;
 	}
 	if (timeAvailable > mana.current * 1000){
 		timeAvailable = mana.current * 1000;
@@ -478,9 +476,14 @@ setInterval(function mainLoop() {
 	}
 	let timeLeft = timeAvailable;
 
-	timeLeft = Clone.performActions(timeAvailable);
-	let timeUsed = timeAvailable - timeLeft;
-	zones[currentZone].tick(timeUsed);
+	let timeUsed = 0;
+	while (timeAvailable > 0){
+		timeLeft = Clone.performActions(Math.min(timeAvailable, MAX_TICK));
+		let tickTimeUsed = Math.min(timeAvailable - timeLeft, MAX_TICK);
+		timeUsed += tickTimeUsed;
+		zones[currentZone].tick(tickTimeUsed);
+		timeAvailable -= MAX_TICK;
+	}
 
 	if (timeUsed > time && !isNaN(timeUsed - time)) {
 		timeBanked -= timeUsed - time;
