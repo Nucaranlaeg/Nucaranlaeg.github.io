@@ -189,12 +189,12 @@ class ActionQueue extends Array {
 			return this.removeActionAt(index);
 		}
 		
-		// Standard action:        [UDLRI<=+]
+		// Standard action:        [UDLRI<=+\.:]
 		// Rune/spell action:      [NS]\d+;
 		// Repeat-Forge:           T
 		// Queue reference:        Q\d+;
 		// Pathfind action:        P-?\d+:-?\d+;
-		if (!actionID.match(/^([UDLRI<=+]|[NS]\d+;|T|Q\d+;|P-?\d+:-?\d+;)$/)){
+		if (!actionID.match(/^([UDLRI<=+\.:]|[NS]\d+;|T|Q\d+;|P-?\d+:-?\d+;)$/)){
 			return;
 		}
 		if (!this[index]){
@@ -301,7 +301,7 @@ function addActionToQueue(action, queue = null){
 			scrollQueue(selectedQueue[i], cursor[1]);
 		}
 		showFinalLocation();
-		countMultipleInteracts();
+		countMultipleActions();
 		return;
 	}
 	if (queues[queue] === undefined) return;
@@ -310,7 +310,7 @@ function addActionToQueue(action, queue = null){
 
 	scrollQueue(queue, cursor[1]);
 	showCursor();
-	countMultipleInteracts();
+	countMultipleActions();
 }
 
 function addRuneAction(index, type){
@@ -360,6 +360,8 @@ function createActionNode(action){
 		"<": repeatListSVG,
 		"=": syncSVG,
 		"+": noSyncSVG,
+		".": "...",
+		":": pauseSVG,
 	}[action];
 	if (!character){
 		let value = getActionValue(action);
@@ -392,7 +394,7 @@ function highlightCompletedActions(){
 	for (let i = 0; i < zones[displayZone].queues.length; i++){
 		let queueBlock = queuesNode.children[i];
 		let queueNode = queueBlock.querySelector('.queue-inner');
-		let nodes = [...queueNode.children].filter(n => !n.classList.contains("interact-count"));
+		let nodes = [...queueNode.children].filter(n => !n.classList.contains("action-count"));
 		for (let j = 0; j < zones[displayZone].queues[i].length; j++){
 			if (zones[displayZone].queues[i][j][1]){
 				nodes[j].classList.remove('started');
@@ -405,30 +407,36 @@ function highlightCompletedActions(){
 	}
 }
 
-function countMultipleInteracts(){
+function countMultipleActions(){
 	if (!queuesNode) return;
-	queuesNode.querySelectorAll(".interact-count").forEach(node => {
+	queuesNode.querySelectorAll(".action-count").forEach(node => {
 		node.parentNode.removeChild(node);
 	});
 	for (let i = 0; i < zones[displayZone].queues.length; i++){
 		let queueBlock = queuesNode.children[i];
 		let queueNode = queueBlock.querySelector('.queue-inner');
 		let nodes = queueNode.children;
-		let interactCount = 0;
+		let actionCount = 0;
+		let countedType = null;
 		for (let j = 0; j < zones[displayZone].queues[i].length + 1; j++){
-			if (zones[displayZone].queues[i][j]?.[0] == "I"){
-				interactCount++;
-			} else if (interactCount > 3) {
+			let nextType = zones[displayZone].queues[i][j]?.[0];
+			if (actionCount > 3 && nextType != countedType) {
 				let node = document.createElement("div");
-				node.classList.add("interact-count");
-				node.setAttribute("data-count", interactCount);
-				node.style.left = `${(j - interactCount) * 16 + 2}px`;
-				node.style.width = `${interactCount * 16 - 2}px`;
-				if (interactCount > 9) node.classList.add("double-digit");
-				queueNode.insertBefore(node, nodes[j - interactCount]);
-				interactCount = 0;
+				node.classList.add("action-count");
+				node.setAttribute("data-count", actionCount);
+				node.style.left = `${(j - actionCount) * 16 + 2}px`;
+				node.style.width = `${actionCount * 16 - 2}px`;
+				if (actionCount > 9) node.classList.add("double-digit");
+				queueNode.insertBefore(node, nodes[j - actionCount]);
+				actionCount = 0;
+				countedType = null;
+			}
+			if (".I".includes(nextType) && (countedType == nextType || countedType === null)){
+				actionCount++;
+				countedType = nextType;
 			} else {
-				interactCount = 0;
+				actionCount = 0;
+				countedType = null;
 			}
 		}
 	}
@@ -438,7 +446,7 @@ function selectQueueAction(queue, action, percent){
 	let queueBlock = queuesNode.children[queue];
 	let queueNode = queueBlock.querySelector('.queue-inner');
 	this.width = this.width || queueNode.parentNode.clientWidth;
-	let nodes = [...queueNode.children].filter(n => !n.classList.contains("interact-count"));
+	let nodes = [...queueNode.children].filter(n => !n.classList.contains("action-count"));
 	let node = nodes[action];
 	if (!node && percent == 100){
 		// This occurs whenever there's a zone change
@@ -471,8 +479,10 @@ function clearWorkProgressBars(){
 }
 
 function scrollQueue(queue, action = null){
+	console.log(queue, action)
 	if (action === null){
-		action = queues[queue].length;
+		action = zones[displayZone].queues[queue].length;
+		console.log(action)
 	}
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
 	this.width = this.width || queueNode.parentNode.clientWidth;
@@ -491,7 +501,7 @@ function redrawQueues(){
 		}
 	}
 	highlightCompletedActions();
-	countMultipleInteracts();
+	countMultipleActions();
 	let timelineEl = document.querySelector(`#timelines`);
 	while (timelineEl.firstChild) {
 		timelineEl.removeChild(timelineEl.lastChild);
@@ -504,7 +514,7 @@ function redrawQueues(){
 
 function setCursor(event, el){
 	let nodes = Array.from(el.parentNode.children);
-	cursor[1] = nodes.filter(n => !n.classList.contains("interact-count")).findIndex(e => e == el) - (event.offsetX < 8);
+	cursor[1] = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - (event.offsetX < 8);
 	if (nodes.length - 1 == cursor[1]) cursor[1] = null;
 	cursor[0] = el.parentNode.parentNode.id.replace("queue", "");
 	showCursor();

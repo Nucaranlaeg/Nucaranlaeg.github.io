@@ -54,6 +54,7 @@ function getCreature(search) {
 }
 
 function writeNumber(value, decimals = 0) {
+	if (value < 10 ** -(decimals + 1)) value = 0;
 	if (value > 100) decimals = Math.min(decimals, 1);
 	return value.toFixed(decimals);
 }
@@ -72,7 +73,7 @@ function writeTime(value) {
 
 let timeBankNode;
 
-function redrawOptions() {
+function redrawTimeNode() {
 	timeBankNode = timeBankNode || document.querySelector("#time-banked");
 	timeBankNode.innerText = writeTime(timeBanked / 1000);
 }
@@ -88,6 +89,7 @@ function resetLoop() {
 	if (mana.base == 6) getMessage("Strip Mining").display();
 	if (mana.base == 7.4) getMessage("Buy More Time").display();
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
+	if (queueTime > 50) getMessage("Looper's Log: Supplemental").display();
 	stats.forEach((s, i) => {
 		GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 		s.reset();
@@ -182,6 +184,7 @@ function displayLoopLog(){
 		node.classList.add(actions[i][0].replace(/ /g, '-'));
 		node.querySelector(".name").innerHTML = actions[i][0];
 		node.querySelector(".value").innerHTML = writeNumber(actions[i][1] / 1000, 1);
+		node.querySelector(".description").innerHTML = `Relevant stats:<br>${getAction(actions[i][0])?.stats.map(s => `${s[0].name}: ${s[1]}`).join("<br>") || ""}`;
 		loopActionNode.append(node);
 		node.style.color = setRGBContrast(window.getComputedStyle(node).backgroundColor);
 	}
@@ -197,6 +200,11 @@ function displayLoopLog(){
 		loopStatNode.append(node);
 	}
 	totalStatNode.querySelector(".base-value").innerHTML = writeNumber(totalStats, 3);
+	if (+getComputedStyle(loopActionNode).height.replace("px", "") > +getComputedStyle(document.body).height.replace("px", "") * 0.68){
+		loopActionNode.style.overflowY = "auto";
+	} else {
+		loopActionNode.style.overflowY = "unset";
+	}
 }
 
 function hideLoopLog(){
@@ -437,18 +445,20 @@ setInterval(function mainLoop() {
 	queuesNode = queuesNode || document.querySelector("#queues");
 	if (isNaN(mana.current) && settings.running) toggleRunning();
 	lastAction = Date.now();
-	if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
-		queuesNode.classList.add("out-of-mana");
-		getMessage("Out of Mana").display();
-		if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
+	if (settings.running){
+		if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
+			queuesNode.classList.add("out-of-mana");
+			getMessage("Out of Mana").display();
+			if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
+				resetLoop();
+			}
+		} else {
+			queuesNode.classList.remove("out-of-mana");
+		}
+		if (settings.autoRestart == 2 && clones.every(c => c.noActionsAvailable || c.damage == Infinity)){
+			queuesNode.classList.remove("out-of-mana");
 			resetLoop();
 		}
-	} else {
-		queuesNode.classList.remove("out-of-mana");
-	}
-	if (settings.autoRestart == 2 && clones.every(c => c.noActionsAvailable || c.damage == Infinity)){
-		queuesNode.classList.remove("out-of-mana");
-		resetLoop();
 	}
 	if (!settings.running ||
 			mana.current == 0 ||
@@ -456,13 +466,13 @@ setInterval(function mainLoop() {
 			(settings.autoRestart == 3 && queues.every((q, i) => getNextAction(i)[0] === undefined || clones[i].damage == Infinity) && clones.some(c => c.damage < Infinity)) ||
 			!messageBox.hidden) {
 		if (!isNaN(time / 1)) timeBanked += time;
-		redrawOptions();
+		redrawTimeNode();
 		updateDropTarget();
 		return;
 	}
 	let timeAvailable = time;
 	if (settings.usingBankedTime && timeBanked > 0){
-		let speedMultiplier = 3 + mana.base ** 0.4;
+		let speedMultiplier = 3 + zones[0].cacheManaGain[0] ** 0.5;
 		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
 	}
 	if (timeAvailable > settings.maxTotalTick) {
@@ -479,6 +489,7 @@ setInterval(function mainLoop() {
 	let timeUsed = 0;
 	while (timeAvailable > 0){
 		timeLeft = Clone.performActions(Math.min(timeAvailable, MAX_TICK));
+		if (timeLeft == timeAvailable || timeLeft == MAX_TICK) break;
 		let tickTimeUsed = Math.min(timeAvailable - timeLeft, MAX_TICK);
 		timeUsed += tickTimeUsed;
 		zones[currentZone].tick(tickTimeUsed);
@@ -498,7 +509,7 @@ setInterval(function mainLoop() {
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	queueActionNode = queueActionNode || document.querySelector("#actions-spent");
 	queueActionNode.innerText = `${writeNumber(loopCompletions, 0)} (x${writeNumber(1 + loopCompletions / 40, 3)})`;
-	redrawOptions();
+	redrawTimeNode();
 	updateDropTarget();
 
 	stats.forEach(e => e.update());
@@ -678,6 +689,12 @@ let keyFunctions = {
 	},
 	"Enter": () => {
 		hideMessages();
+	},
+	"Period": () => {
+		addActionToQueue(".");
+	},
+	">Semicolon": () => {
+		addActionToQueue(":");
 	},
 	"KeyF": () => {
 		if (visibleX === undefined || visibleY === undefined) return;

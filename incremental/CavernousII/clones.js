@@ -92,8 +92,8 @@ class Clone {
 			this.timeLines[i] = []
 			this.timeLineElements[i] = timelineTemplate.cloneNode(true);
 			this.timeLineElements[i].id = `zone${i+1}-timeline${clones.length}`;
-			document.querySelector("#timelines").append(this.timeLineElements[i]);
 		}
+		document.querySelector("#timelines").append(this.timeLineElements[displayZone]);
 	}
 
 	select(allowMultiple = false) {
@@ -166,6 +166,20 @@ class Clone {
 		}
 	}
 
+	revertTimelineWait(time){
+		// Loop Log
+		loopActions["Wait"] -= time;
+		
+		// Timeline
+		if (!settings.timeline) return;
+		let lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
+		if (lastEntry?.type == "Wait"){
+			lastEntry.time -= time;
+			lastEntry.el.dataset.time = Math.round(lastEntry.time);
+			lastEntry.el.style.flexGrow = lastEntry.time;
+		}
+	}
+
 	getNextActionTime() {
 		currentClone = this.id;
 		let [action, actionIndex] = getNextAction();
@@ -196,9 +210,16 @@ class Clone {
 			// Pathfinding or repeat interact is done
 			return [0, null, null];
 		}
+		if (actionToDo == ":"){
+			// Pause game
+			return [0, null, null];
+		}
 		if (actionToDo[0] === undefined || actionToDo[0][0] === "W"){
 			// Clone is waiting
 			return [Infinity, null, null];
+		}
+		if (actionToDo[0][0] == ".") {
+			return [this.walkTime || 100, null, null];
 		}
 		if (actionToDo[0][0] == "=") {
 			if (!this.waiting || clones.every((c, i) => {
@@ -253,10 +274,18 @@ class Clone {
 			this.completeNextAction(true);
 			return time;
 		}
-		// Explicit wait
+		// Explicit non-action wait
 		if (actionToDo[0] === "W"){
+			this.isPausing = true;
 			this.addToTimeline({name: "Wait"}, initialTime);
 			return 0;
+		}
+		// Pause game
+		if (actionToDo[0] === ":"){
+			if (settings.running) toggleRunning();
+			this.selectQueueAction(actionIndex, 100);
+			this.completeNextAction(true);
+			return time;
 		}
 
 		let actionXOffset = {
@@ -276,6 +305,7 @@ class Clone {
 				this.addToTimeline({name: "Create rune"});
 				return time;
 			} else {
+				this.isPausing = true;
 				this.addToTimeline({name: "Wait"}, initialTime);
 				return 0;
 			}
@@ -287,6 +317,7 @@ class Clone {
 				this.addToTimeline({name: "Cast spell"});
 				return time;
 			} else {
+				this.isPausing = true;
 				this.addToTimeline({name: "Wait"}, initialTime);
 				return 0;
 			}
@@ -317,8 +348,17 @@ class Clone {
 				this.addToTimeline({name: "Sync"});
 				return time;
 			}
+			this.isPausing = true;
 			this.addToTimeline({name: "Wait"}, initialTime);
 			return 0;
+		}
+		if (actionToDo == "."){
+			let waitTime = Math.min(time, this.walkTime);
+			getAction("Wait").tick(waitTime);
+			this.selectQueueAction(actionIndex, 100 - this.walkTime);
+			if (!this.walkTime) this.completeNextAction();
+			this.addToTimeline({name: "Wait"}, waitTime);
+			return Math.max(0, time - this.walkTime);
 		}
 
 		let location = getMapLocation(this.x + actionXOffset, this.y + actionYOffset);
@@ -341,6 +381,7 @@ class Clone {
 				this.addToTimeline(!hasOffset ? (location.type.presentAction || location.temporaryPresent) : locationEnterAction, initialTime - time);
 				return time;
 			} else if (startStatus < 0){
+				this.isPausing = true;
 				this.addToTimeline({name: "Wait"}, initialTime);
 				if (time < 1) this.timeAvailable = time;
 				return 0;
@@ -372,7 +413,6 @@ class Clone {
 			} else {
 				this.addToTimeline({name: "No action"}, maxTime);
 			}
-			this.timeAvailable = 0;
 			return;
 		}
 		currentClone = this.id;
@@ -406,15 +446,22 @@ class Clone {
 		}
 
 		let maxTime = time;
+		let count = 0;
+		clones.forEach(c => c.isPausing = false);
 		while (maxTime) {
+			if (count++ > 100) break;
 			let nextActionTimes = clones.map(c => c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime())
-			  .map((t, i, arr) => t[3] ? t[0] : t[0] / arr.reduce((a, c) => a + (c[1] === t[1] && c[2] === t[2]), 0));
-			let nextSingleActionTime = Math.min(...nextActionTimes);
-			clones.filter((c, i) => nextActionTimes[i] == nextSingleActionTime).forEach(c => c.performSingleAction(nextSingleActionTime + 0.001));
+			  .map((t, i, arr) => t[3] ? t[0] : t[0] / (arr.reduce((a, c) => a + Math.abs(c[1] !== null && c[2] !== null && c[1] === t[1] && c[2] === t[2]), 0) || 1));
+			let nextSingleActionTime = Math.min(...nextActionTimes) + 0.001; // Add .001 to prevent rounding errors.
+			clones.filter((c, i) => nextActionTimes[i] <= nextSingleActionTime).forEach(c => c.performSingleAction(Math.max(nextSingleActionTime, 1)));
+			if (clones.every(c => c.isPausing)) {
+				clones.forEach(c => c.revertTimelineWait(nextSingleActionTime));
+				return maxTime;
+			}
 			maxTime = Math.max(...clones.map((e, i) => !e.noActionsAvailable && e.damage != Infinity && nextActionTimes[i] < Infinity && (e.timeAvailable || 0)));
 			if (maxTime < 0.001) break;
 		}
-
+		
 		let timeNotSpent = Math.min(...clones.map(e => e.timeAvailable || 0));
 		clones.forEach(c => {
 			if (c.timeAvailable > timeNotSpent){

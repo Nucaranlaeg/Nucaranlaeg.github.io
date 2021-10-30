@@ -53,11 +53,22 @@ class GrindRoute extends BaseRoute {
 	static updateBestRoute(stat, totalStatGain) {
 		if (stat == "Mana" || !totalStatGain) return;
 		let prev = GrindRoute.getBestRoute(stat);
-		if (!prev || totalStatGain > prev.totalStatGain){
-			grindRoutes = grindRoutes.filter(e => e.statName != stat);
-			grindRoutes.push(new GrindRoute(stat, totalStatGain || 0));
+		if (settings.statGrindPerSec){
+			// Replace stat grind routes if they're better in gain per second
+			if (!prev || totalStatGain / queueTime > prev.totalStatGain / prev.totalTime){
+				grindRoutes = grindRoutes.filter(e => e.statName != stat);
+				grindRoutes.push(new GrindRoute(stat, totalStatGain || 0));
+			} else {
+				prev.projectedGain = GrindRoute.calculateProjectedGain(prev.statName, prev.totalStatGain);
+			}
 		} else {
-			prev.projectedGain = GrindRoute.calculateProjectedGain(prev.statName, prev.totalStatGain);
+			// Replace stat grind routes if they're better absolute value-wise
+			if (!prev || totalStatGain > prev.totalStatGain){
+				grindRoutes = grindRoutes.filter(e => e.statName != stat);
+				grindRoutes.push(new GrindRoute(stat, totalStatGain || 0));
+			} else {
+				prev.projectedGain = GrindRoute.calculateProjectedGain(prev.statName, prev.totalStatGain);
+			}
 		}
 	}
 	
@@ -68,6 +79,11 @@ class GrindRoute extends BaseRoute {
 	static fromJSON(ar) {
 		ar = this.migrate(ar);
 		return ar.map(r => new GrindRoute(r));
+	}
+
+	static deleteRoute(stat){
+		let index = grindRoutes.findIndex(r => r.statName == stat);
+		grindRoutes.splice(index, 1);
 	}
 }
 

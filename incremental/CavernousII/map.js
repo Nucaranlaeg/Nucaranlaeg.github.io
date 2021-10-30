@@ -52,6 +52,9 @@ const classMapping = {
 	"¥": ["pick", "Anvil - Pick"],
 	"£": ["hammer", "Anvil - Hammer"],
 	"0": ["spring", "Spring"],
+	"|": ["sword3", "Enchanter - Sword"],
+	"<": ["armour3", "Enchanter - Shield"],
+	">": ["shield3", "Enchanter - Armour"],
 };
 
 setTimeout(() => {
@@ -105,6 +108,7 @@ function drawNewMap() {
 				cellNode.removeAttribute("id");
 				cellNode.setAttribute("data-x", x);
 				cellNode.setAttribute("data-y", y);
+				cellNode.onmouseenter = () => showRelevantStats(zones[displayZone].mapLocations[y][x]);
 				if (zones[displayZone].mapLocations[y][x]) {
 					let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
 					className = className.split(" ");
@@ -237,6 +241,8 @@ function setMined(x, y, icon){
 
 function viewCell(e){
 	let x = e.target.getAttribute("data-x"), y = e.target.getAttribute("data-y");
+	mapNode?.querySelector(".selected-map-cell")?.classList.remove("selected-map-cell");
+	e.target.classList.add("selected-map-cell");
 	let type = [...e.target.classList].find(x => x !== "occupied" && x !== "final-location");
 	if (zones[displayZone].mapLocations[y] && zones[displayZone].mapLocations[y][x]){
 		let location = zones[displayZone].mapLocations[y][x];
@@ -249,6 +255,9 @@ function viewCell(e){
 				if (description.includes("{STATS}")){
 					let statsDesc = `Attack: ${location.creature.attack}\nDefense: ${location.creature.defense}\nHealth: ${location.creature.health}`;
 					description = description.replace("{STATS}", statsDesc);
+				}
+				if (description.includes("{MANA_PER_GOLD}")){
+					description = description.replace("{MANA_PER_GOLD}", writeNumber(5 * getRealmMult("Verdant Realm", true), 4));
 				}
 				if (description.match(/\{.*\}/)){
 					let realmDesc = JSON.parse(description.match(/\{.*\}/)[0].replaceAll("'", '"'));
@@ -311,5 +320,17 @@ function displayCreatureHealth(creature){
 		node.innerHTML = `<div class="enemy-hp" style="width:${Math.floor(creature.health / creature.creature.health * 100)}%"></div>`;
 	} else {
 		node.innerHTML = "";
+	}
+}
+
+function showRelevantStats(loc){
+	if (!loc) return;
+	let enterAction = loc.type.getEnterAction(loc.entered);
+	let action = enterAction?.name == "Walk" ? loc.type.presentAction || loc.type.temporaryPresent || enterAction : enterAction;
+	document.querySelectorAll(".relevant-stat").forEach(node => node.classList.remove("relevant-stat"));
+	if (action){
+		action.stats.forEach(s => {
+			document.querySelector(`#stat_${s[0].name.replace(" ", "-")}`).classList.add("relevant-stat");
+		})
 	}
 }

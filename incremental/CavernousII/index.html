@@ -96,7 +96,7 @@
 			<span class="mana"></span>
 			<span class="require"></span>
 			<span class="stuff"></span>
-			<span class="delete-route">x</span>
+			<span class="delete-route"><span class="delete-route-inner">x</span></span>
 		</div>
 		<div id="saved-queue-template"
 			 class="bottom-block saved-queue"
@@ -119,6 +119,7 @@
 		<div id="log-entry-template" class="log-entry">
 			<span class="name"></span>
 			<span class="value"></span>
+			<div class="description"></div>
 		</div>
 		<div id="stat-log-entry-template" class="log-entry">
 			<span class="name"></span>
@@ -159,8 +160,11 @@
 							<tr id="grind-stats-header"></tr>
 							<tbody id="grind-stats"></tbody>
 							<tr id="grind-stats-footer"></tr>
-							<tr><td class="failed" colspan="100" style="text-align: left;">Some route failed</td></tr>
+							<tr><td><b>Legend:</b></td></tr>
+							<tr><td class="failed" colspan="100" style="text-align: left;">Some route failed to load</td></tr>
+							<tr><td class="drowned" colspan="100" style="text-align: left;">Some route was drowned</td></tr>
 							<tr><td class="unreached" colspan="100" style="text-align: left;">Some mana rock unreached</td></tr>
+							<tr><td class="revisit" colspan="100" style="text-align: left;">Some rock yet to be revisited</td></tr>
 						</table>
 					</div>
 				</div>
@@ -230,7 +234,7 @@
 				</div>
 				<div class="option block clickable" onclick="displayLoopLog()">
 					<span class="name">View loop log</span>
-					<div class="description">Might be laggy if it's open while running</div>
+					<div class="description">Might be laggy if it's open while running.</div>
 				</div>
 			</div>
 			<div class="version" title="By Nucaranlaeg"><!--Some code contributed by Dimava and Gnomez-->
@@ -364,6 +368,14 @@
 					</div>
 				</div>
 				<div class="block-row">
+					<div class="small-option block clickable" onclick="keyFunctions['Period']()">
+						<span id="add-action-interact">.</span>
+						<div class="description">Wait 100ms</div>
+					</div>
+					<div class="small-option block clickable" onclick="keyFunctions['>Semicolon']()">
+						<span id="add-action-interact">:</span>
+						<div class="description">Pause at this action</div>
+					</div>
 					<div class="small-option block clickable" onclick="keyFunctions['^KeyA']()">
 						<span id="add-action-interact">All</span>
 						<div class="description">Select all</div>
@@ -382,13 +394,13 @@
 					<div class="description">Repeat all actions after this action.</div>
 				</div>
 				<div class="block-row">
-					<div class="small-option block clickable" style="width:45%" onclick="addActionToQueue('=')">
+					<div class="small-option option block clickable" style="width:45%" onclick="addActionToQueue('=')">
 						Sync (=)
 						<div class="description">If other clones have sync actions, wait until they're all on sync actions.</div>
 					</div>
-					<div class="small-option block clickable" style="width:45%" onclick="addActionToQueue('+')">
+					<div class="small-option option block clickable" style="width:45%" onclick="addActionToQueue('+')">
 						No Sync (+)
-						<div class="description">If a clone takes a No Sync action, it will not be considered for syncing with other clones until it takes another No Sync action.</div>
+						<div class="description">If a clone takes a No Sync action, it will not be considered for syncing with other clones for the rest of this zone until it takes another No Sync action.</div>
 					</div>
 				</div>
 			</div>
@@ -435,6 +447,10 @@
 			<div class="option block clickable" onclick="toggleUseWASD()">
 				<span id="use-wasd-toggle">Use WASD</span>
 				<div class="description big-description">Some people.</div>
+			</div>
+			<div class="option block clickable" onclick="toggleStatGrindPerSec()">
+				<span id="stat-grind-per-sec">Stat grind strategy: Total</span>
+				<div class="description big-description">Change whether stat grind routes are saved based on the best total gain or the best per second gain.</div>
 			</div>
 			<div class="option block enter-value">
 				<span class="label" for="max-time">Max tick time (ms)</span>

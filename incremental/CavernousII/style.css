@@ -59,6 +59,10 @@ body {
 	top: 18px;
 }
 
+.relevant-stat {
+	background-color: #bbdddd;
+}
+
 .option {
 	height: 20px;
 	width: 194px;
@@ -111,12 +115,20 @@ body {
 	padding: 0 3px;
 }
 
+td.drowned {
+	text-decoration: underline;
+}
+
 td.failed {
 	color: #ff0000;
 }
 
 td.unreached {
-	background-color: #33333311;
+	background-color: #33333333;
+}
+
+td.revisit {
+	font-weight: bold;
 }
 
 .action {
@@ -136,7 +148,7 @@ td.unreached {
 	transition: background-color 0.4s;
 }
 
-.interact-count {
+.action-count {
 	position: absolute;
 	top: 0px;
 	height: 5px;
@@ -147,7 +159,7 @@ td.unreached {
 	pointer-events: none;
 }
 
-.interact-count::before {
+.action-count::before {
 	content: attr(data-count);
 	text-align: center;
 	margin-top: -4px;
@@ -156,7 +168,7 @@ td.unreached {
 	margin-left: -3px;
 }
 
-.interact-count.double-digit::before {
+.action-count.double-digit::before {
 	margin-left: -6px;
 }
 
@@ -327,6 +339,11 @@ svg {
 	background-color: #ffee00;
 }
 
+.timeline > div.Mine-Gem,
+.timeline > div.Collect-Gem {
+	background-color: #90ee90;
+}
+
 .timeline > div.Turn-Gold-to-Mana,
 .timeline > div.Collect-Mana {
 	background-color: #0088ff;
@@ -448,12 +465,16 @@ svg {
 	color: #000000;
 }
 
+.option.small-option.block > .description {
+	width: 200px;
+	white-space: initial;
+}
+
 .small-option.block > .description {
 	left: unset;
 	right: 0;
 	width: auto;
 	white-space: nowrap;
-	bottom: 100%;
 	margin-bottom: 3px;
 }
 
@@ -658,6 +679,7 @@ h4#location-name {
 
 .routes div {
 	cursor: pointer;
+	display: flex;
 }
 
 .routes div:hover {
@@ -696,13 +718,18 @@ h4#location-name {
 }
 
 .delete-route {
-	border-radius: 25%;
-	float: right;
+	text-align: right;
+	flex-grow: 1;
+}
+
+.delete-route-inner {
 	width: 14px;
+	border-radius: 25%;
+	display: inline-block;
 	text-align: center;
 }
 
-.delete-route:hover {
+.delete-route-inner:hover {
 	background-color: #ff3333cc;
 }
 
@@ -712,6 +739,11 @@ h4#location-name {
 	/* width: calc(12px * 45); */
 	font-size: var(--cell-size);
 	align-self: center;
+}
+
+td.selected-map-cell {
+	outline: 0.1em solid #ffff00;
+	z-index: 9;
 }
 
 td {
@@ -732,11 +764,6 @@ body.test-16px td {
 td.occupied:before {
 	border: 0.1em solid rgb(255, 0, 0);
 	outline: 0.05em solid red;
-	/* width: 14px; */
-	/* height: 14px; */
-	/* margin-left: -2px; */
-	/* top: -1px; */
-	/* left: -1px; */
 	z-index: 10;
 	content: " ";
 }
@@ -747,13 +774,9 @@ td.hover-location:before {
 	outline: 0.05em solid blue;
 	width: 100%;
 	height: 100%;
-	/* margin-left: -2px; */
-	/* top: 0;*/
-	/* left: 0; */
 	z-index: 10;
 	content: " ";
 	box-sizing: border-box;
-	/* line-height: 0.1; */
 }
 
 td.hover-location:before {
@@ -839,12 +862,9 @@ td.iron {
 
 td.salt {
 	background-color: #ffffff;
-}
-
-td.salt:before {
-	content: "░";
-	font-size: 1.5rem;
-	top: -5px;
+	background-image:  radial-gradient(#000000 0.9px, transparent 0.9px), radial-gradient(#000000 0.9px, #ffffff 0.9px);
+	background-size: 5px 5px;
+	background-position: 0 0,18px 18px;
 }
 
 td.furnace,
@@ -1206,7 +1226,6 @@ td:hover:after {
 	width: 49%;
 	display: inline-block;
 	max-height: 70vh;
-	overflow-y: auto;
 	scrollbar-width: thin;
 	vertical-align: top;
 }
@@ -1215,6 +1234,24 @@ td:hover:after {
 	display: flex;
 	justify-content: space-between;
 	padding: 2px 5px;
+}
+
+.log-entry .description {
+	visibility: hidden;
+	position: absolute;
+	margin-top: 20px;
+	left: 5px;
+	width: 180px;
+	background: #99bbbb;
+	border: 1px solid #00000033;
+	z-index: 5;
+	pointer-events: none;
+	padding: 2px;
+	color: #000000;
+}
+
+.log-entry:hover:not(:first-child) .description {
+	visibility: visible;
 }
 
 .queue-buttons {

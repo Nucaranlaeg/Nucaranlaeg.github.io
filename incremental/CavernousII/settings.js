@@ -12,6 +12,7 @@ let settings = {
 	warnings: true,
 	followZone: true,
 	timeline: true,
+	statGrindPerSec: false,
 	maxTotalTick: 10000,
 }
 
@@ -81,6 +82,12 @@ function toggleTimeline() {
 	return settings.timeline;
 }
 
+function toggleStatGrindPerSec() {
+	settings.statGrindPerSec = !settings.statGrindPerSec;
+	document.querySelector("#stat-grind-per-sec").innerHTML = settings.statGrindPerSec ? "Stat grind strategy: Per sec" : "Stat grind strategy: Total";
+	return settings.statGrindPerSec;
+}
+
 function switchRuneList() {
 	settings.showingRunes = !settings.showingRunes;
 	document.querySelector("#runes").classList.toggle("active-pane", settings.showingRunes);
@@ -105,6 +112,7 @@ function loadSettings(savedSettings) {
 	setSetting(toggleLoadPrereqs, !!savedSettings.loadPrereqs);
 	setSetting(toggleFollowZone, !!savedSettings.followZone);
 	setSetting(toggleTimeline, !!savedSettings.timeline);
+	setSetting(toggleStatGrindPerSec, !!savedSettings.statGrindPerSec);
 	setSetting(switchRuneList, !!savedSettings.showingRunes);
 
 	Object.assign(settings, savedSettings, settings);

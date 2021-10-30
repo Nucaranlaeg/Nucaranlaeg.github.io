@@ -87,6 +87,9 @@ let messages = [
 	new Message("Buy More Time", `
 					Have you found the Vaporizer yet?  Interacting with it will turn your gold into mana!
 					You can probably mine those rocks a few additional times with that.`),
+	new Message("Looper's Log: Supplemental", `
+					There is a log of your actions this loop, which will help you plan out your routes better. ("Loop Log", on the left)
+					Mousing over an action there will give you a breakdown of which stats affect that action.`),
 	new Message("First Clone", `
 					You've created your first clone!  It can carry out actions in exactly the same way you can.
 					You can create more clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.

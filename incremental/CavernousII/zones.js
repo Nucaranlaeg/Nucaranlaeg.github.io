@@ -227,7 +227,8 @@ class Zone {
 				parent.removeChild(parent.lastChild);
 			}
 			let head = document.createElement("h4");
-			head.innerHTML = "Routes (click to load):";
+			head.innerHTML = "Routes (click to load, ctrl-click here to clear unused routes):";
+			head.onclick = this.clearRoutes.bind(this);
 			parent.appendChild(head);
 			let routeTemplate = document.querySelector("#zone-route-template");
 			parent.style.display = this.routes.some(r => r.realm == currentRealm) ? "block" : "none";
@@ -243,10 +244,10 @@ class Zone {
 					parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
 					routeNode.classList.add("active");
 				}
-				routeNode.querySelector(".delete-route").onclick = this.deleteRoute.bind(this, i);
+				routeNode.querySelector(".delete-route-inner").onclick = this.deleteRoute.bind(this, i);
 				if (!usedRoutes.includes(this.routes[i])){
 					routeNode.classList.add("unused");
-					routeNode.title = "This route is not used for any mana rock.";
+					routeNode.title = "This route is not used for any saved route.";
 				}
 				parent.appendChild(routeNode);
 			}
@@ -263,6 +264,12 @@ class Zone {
 			.forEach((r, i) => {
 				if ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute && parent.children[i + 1]) parent.children[i + 1].classList.add("active");
 			});
+	}
+
+	clearRoutes(event){
+		if (!event.ctrlKey) return;
+		if (settings.warnings && !confirm(`Really delete unused routes?`)) return;
+		clearUnusedZoneRoutes(this.index);
 	}
 
 	deleteRoute(index, event){

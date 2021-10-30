@@ -203,6 +203,19 @@ d="M 95.138414,68.714019 C 89.811746,66.779793 76.937774,61.926021 64.511934,57.
 sodipodi:nodetypes="cc"
 inkscape:path-effect="#path-effect1207"
 inkscape:original-d="M 90.267782,82.127264 C -109.79121,9.4816321 148.34729,56.074321 50.246312,0" />` + svgEnd;
+const pauseSVG = svgStart + `<rect
+style="fill:#000000;stroke:#000000;stroke-width:17.3414;stroke-miterlimit:4;stroke-dasharray:none"
+width="2.6586194"
+height="72.658623"
+x="68.670677"
+y="13.670691" />
+<rect
+style="fill:#000000;stroke:#000000;stroke-width:17.3414;stroke-miterlimit:4;stroke-dasharray:none"
+width="2.6586232"
+height="72.658623"
+x="-31.329311"
+y="-86.329308"
+transform="scale(-1)" />` + svgEnd;
 
 document.querySelector("#add-action-up").innerHTML = upArrowSVG.replace(/"14"/g, '"22"');
 document.querySelector("#add-action-down").innerHTML = downArrowSVG.replace(/"14"/g, '"22"');

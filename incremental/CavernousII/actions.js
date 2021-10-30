@@ -194,11 +194,11 @@ function simpleConvert(source, target, doubleExcempt = false){
 		let mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < source.length; i++){
 			let stuff = getStuff(source[i][0]);
-			if (stuff.count < source[i][1] * mult) return;
+			if (stuff.count < source[i][1] * (source[i][0].match(/Armour|Sword|Shield/) ? 1 : mult)) return;
 		}
 		for (let i = 0; i < source.length; i++){
 			let stuff = getStuff(source[i][0]);
-			stuff.update(-source[i][1] * mult);
+			stuff.update(-source[i][1] * (source[i][0].match(/Armour|Sword|Shield/) ? 1 : mult));
 		}
 		for (let i = 0; i < target.length; i++){
 			let stuff = getStuff(target[i][0]);
@@ -213,10 +213,10 @@ function simpleRequire(requirement, doubleExcempt = false){
 		let mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < requirement.length; i++){
 			let stuff = getStuff(requirement[i][0]);
-			if (stuff.count < requirement[i][1] * mult) return -1;
+			if (stuff.count < requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield/) ? 1 : mult)) return -1;
 			// In other functions it's (x, y, creature), so just check that it's exactly true
 			// spend is used for placing runes.
-			if (spend === true) stuff.update(-requirement[i][1] * mult);
+			if (spend === true) stuff.update(-requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield/) ? 1 : mult));
 		}
 		return 1;
 	}
@@ -244,7 +244,7 @@ function completeGoldMana(){
 	let gold = getStuff("Gold Nugget");
 	if (gold.count < 1) return true;
 	gold.update(-1);
-	let manaMult = getRealmMult("Verdant Realm");
+	let manaMult = getRealmMult("Verdant Realm") || 1;
 	getStat("Mana").current += 5 * manaMult;
 }
 
@@ -318,7 +318,7 @@ function completeFight(x, y, creature){
 }
 
 function tickHeal(usedTime){
-	clones[currentClone].takeDamage(-usedTime / 1000 / getStat("Runic Lore").value);
+	clones[currentClone].takeDamage(-usedTime / 1000);
 }
 
 function completeHeal(){
@@ -361,6 +361,17 @@ function completeTeleport(){
 			}
 		}
 	}
+}
+
+function predictTeleport(){
+	for (let y = 0; y < zones[currentZone].map.length; y++){
+		for (let x = 0; x < zones[currentZone].map[y].length; x++){
+			if (zones[currentZone].map[y][x] == "t"){
+				return 1;
+			}
+		}
+	}
+	return Infinity;
 }
 
 function startChargeDuplicate(completions){
@@ -450,7 +461,8 @@ function predictWither(x = null, y = null){
 			"♣♠α§".includes(zones[currentZone].map[y-1][x+1]) ? zones[currentZone].mapLocations[y-1][x+1] : null,
 		].filter(p=>p));
 	}
-	return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(1, loc.wither))) / 1000;
+	if (!adjacentPlants.length) return 0;
+	return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(1, loc.wither))) / 2000;
 }
 
 function activatePortal(){
@@ -472,6 +484,7 @@ function tickSpore(usedTime, creature, baseTime){
 
 let actions = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
+	new Action("Wait", 100, [], () => {}, startWalk, tickWalk),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Granite", 350000, [["Mining", 1], ["Speed", 0.2]], completeMove),
@@ -494,13 +507,16 @@ let actions = [
 	new Action("Upgrade Bridge", 12500, [["Smithing", 1]], simpleConvert([["Steel Bar", 1], ["Iron Bridge", 1]], [["Steel Bridge", 1]]), simpleRequire([["Steel Bar", 1], ["Iron Bridge", 1]])),
 	new Action("Read", 10000, [["Runic Lore", 2]], null),
 	new Action("Create Sword", 7500, [["Smithing", 1]], simpleConvert([["Iron Bar", 3]], [["Iron Sword", 1]]), canMakeEquip([["Iron Bar", 3]], "Sword")),
-	new Action("Upgrade Sword", 22500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Sword", 1]], [["Steel Sword", 1]], true), simpleRequire([["Steel Bar", 2], ["Iron Sword", 1]])),
+	new Action("Upgrade Sword", 22500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Sword", 1]], [["Steel Sword", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Sword", 1]])),
+	new Action("Enchant Sword", 3000000, [["Smithing", 0.5], ["Gemcraft", 0.5]], simpleConvert([["Gem", 3], ["Steel Sword", 1]], [["+1 Sword", 1]]), simpleRequire([["Gem", 3], ["Steel Sword", 1]])),
 	new Action("Create Shield", 12500, [["Smithing", 1]], simpleConvert([["Iron Bar", 5]], [["Iron Shield", 1]]), canMakeEquip([["Iron Bar", 5]], "Shield")),
-	new Action("Upgrade Shield", 27500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Shield", 1]], [["Steel Shield", 1]], true), simpleRequire([["Steel Bar", 2], ["Iron Shield", 1]])),
+	new Action("Upgrade Shield", 27500, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Shield", 1]], [["Steel Shield", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Shield", 1]])),
+	new Action("Enchant Shield", 3000000, [["Smithing", 0.5], ["Gemcraft", 0.5]], simpleConvert([["Gem", 3], ["Steel Shield", 1]], [["+1 Shield", 1]]), simpleRequire([["Gem", 3], ["Steel Shield", 1]])),
 	new Action("Create Armour", 10000, [["Smithing", 1]], simpleConvert([["Iron Bar", 4]], [["Iron Armour", 1]]), canMakeEquip([["Iron Bar", 4]], "Armour")),
-	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]], true), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
+	new Action("Upgrade Armour", 25000, [["Smithing", 1]], simpleConvert([["Steel Bar", 2], ["Iron Armour", 1]], [["Steel Armour", 1]]), simpleRequire([["Steel Bar", 2], ["Iron Armour", 1]])),
+	new Action("Enchant Armour", 3000000, [["Smithing", 0.5], ["Gemcraft", 0.5]], simpleConvert([["Gem", 3], ["Steel Armour", 1]], [["+1 Armour", 1]]), simpleRequire([["Gem", 3], ["Steel Armour", 1]])),
 	new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight, combatDuration),
-	new Action("Teleport", 1, [["Runic Lore", 1]], completeTeleport, startTeleport),
+	new Action("Teleport", 1, [["Runic Lore", 1]], completeTeleport, startTeleport, null, predictTeleport),
 	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate, null, duplicateDuration),
 	new Action("Charge Wither", 1000, [["Runic Lore", 1]], completeWither, null, tickWither, predictWither),
 	new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeTeleport),
@@ -519,8 +535,3 @@ let actions = [
 function getAction(name) {
 	return actions.find(a => a.name == name);
 }
-
-// General smithing costs:
-// Iron: 2500/bar
-// Steel: 7500/bar + cost of iron item
-// Bar: Double base

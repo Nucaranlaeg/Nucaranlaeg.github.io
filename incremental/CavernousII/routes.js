@@ -246,7 +246,7 @@ function updateGrindStats(){
 	    .filter(z => z.mapLocations.flat().length)
 		.map((z, zone_i) => routes
 		  .filter(t => t.zone == zone_i && t.realm == realm_i)
-		  .reduce((a, t) => a + (t.allDead || t.loadingFailed ? 0.005 : t.estimateRefineTimes()), 0)));
+		  .reduce((a, t) => a + (t.allDead ? 0.000005 : t.loadingFailed ? 0.005 : t.estimateRefineTimes()), 0)));
 	let reachedCounts = realms
 	  .filter(r => !r.locked || r.name == "Core Realm")
 	  .map((r, realm_i) => zones
@@ -254,6 +254,12 @@ function updateGrindStats(){
 	    .map((z, zone_i) =>
 		  z.mapLocations.flat().filter(l => l.type.name == "Mana-infused Rock").length !=
 		  routes.filter(t => t.zone == zone_i && t.realm == realm_i).length));
+	let revisitCounts = realms
+	  .filter(r => !r.locked || r.name == "Core Realm")
+	  .map((r, realm_i) => zones
+	    .filter(z => z.mapLocations.flat().length)
+	    .map((z, zone_i) =>
+		  routes.filter(t => t.zone == zone_i && t.realm == realm_i && t.invalidateCost).length));
 	const header = document.querySelector("#grind-stats-header");
 	const body = document.querySelector("#grind-stats");
 	const footer = document.querySelector("#grind-stats-footer");
@@ -298,8 +304,14 @@ function updateGrindStats(){
 			if (rockCounts[j][i] % 1 > 0.001){
 				cellNode.classList.add("failed");
 			}
+			if (rockCounts[j][i] * 1000 % 1 > 0.001){
+				cellNode.classList.add("drowned");
+			}
 			if (reachedCounts[j][i]){
 				cellNode.classList.add("unreached");
+			}
+			if (revisitCounts[j][i]){
+				cellNode.classList.add("revisit");
 			}
 			rowNode.appendChild(cellNode);
 		}

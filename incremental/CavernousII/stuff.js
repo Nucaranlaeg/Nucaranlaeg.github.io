@@ -44,7 +44,7 @@ class Stuff {
 	}
 	
 	resetMin() {
-		if (this.effect != null){
+		if (this.effect.name == calcCombatStats.name || this.name == "Iron Axe" || this.name == "Iron Hammer" || this.name == "Iron Pick"){
 			this.min = 0;
 		} else {
 			this.min = this.count;
@@ -54,14 +54,17 @@ class Stuff {
 
 function calcCombatStats() {
 	let attack = [];
+	attack.push(...Array(getStuff("+1 Sword").count).fill(4));
 	attack.push(...Array(getStuff("Steel Sword").count).fill(2));
 	attack.push(...Array(getStuff("Iron Sword").count).fill(1));
 	attack = attack.slice(0, clones.length).reduce((a, c) => a + c, 0);
 	let defense = [];
+	defense.push(...Array(getStuff("+1 Shield").count).fill(4));
 	defense.push(...Array(getStuff("Steel Shield").count).fill(2));
 	defense.push(...Array(getStuff("Iron Shield").count).fill(1));
 	defense = defense.slice(0, clones.length).reduce((a, c) => a + c, 0);
 	let health = [];
+	health.push(...Array(getStuff("+1 Armour").count).fill(25));
 	health.push(...Array(getStuff("Steel Armour").count).fill(15));
 	health.push(...Array(getStuff("Iron Armour").count).fill(5));
 	health = health.slice(0, clones.length).reduce((a, c) => a + c, 0);
@@ -95,6 +98,9 @@ let stuff = [
 	new Stuff("Iron Axe", "¢", "An iron axe.  Gives +15 or +15% to Woodcutting (whichever is greater), and applies 1% of your Woodcutting skill to combat.", "#777777", 0, getStatBonus("Woodcutting", 15)),
 	new Stuff("Iron Pick", "⛏", "An iron pickaxe.  Gives +15 or +15% to Mining (whichever is greater), and applies 1% of your Mining skill to combat.", "#777777", 0, getStatBonus("Mining", 15)),
 	new Stuff("Iron Hammer", hammerSVG, "An iron hammer.  Gives +15 or +15% to Smithing (whichever is greater), and applies 1% of your Smithing skill to combat.", "#777777", 0, getStatBonus("Smithing", 15)),
+	new Stuff("+1 Sword", ")", "A magical sword.  Sharp! (+4 attack)  Max 1 weapon per clone.", "#688868", 0, calcCombatStats),
+	new Stuff("+1 Shield", "[", "A magical shield.  This should help you not die. (+4 defense)  Max 1 shield per clone.", "#688868", 0, calcCombatStats),
+	new Stuff("+1 Armour", "]", "A suit of magical armour.  This should help you take more hits. (+25 health)  Max 1 armour per clone.", "#688868", 0, calcCombatStats),
 ];
 
 function setContrast(colour) {
@@ -122,12 +128,15 @@ function displayStuff(node, route){
 		node.querySelector(".require").innerHTML = (route.require || route.requirements)
 			.map(displaySingleThing)
 			.join("") + (route.require ? rightArrowSVG : "");
+	} else {
+		let stuffNode = node.querySelector(".require");
+		if (stuffNode) stuffNode.innerHTML = "";
 	}
-	if (route.stuff){
+	if (route.stuff && route.stuff.length){
 		node.querySelector(".stuff").innerHTML = route.stuff.map(displaySingleThing).join("");
 		if (route.cloneHealth.some(c => c[1] < 0)){
 			node.querySelector(".stuff").innerHTML += `<span style="color: #ff0000">${route.cloneHealth.filter(c => c[1] < 0).length}♥</span>`;
-		};
+		}
 	} else {
 		let stuffNode = node.querySelector(".stuff");
 		if (stuffNode) stuffNode.innerHTML = "";
@@ -135,5 +144,5 @@ function displayStuff(node, route){
 }
 
 function getEquipHealth(stuff){
-	return stuff.reduce((a, s) => a + (s.name == "Iron Armour") * s.count * 5 + (s.name == "Steel Armour") * s.count * 15, 0);
+	return stuff.reduce((a, s) => a + (s.name == "Iron Armour") * s.count * 5 + (s.name == "Steel Armour") * s.count * 15 + (s.name == "+1 Armour") * s.count * 25, 0);
 }

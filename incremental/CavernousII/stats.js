@@ -89,11 +89,13 @@ class Stat {
 				this.lastIncreaseRequired = increaseRequired;
 				this.lastIncreaseUpdate = this.base;
 			}
-			let grindRoute = GrindRoute.getBestRoute(this.name);
+			let grindRoute = this.learnable ? GrindRoute.getBestRoute(this.name) : null;
 			this.descriptionNode.innerText = `${this.description} (${writeNumber(100 - this.value * 100, 1)}%)
 			Increase at: ${writeNumber(increaseRequired, 2)}
-			Current: ${writeNumber(this.current, 2)} + ${writeNumber(this.current < 100 ? this.bonus : this.current * (100 + this.bonus) / 100 - this.current, 2)}
-			Click to load best grind route (projected +${writeNumber(grindRoute?.projectedGain || 0, 3)}) in ${writeNumber(grindRoute?.totalTime / 1000 || 0, 1)}s`;
+			Current: ${writeNumber(this.current, 2)} + ${writeNumber(this.current < 100 ? this.bonus : this.current * (100 + this.bonus) / 100 - this.current, 2)}` +
+			(grindRoute ? `
+			Click to load best grind route (projected +${writeNumber(grindRoute?.projectedGain || 0, 3)}) in ${writeNumber(grindRoute?.totalTime / 1000 || 0, 1)}s
+			Ctrl-click to delete this stat's grind route.` : "");
 		}
 		this.dirty = false;
 	}
@@ -101,7 +103,7 @@ class Stat {
 	createNode() {
 		let statTemplate = document.querySelector("#stat-template");
 		this.node = statTemplate.cloneNode(true);
-		this.node.id = "stat_" + this.name;
+		this.node.id = "stat_" + this.name.replace(" ", "-");
 		this.node.querySelector(".name").innerHTML = this.name;
 		this.node.querySelector(".icon").innerHTML = this.icon.length ? this.icon : "&nbsp";
 		this.node.querySelector(".description").innerHTML = this.description;
@@ -116,8 +118,15 @@ class Stat {
 		}
 	}
 
-	loadGrindRoute() {
-		GrindRoute.getBestRoute(this.name)?.loadRoute();
+	loadGrindRoute(event) {
+		if (!this.learnable) return;
+		if (event.ctrlKey){
+			GrindRoute.deleteRoute(this.name);
+			this.dirty = true;
+			this.update();
+		} else {
+			GrindRoute.getBestRoute(this.name)?.loadRoute();
+		}
 	}
 
 	reset() {

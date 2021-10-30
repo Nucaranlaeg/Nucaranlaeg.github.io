@@ -82,7 +82,7 @@ function updateRunes(){
 
 function createDuplication(x, y){
 	let location = getMapLocation(x, y);
-	location.presentDuration = location.remainingPresent = location.temporaryPresent.start();
+	location.presentDuration = location.remainingPresent = location?.temporaryPresent.start();
 }
 
 function weakenCreatures(x, y){
@@ -119,7 +119,7 @@ function getRune(name){
 let runes = [
 	new Rune(
 	"Weaken", "W", simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0,
-	() => {return "This rune weakens any orthogonally adjacent enemies, decreasing their attack and defense by 1.<br>Requires:<br>{'0':'1 Iron Bar<br>1 Gold Nugget','1':'2 Iron Bars<br>2 Gold Nuggets'}"},
+	() => {return "This rune weakens any orthogonally adjacent enemies, decreasing their attack and defense by 1.  Multiple runes have a cumulative effect.  <br>Requires:<br>{'0':'1 Iron Bar<br>1 Gold Nugget','1':'2 Iron Bars<br>2 Gold Nuggets'}"},
 	weakenCreatures),
 	
 	new Rune(
@@ -129,7 +129,7 @@ let runes = [
 	
 	new Rune(
 	"Duplication", "D", () => true, 1000,
-	() => {return "Mine more resources with this rune.  After placing it, interact with it to charge it up.  You'll receive +" + (1+(getRune("Duplication").upgradeCount||0)*0.25) + " of each (orthogonally or diagonally) adjacent resource (when mined), though each rune placed in a zone makes it harder to charge others."},
+	() => {return "Mine more resources with this rune.  After placing it, interact with it to charge it up.  You'll receive +" + (1+(getRune("Duplication").upgradeCount||0)*0.25) + " of each (orthogonally or diagonally) adjacent resource (when mined), though each rune placed in a zone makes it harder to charge others.  Multiple runes have a cumulative effect."},
 	createDuplication, "Charge Duplication"),
 	
 	new Rune(

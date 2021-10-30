@@ -21,7 +21,7 @@ class ZoneRoute {
 			this.stuff = stuff.filter(s => s.count > 0).map(s => {
 				return {
 					"name": s.name,
-					"count": s.count - getStuff(s.name).min,
+					"count": s.count,
 				};
 			}).filter(s => s.count > 0);
 			// cloneHealth is [min (from start), delta]
@@ -30,7 +30,7 @@ class ZoneRoute {
 			this.require = z.startStuff.map(s => {
 				return {
 					"name": s.name,
-					"count": s.count - getStuff(s.name).min,
+					"count": s.count,
 				};
 			}).filter(s => s.count > 0);
 			return;
@@ -102,18 +102,19 @@ class ZoneRoute {
 
 function findUsedZoneRoutes(breakCache = false){
 	let usedZoneRoutes = [];
-	routes.forEach(route => {
+	[...routes, ...grindRoutes].forEach(route => {
 		if (route.zone == 0 || route.realm != currentRealm) return;
 		let used;
 		if (!breakCache && route.usedRoutes && route.usedRoutes.every((r, i) => zones[i].routes.some(route => r == route))){
 			used = route.usedRoutes;
 		} else {
-			let time = Date.now();
 			used = route.pickRoute(route.zone - 1, {"require": route.requirements}, null, route.cloneHealth);
 			route.usedRoutes = used;
 			if (used === null){
 				route.loadingFailed = true;
 				return;
+			} else {
+				route.loadingFailed = false;
 			}
 		}
 		used.forEach(r => {
@@ -126,10 +127,12 @@ function findUsedZoneRoutes(breakCache = false){
 }
 
 function clearUnusedZoneRoutes(zone = null){
-	let usedZoneRoutes = findUsedZoneRoutes();
+	let usedZoneRoutes = findUsedZoneRoutes(true);
 	zones.forEach(z => {
 		if (zone !== null && zone != z.index) return;
-		z.routes = z.routes.filter(r => usedZoneRoutes.includes(r));
+		let currentRoute = (z.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
+		z.routes = z.routes.filter(r => usedZoneRoutes.includes(r) || ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute) || r.realm != currentRealm);
+		z.routesChanged = true;
 		z.display();
 	});
 }
