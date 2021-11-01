@@ -1,0 +1,28 @@
+﻿<html>
+    <body>
+        <div style="display: none">
+            <table>
+                <tr id="row-template"></tr>
+                <tr>
+                    <td id="cell-template"></td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="map" class="vertical-block wide" onclick="viewCell(event.target)">
+            <canvas id="mapCanvas" style="position: absolute; z-index: 5; width: 10px; height: 10px"> </canvas>
+            <h3>Map</h3>
+            <table id="map-inner">
+                <tr>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+
+        <link rel="stylesheet" type="text/css" href="style.css" />
+        <script src="locations.js"></script>
+        <script src="location_types.js"></script>
+        <script src="map.js"></script>
+        <script src="experiment.js"></script>
+    </body>
+</html>

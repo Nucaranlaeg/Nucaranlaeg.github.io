@@ -1,0 +1,26 @@
+{
+	"[json]": {
+		"editor.formatOnSave": true
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true
+	},
+	"editor.formatOnSave": false,
+	"editor.renderWhitespace": "boundary",
+	"editor.tabSize": 4,
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"files.encoding": "utf8",
+	"files.insertFinalNewline": true,
+	"files.trimTrailingWhitespace": true,
+	"search.exclude": {
+		"_book/**": true,
+		".rpt2_cache/**": true,
+		"dist/**": true,
+		"node_modules/**": true,
+		"typings/**": true
+	},
+	"typescript.tsdk": "./node_modules/typescript/lib",
+	"eslint.lintTask.enable": true,
+	"eslint.lintTask.options": "./src",
+}

@@ -1,0 +1,40 @@
+{
+  "name": "cavernousii",
+  "version": "2.2.8",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier \"src/**/*.ts\"",
+    "prebuild": "tsc --build --clean",
+    "build": "tsc --build",
+    "build:watch": "tsc --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pr0metheus42/CavernousII.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pr0metheus42/CavernousII/issues"
+  },
+  "homepage": "https://github.com/Pr0metheus42/CavernousII#readme",
+  "devDependencies": {
+    "typescript": "^4.4.4",
+    "@typescript-eslint/eslint-plugin": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.0",
+    "@typescript-eslint/typescript-estree": "^3.7.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-import-resolver-typescript": "^2.0.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "patch-package": "^6.2.2",
+    "prettier": "^2.0.4"
+  },
+  "dependencies": {
+    "@types/lz-string": "^1.3.34"
+  }
+}
