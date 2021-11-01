@@ -77,7 +77,7 @@ class QueueReferenceAction extends QueueAction {
 		if (!this[2]) this[2] = savedQueues[this[0]];
 		let nextAction = this[2].find(a => a[`${this.clone}_${this.index}`] === undefined);
 		if (!nextAction) return [undefined, -1];
-		return [nextAction[0], this.index];
+		return nextAction[0];
 	}
 
 	complete() {
@@ -126,7 +126,7 @@ class QueuePathfindAction extends QueueAction {
 		// Return the direction the clone needs to go next.
 		let getDistance = (x1, x2, y1, y2) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
 		// Prevent pathing to the same spot.
-		if (getDistance(originX, this.targetX, originY, this.targetY) == 0) return [undefined, -1];
+		if (getDistance(originX, this.targetX, originY, this.targetY) == 0) return undefined;
 
 		let openList = [];
 		let closedList = [[originY, originX]];
@@ -141,7 +141,7 @@ class QueuePathfindAction extends QueueAction {
 		while (openList.length > 0) {
 			let best_next = openList.reduce((a, c) => a < c[3] ? a : c[3], Infinity);
 			let active = openList.splice(openList.findIndex(x => x[3] == best_next), 1)[0];
-			if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0) return [active[4], this.index];
+			if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0) return active[4];
 			// Add adjacent tiles
 			if (walkable.includes(zones[currentZone].map[active[0] - 1][active[1]]) && !closedList.find(x => x[0] == active[0] - 1 && x[1] == active[1]))
 				openList.push([active[0] - 1, active[1], active[2] + 1, active[2] + getDistance(active[1], this.targetX, active[0] - 1, this.targetY), active[4]])
@@ -155,7 +155,7 @@ class QueuePathfindAction extends QueueAction {
 			closedList.push([active[0], active[1]]);
 		}
 		// Wait if we don't have a path.
-		return ["W", -1];
+		return "W";
 	}
 
 	complete(){
@@ -479,10 +479,8 @@ function clearWorkProgressBars(){
 }
 
 function scrollQueue(queue, action = null){
-	console.log(queue, action)
 	if (action === null){
 		action = zones[displayZone].queues[queue].length;
-		console.log(action)
 	}
 	let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
 	this.width = this.width || queueNode.parentNode.clientWidth;

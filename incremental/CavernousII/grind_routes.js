@@ -30,7 +30,7 @@ class GrindRoute extends BaseRoute {
 
 		this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
 
-		this.requirements = zones[currentZone].startStuff.map(s => {
+		this.require = zones[currentZone].startStuff.map(s => {
 			return {
 				"name": s.name,
 				"count": s.count - getStuff(s.name).min,

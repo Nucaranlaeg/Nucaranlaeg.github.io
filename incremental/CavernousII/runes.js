@@ -63,7 +63,7 @@ class Rune {
 		if (!this.node) return;
 		let desc = this.description();
 		if (desc.match(/\{.*\}/)){
-			let realmDesc = JSON.parse(desc.match(/\{.*\}/)[0].replaceAll("'", '"'));
+			let realmDesc = JSON.parse(desc.match(/\{.*\}/)[0].replace(/'/g, '"'));
 			desc = desc.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0]);
 		}
 		this.node.querySelector(".description").innerHTML = desc;

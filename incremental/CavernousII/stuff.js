@@ -124,8 +124,8 @@ function displayStuff(node, route){
 		let stuff;
 		return `<span style="color: ${(stuff = getStuff(thing.name)).colour}">${thing.count}${stuff.icon}</span>`;
 	}
-	if ((route.require || route.requirements).length){
-		node.querySelector(".require").innerHTML = (route.require || route.requirements)
+	if (route.require?.length){
+		node.querySelector(".require").innerHTML = route.require
 			.map(displaySingleThing)
 			.join("") + (route.require ? rightArrowSVG : "");
 	} else {

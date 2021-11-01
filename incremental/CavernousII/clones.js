@@ -214,14 +214,14 @@ class Clone {
 			// Pause game
 			return [0, null, null];
 		}
-		if (actionToDo[0] === undefined || actionToDo[0][0] === "W"){
+		if (actionToDo === undefined || actionToDo === "W"){
 			// Clone is waiting
 			return [Infinity, null, null];
 		}
-		if (actionToDo[0][0] == ".") {
+		if (actionToDo == ".") {
 			return [this.walkTime || 100, null, null];
 		}
-		if (actionToDo[0][0] == "=") {
+		if (actionToDo == "=") {
 			if (!this.waiting || clones.every((c, i) => {
 					return (c.noSync === true || c.waiting === true || (c.waiting && c.waiting >= queueTime - MAX_TICK)) || !queues[i].find(q => q[0] == "=" && q[1])
 					})){
@@ -235,18 +235,18 @@ class Clone {
 		let actionXOffset = {
 			"R": 1,
 			"L": -1,
-		}[actionToDo[0]] || 0;
+		}[actionToDo] || 0;
 		let actionYOffset = {
 			"U": -1,
 			"D": 1,
-		}[actionToDo[0]] || 0;
+		}[actionToDo] || 0;
 		let hasOffset = !!actionXOffset || !!actionYOffset;
 		let x = this.x + actionXOffset, y = this.y + actionYOffset;
 		let location = getMapLocation(x, y);
-		if (actionToDo[0][0] == "N" && (runes[actionToDo[1]].isInscribable() <= 0 && !runesTiles.includes(zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset]))){
+		if (actionToDo[0] == "N" && (runes[actionToDo[1]].isInscribable() <= 0 && !runesTiles.includes(zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset]))){
 			return [Infinity, null, null];
 		}
-		if ("NS<+".includes(actionToDo[0][0]) || (actionToDo[0][0] == "=" && this.waiting !== true)){
+		if ("NS<+".includes(actionToDo[0]) || (actionToDo == "=" && this.waiting !== true)){
 			// Clone's next action is free.
 			return [0, null, null];
 		}
@@ -269,19 +269,19 @@ class Clone {
 		currentClone = this.id;
 		let actionToDo = action.action;
 		// Failed pathfind
-		if (actionToDo === null || actionToDo[0] === undefined){
+		if (actionToDo === null || actionToDo === undefined){
 			this.selectQueueAction(actionIndex, 100);
 			this.completeNextAction(true);
 			return time;
 		}
 		// Explicit non-action wait
-		if (actionToDo[0] === "W"){
+		if (actionToDo === "W"){
 			this.isPausing = true;
 			this.addToTimeline({name: "Wait"}, initialTime);
 			return 0;
 		}
 		// Pause game
-		if (actionToDo[0] === ":"){
+		if (actionToDo === ":"){
 			if (settings.running) toggleRunning();
 			this.selectQueueAction(actionIndex, 100);
 			this.completeNextAction(true);
@@ -291,14 +291,14 @@ class Clone {
 		let actionXOffset = {
 			"R": 1,
 			"L": -1,
-		}[actionToDo[0]] || 0;
+		}[actionToDo] || 0;
 		let actionYOffset = {
 			"U": -1,
 			"D": 1,
-		}[actionToDo[0]] || 0;
+		}[actionToDo] || 0;
 		let hasOffset = !!actionXOffset || !!actionYOffset;
 
-		if (actionToDo[0][0] == "N"){
+		if (actionToDo[0] == "N"){
 			if (runes[actionToDo[1]].create(this.x + actionXOffset, this.y + actionYOffset)){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();
@@ -310,7 +310,7 @@ class Clone {
 				return 0;
 			}
 		}
-		if (actionToDo[0][0] == "S"){
+		if (actionToDo[0] == "S"){
 			if (spells[actionToDo[1]].cast()){
 				this.selectQueueAction(actionIndex, 100);
 				this.completeNextAction();

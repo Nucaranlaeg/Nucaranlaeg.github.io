@@ -21,7 +21,7 @@ class BaseRoute {
 	loadRoute(){
 		let success = true;
 		if (this.zone > 0){
-			let routes = this.pickRoute(this.zone - 1, {"require": this.requirements}, null, this.cloneHealth);
+			let routes = this.pickRoute(this.zone - 1, {"require": this.require}, null, this.cloneHealth);
 			markRoutesChanged();
 			this.usedRoutes = routes;
 			if (routes !== null){
@@ -84,7 +84,7 @@ class Route extends BaseRoute {
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
 			this.progressBeforeReach = duration - x.remainingPresent / 1000 * expectedMul;
-			this.requirements = zones[currentZone].startStuff.map(s => {
+			this.require = zones[currentZone].startStuff.map(s => {
 				return {
 					"name": s.name,
 					"count": s.count - getStuff(s.name).min,

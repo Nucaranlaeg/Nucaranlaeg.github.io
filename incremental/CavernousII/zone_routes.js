@@ -108,7 +108,7 @@ function findUsedZoneRoutes(breakCache = false){
 		if (!breakCache && route.usedRoutes && route.usedRoutes.every((r, i) => zones[i].routes.some(route => r == route))){
 			used = route.usedRoutes;
 		} else {
-			used = route.pickRoute(route.zone - 1, {"require": route.requirements}, null, route.cloneHealth);
+			used = route.pickRoute(route.zone - 1, {"require": route.require}, null, route.cloneHealth);
 			route.usedRoutes = used;
 			if (used === null){
 				route.loadingFailed = true;

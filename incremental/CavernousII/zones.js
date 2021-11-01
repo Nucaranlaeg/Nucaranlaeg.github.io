@@ -125,13 +125,13 @@ class Zone {
 	sumRoute(route, actualRequirements, startDamage){
 		let routeOptions = this.routes.filter(r => r.realm == currentRealm);
 		routeOptions = routeOptions.filter(r => {
-			let requirements = (actualRequirements !== null ? actualRequirements : route.require).map(s => {
+			let require = ((actualRequirements !== null ? actualRequirements : route.require) || []).map(s => {
 				return {
 					"name": s.name,
 					"count": s.count,
 				};
 			});
-			for (let req of requirements){
+			for (let req of require){
 				let thing = r.stuff.find(s => s.name == req.name);
 				if (!thing || req.count > thing.count){
 					return false;
