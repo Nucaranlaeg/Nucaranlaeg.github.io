@@ -1023,10 +1023,21 @@ td.champion {
 	background-color: #550000;
 }
 
+td.golem {
+	background-color: #000000;
+}
+
 td.chieftain:before,
 td.champion:before,
 td.goblin:before {
 	content: "웃";
+	font-size: 0.91666em;
+}
+
+td.golem:before {
+	content: "웃";
+	color: #cc0000;
+	font-weight: bold;
 	font-size: 0.91666em;
 }
 
