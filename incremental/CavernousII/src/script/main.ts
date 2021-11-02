@@ -367,7 +367,7 @@ function load() {
 		for (let j = 0; j < saveGame.zoneData[i].locations.length; j++) {
 			const mapLocation = zone.getMapLocation(saveGame.zoneData[i].locations[j][0], saveGame.zoneData[i].locations[j][1], true);
 			if (mapLocation === null){
-				console.warn(new Error("Tried loading non existant map location"))
+				console.warn(new Error("Tried loading non-existent map location"))
 				continue
 			}
 			mapLocation.priorCompletionData = saveGame.zoneData[i].locations[j][2];
@@ -551,7 +551,7 @@ setInterval(function mainLoop() {
 	} else if (!isNaN((time - timeUsed) / 2)) {
 		timeBanked += (time - timeUsed) / 2;
 	}
-	if (timeLeft > 0.001 && (settings.autoRestart == 1 || settings.autoRestart == 2)) {
+	if (timeLeft > 0.001 && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
 		resetLoop();
 	}
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");

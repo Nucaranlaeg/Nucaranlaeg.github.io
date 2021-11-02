@@ -143,7 +143,7 @@ function displayStuff(node:HTMLElement, route:BaseRoute | ZoneRoute){
 	if (route.require?.length){
 		node.querySelector(".require")!.innerHTML = route.require
 			.map(displaySingleThing)
-			.join("") + (route.require ? rightArrowSVG : "");
+			.join("") + (route instanceof ZoneRoute ? rightArrowSVG : "");
 	} else {
 		let stuffNode = node.querySelector(".require");
 		if (stuffNode) stuffNode.innerHTML = "";

@@ -39,11 +39,11 @@ class LocationType<locationTypeName extends string = string> {
 	}
 
 	getEnterAction(entered: number): anyAction {
-		if (this.name == "Complete Goal" && zones[currentZone].goalComplete) {
-			return Object.create(getAction("Mine"));
-		}
 		if (entered >= this.enterCount) {
 			return Object.create(getAction("Walk"));
+		}
+		if (this.name == "Complete Goal" && zones[currentZone].goalComplete) {
+			return Object.create(getAction("Mine"));
 		}
 		return this.enterAction!;
 	}

@@ -394,6 +394,7 @@ class Clone {
 			return 0;
 		}
 		if (actionToDo == "."){
+			if (!this.walkTime) this.walkTime = 100;
 			let waitTime = Math.min(time, this.walkTime);
 			getAction("Wait")!.tick(waitTime);
 			this.selectQueueAction(actionIndex, 100 - this.walkTime);
@@ -459,6 +460,7 @@ class Clone {
 			}
 			return;
 		}
+		this.isPausing = false;
 		currentClone = this.id;
 		const [nextAction, actionIndex] = getNextAction();
 

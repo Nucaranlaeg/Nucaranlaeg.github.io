@@ -86,6 +86,13 @@ class GrindRoute extends BaseRoute {
 	}
 
 	static migrate(ar:PropertiesOf<GrindRoute>[]) {
+		if (!ar) return ar;
+		ar.forEach((route: any) => {
+			if (route.requirements){
+				route.require = route.requirements;
+				route.requirements = undefined;
+			}
+		});
 		return ar;
 	}
 
