@@ -9,16 +9,15 @@ class Action {
         this.tickExtra = tickExtra;
         this.specialDuration = specialDuration;
     }
-    start(completions, priorCompletions, x, y) {
-        let durationMult = 1;
+    start(location) {
         if (this.canStart) {
             // Typescript can't read its own function types.
             // @ts-ignore
-            durationMult = this.canStart(completions, priorCompletions, x, y);
-            if (durationMult <= 0)
-                return durationMult;
+            let canStart = this.canStart(location);
+            if (canStart <= 0)
+                return canStart;
         }
-        return this.getDuration(durationMult, x, y);
+        return this.getDuration(location);
     }
     tick(usedTime, creature = null, baseTime = 0) {
         for (let i = 0; i < this.stats.length; i++) {
@@ -28,9 +27,8 @@ class Action {
             this.tickExtra(usedTime, creature, baseTime);
         }
     }
-    getDuration(durationMult = 1, x = null, y = null) {
-        let duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
-        duration *= this.specialDuration(x, y);
+    getDuration(location) {
+        let duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) * this.specialDuration(location);
         if (realms[currentRealm].name == "Long Realm") {
             duration *= 3;
         }
@@ -52,15 +50,14 @@ class Action {
         }
         return duration;
     }
-    getProjectedDuration(durationMult = 1, applyWither = 0, useDuration = 0, x = null, y = null) {
+    getProjectedDuration(location, applyWither = 0, useDuration = 0) {
         let duration;
         if (useDuration > 0) {
             duration = useDuration;
         }
         else {
-            duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) * durationMult;
+            duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) * this.specialDuration(location);
             duration -= applyWither;
-            duration *= this.specialDuration(x, y);
         }
         duration *= this.getSkillDiv();
         if (realms[currentRealm].name == "Long Realm") {
@@ -97,9 +94,10 @@ function completeMove(x, y) {
     setMined(x, y);
 }
 function startWalk() {
+    //giving getduration dummylocation because an actual location isnt available
     if (!clones[currentClone].walkTime)
-        clones[currentClone].walkTime = this.getDuration();
-    return 1;
+        clones[currentClone].walkTime = this.getDuration(new MapLocation(0, 0, zones[0], "Tunnel"));
+    return CanStartReturnCode.Now;
 }
 function tickWalk(time) {
     clones[currentClone].walkTime = Math.max(0, clones[currentClone].walkTime - time);
@@ -169,24 +167,27 @@ function longZoneCompletionMult(x, y, z) {
         throw new Error("Location not found");
     return 0.99 ** (location.priorCompletionData[1] ** 0.75);
 }
-function mineManaRockCost(completions, priorCompletions, zone, x, y, realm = null) {
-    return completions
+function mineManaRockCost(location, realm = null, completionOveride) {
+    return location.completions
         ? 0
-        : Math.pow(1 + (0.1 + 0.05 * (zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(x, y, zone.index), priorCompletions);
+        : Math.pow(1 + (0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(location.x, location.y, location.zone.index), completionOveride ?? location.priorCompletions);
 }
-function startCollectMana(completions, priorCompletions, x, y) {
-    return mineManaRockCost(completions, priorCompletions, zones[currentZone], x, y);
+function startCollectMana() {
+    return CanStartReturnCode.Now;
 }
-function startCollectGem(completions, priorCompletions) {
-    return (completions + 1) ** 1.4;
+function mineGemCost(location) {
+    return (location.completions + 1) ** 1.4;
+}
+function startCollectGem() {
+    return CanStartReturnCode.Now;
 }
 function completeCollectGem(x, y) {
     getStuff("Gem").update(getDuplicationAmount(x, y));
 }
-function startActivateMachine(completions, priorCompletions) {
+function startActivateMachine() {
     const gold = getStuff("Gold Nugget");
     const needed = realms[currentRealm].getNextActivateAmount();
-    return gold.count >= needed ? 1 : -1;
+    return gold.count >= needed ? CanStartReturnCode.Now : CanStartReturnCode.NotNow;
 }
 function completeActivateMachine(x, y) {
     const gold = getStuff("Gold Nugget");
@@ -219,13 +220,13 @@ function simpleRequire(requirement, doubleExcempt = false) {
         for (let i = 0; i < requirement.length; i++) {
             const stuff = getStuff(requirement[i][0]);
             if (stuff.count < requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield/) ? 1 : mult))
-                return -1;
+                return CanStartReturnCode.NotNow;
             // In other functions it's (x, y, creature), so just check that it's exactly true
             // spend is used for placing runes.
             if (spend === true)
                 stuff.update(-requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield/) ? 1 : mult));
         }
-        return 1;
+        return CanStartReturnCode.Now;
     }
     haveEnough.itemCount = requirement.reduce((a, c) => a + c[1], 0);
     return haveEnough;
@@ -237,15 +238,15 @@ function canMakeEquip(requirement, equipType) {
             return haveStuff;
         const itemCount = stuff.reduce((a, c) => a + (c.name === equipType ? c.count : 0), 0);
         if (itemCount >= clones.length)
-            return 0;
-        return 1;
+            return CanStartReturnCode.Never;
+        return CanStartReturnCode.Now;
     }
     return canDo;
 }
 function haveBridge() {
     if (getStuff("Iron Bridge").count || getStuff("Steel Bridge").count)
-        return 1;
-    return -1;
+        return CanStartReturnCode.Now;
+    return CanStartReturnCode.NotNow;
 }
 function completeGoldMana() {
     const gold = getStuff("Gold Nugget");
@@ -292,12 +293,11 @@ function tickFight(usedTime, creature, baseTime) {
     const targetClones = clones.filter(c => c.x == clones[currentClone].x && c.y == clones[currentClone].y);
     targetClones.forEach(c => c.takeDamage(damage / targetClones.length));
 }
-let combatTools = [];
-setTimeout(() => combatTools = [
-    ["Iron Axe", 0.01, "Woodcutting"],
-    ["Iron Pick", 0.01, "Mining"],
-    ["Iron Hammer", 0.01, "Smithing"]
-].map(t => [getStuff(t[0]), t[1], getStat(t[2])]));
+let combatTools = [
+    [getStuff("Iron Axe"), 0.01, getStat("Woodcutting")],
+    [getStuff("Iron Pick"), 0.01, getStat("Mining")],
+    [getStuff("Iron Hammer"), 0.01, getStat("Smithing")]
+];
 function combatDuration() {
     let duration = 1;
     for (let i = 0; i < combatTools.length; i++) {
@@ -334,21 +334,21 @@ function startChargeTeleport() {
     for (let y = 0; y < zones[currentZone].map.length; y++) {
         for (let x = 0; x < zones[currentZone].map[y].length; x++) {
             if (zones[currentZone].map[y][x] == "t") {
-                return 0;
+                return CanStartReturnCode.Never;
             }
         }
     }
-    return 1;
+    return CanStartReturnCode.Now;
 }
 function startTeleport() {
     for (let y = 0; y < zones[currentZone].map.length; y++) {
         for (let x = 0; x < zones[currentZone].map[y].length; x++) {
             if (zones[currentZone].map[y][x] == "t") {
-                return 1;
+                return CanStartReturnCode.Now;
             }
         }
     }
-    return -1;
+    return CanStartReturnCode.NotNow;
 }
 function completeTeleport() {
     for (let y = 0; y < zones[currentZone].map.length; y++) {
@@ -371,8 +371,8 @@ function predictTeleport() {
     }
     return Infinity;
 }
-function startChargeDuplicate(completions) {
-    if (completions > 0) {
+function startChargeDuplicate(location) {
+    if (location.completions > 0) {
         return 0;
     }
     return 1;
@@ -407,7 +407,7 @@ function tickWither(usedTime, { x, y }) {
     }
     adjacentPlants.forEach(loc => {
         loc.wither += usedTime * (wither.upgradeCount ? 2 ** (wither.upgradeCount - 1) : 1);
-        if (loc.type.getEnterAction(loc.entered).getProjectedDuration(1, loc.wither) <= 0) {
+        if (loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither) <= 0) {
             setMined(loc.x, loc.y, ".");
             loc.enterDuration = loc.remainingEnter = Math.min(baseWalkLength(), loc.remainingEnter);
             loc.entered = Infinity;
@@ -435,7 +435,9 @@ function completeWither(x, y) {
         return false;
     return true;
 }
-function predictWither(x = null, y = null) {
+function predictWither(location) {
+    let x = location.x;
+    let y = location.y;
     if (x === null || y === null)
         return 1;
     x += zones[currentZone].xOffset;
@@ -446,18 +448,18 @@ function predictWither(x = null, y = null) {
         "♣♠α§".includes(zones[currentZone].map[y][x - 1]) ? zones[currentZone].mapLocations[y][x - 1] : null,
         "♣♠α§".includes(zones[currentZone].map[y + 1][x]) ? zones[currentZone].mapLocations[y + 1][x] : null,
         "♣♠α§".includes(zones[currentZone].map[y][x + 1]) ? zones[currentZone].mapLocations[y][x + 1] : null
-    ].filter(p => p);
+    ].filter((p) => p !== null);
     if (wither.upgradeCount > 0) {
         adjacentPlants.push(...[
             "♣♠α§".includes(zones[currentZone].map[y - 1][x - 1]) ? zones[currentZone].mapLocations[y - 1][x - 1] : null,
             "♣♠α§".includes(zones[currentZone].map[y + 1][x - 1]) ? zones[currentZone].mapLocations[y + 1][x - 1] : null,
             "♣♠α§".includes(zones[currentZone].map[y + 1][x + 1]) ? zones[currentZone].mapLocations[y + 1][x + 1] : null,
             "♣♠α§".includes(zones[currentZone].map[y - 1][x + 1]) ? zones[currentZone].mapLocations[y - 1][x + 1] : null
-        ].filter(p => p));
+        ].filter((p) => p !== null));
     }
     if (!adjacentPlants.length)
         return 0;
-    return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(1, loc.wither))) / 2000;
+    return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither))) / 2000;
 }
 function activatePortal() {
     moveToZone(currentZone + 1);
@@ -475,11 +477,11 @@ function tickSpore(usedTime, creature, baseTime) {
 function completeBarrier() {
     zones[currentZone].manaDrain += 5;
 }
-function startBarrier(competions, priorCompletions, x, y) {
-    const location = getMapLocation(x, y, true);
+function startBarrier(location) {
+    location = getMapLocation(location.x, location.y, true);
     if (getRealm("Compounding Realm").machineCompletions >= +location.baseType.symbol)
-        return 1;
-    return 0;
+        return CanStartReturnCode.Now;
+    return CanStartReturnCode.Never;
 }
 var ACTION;
 (function (ACTION) {
@@ -544,8 +546,8 @@ const actions = [
     new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
     new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
     new Action("Mine Gem", 100000, [["Mining", 0.75], ["Gemcraft", 0.25]], completeMove),
-    new Action("Collect Gem", 100000, [["Smithing", 0.1], ["Gemcraft", 1]], completeCollectGem, startCollectGem),
-    new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana),
+    new Action("Collect Gem", 100000, [["Smithing", 0.1], ["Gemcraft", 1]], completeCollectGem, startCollectGem, undefined, mineGemCost),
+    new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana, mineManaRockCost),
     new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
     new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]], true), simpleRequire([["Iron Ore", 1]], true)),
     new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),

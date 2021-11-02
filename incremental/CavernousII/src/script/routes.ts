@@ -95,7 +95,7 @@ class Route extends BaseRoute {
 
 			let mana = getStat("Mana");
 			let expectedMul = getAction("Collect Mana").getBaseDuration(this.realm);
-			let duration = mineManaRockCost(0, base.completions + base.priorCompletions, base.zone, this.x, this.y) * expectedMul;
+			let duration = mineManaRockCost(base) * expectedMul;
 			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
@@ -117,7 +117,7 @@ class Route extends BaseRoute {
 	getRefineCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, false, this.zone)!;
 		let mul = getAction("Collect Mana").getBaseDuration(this.realm);
-		return mineManaRockCost(0, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel, loc.zone, this.x, this.y, this.realm) * mul;
+		return mineManaRockCost(loc, this.realm,loc.completions + loc.priorCompletionData[this.realm] + relativeLevel) * mul;
 	}
 
 	estimateRefineManaLeft(ignoreInvalidate = false) {

@@ -4,7 +4,7 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 	zone: Zone;
 	baseType: LocationType<basetypeName>;
 	creature: Creature | null;
-	priorCompletionData: any[];
+	priorCompletionData: number[];
 	completions: number;
 	entered: number;
 	remainingEnter: number;
@@ -56,9 +56,9 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 	start() {
 		if (clones[currentClone].x == this.x && clones[currentClone].y == this.y){
 			if (this.type.presentAction){
-				this.remainingPresent = this.type.presentAction.start(this.completions, this.priorCompletions, this.x, this.y);
+				this.remainingPresent = this.type.presentAction.start(this);
 			} else if (this.temporaryPresent){
-				this.remainingPresent = this.temporaryPresent.start(this.completions, this.priorCompletions, this.x, this.y);
+				this.remainingPresent = this.temporaryPresent.start(this);
 			} else {
 				return false;
 			}
@@ -68,9 +68,9 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 		const enterAction = this.type.getEnterAction(this.entered);
 		if (!enterAction) return false;
 		clones[currentClone].walkTime = 0;
-		this.remainingEnter = enterAction.start(this.completions, this.priorCompletions, this.x, this.y);
+		this.remainingEnter = enterAction.start(this);
 		if (this.remainingEnter > 0){
-			this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(this.completions, this.priorCompletions, this.x, this.y), this.remainingEnter - this.wither);
+			this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(this), this.remainingEnter - this.wither);
 		}
 		this.enterDuration = this.remainingEnter;
 		return this.remainingEnter;
@@ -102,7 +102,7 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 			if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered)!.name)){
 				if (!clones[currentClone].walkTime){
 					// Second and following entrances
-					clones[currentClone].walkTime = this.type.getEnterAction(this.entered)!.start(this.completions, this.priorCompletions, this.x, this.y);
+					clones[currentClone].walkTime = this.type.getEnterAction(this.entered)!.start(this);
 				}
 				this.remainingEnter = clones[currentClone].walkTime;
 			} else {

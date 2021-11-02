@@ -71,7 +71,7 @@ function startCollectManaCost(
 	y: number
 ): string {
 	return `${writeNumber(
-		this.presentAction ? this.presentAction.getProjectedDuration(mineManaRockCost(completions, priorCompletions, zone, x, y)) / 1000 : -1,
+		this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x,y,false,zone.index)!) / 1000 : -1,
 		2
 	)}s`;
 }
