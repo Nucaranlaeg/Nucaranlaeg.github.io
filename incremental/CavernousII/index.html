@@ -2,7 +2,7 @@
 
 <head>
 	<title>Cavernous</title>
-	<link rel="stylesheet" type="text/css" href="style.css" />
+	<link rel="stylesheet" type="text/css" href="src/style.css" />
 	<!--Dependencies-->
 	<script type="text/javascript" defer src="dependencies/lz-string/lz-string.min.js"></script>
 	<!--Game code-->
@@ -241,7 +241,7 @@
 			<div class="version" title="By Nucaranlaeg">
 				<a href="https://paypal.me/SamBenner" target="_blank">Support Development</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.2.10</span><br />
+				Version <span id="version">2.2.11</span><br />
 				©2021
 			</div>
 		</div>
@@ -422,14 +422,12 @@
 		<div id="config-wrapper" onclick="(event => event.stopPropagation())(event)">
 			<div class="option block clickable" onclick="toggleFollowZone()">
 				<span id="follow-zone-toggle">Follow on zone complete</span> (Z)
-				<div class="description big-description">Adjust what happens when your clones the zone you're currently
-					viewing.</div>
+				<div class="description big-description">Adjust what happens when your clones exit the zone you're currently viewing.</div>
 			</div>
 			<div class="option block clickable" onclick="findUsedZoneRoutes(true)">
 				<span class="name">Check zone route usage</span>
 				<div class="description big-description">
-					For performance reasons, the blue shading on unused zone routes may not update frequently; this
-					forces an update.
+					For performance reasons, the blue shading on unused zone routes may not update frequently; this forces an update.
 				</div>
 			</div>
 			<div class="option block clickable" onclick="toggleTimeline()">
@@ -457,8 +455,7 @@
 				<span class="label" for="max-time">Max tick time (ms)</span>
 				<input id="max-time" onblur="setMaxTickTime()" />
 				<div class="description big-description">
-					Minimum value is 250; set this lower if the game is choppy. The maximum speed is dependant on your
-					base Mana or capped by this value.
+					Minimum value is 250; set this lower if the game is choppy. The maximum speed is dependant on your base Mana or capped by this value.
 				</div>
 			</div>
 		</div>

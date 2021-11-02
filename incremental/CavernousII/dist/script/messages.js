@@ -141,7 +141,8 @@ const messages = [
     new Message("Enter New Zone", `
 			You've found a portal to another zone!
 			Each zone has at least 3 mana rocks - they give more mana but their cost scales faster the deeper you get.  They give 0.1 mana to each zone up to the current one, which you'll receive on entering that zone.
-			You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with.  You can click on these routes to load them.  There's an option which lets you load only that route or that route and its prerequisites.`),
+			You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with.  You can click on these routes to load them.  There's an option which lets you load only that route or that route and its prerequisites.
+			Only one clone needs to pass through the portal, and the rest will be brought to the next zone with it.`),
     new Message("Unlocked Weaken Rune", `
 			You've unlocked a rune!
 			To place a rune, press the relevant number, and the rune will be inscribed upon the space that clone is in.  You can inscribe runes only on Dug Tunnel spaces.

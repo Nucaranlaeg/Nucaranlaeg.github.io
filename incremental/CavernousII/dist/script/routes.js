@@ -152,6 +152,14 @@ class Route extends BaseRoute {
         return routes.find(r => r.x == x && r.y == y && r.zone == z && r.realm == currentRealm);
     }
     static migrate(ar) {
+        if (!ar)
+            return ar;
+        ar.forEach((route) => {
+            if (route.requirements) {
+                route.require = route.requirements;
+                route.requirements = undefined;
+            }
+        });
         return ar;
     }
     static fromJSON(ar) {

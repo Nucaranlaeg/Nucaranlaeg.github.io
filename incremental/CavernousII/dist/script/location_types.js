@@ -16,11 +16,11 @@ class LocationType {
         this.startWater = startWater;
     }
     getEnterAction(entered) {
-        if (this.name == "Complete Goal" && zones[currentZone].goalComplete) {
-            return Object.create(getAction("Mine"));
-        }
         if (entered >= this.enterCount) {
             return Object.create(getAction("Walk"));
+        }
+        if (this.name == "Complete Goal" && zones[currentZone].goalComplete) {
+            return Object.create(getAction("Mine"));
         }
         return this.enterAction;
     }
