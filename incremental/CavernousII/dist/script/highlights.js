@@ -58,8 +58,8 @@ function getActionOffset(x, y, action) {
         const match = action.match(/P(-?\d+):(-?\d+);/);
         if (match === null)
             throw new Error(`Invalid action string "${action}"`);
-        [_, x, y] = match.map(parseInt);
-        return [+x + zones[displayZone].xOffset, +y + zones[displayZone].yOffset];
+        [_, x, y] = match.map(z => +z);
+        return [x + zones[displayZone].xOffset, y + zones[displayZone].yOffset];
     }
     x += +(action == "R") - +(action == "L");
     y += +(action == "D") - +(action == "U");
