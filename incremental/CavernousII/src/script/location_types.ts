@@ -95,7 +95,7 @@ const locationTypes = [
 	new LocationType("Salt", "░", "A wall of rock salt.  It only takes so long to mine it because you want to sort out the salt and not carry a ton of gravel with you.", "Mine Salt", null, null),
 	new LocationType("Mana-infused Rock", "¤", "A whole bunch of rock.  But this time, it glows!", "Mine", "Collect Mana", storeCompletions, startCollectManaCost),
 	new LocationType<"Mana Spring">("Mana Spring", "*", "Pure mana, flowing out of the rock.  Each time you absorb the mana, the cost to do so next time increases.", "Walk", "Collect Mana", storeCompletions, startCollectManaCost),
-	new LocationType("Strange Machine", "♥", "A strange machine labelled '{'0':'Clone Machine','1':'Rune Enhancer','2':'Rune Enhancer'}'.  What could it do?", "Walk", "Activate Machine", null, getNextActivateCost),
+	new LocationType("Strange Machine", "♥", "A strange machine labelled '{'0':'Clone Machine','1':'Rune Enhancer','2':'Rune Enhancer','3':'Time Stretcher'}'.  What could it do?", "Walk", "Activate Machine", null, getNextActivateCost),
 	new LocationType("Vaporizer", "=", "A machine for extracting the magic right out of gold. ({MANA_PER_GOLD} mana per gold)", "Walk", "Turn Gold to Mana", null),
 	new LocationType("Fountain", "^", "A healing fountain, activated by the runes around its base.", "Walk", "Heal", null, null, undefined, false),
 	new LocationType("Bottomless Pit", " ", "A bottomless pit.", "Cross Pit", null, null),
