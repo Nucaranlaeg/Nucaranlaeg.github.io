@@ -68,6 +68,7 @@ const classMapping: classMappingType = {
 	"c": ["chieftain", "Goblin Chieftain"],
 	"s": ["skeleton", "Skeleton"],
 	"m": ["champion", "Goblin Champion"],
+	"G": ["golem", "Golem"],
 	"Θ": ["zone", "Zone Portal"],
 	"√": ["goal", "Goal"],
 	"♠": ["mushroom", "Mushroom"],
@@ -263,6 +264,8 @@ function setMined(x: number, y: number, icon?: string) {
 		"░": ".",
 		"╖": ".",
 		"╣": ".",
+		"1": ".",
+		"2": ".",
 	}
 	x += zones[currentZone].xOffset;
 	y += zones[currentZone].yOffset;

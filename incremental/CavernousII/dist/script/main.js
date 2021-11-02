@@ -265,6 +265,7 @@ let save = function save() {
             upgradeCount: r.upgradeCount
         };
     });
+    const machines = realms.map(r => r.machineCompletions);
     let saveGame = {
         version: version,
         playerStats: playerStats,
@@ -278,6 +279,7 @@ let save = function save() {
         routes: savedRoutes,
         grindRoutes: savedGrindRoutes,
         runeData: runeData,
+        machines: machines,
     };
     let saveString = JSON.stringify(saveGame);
     // Typescript can't find LZString, and I don't care.
@@ -335,6 +337,7 @@ function load() {
     }
     for (let i = 0; i < realms.length; i++) {
         currentRealm = i;
+        realms[i].machineCompletions = (saveGame.machines || [])[i] || 0;
         recalculateMana();
     }
     clones = [];

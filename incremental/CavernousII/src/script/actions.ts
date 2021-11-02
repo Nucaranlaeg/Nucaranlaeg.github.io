@@ -263,7 +263,7 @@ function canMakeEquip(requirement: [anyStuffName, number][], equipType: string) 
 	function canDo() {
 		const haveStuff = simpleRequire(requirement)();
 		if (haveStuff <= 0) return haveStuff;
-		const itemCount = stuff.reduce((a, c) => a + (c.name === equipType ? c.count : 0), 0);
+		const itemCount = stuff.reduce((a, c) => a + (c.name.includes(equipType) ? c.count : 0), 0);
 		if (itemCount >= clones.length) return 0;
 		return 1;
 	}
@@ -526,8 +526,9 @@ function tickSpore(usedTime: number, creature: Creature, baseTime: number) {
 	clones[currentClone].takeDamage(baseTime / 1000);
 }
 
-function completeBarrier() {
+function completeBarrier(x: number, y: number) {
 	zones[currentZone].manaDrain += 5;
+	completeMove(x, y);
 }
 
 function startBarrier(competions: any, priorCompletions: any, x: number, y: number) {

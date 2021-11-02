@@ -88,6 +88,13 @@ function switchRuneList() {
     document.querySelector("#spells").classList.toggle("active-pane", !settings.showingRunes);
     return settings.showingRunes;
 }
+function setMaxTickTime(element) {
+    let value = +element.value;
+    if (!isNaN(value)) {
+        settings.maxTotalTick = Math.max(250, value);
+    }
+    element.value = settings.maxTotalTick.toString();
+}
 function loadSettings(savedSettings) {
     setSetting(toggleBankedTime, savedSettings.usingBankedTime);
     setSetting(toggleRunning, !!savedSettings.running);
@@ -98,6 +105,9 @@ function loadSettings(savedSettings) {
     setSetting(toggleTimeline, !!savedSettings.timeline);
     setSetting(toggleStatGrindPerSec, !!savedSettings.statGrindPerSec);
     setSetting(switchRuneList, !!savedSettings.showingRunes);
+    const maxTimeInput = document.querySelector("#max-time");
+    if (maxTimeInput)
+        setMaxTickTime(maxTimeInput);
     Object.assign(settings, savedSettings, settings);
 }
 const configBox = document.querySelector("#config-box") ??

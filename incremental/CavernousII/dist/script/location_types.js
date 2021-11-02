@@ -63,6 +63,7 @@ const locationTypes = [
     new LocationType("Goblin Chieftain", "c", "This one is uglier than the last two.  Probably meaner, too.\n{STATS}", "Attack Creature", null, null),
     new LocationType("Goblin Champion", "m", "The largest of the goblins.  You're going to have to work hard to take him down.\n{STATS}", "Attack Creature", null, null),
     new LocationType("Skeleton", "s", "An undead.  It's not very dangerous, but it is resilient.\n{STATS}", "Attack Creature", null, null),
+    new LocationType("Golem", "G", "A towering golem made out of finely crafted stone.  There aren't even any chinks in its armour!\n{STATS}", "Attack Creature", null, null),
     new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
     new LocationType("Wither Rune", "H", "This rune kills plants next to it.", "Walk", null, null),
     new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),

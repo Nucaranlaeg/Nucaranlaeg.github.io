@@ -235,7 +235,7 @@ function canMakeEquip(requirement, equipType) {
         const haveStuff = simpleRequire(requirement)();
         if (haveStuff <= 0)
             return haveStuff;
-        const itemCount = stuff.reduce((a, c) => a + (c.name === equipType ? c.count : 0), 0);
+        const itemCount = stuff.reduce((a, c) => a + (c.name.includes(equipType) ? c.count : 0), 0);
         if (itemCount >= clones.length)
             return 0;
         return 1;
@@ -472,8 +472,9 @@ function getChopTime(base, increaseRate) {
 function tickSpore(usedTime, creature, baseTime) {
     clones[currentClone].takeDamage(baseTime / 1000);
 }
-function completeBarrier() {
+function completeBarrier(x, y) {
     zones[currentZone].manaDrain += 5;
+    completeMove(x, y);
 }
 function startBarrier(competions, priorCompletions, x, y) {
     const location = getMapLocation(x, y, true);
