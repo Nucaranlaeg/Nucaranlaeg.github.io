@@ -67,7 +67,7 @@ class Route extends BaseRoute {
 	progressBeforeReach!: number;
 	allDead!: boolean;
 	invalidateCost!: boolean;
-	totalTimeAvailable: any;
+	manaDrain: number = 0;
 	constructor(base: MapLocation | PropertiesOf<Route>) {
 		super();
 		if (base instanceof MapLocation) {
@@ -75,6 +75,8 @@ class Route extends BaseRoute {
 			this.y = base.y;
 			this.zone = currentZone;
 			this.realm = currentRealm;
+			this.manaDrain = zones[currentZone].manaDrain;
+			console.log(this.manaDrain)
 			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
 			route = route.filter(e => e.length);
 
@@ -116,7 +118,7 @@ class Route extends BaseRoute {
 
 	getRefineCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, false, this.zone)!;
-		let mul = getAction("Collect Mana").getBaseDuration(this.realm);
+		let mul = getAction("Collect Mana").getBaseDuration(this.realm) * (1 + this.manaDrain);
 		return mineManaRockCost(loc, this.realm,loc.completions + loc.priorCompletionData[this.realm] + relativeLevel) * mul;
 	}
 

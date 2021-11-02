@@ -118,6 +118,14 @@ function switchRuneList() {
 	return settings.showingRunes;
 }
 
+function setMaxTickTime(element: HTMLInputElement) {
+	let value = +element.value;
+	if (!isNaN(value)){
+		settings.maxTotalTick = Math.max(250, value);
+	}
+	element.value = settings.maxTotalTick.toString();
+}
+
 function loadSettings(savedSettings: settings) {
 	setSetting(toggleBankedTime, savedSettings.usingBankedTime);
 	setSetting(toggleRunning, !!savedSettings.running);
@@ -128,6 +136,8 @@ function loadSettings(savedSettings: settings) {
 	setSetting(toggleTimeline, !!savedSettings.timeline);
 	setSetting(toggleStatGrindPerSec, !!savedSettings.statGrindPerSec);
 	setSetting(switchRuneList, !!savedSettings.showingRunes);
+	const maxTimeInput = <HTMLInputElement>document.querySelector("#max-time");
+	if (maxTimeInput) setMaxTickTime(maxTimeInput);
 
 	Object.assign(settings, savedSettings, settings);
 }

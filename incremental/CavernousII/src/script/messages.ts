@@ -273,6 +273,6 @@ const messages = [
 		"Time Barriers",
 		`
 			You've unlocked the first of the time barriers!
-			There's one in each zone, behind which is a mana rock.  However, breaching a time barrier causes the zone to steal 5 of your mana per second.`
+			There's one in each zone, behind which is a mana rock.  However, breaching a time barrier causes the zone to leech 5 of your mana per second.`
 	),
 ];
