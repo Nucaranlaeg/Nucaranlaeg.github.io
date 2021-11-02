@@ -176,9 +176,6 @@ class Stat {
             return;
         }
         this.current -= amount;
-        if (this.current < -1) {
-            alert("Error: overspend mana\nplease send to devs");
-        }
         if (this.current < 0) {
             this.current = 0;
         }
@@ -202,6 +199,7 @@ const stats = [
     new Stat("Spellcraft", "", "Wield the energies you've torn from the ground in powerful ways."),
     new Stat("Combat", "", "Your ability to kill things.", 0),
     new Stat("Gemcraft", "", "You pick pretty stuff from the walls - in one piece.", 0),
+    new Stat("Chronomancy", "", "Your command of magic has expanded, even affecting the flow of time! (It helps you resist the leeching of time barriers)", 0),
     new Stat("Attack", "", "How much damage your wild flailing does. (Weapons increase all clones' stats)", 0, false),
     new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),
     new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false)

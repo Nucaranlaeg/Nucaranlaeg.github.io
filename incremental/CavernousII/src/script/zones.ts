@@ -21,6 +21,7 @@ class Zone {
 	lastRoute: ZoneRoute | null;
 	startMana: any;
 	zoneStartTime: number | null;
+	manaDrain: number = 0;
 
 	public constructor(name: string, map: string[], goalReward: (() => void) | null = null) {
 		this.name = name;
@@ -98,6 +99,10 @@ class Zone {
 			this.map = convertMapToVerdant(this.map);
 		}
 		if (this.goalComplete) this.map = this.map.map(row => row.replace("√", "#"));
+		let unlockedBarriers = getRealm("Compounding Realm").machineCompletions;
+		for (let i = 0; i < 3; i++){
+			if (i > unlockedBarriers) this.map = this.map.map(row => row.replace(i.toString(), "█"));
+		}
 		this.mapLocations.forEach((ml, y) => {
 			ml.forEach((l, x) => {
 				l.reset();
@@ -282,6 +287,7 @@ class Zone {
 				if (this.routes[i].realm != currentRealm) continue;
 				let routeNode = routeTemplate.cloneNode(true) as HTMLElement;
 				routeNode.removeAttribute("id");
+				if (this.routes[i].actionCount) routeNode.querySelector(".actions")!.innerHTML = this.routes[i].actionCount.toString() + "&nbsp;";
 				routeNode.querySelector(".mana")!.innerHTML = this.routes[i].mana.toFixed(2);
 				displayStuff(routeNode, this.routes[i]);
 				routeNode.onclick = () => {
@@ -337,6 +343,7 @@ class Zone {
 	tick(time: number) {
 		// Optimize by keeping a list of watery locations?
 		this.mapLocations.forEach(row => row.forEach(loc => loc.zoneTick(time)));
+		getStat("Mana").spendMana(time * this.manaDrain * getStat("Chronomancy").value);
 	}
 }
 
@@ -384,24 +391,24 @@ const zones = [
 	new Zone(
 		"Zone 1",
 		[
-			"████████████████",
-			"███████+##+█████",
-			"██####% █████%██",
-			"██%██#█##%█¢#♠♥█",
-			"███###███¤██#███",
-			"██+♠████%♠%█#╬██",
-			"█¤█+██.###♠=#⎶██",
-			"█%##███#+█#+##██",
-			"███###█¤██##█♠██",
-			"███#█#██¤♠ ♠█++█",
-			"█#  █#████♠♣████",
-			"█♠███#████+♠♣♠██",
-			"█♠%█#####+███♣██",
-			"█#%█+##██#####██",
-			"█#%█##♠#%████ Θ█",
-			"██%███#█#%#█████",
-			"█¤#¥██++██#£░╖√█",
-			"████████████████"
+			"███████████████████",
+			"███████+##+████████",
+			"██####% █████%█████",
+			"██%██#█##%█¢#♠♥████",
+			"███###███¤██#███¤♣█",
+			"██+♠████%♠%█#╬███#█",
+			"█¤█+██.###♠=#⎶█☼█#█",
+			"█%##███#+█#+##█%##█",
+			"███###█¤██##█♠███+█",
+			"███#█#██¤♠ ♠█++██#█",
+			"█#  █#████♠♣█████#█",
+			"█♠███#████+♠♣♠██  █",
+			"█♠%█#####+███♣1# ██",
+			"█#%█+##██#####█████",
+			"█#%█##♠#%████ Θ████",
+			"██%███#█#%#████████",
+			"█¤#¥██++██#£░╖√████",
+			"███████████████████"
 		],
 		() => {
 			getMessage("Unlocked Duplication Rune").display();

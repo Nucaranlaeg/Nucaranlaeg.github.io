@@ -138,4 +138,6 @@ const locationTypes = [
 	new LocationType("Sword Enchanter", "|", "An anvil on which you can enchant a steel sword using {'0':5,'1':10} gems.", "Walk", "Enchant Sword", null),
 	new LocationType("Shield Enchanter", "<", "An anvil on which you can enchant a steel shield using {'0':5,'1':10} gems.", "Walk", "Enchant Shield", null),
 	new LocationType("Armour Enchanter", ">", "An anvil on which you can enchant a steel suit of armour using {'0':5,'1':10} gems.", "Walk", "Enchant Armour", null),
+	new LocationType("Timelike Barrier", "1", "A wall made of a strange energy that saps your mana.", "Enter Barrier", null, null),
+	new LocationType("Timelike Barrier", "2", "A wall made of a strange energy that saps your mana.", "Enter Barrier", null, null),
 ];

@@ -6,6 +6,7 @@ class ZoneRoute {
 	cloneHealth!: number[][];
 	manaRequired!: number;
 	require!: simpleStuffList;
+	actionCount!: number;
 
 	constructor(z: Zone | PropertiesOf<ZoneRoute>) {
 		if (z instanceof Zone) {
@@ -46,6 +47,7 @@ class ZoneRoute {
 					};
 				})
 				.filter(s => s.count > 0);
+			this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
 			return;
 		}
 
@@ -58,7 +60,8 @@ class ZoneRoute {
 			this.manaRequired <= zoneRoute.manaRequired + zoneMana &&
 			zoneRoute.stuff.every(s => (this.stuff.find(t => t.name == s.name) || { count: -1 }).count >= s.count) &&
 			this.require.every(s => (zoneRoute.require.find(t => t.name == s.name) || { count: -1 }).count >= s.count) &&
-			this.cloneHealth.every((c, i) => c[0] > (zoneRoute.cloneHealth[i] || [0])[0] - 0.1 && c[1] > (zoneRoute.cloneHealth[i] || [0, 0])[1] - 0.1)
+			this.cloneHealth.every((c, i) => c[0] > (zoneRoute.cloneHealth[i] || [0])[0] - 0.1 && c[1] > (zoneRoute.cloneHealth[i] || [0, 0])[1] - 0.1) &&
+			this.actionCount <= zoneRoute.actionCount
 		);
 	}
 

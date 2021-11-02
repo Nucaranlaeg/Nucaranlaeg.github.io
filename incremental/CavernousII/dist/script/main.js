@@ -212,7 +212,7 @@ let save = function save() {
     const playerStats = stats.map(s => {
         return {
             name: s.name,
-            base: s.base
+            base: s.base,
         };
     });
     const zoneData = zones.map(zone => {
@@ -228,31 +228,25 @@ let save = function save() {
         return {
             name: zone.name,
             locations: zoneLocations,
-            queues: zone.queues
-                ? zone.queues.map(queue => {
-                    return queue.map(q => {
-                        return q.actionID;
-                    });
-                })
-                : [[]],
+            queues: zone.queues ? zone.queues.map(queue => queue.map(q => q.actionID)) : [[]],
             routes: zone.routes,
-            goal: zone.goalComplete
+            goal: zone.goalComplete,
         };
     });
     const cloneData = {
-        count: clones.length
+        count: clones.length,
     };
     const stored = savedQueues.map((q) => {
         return {
             queue: q,
             name: q.name,
             icon: possibleActionIcons.indexOf(q.icon),
-            colour: q.colour
+            colour: q.colour,
         };
     });
     const time = {
         saveTime: Date.now(),
-        timeBanked
+        timeBanked,
     };
     const messageData = messages.map(m => [m.name, m.displayed]);
     const savedRoutes = JSON.parse(JSON.stringify(routes, (key, value) => {
@@ -283,7 +277,7 @@ let save = function save() {
         settings: settings,
         routes: savedRoutes,
         grindRoutes: savedGrindRoutes,
-        runeData: runeData
+        runeData: runeData,
     };
     let saveString = JSON.stringify(saveGame);
     // Typescript can't find LZString, and I don't care.

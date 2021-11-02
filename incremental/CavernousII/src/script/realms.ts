@@ -1,7 +1,3 @@
-
-
-
-
 let currentRealm = 0;
 
 class Realm {
@@ -15,6 +11,7 @@ class Realm {
 	node: HTMLElement | null;
 	index: number = -1;
 	mult: number | null = null;
+	machineCompletions: number = 0;
 
 	constructor(
 		name: string,
@@ -162,8 +159,11 @@ const realms:Realm[] = [
 	new Realm(
 		"Compounding Realm",
 		"A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.05 points later per mana rock completion).",
-		() => Infinity,
-		() => {},
+		() => getRealm("Compounding Realm").machineCompletions + 2,
+		() => {
+			// getRealm("Compounding Realm").machineCompletions++;
+			// getMessage("Time Barriers").display();
+		},
 		getCompoundingMultDesc,
 		0.05
 	)
@@ -171,6 +171,6 @@ const realms:Realm[] = [
 
 function getRealm(name:string) {
 	let realm = realms.find(a => a.name == name)
-	if (realm === undefined) throw new Error(`No realmn with name "${name}" found`);
+	if (realm === undefined) throw new Error(`No realm with name "${name}" found`);
 	return realm
 }

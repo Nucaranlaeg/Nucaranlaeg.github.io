@@ -55,7 +55,7 @@ class MapLocation {
             return false;
         clones[currentClone].walkTime = 0;
         this.remainingEnter = enterAction.start(this.completions, this.priorCompletions, this.x, this.y);
-        if (this.remainingEnter !== -1) {
+        if (this.remainingEnter > 0) {
             this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(this.completions, this.priorCompletions, this.x, this.y), this.remainingEnter - this.wither);
         }
         this.enterDuration = this.remainingEnter;

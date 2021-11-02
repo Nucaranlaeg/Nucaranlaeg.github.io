@@ -119,6 +119,10 @@ td.failed {
 	color: #ff0000;
 }
 
+td.drowned {
+	text-decoration: underline;
+}
+
 td.unreached {
 	background-color: #33333333;
 }
@@ -645,6 +649,12 @@ h4#location-name {
 	background-color: #88aaaa;
 }
 
+.zone .actions {
+	color: #000000;
+	font-weight: bold;
+	display: inline-block;
+}
+
 .zone .mana {
 	color: #0000ff;
 	width: 50px;
@@ -1045,6 +1055,8 @@ td.coal:before {
 }
 
 .timeline > div.Portal,
+.timeline > div.Enter-Barrier,
+td.barrier,
 td.zone {
 	background-color: #3939ff;
 }

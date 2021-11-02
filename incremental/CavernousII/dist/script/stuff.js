@@ -76,7 +76,7 @@ function calcCombatStats() {
 }
 function getStatBonus(name, amount) {
     let stat = getStat(name);
-    return (mult) => stat.getBonus(amount * mult);
+    return (mult) => stat.getBonus(Math.floor(amount + 0.01) * mult);
 }
 const stuff = [
     new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),

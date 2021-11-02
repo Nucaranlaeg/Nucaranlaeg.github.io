@@ -175,6 +175,9 @@ const messages = [
 			Duplication now gives 25% more resources (you can't do anything with less than a full item, though, unless you have enough quarter items).  Further upgrades will increase this by 25% (additively).`),
     new Message("Upgraded Wither Rune", `
 			You've upgraded the Wither rune!
-			Wither now affects all diagonally adjacent plants as well as orthogonally adjacent plants.  Further upgrades will double its potency each time.`)
+			Wither now affects all diagonally adjacent plants as well as orthogonally adjacent plants.  Further upgrades will double its potency each time.`),
+    new Message("Time Barriers", `
+			You've unlocked the first of the time barriers!
+			There's one in each zone, behind which is a mana rock.  However, breaching a time barrier causes the zone to steal 5 of your mana per second.`),
 ];
 //# sourceMappingURL=messages.js.map

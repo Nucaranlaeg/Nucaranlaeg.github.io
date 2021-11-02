@@ -392,7 +392,7 @@ class Clone {
             if (!this.walkTime)
                 this.completeNextAction();
             this.addToTimeline({ name: "Wait" }, waitTime);
-            return Math.max(0, time - this.walkTime);
+            return time - waitTime;
         }
         const location = getMapLocation(this.x + actionXOffset, this.y + actionYOffset);
         if (location === null)

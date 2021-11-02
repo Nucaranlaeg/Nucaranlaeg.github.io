@@ -237,7 +237,7 @@ function canMakeEquip(requirement, equipType) {
             return haveStuff;
         const itemCount = stuff.reduce((a, c) => a + (c.name === equipType ? c.count : 0), 0);
         if (itemCount >= clones.length)
-            return -1;
+            return 0;
         return 1;
     }
     return canDo;
@@ -472,6 +472,15 @@ function getChopTime(base, increaseRate) {
 function tickSpore(usedTime, creature, baseTime) {
     clones[currentClone].takeDamage(baseTime / 1000);
 }
+function completeBarrier() {
+    zones[currentZone].manaDrain += 5;
+}
+function startBarrier(competions, priorCompletions, x, y) {
+    const location = getMapLocation(x, y, true);
+    if (getRealm("Compounding Realm").machineCompletions >= +location.baseType.symbol)
+        return 1;
+    return 0;
+}
 var ACTION;
 (function (ACTION) {
     ACTION["WALK"] = "Walk";
@@ -521,6 +530,7 @@ var ACTION;
     ACTION["CREATE_AXE"] = "Create Axe";
     ACTION["CREATE_PICK"] = "Create Pick";
     ACTION["CREATE_HAMMER"] = "Create Hammer";
+    ACTION["ENTER_BARRIER"] = "Enter Barrier";
 })(ACTION || (ACTION = {}));
 const actions = [
     new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
@@ -568,7 +578,8 @@ const actions = [
     new Action("Oyster Chop", getChopTime(1000, 0.2), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
     new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
     new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
-    new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]]))
+    new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),
+    new Action("Enter Barrier", 10000, [["Chronomancy", 1]], completeBarrier, startBarrier, null),
 ];
 function getAction(name) {
     return actions.find(a => a.name == name);

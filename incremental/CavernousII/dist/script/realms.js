@@ -4,6 +4,7 @@ class Realm {
     constructor(name, description, getMachineCount = null, activateMachine = null, extraDescription = null, multPerRock = 0) {
         this.index = -1;
         this.mult = null;
+        this.machineCompletions = 0;
         this.name = name;
         this.description = description;
         this.getMachineCount = getMachineCount ?? (() => Infinity);
@@ -112,12 +113,15 @@ const realms = [
         getMessage("Upgraded Wither Rune").display();
     }, getVerdantMultDesc, 0.0005),
     // Clones cannot help each other at all.
-    new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.05 points later per mana rock completion).", () => Infinity, () => { }, getCompoundingMultDesc, 0.05)
+    new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.05 points later per mana rock completion).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
+        // getRealm("Compounding Realm").machineCompletions++;
+        // getMessage("Time Barriers").display();
+    }, getCompoundingMultDesc, 0.05)
 ];
 function getRealm(name) {
     let realm = realms.find(a => a.name == name);
     if (realm === undefined)
-        throw new Error(`No realmn with name "${name}" found`);
+        throw new Error(`No realm with name "${name}" found`);
     return realm;
 }
 //# sourceMappingURL=realms.js.map

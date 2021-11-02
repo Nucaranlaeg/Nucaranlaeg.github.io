@@ -264,7 +264,7 @@ function canMakeEquip(requirement: [anyStuffName, number][], equipType: string) 
 		const haveStuff = simpleRequire(requirement)();
 		if (haveStuff <= 0) return haveStuff;
 		const itemCount = stuff.reduce((a, c) => a + (c.name === equipType ? c.count : 0), 0);
-		if (itemCount >= clones.length) return -1;
+		if (itemCount >= clones.length) return 0;
 		return 1;
 	}
 	return canDo;
@@ -526,6 +526,16 @@ function tickSpore(usedTime: number, creature: Creature, baseTime: number) {
 	clones[currentClone].takeDamage(baseTime / 1000);
 }
 
+function completeBarrier() {
+	zones[currentZone].manaDrain += 5;
+}
+
+function startBarrier(competions: any, priorCompletions: any, x: number, y: number) {
+	const location = getMapLocation(x, y, true)!;
+	if (getRealm("Compounding Realm").machineCompletions >= +location.baseType.symbol) return 1;
+	return 0;
+}
+
 enum ACTION {
 	WALK = "Walk",
 	WAIT = "Wait",
@@ -574,6 +584,7 @@ enum ACTION {
 	CREATE_AXE = "Create Axe",
 	CREATE_PICK = "Create Pick",
 	CREATE_HAMMER = "Create Hammer",
+	ENTER_BARRIER = "Enter Barrier",
 }
 
 type anyActionName = `${ACTION}`
@@ -624,7 +635,8 @@ const actions: anyAction[] = [
 	new Action("Oyster Chop", getChopTime(1000, 0.2), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
 	new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
-	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]]))
+	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),
+	new Action("Enter Barrier", 10000, [["Chronomancy", 1]], completeBarrier, startBarrier, null),
 ];
 
 function getAction<actionName extends anyActionName>(name: actionName) {

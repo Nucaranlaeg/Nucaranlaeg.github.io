@@ -239,7 +239,7 @@ function updateGrindStats() {
         .filter(r => !r.locked || r.name == "Core Realm")
         .map((r, realm_i) => zones
         .filter(z => z.mapLocations.flat().length)
-        .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == realm_i && t.invalidateCost).length));
+        .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == realm_i && t.invalidateCost && !t.allDead).length));
     const header = document.querySelector("#grind-stats-header");
     const body = document.querySelector("#grind-stats");
     const footer = document.querySelector("#grind-stats-footer");

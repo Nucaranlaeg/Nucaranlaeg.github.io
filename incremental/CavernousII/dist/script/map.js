@@ -66,6 +66,8 @@ const classMapping = {
     "|": ["sword3", "Enchanter - Sword"],
     "<": ["armour3", "Enchanter - Shield"],
     ">": ["shield3", "Enchanter - Armour"],
+    "1": ["barrier", "Timelike Barrier"],
+    "2": ["barrier", "Timelike Barrier"],
 };
 setTimeout(() => {
     Object.entries(classMapping).forEach(e => {
