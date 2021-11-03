@@ -696,6 +696,9 @@ const keyFunctions = {
     ">Semicolon": () => {
         addActionToQueue(":");
     },
+    "Semicolon": () => {
+        addActionToQueue(":");
+    },
     "KeyF": () => {
         if (visibleX === null || visibleY === null)
             return;

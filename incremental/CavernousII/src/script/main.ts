@@ -743,6 +743,9 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	">Semicolon": () => {
 		addActionToQueue(":");
 	},
+	"Semicolon": () => {
+		addActionToQueue(":");
+	},
 	"KeyF": () => {
 		if (visibleX === null || visibleY === null) return;
 		addActionToQueue(`P${visibleX}:${visibleY};`);

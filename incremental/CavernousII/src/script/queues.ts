@@ -42,8 +42,7 @@ class QueueAction extends Array {
 		ch = this.migrate(ch);
 		if (ch[0] == "Q"){
 			// return new QueueReferenceAction(ch);
-			throw new Error("QueueReferenceAction is disabled");
-
+			// throw new Error("QueueReferenceAction is disabled");
 		} else if (ch[0] == "P") {
 			return new QueuePathfindAction(ch);
 		} else if (ch[0] == "T") {

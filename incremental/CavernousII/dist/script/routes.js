@@ -66,7 +66,6 @@ class Route extends BaseRoute {
             this.zone = currentZone;
             this.realm = currentRealm;
             this.manaDrain = zones[currentZone].manaDrain;
-            console.log(this.manaDrain);
             let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
             route = route.filter(e => e.length);
             if (route.every((e, i, a) => e == a[0])) {
@@ -120,6 +119,8 @@ class Route extends BaseRoute {
         let nextDiff = 0;
         while (currentLeft + 0.1 * times * this.zone > nextDiff) {
             nextDiff = (this.getRefineCost(++times) - currentCost) / (clones.length - this.clonesLost);
+            if (nextDiff == 0)
+                return 0;
         }
         return times;
     }

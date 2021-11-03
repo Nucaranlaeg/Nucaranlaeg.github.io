@@ -22,7 +22,7 @@ class Action<actionName extends anyActionName = anyActionName> {
 		this.baseDuration = baseDuration;
 		this.stats = stats.map(s => [getStat(s[0]), s[1]]);
 		this.complete = complete || (() => {});
-		this.canStart = canStart;
+		this.canStart = canStart || (() => CanStartReturnCode.Now);
 		this.tickExtra = tickExtra;
 		this.specialDuration = specialDuration;
 	}
@@ -197,16 +197,8 @@ function mineManaRockCost(location: MapLocation, realm:number | null = null, com
 		: Math.pow(1 + (0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(location.x, location.y, location.zone.index), completionOveride ?? location.priorCompletions);
 }
 
-function startCollectMana() {
-	return CanStartReturnCode.Now;
-}
-
 function mineGemCost(location: MapLocation){
 	return (location.completions + 1) ** 1.4
-}
-
-function startCollectGem() {
-	return CanStartReturnCode.Now
 }
 
 function completeCollectGem(x: number, y: number) {
@@ -604,8 +596,8 @@ const actions: anyAction[] = [
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
 	new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
 	new Action("Mine Gem", 100000, [["Mining", 0.75], ["Gemcraft", 0.25]], completeMove),
-	new Action("Collect Gem", 100000, [["Smithing", 0.1], ["Gemcraft", 1]], completeCollectGem, startCollectGem, null, mineGemCost),
-	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, startCollectMana, tickCollectMana, mineManaRockCost),
+	new Action("Collect Gem", 100000, [["Smithing", 0.1], ["Gemcraft", 1]], completeCollectGem, null, null, mineGemCost),
+	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, null, tickCollectMana, mineManaRockCost),
 	new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
 	new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]], true), simpleRequire([["Iron Ore", 1]], true)),
 	new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),
