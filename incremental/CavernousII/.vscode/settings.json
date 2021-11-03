@@ -18,7 +18,9 @@
 		".rpt2_cache/**": true,
 		"dist/**": true,
 		"node_modules/**": true,
-		"typings/**": true
+		"typings/**": true,
+		"dist":true,
+		"incremental/Cavernous":true
 	},
 	"typescript.tsdk": "./node_modules/typescript/lib",
 	"eslint.lintTask.enable": true,

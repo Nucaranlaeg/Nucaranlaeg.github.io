@@ -80,7 +80,7 @@ class Route extends BaseRoute {
 			let route = queues.map((r, i) => (clones[i].x == this.x && clones[i].y == this.y) ? queueToStringStripped(r) : queueToString(r));
 			route = route.filter(e => e.length);
 
-			if (route.every((e,i,a) => e==a[0])) {
+			if (route.every((e, i, a) => e == a[0])) {
 				route = [route[0]];
 			} else {
 				let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
@@ -97,7 +97,7 @@ class Route extends BaseRoute {
 
 			let mana = getStat("Mana");
 			let expectedMul = getAction("Collect Mana").getBaseDuration(this.realm);
-			let duration = mineManaRockCost(0, base.completions + base.priorCompletions, base.zone, this.x, this.y) * expectedMul;
+			let duration = mineManaRockCost(base) * expectedMul;
 			this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 			this.reachTime = +(queueTime / 1000).toFixed(2);
@@ -119,7 +119,7 @@ class Route extends BaseRoute {
 	getRefineCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, false, this.zone)!;
 		let mul = getAction("Collect Mana").getBaseDuration(this.realm) * (1 + this.manaDrain);
-		return mineManaRockCost(0, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel, loc.zone, this.x, this.y, this.realm) * mul;
+		return mineManaRockCost(loc, this.realm, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel) * mul;
 	}
 
 	estimateRefineManaLeft(ignoreInvalidate = false) {
@@ -194,7 +194,7 @@ class Route extends BaseRoute {
 	static loadBestRoute() {
 		let effs = routes.map(r => {
 			if (r.realm != currentRealm || r.allDead) return null;
-			return [r.estimateRefineManaLeft(), r] as [number,Route];
+			return [r.estimateRefineManaLeft(), r] as [number, Route];
 		}).filter((r):r is NonNullable<typeof r> =>  r !== null)
 		  .sort((a, b) => b[0] - a[0]);
 		for (let i = 0; i < effs.length; i++){

@@ -13,7 +13,7 @@ class Stuff<stuffName extends string> {
 	min: number;
 	effect: ((newCount:number)=>void) | null;
 
-	constructor(name:stuffName, icon:string, description:string, colour:string, count = 0, effect = null){
+	constructor(name:stuffName, icon:string, description:string, colour:string, count = 0, effect: ((newCount:number)=>void) | null = null){
 		this.name = name;
 		this.icon = icon;
 		this.description = description;

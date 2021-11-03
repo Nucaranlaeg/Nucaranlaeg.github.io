@@ -37,7 +37,7 @@ function getNextActivateCost() {
     return `${realms[currentRealm].getNextActivateAmount()} gold`;
 }
 function startCollectManaCost(completions, priorCompletions, zone, x, y) {
-    return `${writeNumber(this.presentAction ? this.presentAction.getProjectedDuration(mineManaRockCost(completions, priorCompletions, zone, x, y)) / 1000 : -1, 2)}s`;
+    return `${writeNumber(this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, false, zone.index)) / 1000 : -1, 2)}s`;
 }
 function getLocationType(name) {
     return locationTypes.find(a => a.name == name);

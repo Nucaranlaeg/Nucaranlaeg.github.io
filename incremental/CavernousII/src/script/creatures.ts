@@ -44,7 +44,7 @@ class Creature {
 	}
 }
 
-function getCreature(search:string | [number,number]) {
+function getCreature(search:string | [number, number]) {
 	if (typeof search == 'string') {
 		return baseCreatures.find(a => a.name == search);
 	} else {

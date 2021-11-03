@@ -88,7 +88,7 @@ function updateRunes() {
     }
 }
 function createDuplication(location) {
-    location.presentDuration = location.remainingPresent = location?.temporaryPresent?.start(location.completions, location.priorCompletions, location.x, location.y) || 0;
+    location.presentDuration = location.remainingPresent = location?.temporaryPresent?.start(location) || 0;
 }
 function weakenCreatures(location) {
     let x = location.x;

@@ -285,8 +285,8 @@ function viewCell(target) {
                     document.querySelector("#location-next").innerHTML = `Next: ${type.nextCost(location.completions, location.priorCompletions, location.zone, x - zones[displayZone].xOffset, y - zones[displayZone].yOffset)}`;
                 }
                 else if (primaryAction) {
-                    let baseTimeDisplay = primaryAction.getProjectedDuration(1, location.wither);
-                    let timeDisplay = primaryAction.getProjectedDuration(1, location.wither, location.remainingPresent || location.remainingEnter, x, y);
+                    let baseTimeDisplay = primaryAction.getProjectedDuration(location, location.wither);
+                    let timeDisplay = primaryAction.getProjectedDuration(location, location.wither, location.remainingPresent || location.remainingEnter);
                     document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(timeDisplay / 1000, 2)}s`;
                     if (timeDisplay < baseTimeDisplay)
                         document.querySelector("#location-next").innerHTML += ` / ${writeNumber(baseTimeDisplay / 1000, 2)}s`;

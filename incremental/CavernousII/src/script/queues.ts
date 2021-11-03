@@ -1,7 +1,7 @@
 let queues:ActionQueue[] = [];
 let selectedQueue:number[] = [];
 let savedQueues:SavedActionQueue[] = [];
-let cursor:[number,number | null] = [0, null];
+let cursor:[number, number | null] = [0, null];
 
 class QueueAction extends Array {
 	index: number | null = null;
@@ -145,7 +145,7 @@ class QueuePathfindAction extends QueueAction {
 		// Prevent pathing to the same spot.
 		if (getDistance(originX, this.targetX, originY, this.targetY) == 0) return null;
 
-		let openList: [number,number,number,number,string][] = [];
+		let openList: [number, number, number, number, string][] = [];
 		let closedList = [[originY, originX]];
 		if (walkable.includes(zones[currentZone].map[originY - 1][originX]))
 			openList.push([originY - 1, originX, 1, getDistance(originX, this.targetX, originY - 1, this.targetY), "U"])

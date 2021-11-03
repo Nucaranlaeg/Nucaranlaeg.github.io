@@ -288,13 +288,13 @@ class Clone {
 			return [0, null, null];
 		}
 		if (hasOffset) {
-			let enterTime = location.type.getEnterAction(location.entered)?.getProjectedDuration(1, 0, location.remainingEnter || 0, x, y);
+			let enterTime = location.type.getEnterAction(location.entered)?.getProjectedDuration(location, 0, location.remainingEnter || 0);
 			if (enterTime === undefined || isNaN(enterTime)) enterTime = 100;
 			return [enterTime, x, y, ["Walk", "Kudzu Chop"].includes(location.type.getEnterAction(location.entered)?.name as string) || !location.type.canWorkTogether];
 		} else {
 			let presentTime =
-				location.type.presentAction?.getProjectedDuration(1, 0, location.remainingPresent || 0, x, y) || // Time a new action takes
-				location.temporaryPresent?.getProjectedDuration(1, 0, location.remainingPresent || 0, x, y) || // Time a new rune action takes
+				location.type.presentAction?.getProjectedDuration(location, 0, location.remainingPresent || 0) || // Time a new action takes
+				location.temporaryPresent?.getProjectedDuration(location, 0, location.remainingPresent || 0) || // Time a new rune action takes
 				0; // Illegal present action
 			if (isNaN(presentTime)) presentTime = 100;
 			return [presentTime, x, y];
