@@ -67,6 +67,7 @@ class Realm {
 function changeRealms(newRealm: number) {
 	// Reset the zones first to apply mana gained to the appropriate realm.
 	zones.forEach(z => z.resetZone());
+	resetLoop();
 	currentRealm = newRealm;
 	zones.forEach(z => (z.routesChanged = true));
 	recalculateMana();

@@ -5,6 +5,7 @@ interface settings {
 	useWASD: boolean;
 	useDifferentBridges: boolean;
 	grindMana: boolean;
+	grindStats: boolean;
 	loadPrereqs: boolean;
 	showingRunes: boolean;
 	warnings: boolean;
@@ -12,6 +13,7 @@ interface settings {
 	timeline: boolean;
 	maxTotalTick: number;
 	statGrindPerSec: boolean;
+	longWait: number;
 	debug_statIncreaseDivisor?: number;
 	debug_verticalBlocksJustify?: string;
 }
@@ -25,6 +27,7 @@ const settings: settings = {
 	useWASD: false,
 	useDifferentBridges: true,
 	grindMana: false,
+	grindStats: false,
 	loadPrereqs: false,
 	showingRunes: true,
 	warnings: true,
@@ -32,6 +35,7 @@ const settings: settings = {
 	timeline: true,
 	maxTotalTick: 10000,
 	statGrindPerSec: false,
+	longWait: 5000,
 };
 
 function setSetting<T, Y extends any[]>(toggler: (...args: Y) => T, value: T, ...args: Y) {
@@ -70,14 +74,28 @@ function toggleUseWASD() {
 	settings.useWASD = !settings.useWASD;
 	document.querySelector("#use-wasd-toggle")!.innerHTML = settings.useWASD ? "Use arrow keys" : "Use WASD";
 	document.querySelector("#auto-restart-key")!.innerHTML = settings.useWASD ? "C" : "W";
+	document.querySelector("#auto-stat-grind-key")!.innerHTML = settings.useWASD ? "T" : "S";
 	return settings.useWASD;
 }
 
-function toggleGrindMana() {
+function toggleGrindMana(event?: KeyboardEvent) {
+	if (event?.ctrlKey){
+		Route.invalidateRouteCosts();
+		return;
+	}
 	settings.grindMana = !settings.grindMana;
 	document.querySelector("#grind-mana-toggle")!.innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
 	document.querySelector("#grind-mana-toggle")!.closest(".option")!.classList.toggle("option-highlighted", settings.grindMana);
+	settings.grindStats = false;
 	return settings.grindMana;
+}
+
+function toggleGrindStats() {
+	settings.grindStats = !settings.grindStats;
+	document.querySelector("#grind-stat-toggle")!.innerHTML = settings.grindStats ? "Grinding stats" : "Not grinding stats";
+	document.querySelector("#grind-stat-toggle")!.closest(".option")!.classList.toggle("option-highlighted", settings.grindStats);
+	settings.grindMana = false;
+	return settings.grindStats;
 }
 
 function toggleLoadPrereqs() {
@@ -126,11 +144,20 @@ function setMaxTickTime(element: HTMLInputElement) {
 	element.value = settings.maxTotalTick.toString();
 }
 
+function setLongWaitTime(element: HTMLInputElement) {
+	let value = +element.value;
+	if (!isNaN(value)){
+		settings.longWait = Math.max(100, value);
+	}
+	element.value = settings.longWait.toString();
+}
+
 function loadSettings(savedSettings: settings) {
 	setSetting(toggleBankedTime, savedSettings.usingBankedTime);
 	setSetting(toggleRunning, !!savedSettings.running);
 	setSetting(toggleAutoRestart, savedSettings.autoRestart);
 	setSetting(toggleGrindMana, !!savedSettings.grindMana);
+	setSetting(toggleGrindStats, !!savedSettings.grindStats);
 	setSetting(toggleLoadPrereqs, !!savedSettings.loadPrereqs);
 	setSetting(toggleFollowZone, !!savedSettings.followZone);
 	setSetting(toggleTimeline, !!savedSettings.timeline);
@@ -138,6 +165,8 @@ function loadSettings(savedSettings: settings) {
 	setSetting(switchRuneList, !!savedSettings.showingRunes);
 	const maxTimeInput = <HTMLInputElement>document.querySelector("#max-time");
 	if (maxTimeInput) setMaxTickTime(maxTimeInput);
+	const longWaitInput = <HTMLInputElement>document.querySelector("#long-wait");
+	if (longWaitInput) setMaxTickTime(longWaitInput);
 
 	Object.assign(settings, savedSettings, settings);
 }

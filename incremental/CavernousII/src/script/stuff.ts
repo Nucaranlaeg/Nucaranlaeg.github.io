@@ -3,6 +3,8 @@ type simpleStuffList = {
 	count: number;
 }[];
 
+const GOLD_VALUE = 5;
+
 class Stuff<stuffName extends string> {
 	name: stuffName;
 	icon: string;

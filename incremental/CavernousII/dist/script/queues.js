@@ -185,12 +185,12 @@ class ActionQueue extends Array {
         if (actionID == "B") {
             return this.removeActionAt(index);
         }
-        // Standard action:     [UDLRI<=+\.:]
+        // Standard action:     [UDLRI<=+\.,:]
         // Rune/spell action:   [NS]\d+;
         // Repeat-Forge:        T
-        // Queue reference:     Q\d+;
+        // Queue reference:     Q\d+;          Removed for now.
         // Pathfind action:     P-?\d+:-?\d+;
-        if (!actionID.match(/^([UDLRI<=+\.:]|[NS]\d+;|T|Q\d+;|P-?\d+:-?\d+;)$/)) {
+        if (!actionID.match(/^([UDLRI<=+\.,:]|[NS]\d+;|T|P-?\d+:-?\d+;)$/)) {
             return;
         }
         if (index && !this[index]) {
@@ -378,6 +378,7 @@ function createActionNode(action) {
         "=": syncSVG,
         "+": noSyncSVG,
         ".": "...",
+        ",": ",,,",
         ":": pauseSVG,
     }[action];
     if (!character) {
@@ -455,7 +456,7 @@ function countMultipleActions() {
                 actionCount = 0;
                 countedType = null;
             }
-            if (".I".includes(nextType) && (countedType == nextType || countedType === null)) {
+            if (".,I".includes(nextType) && (countedType == nextType || countedType === null)) {
                 actionCount++;
                 countedType = nextType;
             }
@@ -600,9 +601,9 @@ function importQueues() {
         zones[displayZone].queues = tempQueues;
     }
 }
-function longImportQueues(queueString = "") {
+function longImportQueues(queueString) {
     if (!queueString) {
-        let queueString = prompt("Input your queues");
+        queueString = prompt("Input your queues");
         if (!queueString)
             return;
     }

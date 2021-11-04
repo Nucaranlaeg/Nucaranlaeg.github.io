@@ -1,4 +1,5 @@
 "use strict";
+const GOLD_VALUE = 5;
 class Stuff {
     constructor(name, icon, description, colour, count = 0, effect = null) {
         this.name = name;

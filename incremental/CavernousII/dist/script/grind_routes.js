@@ -36,6 +36,11 @@ class GrindRoute extends BaseRoute {
         })
             .filter(s => s.count > 0);
     }
+    loadRoute() {
+        if (this.realm !== currentRealm)
+            changeRealms(this.realm);
+        return super.loadRoute();
+    }
     static calculateProjectedGain(pStatName, pTotalStatGain) {
         let scalingStart = 99 + getRealmMult('Compounding Realm');
         let stat = getStat(pStatName);
@@ -89,6 +94,16 @@ class GrindRoute extends BaseRoute {
     static deleteRoute(stat) {
         let index = grindRoutes.findIndex(r => r.statName == stat);
         grindRoutes.splice(index, 1);
+    }
+    static loadBestRoute() {
+        if (!grindRoutes.length)
+            return;
+        let bestRoute = grindRoutes
+            .filter(r => r.projectedGain)
+            .sort((a, b) => b.projectedGain - a.projectedGain)[0];
+        if (bestRoute) {
+            bestRoute.loadRoute();
+        }
     }
 }
 let grindRoutes = [];

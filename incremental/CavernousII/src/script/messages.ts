@@ -210,6 +210,13 @@ const messages = [
 			Only one clone needs to pass through the portal, and the rest will be brought to the next zone with it.`
 	),
 	new Message(
+		"Game Slowdown",
+		`
+			At this point, the game slows down quite a bit.  You'll need to grind stats much more.  If that's not your thing, no worries!  Thanks for playing this far.  You've beaten the tightly-designed potion of the game, and I'd count that as a win.
+
+			If you're sticking around, there's much more that you haven't yet reached.`
+	),
+	new Message(
 		"Unlocked Weaken Rune",
 		`
 			You've unlocked a rune!

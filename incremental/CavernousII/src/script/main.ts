@@ -14,11 +14,11 @@ function getNextAction(clone = currentClone): [QueueAction | undefined, number] 
 	const index = queues[clone].findIndex(a => a[1]);
 	const action = queues[clone][index];
 	if (!action) return [undefined, index];
-	if (action[0][0] == "Q" && action[2].length == 0) {
-		// If there are no actions in the saved queue, skip it.
-		action[1] = false;
-		return getNextAction(clone);
-	}
+	// if (action[0][0] == "Q" && action[2].length == 0) {
+	// 	// If there are no actions in the saved queue, skip it.
+	// 	action[1] = false;
+	// 	return getNextAction(clone);
+	// }
 	action.setCaller(clone, index);
 	return [action, index];
 }
@@ -81,8 +81,11 @@ function resetLoop() {
 		s.reset();
 		s.update();
 	});
-	if (settings.grindMana && routes) {
+	if (settings.grindMana && routes.length) {
 		Route.loadBestRoute();
+	}
+	if (settings.grindStats && grindRoutes.length) {
+		GrindRoute.loadBestRoute();
 	}
 	stuff.forEach(s => {
 		s.count = 0;
@@ -127,6 +130,8 @@ function resetLoop() {
 	}
 	setStartData();
 }
+
+/********************************************* Loop Log *********************************************/
 
 let loopActions: { [key in string]: number } = {};
 let loopStatStart: number[] = [];
@@ -546,8 +551,8 @@ setInterval(function mainLoop() {
 	if (timeUsed > time && !isNaN(timeUsed - time)) {
 		timeBanked -= timeUsed - time;
 		if (timeBanked <= 0) timeBanked = 0;
-	} else if (!isNaN((time - timeUsed) / 2)) {
-		timeBanked += (time - timeUsed) / 2;
+	} else if (!isNaN(time - timeUsed)) {
+		timeBanked += time - timeUsed;
 	}
 	if (timeLeft > 0.001 && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
 		resetLoop();
@@ -621,6 +626,8 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	"KeyS": () => {
 		if (settings.useWASD) {
 			addActionToQueue("D");
+		} else {
+			toggleGrindStats();
 		}
 	},
 	"KeyD": () => {
@@ -668,6 +675,11 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	"KeyC": () => {
 		if (settings.useWASD) {
 			toggleAutoRestart();
+		}
+	},
+	"KeyT": () => {
+		if (settings.useWASD) {
+			toggleGrindStats();
 		}
 	},
 	"End": () => {
@@ -739,6 +751,9 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	},
 	"Period": () => {
 		addActionToQueue(".");
+	},
+	"Comma": () => {
+		addActionToQueue(",");
 	},
 	">Semicolon": () => {
 		addActionToQueue(":");

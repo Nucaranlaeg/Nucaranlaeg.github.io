@@ -48,7 +48,7 @@ class Rune {
         let location = getMapLocation(x, y);
         if (location === null)
             throw new Error("Can't create rune at location");
-        if (this.isInscribable()) {
+        if (this.isInscribable() == CanStartReturnCode.Now) {
             this.isInscribable(true);
         }
         else {

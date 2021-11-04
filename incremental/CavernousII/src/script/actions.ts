@@ -223,11 +223,11 @@ function simpleConvert(source: [anyStuffName, number][], target: [anyStuffName, 
 		const mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < source.length; i++) {
 			const stuff = getStuff(source[i][0]);
-			if (stuff.count < source[i][1] * (source[i][0].match(/Armour|Sword|Shield/) ? 1 : mult)) return;
+			if (stuff.count < source[i][1] * (source[i][0].match(/Armour|Sword|Shield|Bridge/) ? 1 : mult)) return;
 		}
 		for (let i = 0; i < source.length; i++) {
 			const stuff = getStuff(source[i][0]);
-			stuff.update(-source[i][1] * (source[i][0].match(/Armour|Sword|Shield/) ? 1 : mult));
+			stuff.update(-source[i][1] * (source[i][0].match(/Armour|Sword|Shield|Bridge/) ? 1 : mult));
 		}
 		for (let i = 0; i < target.length; i++) {
 			const stuff = getStuff(target[i][0]);
@@ -242,10 +242,10 @@ function simpleRequire(requirement: [anyStuffName, number][], doubleExcempt = fa
 		const mult = realms[currentRealm].name == "Long Realm" && !doubleExcempt ? 2 : 1;
 		for (let i = 0; i < requirement.length; i++) {
 			const stuff = getStuff(requirement[i][0]);
-			if (stuff.count < requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield/) ? 1 : mult)) return CanStartReturnCode.NotNow;
+			if (stuff.count < requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield|Bridge/) ? 1 : mult)) return CanStartReturnCode.NotNow;
 			// In other functions it's (x, y, creature), so just check that it's exactly true
 			// spend is used for placing runes.
-			if (spend === true) stuff.update(-requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield/) ? 1 : mult));
+			if (spend === true) stuff.update(-requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield|Bridge/) ? 1 : mult));
 		}
 		return CanStartReturnCode.Now;
 	}
@@ -274,7 +274,7 @@ function completeGoldMana() {
 	if (gold.count < 1) return true;
 	gold.update(-1);
 	const manaMult = getRealmMult("Verdant Realm") || 1;
-	getStat("Mana").current += 5 * manaMult;
+	getStat("Mana").current += GOLD_VALUE * manaMult;
 	return false;
 }
 
@@ -311,7 +311,7 @@ function tickFight(usedTime: number, creature: Creature, baseTime: number) {
 	if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current) {
 		damage = baseTime / 1000;
 	}
-	const targetClones = clones.filter(c => c.x == clones[currentClone].x && c.y == clones[currentClone].y);
+	const targetClones = clones.filter(c => c.x == clones[currentClone].x && c.y == clones[currentClone].y && c.damage < Infinity);
 	targetClones.forEach(c => c.takeDamage(damage / targetClones.length));
 }
 
@@ -356,7 +356,7 @@ function completeHeal() {
 }
 
 function predictHeal() {
-	return clones[currentClone].damage * getStat("Runic Lore").value;
+	return Math.max(clones[currentClone].damage * getStat("Runic Lore").value, 0.01);
 }
 
 function startChargeTeleport() {
@@ -531,9 +531,17 @@ function startBarrier(location: MapLocation) {
 	return CanStartReturnCode.Never;
 }
 
+function barrierDuration(){
+	if (realms[currentRealm].name == "Compounding Realm") {
+		return 1 / (1 + loopCompletions / 40);
+	}
+	return 1;
+}
+
 enum ACTION {
 	WALK = "Walk",
 	WAIT = "Wait",
+	LONG_WAIT = "Long Wait",
 	MINE = "Mine",
 	MINE_TRAVERTINE = "Mine Travertine",
 	MINE_GRANITE = "Mine Granite",
@@ -587,6 +595,7 @@ type anyAction = Action<anyActionName>;
 const actions: anyAction[] = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
 	new Action("Wait", 100, [], () => {}, startWalk, tickWalk),
+	new Action("Long Wait", () => settings.longWait, [], () => {}, startWalk, tickWalk),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Granite", 350000, [["Mining", 1], ["Speed", 0.2]], completeMove),
@@ -631,7 +640,7 @@ const actions: anyAction[] = [
 	new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),
-	new Action("Enter Barrier", 10000, [["Chronomancy", 1]], completeBarrier, startBarrier, null),
+	new Action("Enter Barrier", 10000, [["Chronomancy", 1]], completeBarrier, startBarrier, null, barrierDuration),
 ];
 
 function getAction<actionName extends anyActionName>(name: actionName) {

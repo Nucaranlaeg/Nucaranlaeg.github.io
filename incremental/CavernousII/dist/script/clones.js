@@ -243,6 +243,9 @@ class Clone {
         if (actionToDo == ".") {
             return [this.walkTime || 100, null, null];
         }
+        if (actionToDo == ",") {
+            return [this.walkTime || settings.longWait, null, null];
+        }
         if (actionToDo == "=") {
             if (!this.waiting ||
                 clones.every((c, i) => {
@@ -271,7 +274,7 @@ class Clone {
         if (location === null)
             throw new Error("Location not found");
         if (actionToDo[0] == "N" &&
-            runes[parseInt(actionToDo[1])].isInscribable() === false &&
+            runes[parseInt(actionToDo[1])].isInscribable() === CanStartReturnCode.NotNow &&
             !runesTiles.includes(zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset])) {
             return [Infinity, null, null];
         }
@@ -383,12 +386,14 @@ class Clone {
             this.addToTimeline({ name: "Wait" }, initialTime);
             return 0;
         }
-        if (actionToDo == ".") {
+        if (actionToDo == "." || actionToDo == ",") {
+            const waitAction = getAction(actionToDo == "." ? "Wait" : "Long Wait");
+            const waitActionDuration = (typeof waitAction.baseDuration == "function" ? waitAction.baseDuration() : waitAction.baseDuration);
             if (!this.walkTime)
-                this.walkTime = 100;
+                this.walkTime = waitActionDuration;
             let waitTime = Math.min(time, this.walkTime);
             getAction("Wait").tick(waitTime);
-            this.selectQueueAction(actionIndex, 100 - this.walkTime);
+            this.selectQueueAction(actionIndex, 100 - (this.walkTime / waitActionDuration * 100));
             if (!this.walkTime)
                 this.completeNextAction();
             this.addToTimeline({ name: "Wait" }, waitTime);
@@ -427,7 +432,8 @@ class Clone {
         }
         let percentRemaining;
         [time, percentRemaining] = location.tick(time);
-        this.selectQueueAction(actionIndex, 100 - percentRemaining * 100);
+        if (initialTime - time > 5 || !percentRemaining)
+            this.selectQueueAction(actionIndex, 100 - percentRemaining * 100);
         this.currentProgress = location.remainingPresent;
         if (!percentRemaining) {
             this.completeNextAction();

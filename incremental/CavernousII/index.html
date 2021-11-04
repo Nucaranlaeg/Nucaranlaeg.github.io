@@ -151,12 +151,11 @@
 					<span class="name">Travel back in time (R)</span>
 					<div class="description">Return to your little room.</div>
 				</div>
-				<div id="grind-option" class="option block clickable" onclick="toggleGrindMana()"
-					ondblclick="Route.invalidateRouteCosts()" onmouseover="updateGrindStats()">
+				<div id="grind-option" class="option block clickable" onclick="toggleGrindMana(event)" onmouseover="updateGrindStats()">
 					<span id="grind-mana-toggle">Not grinding mana rocks</span> (G)
 					<div class="description">
 						Loops through your best paths to each mana rock.<br />
-						Double click to revisit all known mana rocks.<br />
+						Ctrl-click to revisit all known mana rocks.<br />
 						<b>Expected completions:</b>
 						<table id="grind-stats-table">
 							<tr id="grind-stats-header"></tr>
@@ -169,6 +168,10 @@
 							<tr><td class="revisit" colspan="100" style="text-align: left;">Some rock yet to be revisited</td></tr>
 						</table>
 					</div>
+				</div>
+				<div id="stat-grind-option" class="option block clickable" onclick="toggleGrindStats(event)">
+					<span id="grind-stat-toggle">Not grinding stats</span> (<span id="auto-stat-grind-key">S</span>)
+					<div class="description">Each loop, loads the route that gives the most stats.</div>
 				</div>
 				<div class="option block clickable" onclick="toggleLoadPrereqs()">
 					<span id="load-prereq-toggle">Load only zone route</span> (Q)
@@ -246,7 +249,7 @@
 				<a href="https://paypal.me/SamBenner" target="_blank">Paypal</a>
 				<a href="https://www.patreon.com/nucaranlaeg" target="_blank">Patreon</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.3.1</span><br />
+				Version <span id="version">2.3.2</span><br />
 				©2021
 			</div>
 		</div>
@@ -370,23 +373,27 @@
 				</div>
 				<div class="block-row">
 					<div class="small-option block clickable" onclick="keyFunctions['Period']()">
-						<span id="add-action-interact">.</span>
+						<span id="add-action-wait">.</span>
 						<div class="description">Wait 100ms</div>
 					</div>
+					<div class="small-option block clickable" onclick="keyFunctions['Comma']()">
+						<span id="add-action-long-wait">,</span>
+						<div class="description">Long wait (default 5000ms; see settings)</div>
+					</div>
 					<div class="small-option block clickable" onclick="keyFunctions['>Semicolon']()">
-						<span id="add-action-interact">:</span>
+						<span id="add-action-pause">:</span>
 						<div class="description">Pause at this action</div>
 					</div>
 					<div class="small-option block clickable" onclick="keyFunctions['^KeyA']()">
-						<span id="add-action-interact">All</span>
+						<span id="select-all">All</span>
 						<div class="description">Select all</div>
 					</div>
 					<div class="small-option block clickable" onclick="keyFunctions.Backspace()">
-						<span id="add-action-interact">&lt;=</span>
+						<span id="delete-action">&lt;=</span>
 						<div class="description">Erase</div>
 					</div>
 					<div class="small-option block clickable" onclick="keyFunctions['^Backspace']()">
-						<span id="add-action-interact">X</span>
+						<span id="delete-all-actions">X</span>
 						<div class="description">Clear</div>
 					</div>
 				</div>
@@ -442,7 +449,7 @@
 			</div>
 			<div class="option block clickable" onclick="Route.invalidateRouteCosts()">
 				<span class="name">Revisit all known mana rocks in this realm</span>
-				<div class="description big-description">You can also double-click on the Grind option.</div>
+				<div class="description big-description">You can also ctrl-click on the Grind option.</div>
 			</div>
 			<div class="option block clickable" onclick="toggleWarnings()">
 				<span id="warnings">Showing warnings</span>
@@ -461,6 +468,13 @@
 				<input id="max-time" onblur="setMaxTickTime(this)" />
 				<div class="description big-description">
 					Minimum value is 250; set this lower if the game is choppy. The maximum speed is dependant on your base Mana or capped by this value.
+				</div>
+			</div>
+			<div class="option block enter-value">
+				<span class="label" for="long-wait">Long Wait action time (ms)</span>
+				<input id="long-wait" onblur="setLongWaitTime(this)" />
+				<div class="description big-description">
+					Determines how long a long wait action (,) is.
 				</div>
 			</div>
 		</div>
