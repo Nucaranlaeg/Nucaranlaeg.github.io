@@ -74,8 +74,8 @@ function stopHovering() {
     hoverLocation = null;
 }
 function showFinalLocation(isDraw = false) {
-    if (selectedQueue[0] !== undefined) {
-        showLocationAfterSteps(zones[displayZone].queues[selectedQueue[0]].length - 1, selectedQueue[0], isDraw);
+    if (selectedQueues.length == 1) {
+        showLocationAfterSteps(zones[displayZone].queues[selectedQueues[0].clone].length - 1, selectedQueues[0].clone, isDraw);
     }
     else if (finalLocation) {
         finalLocation.classList.remove("final-location");

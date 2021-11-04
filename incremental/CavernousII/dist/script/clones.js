@@ -122,28 +122,20 @@ class Clone {
     }
     select(allowMultiple = false) {
         if (!allowMultiple) {
-            for (const index of selectedQueue) {
-                if (index != this.id)
-                    clones[index].deselect();
+            for (const selection of selectedQueues) {
+                if (selection.clone != this.id)
+                    clones[selection.clone].deselect();
             }
-            if (cursor[0] != this.id) {
-                cursor = [this.id, null];
-            }
-            selectedQueue = [this.id];
-        }
-        else {
-            cursor = [0, null];
+            selectedQueues = selectedQueues.filter(e => e.clone == this.id);
         }
         document.querySelector(`#queue${this.id}`).classList.add("selected-clone");
-        if (!selectedQueue.includes(this.id)) {
-            selectedQueue.push(this.id);
+        if (!selectedQueues.find(e => e.clone == this.id)) {
+            selectedQueues.push({ clone: this.id, pos: null });
         }
     }
     deselect() {
         document.querySelector(`#queue${this.id}`).classList.remove("selected-clone");
-        if (cursor[0] == this.id)
-            cursor[1] = null;
-        selectedQueue = selectedQueue.filter(e => e != this.id);
+        selectedQueues = selectedQueues.filter(e => e.clone != this.id);
     }
     completeNextAction(force = false) {
         return completeNextAction(force);
@@ -538,7 +530,7 @@ function selectClone(target, event) {
     if (target instanceof HTMLElement) {
         const index = +target.id.replace("queue", "");
         if (event && (event.ctrlKey || event.metaKey)) {
-            if (selectedQueue.includes(index)) {
+            if (selectedQueues.find(e => e.clone == index)) {
                 clones[index].deselect();
             }
             else {
@@ -552,7 +544,7 @@ function selectClone(target, event) {
     else {
         clones[target].select();
     }
-    showCursor();
+    showCursors();
     showFinalLocation();
 }
 let clones = [];

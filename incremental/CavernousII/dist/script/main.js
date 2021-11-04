@@ -556,7 +556,7 @@ const keyFunctions = {
         addActionToQueue("B");
     },
     "^Backspace": () => {
-        if (!selectedQueue.every(e => zones[displayZone].queues[e].length == 0)) {
+        if (!selectedQueues.every(e => zones[displayZone].queues[e.clone].length == 0)) {
             clearQueue(null, !settings.warnings);
             return;
         }
@@ -614,11 +614,11 @@ const keyFunctions = {
         toggleLoadPrereqs();
     },
     "Tab": (e) => {
-        selectClone((selectedQueue[selectedQueue.length - 1] + 1) % clones.length);
+        selectClone((selectedQueues[selectedQueues.length - 1].clone + 1) % clones.length);
         e.stopPropagation();
     },
     ">Tab": (e) => {
-        selectClone((clones.length + selectedQueue[selectedQueue.length - 1] - 1) % clones.length);
+        selectClone((clones.length + selectedQueues[selectedQueues.length - 1].clone - 1) % clones.length);
         e.stopPropagation();
     },
     "^KeyA": () => {
@@ -636,8 +636,8 @@ const keyFunctions = {
         }
     },
     "End": () => {
-        cursor[1] = null;
-        showCursor();
+        selectedQueues.forEach(q => q.pos = null);
+        showCursors();
     },
     "Digit1": () => {
         addRuneAction(0, "rune");

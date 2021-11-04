@@ -1,8 +1,7 @@
 "use strict";
 let queues = [];
-let selectedQueue = [];
+let selectedQueues = [];
 let savedQueues = [];
-let cursor = [0, null];
 class QueueAction extends Array {
     constructor(actionID, undone = true, ...rest) {
         // Spread should work fine into an array
@@ -181,7 +180,7 @@ class ActionQueue extends Array {
     static migrate(ar) {
         return ar;
     }
-    addActionAt(actionID, index = cursor[1]) {
+    addActionAt(actionID, index) {
         if (actionID == "B") {
             return this.removeActionAt(index);
         }
@@ -194,7 +193,7 @@ class ActionQueue extends Array {
             return;
         }
         if (index && !this[index]) {
-            maybeClearCursor();
+            clearCursors();
         }
         let done = index == null ? false // last action, don't skip
             : index >= 0 ? this[index].done // middle action, skip if prior is done
@@ -210,17 +209,20 @@ class ActionQueue extends Array {
         else if (index >= 0) {
             this.splice(index + 1, 0, newAction);
             this[index].node.insertAdjacentElement("afterend", newAction.node);
-            // cursor[1]++;
-            cursor[1] = index + 1; //not sure if this is correct
+            let cursor = selectedQueues.find(q => q.clone == this.index);
+            if (cursor && cursor.pos !== null)
+                cursor.pos++;
         }
         else {
             this.unshift(newAction);
             this.queueNode?.insertAdjacentElement("afterbegin", newAction.node);
-            cursor[1] = index + 1;
+            let cursor = selectedQueues.find(q => q.clone == this.index);
+            if (cursor && cursor.pos !== null)
+                cursor.pos++;
         }
     }
-    removeActionAt(index = cursor[1]) {
-        if (index == null) {
+    removeActionAt(index) {
+        if (index === null) {
             const action = this.pop();
             if (action === undefined)
                 return;
@@ -230,8 +232,9 @@ class ActionQueue extends Array {
             if (this.length == 0 || index == -1)
                 return;
             this.splice(index, 1)[0].node.remove();
-            // cursor[1]--;
-            cursor[1] = index - 1;
+            let cursor = selectedQueues.find(q => q.clone == this.index);
+            if (cursor && cursor.pos !== null)
+                cursor.pos--;
         }
     }
     copyQueueAt(queue, index) {
@@ -300,24 +303,17 @@ class SavedActionQueue extends ActionQueue {
 function getActionValue(action) {
     return +(action.match(/\d+/)?.[0] || 0);
 }
-function addActionToQueue(action, queue = null) {
+function addActionToQueue(action) {
     if (document.querySelector(".saved-queue:focus, .saved-name:focus"))
         return addActionToSavedQueue(action);
-    if (queue === null) {
-        for (let i = 0; i < selectedQueue.length; i++) {
-            addActionToQueue(action, selectedQueue[i]);
-            scrollQueue(selectedQueue[i], cursor[1] ?? undefined);
-        }
-        showFinalLocation();
-        countMultipleActions();
-        return;
+    for (let i = 0; i < selectedQueues.length; i++) {
+        zones[displayZone].queues[selectedQueues[i].clone].addActionAt(action, selectedQueues[i].pos);
+        scrollQueue(selectedQueues[i].clone, selectedQueues[i].pos || undefined);
     }
-    if (queues[queue] === undefined)
-        return;
-    zones[displayZone].queues[queue].addActionAt(action, cursor[1]);
-    scrollQueue(queue, cursor[1] ?? undefined);
-    showCursor();
+    showFinalLocation();
+    showCursors();
     countMultipleActions();
+    return;
 }
 function addRuneAction(index, type) {
     if (type == "rune") {
@@ -331,13 +327,13 @@ function addRuneAction(index, type) {
 }
 function clearQueue(queue = null, noConfirm = false) {
     if (queue === null) {
-        if (selectedQueue.length == 0)
+        if (selectedQueues.length == 0)
             return;
-        if (selectedQueue.length == 1) {
-            clearQueue(selectedQueue[0], noConfirm);
+        if (selectedQueues.length == 1) {
+            clearQueue(selectedQueues[0].clone, noConfirm);
         }
         else {
-            if (selectedQueue.length == queues.length) {
+            if (selectedQueues.length == queues.length) {
                 if (!noConfirm && !confirm("Really clear ALL queues?"))
                     return;
             }
@@ -345,8 +341,8 @@ function clearQueue(queue = null, noConfirm = false) {
                 if (!noConfirm && !confirm("Really clear ALL selected queues?"))
                     return;
             }
-            for (let i = 0; i < selectedQueue.length; i++) {
-                clearQueue(selectedQueue[i], true);
+            for (let i = 0; i < selectedQueues.length; i++) {
+                clearQueue(selectedQueues[i].clone, true);
             }
         }
         return;
@@ -354,10 +350,11 @@ function clearQueue(queue = null, noConfirm = false) {
     if (!noConfirm && !confirm("Really clear queue?"))
         return;
     zones[displayZone].queues[queue].clear();
-    if (cursor[0] == queue) {
-        cursor[1] = null;
-    }
-    showCursor();
+    selectedQueues.forEach(q => {
+        if (q.clone == queue)
+            q.pos = null;
+    });
+    showCursors();
 }
 function createActionNode(action) {
     if (action[0] == "Q")
@@ -541,30 +538,40 @@ function redrawQueues() {
     clearWorkProgressBars();
 }
 function setCursor(event, el) {
-    let nodes = Array.from(el.parentNode?.children || []);
-    cursor[1] = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - +(event.offsetX < 8);
-    if (nodes.length - 1 == cursor[1])
-        cursor[1] = null;
-    cursor[0] = parseInt(el.parentNode.parentElement.id.replace("queue", ""));
-    showCursor();
+    const offsetX = event.offsetX;
+    setTimeout(() => {
+        let nodes = Array.from(el.parentNode?.children || []);
+        let clone = parseInt(el.parentNode.parentElement.id.replace("queue", ""));
+        let cursor = (selectedQueues.find(q => q.clone == clone) || selectedQueues.push({
+            clone: -1,
+            pos: null,
+        }) && selectedQueues[selectedQueues.length - 1]);
+        cursor.pos = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - +(offsetX < 8);
+        if (nodes.length - 1 == cursor.pos)
+            cursor.pos = null;
+        showCursors();
+    });
 }
-function maybeClearCursor(event, el) {
-    if ((!event || event.target == el) && cursor[1] !== null) {
-        cursor[1] = null;
-        showCursor();
+function clearCursors(event, el) {
+    if (!event || event.target == el) {
+        selectedQueues.forEach(q => q.pos = null);
+        showCursors();
     }
 }
-function showCursor() {
+function showCursors() {
     document.querySelectorAll(".cursor.visible").forEach(el => el.classList.remove("visible"));
-    if (cursor[1] == null)
-        return;
-    let cursorNode = document.querySelector(`#queue${cursor[0]} .cursor`);
-    if (!cursorNode) {
-        cursor = [0, null];
-        return;
-    }
-    cursorNode.classList.add("visible");
-    cursorNode.style.left = (cursor[1] * 16 + 17) + "px";
+    selectedQueues.forEach(cursor => {
+        if (cursor.pos == null)
+            return;
+        let cursorNode = document.querySelector(`#queue${cursor.clone} .cursor`);
+        if (!cursorNode) {
+            cursor.clone = -1;
+            return;
+        }
+        cursorNode.classList.add("visible");
+        cursorNode.style.left = (cursor.pos * 16 + 17) + "px";
+    });
+    selectedQueues = selectedQueues.filter(cursor => cursor.clone >= 0);
 }
 function queueToString(queue) {
     return queue.toString();

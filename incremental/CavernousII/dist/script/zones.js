@@ -250,7 +250,7 @@ class Zone {
         this.node.onclick = () => {
             document.querySelector("#zone-name").innerHTML = this.name;
             displayZone = zones.findIndex(z => z.name == this.name);
-            maybeClearCursor();
+            clearCursors();
             isDrawn = false;
             mapDirt = [];
             mapStain = [];
@@ -358,7 +358,7 @@ function moveToZone(zone, complete = true) {
     zones[currentZone].exitZone(complete);
     if (currentZone == displayZone && settings.followZone) {
         displayZone = zone;
-        maybeClearCursor();
+        clearCursors();
     }
     currentZone = zone;
     zones[zone].enterZone();

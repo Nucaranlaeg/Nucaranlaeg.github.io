@@ -59,8 +59,8 @@ function insertSavedQueue(event: DOMEvent, el: HTMLElement){
 
 	let source = el.closest('.saved-queue')!.id.replace("saved-queue", "");
 
-	for (let target of selectedQueue) {
-		queues[target].addActionAt(`Q${source};`, null);
+	for (let target of selectedQueues) {
+		queues[target.clone].addActionAt(`Q${source};`, null);
 	}
 
 	(<HTMLElement>el.closest('.saved-queue')).blur()

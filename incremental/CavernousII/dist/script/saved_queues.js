@@ -51,8 +51,8 @@ function insertSavedQueue(event, el) {
     if (event.target.closest("input") || event.target.closest("select"))
         return;
     let source = el.closest('.saved-queue').id.replace("saved-queue", "");
-    for (let target of selectedQueue) {
-        queues[target].addActionAt(`Q${source};`, null);
+    for (let target of selectedQueues) {
+        queues[target.clone].addActionAt(`Q${source};`, null);
     }
     el.closest('.saved-queue').blur();
 }
