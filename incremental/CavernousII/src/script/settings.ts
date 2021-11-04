@@ -139,7 +139,7 @@ function switchRuneList() {
 function setMaxTickTime(element: HTMLInputElement) {
 	let value = +element.value;
 	if (!isNaN(value)){
-		settings.maxTotalTick = Math.max(250, value);
+		settings.maxTotalTick = Math.max(250, value || 5000);
 	}
 	element.value = settings.maxTotalTick.toString();
 }
