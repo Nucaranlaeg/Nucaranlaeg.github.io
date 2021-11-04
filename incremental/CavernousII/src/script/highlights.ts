@@ -1,4 +1,4 @@
-let finalLocation: HTMLElement | null = null;
+let finalLocations: HTMLElement[] = [];
 let hoverLocation: HTMLElement | null = null;
 
 function showIntermediateLocation(event: DOMEvent) {
@@ -26,9 +26,8 @@ function showLocationAfterSteps(index: number, queueNumber: number, isDraw = fal
 		target.classList.add("hover-location");
 		hoverLocation = target;
 	} else {
-		finalLocation && finalLocation.classList.remove("final-location");
 		target.classList.add("final-location");
-		finalLocation = target;
+		finalLocations.push(target);
 	}
 	if (!isDraw) viewCell(target);
 }
@@ -75,9 +74,9 @@ function stopHovering() {
 }
 
 function showFinalLocation(isDraw = false) {
-	if (selectedQueues.length == 1) {
-		showLocationAfterSteps(zones[displayZone].queues[selectedQueues[0].clone].length - 1, selectedQueues[0].clone, isDraw);
-	} else if (finalLocation) {
-		finalLocation.classList.remove("final-location");
-	}
+	finalLocations.forEach(f => f.classList.remove("final-location"));
+	finalLocations = [];
+	selectedQueues.forEach(q => {
+		showLocationAfterSteps(zones[displayZone].queues[q.clone].length - 1, q.clone, isDraw);
+	});
 }
