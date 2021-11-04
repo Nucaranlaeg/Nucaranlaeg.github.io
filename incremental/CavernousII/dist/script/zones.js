@@ -284,7 +284,7 @@ class Zone {
                 displayStuff(routeNode, this.routes[i]);
                 routeNode.onclick = () => {
                     this.routes[i].loadRoute(this);
-                    parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
+                    parent.querySelectorAll("div.active").forEach(node => node.classList.remove("active"));
                     routeNode.classList.add("active");
                 };
                 routeNode.querySelector(".delete-route-inner").onclick = this.deleteRoute.bind(this, i);
@@ -294,6 +294,19 @@ class Zone {
                 }
                 parent.appendChild(routeNode);
             }
+            let foot = document.createElement("h4");
+            foot.innerHTML = "Legend:";
+            parent.appendChild(foot);
+            let leg1 = document.createElement("h4");
+            leg1.classList.add("route-legend");
+            leg1.classList.add("active");
+            leg1.innerHTML = "Active";
+            parent.appendChild(leg1);
+            let leg2 = document.createElement("h4");
+            leg2.classList.add("route-legend");
+            leg2.classList.add("unused");
+            leg2.innerHTML = "Unused";
+            parent.appendChild(leg2);
             this.routesChanged = false;
         }
         this.displaySelectedRoute();
@@ -304,7 +317,7 @@ class Zone {
         let parent = this.node.querySelector(".routes");
         if (parent === null)
             throw new Error("Routes element not found");
-        parent.querySelectorAll(".active").forEach(node => node.classList.remove("active"));
+        parent.querySelectorAll("div.active").forEach(node => node.classList.remove("active"));
         let currentRoute = (this.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
         this.routes
             .filter(r => r.realm == currentRealm)

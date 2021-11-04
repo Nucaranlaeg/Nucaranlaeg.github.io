@@ -286,6 +286,7 @@ function tickFight(usedTime, creature, baseTime) {
     }
     const targetClones = clones.filter(c => c.x == clones[currentClone].x && c.y == clones[currentClone].y && c.damage < Infinity);
     targetClones.forEach(c => c.takeDamage(damage / targetClones.length));
+    clones[currentClone].inCombat = true;
 }
 let combatTools = [
     [getStuff("Iron Axe"), 0.01, getStat("Woodcutting")],
@@ -310,10 +311,15 @@ function completeFight(x, y, creature) {
             if ((Math.abs(c.x - x) <= 1) || (Math.abs(c.y - y) <= 1)) {
                 c.activeSpells = c.activeSpells.filter(s => !s.endOnCombat);
             }
+            c.inCombat = false;
         });
         return completeMove(x, y);
     }
     return true;
+}
+// Prevent backing out of combat
+function startHeal() {
+    return clones[currentClone].inCombat ? CanStartReturnCode.Never : CanStartReturnCode.Now;
 }
 function tickHeal(usedTime) {
     clones[currentClone].takeDamage(-usedTime / 1000);
@@ -574,7 +580,7 @@ const actions = [
     new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate, null, duplicateDuration),
     new Action("Charge Wither", 1000, [["Runic Lore", 1]], completeWither, null, tickWither, predictWither),
     new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeTeleport),
-    new Action("Heal", 1000, [["Runic Lore", 1]], completeHeal, null, tickHeal, predictHeal),
+    new Action("Heal", 1000, [["Runic Lore", 1]], completeHeal, startHeal, tickHeal, predictHeal),
     new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
     new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),
     new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),

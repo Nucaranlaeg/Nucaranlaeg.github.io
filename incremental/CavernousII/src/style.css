@@ -705,6 +705,11 @@ h4#location-name {
 	background-color: #88cc88;
 }
 
+.route-legend {
+	width: 50%;
+	display: inline-block;
+}
+
 #failed-route {
 	display: none;
 	color: red;

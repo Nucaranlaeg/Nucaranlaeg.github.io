@@ -9,6 +9,7 @@ class Clone {
 	startDamage: number = 0;
 	damage: number = 0;
 	minHealth: number = 0;
+	inCombat: boolean = true;
 	waiting: boolean | number = false;
 	noSync: boolean = false;
 	currentProgress: number = 0;

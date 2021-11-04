@@ -7,6 +7,7 @@ class Clone {
         this.startDamage = 0;
         this.damage = 0;
         this.minHealth = 0;
+        this.inCombat = true;
         this.waiting = false;
         this.noSync = false;
         this.currentProgress = 0;
