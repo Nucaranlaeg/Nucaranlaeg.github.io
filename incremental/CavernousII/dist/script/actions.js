@@ -559,7 +559,7 @@ const actions = [
     new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, null, tickCollectMana, mineManaRockCost),
     new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
     new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]], true), simpleRequire([["Iron Ore", 1]], true)),
-    new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]]), simpleRequire([["Iron Bar", 1], ["Coal", 1]])),
+    new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]], true), simpleRequire([["Iron Bar", 1], ["Coal", 1]], true)),
     new Action("Turn Gold to Mana", 1000, [["Magic", 1]], completeGoldMana, simpleRequire([["Gold Nugget", 1]], true)),
     new Action("Cross Pit", 3000, [["Smithing", 1], ["Speed", 0.3]], completeCrossPit, haveBridge),
     new Action("Cross Lava", 6000, [["Smithing", 1], ["Speed", 0.3]], completeCrossLava, haveBridge),
