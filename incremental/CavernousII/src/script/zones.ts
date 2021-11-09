@@ -340,7 +340,7 @@ class Zone {
 	}
 
 	clearRoutes(event: MouseEvent){
-		if (!event.ctrlKey) return;
+		if (!event.ctrlKey && !event.metaKey) return;
 		if (settings.warnings && !confirm(`Really delete unused routes?`)) return;
 		clearUnusedZoneRoutes(this.index);
 	}

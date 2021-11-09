@@ -79,7 +79,7 @@ function toggleUseWASD() {
 }
 
 function toggleGrindMana(event?: KeyboardEvent) {
-	if (event?.ctrlKey){
+	if (event?.ctrlKey || event?.metaKey){
 		Route.invalidateRouteCosts();
 		return;
 	}

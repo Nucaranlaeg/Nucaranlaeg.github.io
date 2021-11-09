@@ -175,6 +175,7 @@ function completeCollectMana(x: number, y: number) {
 	zones[currentZone].mineComplete();
 	setMined(x, y, ".");
 	if (settings.autoRestart == 1 && settings.grindMana) shouldReset = true;
+	getRealmComplete(realms[currentRealm]);
 }
 
 function tickCollectMana() {
@@ -216,6 +217,7 @@ function completeActivateMachine(x: number, y: number) {
 	const needed = realms[currentRealm].getNextActivateAmount();
 	gold.update(-needed);
 	realms[currentRealm].activateMachine();
+	getRealmComplete(realms[currentRealm]);
 }
 
 function simpleConvert(source: [anyStuffName, number][], target: [anyStuffName, number][], doubleExcempt = false) {

@@ -54,7 +54,7 @@ function toggleUseWASD() {
     return settings.useWASD;
 }
 function toggleGrindMana(event) {
-    if (event?.ctrlKey) {
+    if (event?.ctrlKey || event?.metaKey) {
         Route.invalidateRouteCosts();
         return;
     }

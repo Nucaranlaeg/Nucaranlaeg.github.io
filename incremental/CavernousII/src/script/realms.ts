@@ -7,11 +7,13 @@ class Realm {
 	activateMachine: () => void;
 	extraDescription: (() => string) | null;
 	multPerRock: number;
-	locked: boolean;
+	locked: boolean = true;
 	node: HTMLElement | null;
 	index: number = -1;
 	mult: number | null = null;
 	machineCompletions: number = 0;
+	maxMult: number;
+	completed: boolean = false;
 
 	constructor(
 		name: string,
@@ -19,7 +21,8 @@ class Realm {
 		getMachineCount: (() => number) | null = null,
 		activateMachine: (() => void) | null = null,
 		extraDescription: (() => string) | null = null,
-		multPerRock: number = 0
+		multPerRock: number = 0,
+		maxMult: number = Infinity,
 	) {
 		this.name = name;
 		this.description = description;
@@ -27,8 +30,8 @@ class Realm {
 		this.activateMachine = activateMachine || (() => {});
 		this.extraDescription = extraDescription;
 		this.multPerRock = multPerRock;
-		this.locked = true;
 		this.node = null;
+		this.maxMult = maxMult;
 		setTimeout(() => {
 			this.index = realms.findIndex(r => r == this);
 		});
@@ -37,6 +40,11 @@ class Realm {
 	unlock() {
 		this.locked = false;
 		this.display();
+	}
+
+	complete() {
+		this.completed = true;
+		this.node?.parentNode?.removeChild(this.node);
 	}
 
 	display() {
@@ -65,6 +73,7 @@ class Realm {
 }
 
 function changeRealms(newRealm: number) {
+	if (realms[newRealm].completed) return;
 	// Reset the zones first to apply mana gained to the appropriate realm.
 	zones.forEach(z => z.resetZone());
 	resetLoop();
@@ -82,7 +91,7 @@ function changeRealms(newRealm: number) {
 }
 
 function getRealmMult(name:string, force = false) {
-	let realm = getRealm(name);
+	const realm = getRealm(name);
 	if (realm.mult === undefined || realm.mult === null || force) {
 		realm.mult =
 			zones.reduce((a, z) => {
@@ -95,7 +104,7 @@ function getRealmMult(name:string, force = false) {
 				);
 			}, 0) * realm.multPerRock;
 	}
-	return realm.mult + 1;
+	return Math.min(realm.mult + 1, realm.maxMult);
 }
 
 function getVerdantMultDesc() {
@@ -104,6 +113,18 @@ function getVerdantMultDesc() {
 
 function getCompoundingMultDesc() {
 	return `Stat slowdown start: ${writeNumber(99 + getRealmMult("Compounding Realm", true), 4)}`;
+}
+
+function getRealmComplete(realm: Realm) {
+	if (realm.name == "Verdant Realm"){
+		const wither = getRune("Wither");
+		if (getRealmMult(realm.name, true) == realm.maxMult && wither.upgradeCount == 3){
+			realm.complete();
+			getMessage("Complete Verdant").display();
+			wither.isInscribable = simpleRequire([["Salt", 1], ["Iron Ore", 1]]);
+			wither.updateDescription();
+		}
+	}
 }
 
 const verdantMapping: {[key: string]: string} = {
@@ -153,7 +174,8 @@ const realms:Realm[] = [
 			getMessage("Upgraded Wither Rune").display();
 		},
 		getVerdantMultDesc,
-		0.0005
+		0.0005,
+		2,
 	),
 
 	// Clones cannot help each other at all.

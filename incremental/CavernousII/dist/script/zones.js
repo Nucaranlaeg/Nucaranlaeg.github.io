@@ -327,7 +327,7 @@ class Zone {
         });
     }
     clearRoutes(event) {
-        if (!event.ctrlKey)
+        if (!event.ctrlKey && !event.metaKey)
             return;
         if (settings.warnings && !confirm(`Really delete unused routes?`))
             return;

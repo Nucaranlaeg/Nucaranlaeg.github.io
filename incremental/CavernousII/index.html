@@ -201,43 +201,45 @@
 						: or ; to insert a breakpoint which pauses the game
 					</div>
 				</div>
-				<div class="option block clickable" onclick="save()">
-					<span class="name">Manually Save</span>
-					<div class="description">The game automatically saves every time a reset occurs.</div>
-				</div>
-				<div class="option block clickable" ondblclick="deleteSave()">
-					<span class="name">Clear Save (double click)</span>
-					<div class="description">Are you sure you want to restart the game?</div>
-				</div>
-				<div class="option-row">
-					<div class="option block clickable option--half-width" onclick="exportGame()">
-						<span class="name">Export</span>
-						<div class="description">This will put your save on your clipboard.</div>
+				<div onclick="displaySaveClick(event)">
+					<div class="option block clickable" onclick="save()">
+						<span class="name">Manually Save</span>
+						<div class="description">The game automatically saves every time a reset occurs.</div>
 					</div>
-					<div class="option block clickable option--half-width" onclick="importGame()">
-						<span class="name">Import</span>
-						<div class="description">Paste your save in the box.</div>
+					<div class="option block clickable" ondblclick="deleteSave()">
+						<span class="name">Clear Save (double click)</span>
+						<div class="description">Are you sure you want to restart the game?</div>
 					</div>
-				</div>
-				<div class="option-row">
-					<div class="option block clickable option--half-width" onclick="exportQueues()">
-						<span class="name">Export Queue</span>
-						<div class="description">This will put your current queues on your clipboard.</div>
+					<div class="option-row">
+						<div class="option block clickable option--half-width" onclick="exportGame()">
+							<span class="name">Export</span>
+							<div class="description">This will put your save on your clipboard.</div>
+						</div>
+						<div class="option block clickable option--half-width" onclick="importGame()">
+							<span class="name">Import</span>
+							<div class="description">Paste your save in the box.</div>
+						</div>
 					</div>
-					<div class="option block clickable option--half-width" onclick="importQueues()">
-						<span class="name">Import Queue</span>
-						<div class="description">Paste queues in the box.</div>
+					<div class="option-row">
+						<div class="option block clickable option--half-width" onclick="exportQueues()">
+							<span class="name">Export Queue</span>
+							<div class="description">This will put your current queues on your clipboard.</div>
+						</div>
+						<div class="option block clickable option--half-width" onclick="importQueues()">
+							<span class="name">Import Queue</span>
+							<div class="description">Paste queues in the box.</div>
+						</div>
 					</div>
-				</div>
-				<div class="option-row">
-					<div class="option block clickable option--half-width" onclick="longExportQueues()">
-						<span class="name">Long Export</span>
-						<div class="description">This will put your current queues (all zones, this realm) on your
-							clipboard.</div>
-					</div>
-					<div class="option block clickable option--half-width" onclick="longImportQueues()">
-						<span class="name">Long Import</span>
-						<div class="description">Paste queues for all zones in this realm in the box.</div>
+					<div class="option-row">
+						<div class="option block clickable option--half-width" onclick="longExportQueues()">
+							<span class="name">Long Export</span>
+							<div class="description">This will put your current queues (all zones, this realm) on your
+								clipboard.</div>
+						</div>
+						<div class="option block clickable option--half-width" onclick="longImportQueues()">
+							<span class="name">Long Import</span>
+							<div class="description">Paste queues for all zones in this realm in the box.</div>
+						</div>
 					</div>
 				</div>
 				<div class="option block clickable" onclick="displayLoopLog()">

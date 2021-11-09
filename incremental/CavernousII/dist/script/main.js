@@ -128,11 +128,12 @@ function resetLoop() {
     if (isNaN(timeBanked)) {
         timeBanked = 0;
     }
-    setStartData();
+    storeLoopLog();
 }
 /********************************************* Loop Log *********************************************/
 let loopActions = {};
 let loopStatStart = [];
+let previousLoopLogs = [];
 let loopLogVisible = false;
 const loopLogBox = document.querySelector("#loop-log-box");
 if (loopLogBox === null)
@@ -145,11 +146,25 @@ const statLogEntryTemplate = document.querySelector("#stat-log-entry-template");
 if (statLogEntryTemplate === null)
     throw new Error("No statlog-entry template found");
 statLogEntryTemplate.removeAttribute("id");
-function setStartData() {
+const MAX_EPHEMERAL_LOGS = 5;
+function storeLoopLog() {
+    const newLog = {
+        actions: { ...loopActions },
+        stats: loopStatStart.map((s, i) => {
+            return { current: stats[i].current - loopStatStart[i], base: stats[i].base - loopStatStart[i] };
+        }),
+        kept: false,
+    };
+    previousLoopLogs.push(newLog);
+    const ephemeralLogCount = previousLoopLogs.filter(l => l.kept).length;
+    if (ephemeralLogCount > MAX_EPHEMERAL_LOGS) {
+        let filtered = false;
+        previousLoopLogs = previousLoopLogs.filter(l => filtered || l.kept || ((filtered = true) && false));
+    }
     loopActions = {};
     loopStatStart = stats.map(s => s.base);
 }
-function displayLoopLog() {
+function displayLoopLog(logActions = loopActions, logStats = null) {
     loopLogBox.hidden = false;
     loopLogVisible = true;
     const loopActionNode = loopLogBox.querySelector("#loop-actions");
@@ -160,7 +175,7 @@ function displayLoopLog() {
     while (loopStatNode.lastChild) {
         loopStatNode.removeChild(loopStatNode.lastChild);
     }
-    let actions = Object.entries(loopActions);
+    let actions = Object.entries(logActions);
     actions = actions.sort((a, b) => b[1] - a[1]);
     const totalActionNode = logEntryTemplate.cloneNode(true);
     totalActionNode.querySelector(".name").innerHTML = "Total clone-seconds";
@@ -188,8 +203,14 @@ function displayLoopLog() {
             continue;
         const node = statLogEntryTemplate.cloneNode(true);
         node.querySelector(".name").innerHTML = stats[i].name;
-        node.querySelector(".current-value").innerHTML = writeNumber(stats[i].current - loopStatStart[i], 3);
-        node.querySelector(".base-value").innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
+        if (logStats === null) {
+            node.querySelector(".current-value").innerHTML = writeNumber(stats[i].current - loopStatStart[i], 3);
+            node.querySelector(".base-value").innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
+        }
+        else {
+            node.querySelector(".current-value").innerHTML = writeNumber(logStats[i].current, 3);
+            node.querySelector(".base-value").innerHTML = writeNumber(logStats[i].base, 3);
+        }
         totalStats += stats[i].base - loopStatStart[i];
         loopStatNode.append(node);
     }
@@ -422,6 +443,13 @@ function importGame() {
         load();
     }
     window.location.reload();
+}
+function displaySaveClick(event) {
+    let el = event.target.closest(".clickable");
+    if (!el)
+        return;
+    el.classList.add("ripple");
+    setTimeout(() => el.classList.remove("ripple"), 1000);
 }
 /** ****************************************** Game loop ********************************************/
 let lastAction = Date.now();

@@ -168,7 +168,7 @@ class Stat<statName extends anyStatName> {
 
 	loadGrindRoute(event: KeyboardEvent | MouseEvent) {
 		if (!this.learnable) return;
-		if (event?.ctrlKey){
+		if (event?.ctrlKey || event?.metaKey){
 			GrindRoute.deleteRoute(this.name);
 			this.dirty = true;
 			this.update();

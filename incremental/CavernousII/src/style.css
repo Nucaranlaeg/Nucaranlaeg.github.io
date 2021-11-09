@@ -526,6 +526,11 @@ svg {
 	cursor: pointer;
 }
 
+.ripple {
+	background-color: #23b8da;
+	transition: background-color 1s;
+}
+
 .half-width {
 	width: 46%;
 }

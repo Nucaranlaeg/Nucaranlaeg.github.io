@@ -212,7 +212,7 @@ const messages = [
 	new Message(
 		"Game Slowdown",
 		`
-			At this point, the game slows down quite a bit.  You'll need to grind stats much more.  If that's not your thing, no worries!  Thanks for playing this far.  You've beaten the tightly-designed portion of the game, and I'd count that as a win.
+			At this point, the game slows down quite a bit.  You'll need to grind stats much more in order ot progress.  If that's not your thing, no worries!  Thanks for playing this far.  You've beaten the tightly-designed portion of the game, and I'd count that as a win.
 
 			If you're sticking around, there's much more that you haven't yet reached.`
 	),
@@ -282,4 +282,9 @@ const messages = [
 			You've unlocked the first of the time barriers!
 			There's one in each zone, behind which is a mana rock.  However, breaching a time barrier causes the zone to leech 5 of your mana per second.`
 	),
+	new Message(
+		"Complete Verdant",
+		`
+			You've learned all that you can in the Verdant Realm.  You no longer have access to it - but wither runes no longer cost any gold.`
+	)
 ];

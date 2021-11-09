@@ -192,7 +192,7 @@ class ActionQueue extends Array {
         if (!actionID.match(/^([UDLRI<=+\.,:]|[NS]\d+;|T|P-?\d+:-?\d+;)$/)) {
             return;
         }
-        if (index && !this[index]) {
+        if (index && index > 0 && !this[index]) {
             clearCursors();
         }
         let done = index == null ? false // last action, don't skip
@@ -589,7 +589,9 @@ function longExportQueues() {
     navigator.clipboard.writeText(JSON.stringify(exportString));
 }
 function importQueues() {
-    let queueString = prompt("Input your queues") || "[]";
+    let queueString = prompt("Input your queues");
+    if (!queueString)
+        return;
     let tempQueues = zones[displayZone].queues.slice();
     try {
         let newQueues = JSON.parse(queueString);
@@ -606,6 +608,7 @@ function importQueues() {
     catch {
         alert("Could not import queues.");
         zones[displayZone].queues = tempQueues;
+        redrawQueues();
     }
 }
 function longImportQueues(queueString) {

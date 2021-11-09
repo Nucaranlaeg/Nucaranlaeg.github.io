@@ -151,6 +151,7 @@ function completeCollectMana(x, y) {
     setMined(x, y, ".");
     if (settings.autoRestart == 1 && settings.grindMana)
         shouldReset = true;
+    getRealmComplete(realms[currentRealm]);
 }
 function tickCollectMana() {
     const clone = clones[currentClone];
@@ -188,6 +189,7 @@ function completeActivateMachine(x, y) {
     const needed = realms[currentRealm].getNextActivateAmount();
     gold.update(-needed);
     realms[currentRealm].activateMachine();
+    getRealmComplete(realms[currentRealm]);
 }
 function simpleConvert(source, target, doubleExcempt = false) {
     function convert() {

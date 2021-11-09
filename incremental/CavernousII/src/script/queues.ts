@@ -216,17 +216,17 @@ class ActionQueue extends Array<QueueAction> {
 		if (!actionID.match(/^([UDLRI<=+\.,:]|[NS]\d+;|T|P-?\d+:-?\d+;)$/)){
 			return;
 		}
-		if (index &&!this[index]){
+		if (index && index > 0 && !this[index]){
 			clearCursors();
 		}
 
 		let done = index == null ? false // last action, don't skip
-				 : index >= 0 ? this[index].done // middle action, skip if prior is done
-				 : this[0].started; // first action, skip if next is started
+		         : index >= 0 ? this[index].done // middle action, skip if prior is done
+		         : this[0].started; // first action, skip if next is started
 		let newAction = //actionID[0] == "Q" ? new QueueReferenceAction(actionID, !done, savedQueues[getActionValue(actionID)]):
-					   actionID[0] == "P" ? new QueuePathfindAction(actionID, !done)
-					  : actionID[0] == "T" ? new QueueRepeatInteractAction(actionID, !done)
-					  : new QueueAction(actionID, !done);
+		                actionID[0] == "P" ? new QueuePathfindAction(actionID, !done)
+		              : actionID[0] == "T" ? new QueueRepeatInteractAction(actionID, !done)
+		              : new QueueAction(actionID, !done);
 
 		if (index == null) {
 			this.push(newAction);
@@ -615,7 +615,8 @@ function longExportQueues() {
 }
 
 function importQueues() {
-	let queueString = prompt("Input your queues") || "[]";
+	let queueString = prompt("Input your queues");
+	if (!queueString) return;
 	let tempQueues = zones[displayZone].queues.slice();
 	try {
 		let newQueues = JSON.parse(queueString);
@@ -631,6 +632,7 @@ function importQueues() {
 	} catch {
 		alert("Could not import queues.");
 		zones[displayZone].queues = tempQueues;
+		redrawQueues();
 	}
 }
 
