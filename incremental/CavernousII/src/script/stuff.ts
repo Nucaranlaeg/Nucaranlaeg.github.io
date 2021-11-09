@@ -88,9 +88,9 @@ function calcCombatStats() {
 	clones.forEach(c => c.styleDamage());
 }
 
-function getStatBonus(name:anyStatName, amount:number){
+function getStatBonus(name:anyStatName, mult:number){
 	let stat = getStat(name);
-	return (mult:number) => stat.getBonus(Math.floor(amount + 0.01) * mult);
+	return (amount:number) => stat.getBonus(Math.floor(amount + 0.01) * mult);
 }
 
 type anyStuffName = typeof stuff[number]['name'];

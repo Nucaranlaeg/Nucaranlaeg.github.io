@@ -1,5 +1,6 @@
 type timeLineEntry = { type: string; time: number; el: HTMLElement };
 type timeLine = timeLineEntry[];
+let breakActions = false;
 
 class Clone {
 	id: number;
@@ -183,8 +184,13 @@ class Clone {
 			entryElement.dataset.time = Math.round(time).toString();
 			entryElement.style.flexGrow = time.toString();
 			entryElement.classList.add(action.name.replace(/ /g, "-"));
-			this.timeLineElements[currentZone].append(entryElement);
-			this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+			if (currentZone > 0 && this.timeLines[currentZone].length == 0 && action.name == "No action"){
+				this.timeLineElements[currentZone - 1].append(entryElement);
+				this.timeLines[currentZone - 1].push({ type: action.name, time, el: entryElement });
+			} else {
+				this.timeLineElements[currentZone].append(entryElement);
+				this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+			}
 		}
 	}
 
@@ -318,6 +324,7 @@ class Clone {
 		// Pause game
 		if (actionToDo === ":"){
 			if (settings.running) toggleRunning();
+			breakActions = true;
 			this.selectQueueAction(actionIndex, 100);
 			this.completeNextAction(true);
 			return time;
@@ -494,7 +501,7 @@ class Clone {
 		let maxTime = time;
 		let count = 0;
 		clones.forEach(c => c.isPausing = false);
-		while (maxTime) {
+		while (maxTime && !breakActions) {
 			if (count++ > 100) break;
 			const nextActionTimes = clones
 				.map(c => (c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] as [number, null, null] : c.getNextActionTime()))

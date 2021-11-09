@@ -320,6 +320,11 @@ class Zone {
 			leg2.classList.add("unused");
 			leg2.innerHTML = "Unused";
 			parent.appendChild(leg2);
+			// let leg3 = document.createElement("h4");
+			// leg3.classList.add("route-legend");
+			// leg3.classList.add("orphaned");
+			// leg3.innerHTML = "Orphaned";
+			// parent.appendChild(leg3);
 			this.routesChanged = false;
 		}
 		this.displaySelectedRoute();

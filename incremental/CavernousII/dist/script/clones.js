@@ -1,4 +1,5 @@
 "use strict";
+let breakActions = false;
 class Clone {
     constructor(id) {
         this.x = 0;
@@ -178,8 +179,14 @@ class Clone {
             entryElement.dataset.time = Math.round(time).toString();
             entryElement.style.flexGrow = time.toString();
             entryElement.classList.add(action.name.replace(/ /g, "-"));
-            this.timeLineElements[currentZone].append(entryElement);
-            this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+            if (currentZone > 0 && this.timeLines[currentZone].length == 0 && action.name == "No action") {
+                this.timeLineElements[currentZone - 1].append(entryElement);
+                this.timeLines[currentZone - 1].push({ type: action.name, time, el: entryElement });
+            }
+            else {
+                this.timeLineElements[currentZone].append(entryElement);
+                this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+            }
         }
     }
     revertTimelineWait(time) {
@@ -310,6 +317,7 @@ class Clone {
         if (actionToDo === ":") {
             if (settings.running)
                 toggleRunning();
+            breakActions = true;
             this.selectQueueAction(actionIndex, 100);
             this.completeNextAction(true);
             return time;
@@ -480,7 +488,7 @@ class Clone {
         let maxTime = time;
         let count = 0;
         clones.forEach(c => c.isPausing = false);
-        while (maxTime) {
+        while (maxTime && !breakActions) {
             if (count++ > 100)
                 break;
             const nextActionTimes = clones

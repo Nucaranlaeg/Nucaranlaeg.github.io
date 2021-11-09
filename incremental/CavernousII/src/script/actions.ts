@@ -277,6 +277,7 @@ function completeGoldMana() {
 	gold.update(-1);
 	const manaMult = getRealmMult("Verdant Realm") || 1;
 	getStat("Mana").current += GOLD_VALUE * manaMult;
+	loopGoldVaporized++;
 	return false;
 }
 
@@ -513,6 +514,7 @@ function predictWither(location: MapLocation) {
 }
 
 function activatePortal() {
+	breakActions = true;
 	moveToZone(currentZone + 1);
 }
 

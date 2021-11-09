@@ -259,6 +259,7 @@
 			<h3>Stats</h3>
 			<div class="queue-time">
 				<div id="queue-actions">Actions: <span id="actions-spent"></span></div>
+				Zone time: <span id="time-spent-zone">0</span>s<br>
 				Time spent: <span id="time-spent">0</span>s
 			</div>
 		</div>
@@ -484,6 +485,10 @@
 	<div id="loop-log-box" onclick="hideLoopLog()" hidden>
 		<div id="loop-log-wrapper">
 			<h3>Current Run Stats</h3>
+			<div id="gold-vaporized">
+				<span id="loop-gold-count"></span> gold vaporized for <span id="loop-gold-value"></span> mana
+			</div>
+			<div id="loop-prev"></div>
 			<div id="loop-stats"></div>
 			<div id="loop-actions" class="timeline"></div>
 		</div>

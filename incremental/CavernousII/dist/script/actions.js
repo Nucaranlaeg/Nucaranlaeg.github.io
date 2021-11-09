@@ -251,6 +251,7 @@ function completeGoldMana() {
     gold.update(-1);
     const manaMult = getRealmMult("Verdant Realm") || 1;
     getStat("Mana").current += GOLD_VALUE * manaMult;
+    loopGoldVaporized++;
     return false;
 }
 function completeCrossPit(x, y) {
@@ -464,6 +465,7 @@ function predictWither(location) {
     return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither))) / 2000;
 }
 function activatePortal() {
+    breakActions = true;
     moveToZone(currentZone + 1);
 }
 function completeGoal(x, y) {
