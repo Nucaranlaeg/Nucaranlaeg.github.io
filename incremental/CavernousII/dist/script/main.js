@@ -171,17 +171,21 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
     loopLogVisible = true;
     const loopActionNode = loopLogBox.querySelector("#loop-actions");
     const loopStatNode = loopLogBox.querySelector("#loop-stats");
+    const loopPrevNode = loopLogBox.querySelector("#loop-prev-list");
     while (loopActionNode.lastChild) {
         loopActionNode.removeChild(loopActionNode.lastChild);
     }
     while (loopStatNode.lastChild) {
         loopStatNode.removeChild(loopStatNode.lastChild);
     }
+    while (loopPrevNode.lastChild) {
+        loopPrevNode.removeChild(loopPrevNode.lastChild);
+    }
     let actions = Object.entries(logActions);
-    actions = actions.sort((a, b) => b[1] - a[1]);
+    actions = actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
     const totalActionNode = logEntryTemplate.cloneNode(true);
     totalActionNode.querySelector(".name").innerHTML = "Total clone-seconds";
-    totalActionNode.querySelector(".value").innerHTML = writeNumber(actions.reduce((a, c) => a + c[1], 0) / 1000, 1);
+    totalActionNode.querySelector(".value").innerHTML = writeNumber(actions.reduce((a, c) => a + c[1].reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1);
     totalActionNode.style.fontWeight = "bold";
     loopActionNode.append(totalActionNode);
     const totalStatNode = statLogEntryTemplate.cloneNode(true);
@@ -192,7 +196,7 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
         const node = logEntryTemplate.cloneNode(true);
         node.classList.add(actions[i][0].replace(/ /g, "-"));
         node.querySelector(".name").innerHTML = actions[i][0];
-        node.querySelector(".value").innerHTML = writeNumber(actions[i][1] / 1000, 1);
+        node.querySelector(".value").innerHTML = writeNumber(actions[i][1].reduce((acc, cur) => acc + cur, 0) / 1000, 1);
         node.querySelector(".description").innerHTML = `Relevant stats:<br>${getAction(actions[i][0])?.stats.map(s => `${s[0].name}: ${s[1]}`).join("<br>") || ""}`;
         loopActionNode.append(node);
         node.style.color = setRGBContrast(window.getComputedStyle(node).backgroundColor);
@@ -544,6 +548,7 @@ setInterval(function mainLoop() {
     if (timeLeft > 0.001 && settings.running && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
         resetLoop();
     }
+    clones[selectedQueues[0]?.clone].writeStats();
     queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
     queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
     zoneTimeNode = zoneTimeNode || document.querySelector("#time-spent-zone");

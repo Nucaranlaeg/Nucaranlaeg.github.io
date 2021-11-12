@@ -133,7 +133,6 @@ const verdantMapping: {[key: string]: string} = {
 	"«": "♣", // Travertine -> Kudzushroom
 	"╖": "α", // Granite -> Sporeshroom
 	"╣": "§", // Basalt -> Oystershroom
-	"????": "????" // Chert
 };
 
 function convertMapToVerdant(map:Zone["map"]): string[] {

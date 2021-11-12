@@ -257,6 +257,12 @@
 		</div>
 		<div id="stats" class="vertical-block">
 			<h3>Stats</h3>
+			<div class="clone-info">
+				<h6>Selected Clone</h6>
+				Health: <span class="health-amount"></span><br>
+				<span class="action-name"></span><br>
+				<span class="action-progress"></span> <small>clone-seconds</small>
+			</div>
 			<div class="queue-time">
 				<div id="queue-actions">Actions: <span id="actions-spent"></span></div>
 				Zone time: <span id="time-spent-zone">0</span>s<br>
@@ -488,7 +494,10 @@
 			<div id="gold-vaporized">
 				<span id="loop-gold-count"></span> gold vaporized for <span id="loop-gold-value"></span> mana
 			</div>
-			<div id="loop-prev"></div>
+			<div id="loop-prev">
+				<div class="log-entry" style="font-weight: bold;">Previous Runs</div>
+				<div id="loop-prev-list"></div>
+			</div>
 			<div id="loop-stats"></div>
 			<div id="loop-actions" class="timeline"></div>
 		</div>

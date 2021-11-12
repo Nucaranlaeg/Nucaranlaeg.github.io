@@ -231,15 +231,23 @@ svg {
 	padding-right: 16px;
 }
 
+.clone-info {
+	position: absolute;
+	bottom: 90px;
+	width: calc(100% - 19px);
+	border-top: 2px solid #5559;
+	left: -1px;
+	padding: 10px;
+}
+
+.clone-info h6 {
+	margin: -19 auto 0 auto;
+	text-align: center;
+	background-color: #acc;
+	width: 50%;
+}
+
 .queue-time {
-	/* display: inline-block; */
-	/* width: 130px; */
-	/* text-align: center; */
-	/* position: sticky; */
-	/* margin-top: -3px; */
-	/* right: 100px; */
-	/* background-color: #aaccccd0; */
-	/* font-size: 0; */
 	position: absolute;
 	bottom: 6px;
 	right: 8px;
@@ -1430,8 +1438,6 @@ td:hover:after {
 hr {
 	width: 100%;
 }
-
-
 
 .bottom-block:not(:hover)>.queue-buttons {
 	opacity: 0;

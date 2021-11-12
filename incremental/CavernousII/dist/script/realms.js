@@ -109,8 +109,7 @@ const verdantMapping = {
     "√": "♠",
     "«": "♣",
     "╖": "α",
-    "╣": "§",
-    "????": "????" // Chert
+    "╣": "§", // Basalt -> Oystershroom
 };
 function convertMapToVerdant(map) {
     return map.map(row => [...row].map(cell => verdantMapping[cell] || cell).join(""));
