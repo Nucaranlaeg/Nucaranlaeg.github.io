@@ -1,4 +1,5 @@
 "use strict";
+let breakActions = false;
 class Clone {
     constructor(id) {
         this.x = 0;
@@ -92,10 +93,20 @@ class Clone {
             return;
         const hp = 1 - Math.min(this.damage / getStat("Health").current);
         this.el.querySelector(".damage").style.width = hp == 1 || !Number.isFinite(hp) ? "0" : hp * 100 + "%";
-        if (hp < 0)
+        if (hp < 0) {
             this.el.classList.add("dead-clone");
-        else
+        }
+        else {
             this.el.classList.remove("dead-clone");
+        }
+    }
+    writeStats() {
+        document.querySelector(".clone-info .health-amount").innerHTML = writeNumber(Math.max(getStat("Health").current - this.damage, 0), this.damage ? 2 : 0);
+        const lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
+        if (lastEntry) {
+            document.querySelector(".clone-info .action-name").innerHTML = lastEntry.type;
+            document.querySelector(".clone-info .action-progress").innerHTML = writeNumber((this.currentProgress || this.walkTime) / 1000, 2);
+        }
     }
     createQueue() {
         const queueTemplate = document.querySelector("#queue-template");
@@ -161,8 +172,8 @@ class Clone {
             return;
         // Loop log
         if (!loopActions[action.name])
-            loopActions[action.name] = 0;
-        loopActions[action.name] += time;
+            loopActions[action.name] = Array(zones.length).fill(0);
+        loopActions[action.name][currentZone] += time;
         // Timeline
         if (!settings.timeline)
             return;
@@ -178,22 +189,32 @@ class Clone {
             entryElement.dataset.time = Math.round(time).toString();
             entryElement.style.flexGrow = time.toString();
             entryElement.classList.add(action.name.replace(/ /g, "-"));
-            this.timeLineElements[currentZone].append(entryElement);
-            this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+            if (currentZone > 0 && this.timeLines[currentZone].length == 0 && action.name == "No action") {
+                this.timeLineElements[currentZone - 1].append(entryElement);
+                this.timeLines[currentZone - 1].push({ type: action.name, time, el: entryElement });
+            }
+            else {
+                this.timeLineElements[currentZone].append(entryElement);
+                this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+            }
         }
     }
     revertTimelineWait(time) {
-        // Loop Log
-        loopActions["Wait"] -= time;
         // Timeline
         if (!settings.timeline)
             return;
         let lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
         if (lastEntry?.type == "Wait") {
+            time = Math.min(time, lastEntry.time);
             lastEntry.time -= time;
             lastEntry.el.dataset.time = Math.round(lastEntry.time).toString();
             lastEntry.el.style.flexGrow = lastEntry.time.toString();
         }
+        else {
+            return;
+        }
+        // Loop Log
+        loopActions["Wait"][currentZone] -= time;
     }
     getNextActionTime() {
         currentClone = this.id;
@@ -310,6 +331,7 @@ class Clone {
         if (actionToDo === ":") {
             if (settings.running)
                 toggleRunning();
+            breakActions = true;
             this.selectQueueAction(actionIndex, 100);
             this.completeNextAction(true);
             return time;
@@ -427,7 +449,7 @@ class Clone {
         [time, percentRemaining] = location.tick(time);
         if (initialTime - time > 5 || !percentRemaining)
             this.selectQueueAction(actionIndex, 100 - percentRemaining * 100);
-        this.currentProgress = location.remainingPresent;
+        this.currentProgress = !hasOffset ? location.remainingPresent : location.remainingEnter;
         if (!percentRemaining) {
             this.completeNextAction();
             this.currentProgress = 0;
@@ -480,7 +502,7 @@ class Clone {
         let maxTime = time;
         let count = 0;
         clones.forEach(c => c.isPausing = false);
-        while (maxTime) {
+        while (maxTime && !breakActions) {
             if (count++ > 100)
                 break;
             const nextActionTimes = clones
@@ -547,6 +569,7 @@ function selectClone(target, event) {
     }
     showCursors();
     showFinalLocation();
+    clones[selectedQueues[0]?.clone].writeStats();
 }
 let clones = [];
 //# sourceMappingURL=clones.js.map

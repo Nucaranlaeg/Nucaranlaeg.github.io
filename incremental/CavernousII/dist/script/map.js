@@ -81,7 +81,7 @@ setTimeout(() => {
     });
 });
 // The tiles that can be pathfinded through.
-const walkable = '*.♥╬▣=⎶&║"()[]{}^WHTtFDd¢¥£©Θ';
+const walkable = '*.♥╬▣=⎶&║"()[]{}^WHTtFDd¢¥£©Θ|<>';
 // Water can flow through shrooms, albeit slower.
 const shrooms = "♠♣α§";
 const runesTiles = "WHTtDdF";
@@ -347,8 +347,19 @@ function displayCreatureHealth(creature) {
 function showRelevantStats(loc) {
     if (!loc)
         return;
-    let enterAction = loc.baseType.getEnterAction(loc.entered);
-    let action = enterAction?.name == "Walk" ? loc.baseType.presentAction || loc.temporaryPresent || enterAction : enterAction;
+    let action;
+    if (realms[currentRealm].name == "Verdant Realm") {
+        if (verdantMapping[loc.baseType.symbol]) {
+            let locType = getLocationTypeBySymbol(verdantMapping[loc.baseType.symbol]);
+            if (locType) {
+                action = getLocationType(locType)?.getEnterAction(loc.entered);
+            }
+        }
+    }
+    if (!action) {
+        let enterAction = loc.baseType.getEnterAction(loc.entered);
+        action = enterAction?.name == "Walk" ? loc.baseType.presentAction || loc.temporaryPresent || enterAction : enterAction;
+    }
     document.querySelectorAll(".relevant-stat").forEach(node => node.classList.remove("relevant-stat"));
     if (action) {
         action.stats.forEach(s => {

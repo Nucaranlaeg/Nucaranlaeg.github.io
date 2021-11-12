@@ -151,6 +151,7 @@ function completeCollectMana(x, y) {
     setMined(x, y, ".");
     if (settings.autoRestart == 1 && settings.grindMana)
         shouldReset = true;
+    getRealmComplete(realms[currentRealm]);
 }
 function tickCollectMana() {
     const clone = clones[currentClone];
@@ -188,6 +189,7 @@ function completeActivateMachine(x, y) {
     const needed = realms[currentRealm].getNextActivateAmount();
     gold.update(-needed);
     realms[currentRealm].activateMachine();
+    getRealmComplete(realms[currentRealm]);
 }
 function simpleConvert(source, target, doubleExcempt = false) {
     function convert() {
@@ -249,6 +251,8 @@ function completeGoldMana() {
     gold.update(-1);
     const manaMult = getRealmMult("Verdant Realm") || 1;
     getStat("Mana").current += GOLD_VALUE * manaMult;
+    loopGoldVaporized[0]++;
+    loopGoldVaporized[1] += GOLD_VALUE * manaMult;
     return false;
 }
 function completeCrossPit(x, y) {
@@ -371,7 +375,7 @@ function predictTeleport() {
     }
     return Infinity;
 }
-function startChargeDuplicate(location) {
+function startChargableRune(location) {
     if (location.completions > 0) {
         return 0;
     }
@@ -462,6 +466,7 @@ function predictWither(location) {
     return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither))) / 2000;
 }
 function activatePortal() {
+    breakActions = true;
     moveToZone(currentZone + 1);
 }
 function completeGoal(x, y) {
@@ -530,6 +535,7 @@ var ACTION;
     ACTION["CHARGE_DUPLICATION"] = "Charge Duplication";
     ACTION["CHARGE_WITHER"] = "Charge Wither";
     ACTION["CHARGE_TELEPORT"] = "Charge Teleport";
+    ACTION["CHARGE_TEMPORAL_REVERSION"] = "Charge Temporal Reversion";
     ACTION["HEAL"] = "Heal";
     ACTION["PORTAL"] = "Portal";
     ACTION["COMPLETE_GOAL"] = "Complete Goal";
@@ -577,7 +583,7 @@ const actions = [
     new Action("Enchant Armour", 3000000, [["Smithing", 0.5], ["Gemcraft", 0.5]], simpleConvert([["Gem", 3], ["Steel Armour", 1]], [["+1 Armour", 1]]), simpleRequire([["Gem", 3], ["Steel Armour", 1]])),
     new Action("Attack Creature", 1000, [["Combat", 1]], completeFight, null, tickFight, combatDuration),
     new Action("Teleport", 1, [["Runic Lore", 1]], completeTeleport, startTeleport, null, predictTeleport),
-    new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeDuplicate, null, duplicateDuration),
+    new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargableRune, null, duplicateDuration),
     new Action("Charge Wither", 1000, [["Runic Lore", 1]], completeWither, null, tickWither, predictWither),
     new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeTeleport),
     new Action("Heal", 1000, [["Runic Lore", 1]], completeHeal, startHeal, tickHeal, predictHeal),

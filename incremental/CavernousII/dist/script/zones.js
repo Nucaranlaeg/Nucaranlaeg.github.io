@@ -287,10 +287,15 @@ class Zone {
                     parent.querySelectorAll("div.active").forEach(node => node.classList.remove("active"));
                     routeNode.classList.add("active");
                 };
+                routeNode.title = "";
                 routeNode.querySelector(".delete-route-inner").onclick = this.deleteRoute.bind(this, i);
                 if (!usedRoutes.includes(this.routes[i])) {
                     routeNode.classList.add("unused");
-                    routeNode.title = "This route is not used for any saved route.";
+                    routeNode.title += "This route is not used for any saved route. ";
+                }
+                if (this.index > 0 && !zones[this.index - 1].sumRoute(this.routes[i].require, this.routes[i].cloneHealth.map(c => c[0])).length) {
+                    routeNode.classList.add("orphaned");
+                    routeNode.title += "This route has no valid predecessor. ";
                 }
                 parent.appendChild(routeNode);
             }
@@ -307,6 +312,11 @@ class Zone {
             leg2.classList.add("unused");
             leg2.innerHTML = "Unused";
             parent.appendChild(leg2);
+            let leg3 = document.createElement("h4");
+            leg3.classList.add("route-legend");
+            leg3.classList.add("orphaned");
+            leg3.innerHTML = "Orphaned";
+            parent.appendChild(leg3);
             this.routesChanged = false;
         }
         this.displaySelectedRoute();
@@ -327,7 +337,7 @@ class Zone {
         });
     }
     clearRoutes(event) {
-        if (!event.ctrlKey)
+        if (!event.ctrlKey && !event.metaKey)
             return;
         if (settings.warnings && !confirm(`Really delete unused routes?`))
             return;
@@ -352,8 +362,8 @@ class Zone {
             let drainValue = time * this.manaDrain * getStat("Chronomancy").value;
             getStat("Mana").spendMana(drainValue / 1000);
             if (!loopActions["Barrier Drain"])
-                loopActions["Barrier Drain"] = 0;
-            loopActions["Barrier Drain"] += drainValue * clones.length;
+                loopActions["Barrier Drain"] = Array(zones.length).fill(0);
+            loopActions["Barrier Drain"][this.index] += drainValue * clones.length;
         }
     }
 }

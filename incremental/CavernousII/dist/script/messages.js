@@ -144,7 +144,7 @@ const messages = [
 			You can view a zone by clicking on it, and hovering it shows a summary of the routes you've beaten it with.  You can click on these routes to load them.  There's an option which lets you load only that route or that route and its prerequisites.
 			Only one clone needs to pass through the portal, and the rest will be brought to the next zone with it.`),
     new Message("Game Slowdown", `
-			At this point, the game slows down quite a bit.  You'll need to grind stats much more.  If that's not your thing, no worries!  Thanks for playing this far.  You've beaten the tightly-designed portion of the game, and I'd count that as a win.
+			At this point, the game slows down quite a bit.  You'll need to grind stats much more in order ot progress.  If that's not your thing, no worries!  Thanks for playing this far.  You've beaten the tightly-designed portion of the game, and I'd count that as a win.
 
 			If you're sticking around, there's much more that you haven't yet reached.`),
     new Message("Unlocked Weaken Rune", `
@@ -183,5 +183,7 @@ const messages = [
     new Message("Time Barriers", `
 			You've unlocked the first of the time barriers!
 			There's one in each zone, behind which is a mana rock.  However, breaching a time barrier causes the zone to leech 5 of your mana per second.`),
+    new Message("Complete Verdant", `
+			You've learned all that you can in the Verdant Realm.  You no longer have access to it - but wither runes no longer cost any gold.`)
 ];
 //# sourceMappingURL=messages.js.map

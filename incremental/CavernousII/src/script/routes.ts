@@ -254,21 +254,21 @@ function loadRoute(){
 
 function updateGrindStats(){
 	let rockCounts = realms
-	  .filter(r => !r.locked || r.name == "Core Realm")
+	  .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
 	  .map((r, realm_i) => zones
 	    .filter(z => z.mapLocations.flat().length)
 	    .map((z, zone_i) => routes
 	      .filter(t => t.zone == zone_i && t.realm == realm_i)
 	      .reduce((a, t) => a + (t.allDead ? 0.000005 : t.loadingFailed ? 0.005 : t.estimateRefineTimes()), 0)));
 	let reachedCounts = realms
-	  .filter(r => !r.locked || r.name == "Core Realm")
+	  .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
 	  .map((r, realm_i) => zones
 	    .filter(z => z.mapLocations.flat().length)
 	    .map((z, zone_i) =>
 	      z.mapLocations.flat().filter(l => l.type.name == "Mana-infused Rock").length !=
 	      routes.filter(t => t.zone == zone_i && t.realm == realm_i).length));
 	let revisitCounts = realms
-	  .filter(r => !r.locked || r.name == "Core Realm")
+	  .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
 	  .map((r, realm_i) => zones
 	    .filter(z => z.mapLocations.flat().length)
 	    .map((z, zone_i) =>

@@ -49,7 +49,7 @@ class Stat {
         if (prevVal < 0) {
             prevVal = 0;
         }
-        const increase = (val - prevVal) / this.statIncreaseDivisor;
+        const increase = (val - prevVal) / this.statIncreaseDivisor * (0.99 + getRealmMult("Compounding Realm") / 100);
         this.base += increase;
     }
     setStat(amount) {
@@ -148,7 +148,7 @@ class Stat {
     loadGrindRoute(event) {
         if (!this.learnable)
             return;
-        if (event?.ctrlKey) {
+        if (event?.ctrlKey || event?.metaKey) {
             GrindRoute.deleteRoute(this.name);
             this.dirty = true;
             this.update();

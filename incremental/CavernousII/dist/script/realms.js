@@ -1,18 +1,20 @@
 "use strict";
 let currentRealm = 0;
 class Realm {
-    constructor(name, description, getMachineCount = null, activateMachine = null, extraDescription = null, multPerRock = 0) {
+    constructor(name, description, getMachineCount = null, activateMachine = null, extraDescription = null, multPerRock = 0, maxMult = Infinity) {
+        this.locked = true;
         this.index = -1;
         this.mult = null;
         this.machineCompletions = 0;
+        this.completed = false;
         this.name = name;
         this.description = description;
         this.getMachineCount = getMachineCount ?? (() => Infinity);
         this.activateMachine = activateMachine || (() => { });
         this.extraDescription = extraDescription;
         this.multPerRock = multPerRock;
-        this.locked = true;
         this.node = null;
+        this.maxMult = maxMult;
         setTimeout(() => {
             this.index = realms.findIndex(r => r == this);
         });
@@ -20,6 +22,10 @@ class Realm {
     unlock() {
         this.locked = false;
         this.display();
+    }
+    complete() {
+        this.completed = true;
+        this.node?.parentNode?.removeChild(this.node);
     }
     display() {
         if (!this.node) {
@@ -47,6 +53,8 @@ class Realm {
     }
 }
 function changeRealms(newRealm) {
+    if (realms[newRealm].completed)
+        return;
     // Reset the zones first to apply mana gained to the appropriate realm.
     zones.forEach(z => z.resetZone());
     resetLoop();
@@ -66,7 +74,7 @@ function changeRealms(newRealm) {
     resetLoop();
 }
 function getRealmMult(name, force = false) {
-    let realm = getRealm(name);
+    const realm = getRealm(name);
     if (realm.mult === undefined || realm.mult === null || force) {
         realm.mult =
             zones.reduce((a, z) => {
@@ -77,7 +85,7 @@ function getRealmMult(name, force = false) {
                         .reduce((a, c) => a + c.priorCompletionData[realm.index], 0));
             }, 0) * realm.multPerRock;
     }
-    return realm.mult + 1;
+    return Math.min(realm.mult + 1, realm.maxMult);
 }
 function getVerdantMultDesc() {
     return `Total multiplier: x${writeNumber(getRealmMult("Verdant Realm", true), 4)}`;
@@ -85,13 +93,23 @@ function getVerdantMultDesc() {
 function getCompoundingMultDesc() {
     return `Stat slowdown start: ${writeNumber(99 + getRealmMult("Compounding Realm", true), 4)}`;
 }
+function getRealmComplete(realm) {
+    if (realm.name == "Verdant Realm") {
+        const wither = getRune("Wither");
+        if (getRealmMult(realm.name, true) == realm.maxMult && wither.upgradeCount == 3) {
+            realm.complete();
+            getMessage("Complete Verdant").display();
+            wither.isInscribable = simpleRequire([["Salt", 1], ["Iron Ore", 1]]);
+            wither.updateDescription();
+        }
+    }
+}
 const verdantMapping = {
     "#": "♠",
     "√": "♠",
     "«": "♣",
     "╖": "α",
-    "╣": "§",
-    "????": "????" // Chert
+    "╣": "§", // Basalt -> Oystershroom
 };
 function convertMapToVerdant(map) {
     return map.map(row => [...row].map(cell => verdantMapping[cell] || cell).join(""));
@@ -112,12 +130,12 @@ const realms = [
         getRune("Wither").upgradeCount++;
         getRune("Wither").updateDescription();
         getMessage("Upgraded Wither Rune").display();
-    }, getVerdantMultDesc, 0.0005),
+    }, getVerdantMultDesc, 0.0005, 2),
     // Clones cannot help each other at all.
-    new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.05 points later per mana rock completion).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
+    new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.1 points later per mana rock completion and you'll gain base 0.1% faster).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
         getRealm("Compounding Realm").machineCompletions++;
         getMessage("Time Barriers").display();
-    }, getCompoundingMultDesc, 0.05)
+    }, getCompoundingMultDesc, 0.1)
 ];
 function getRealm(name) {
     let realm = realms.find(a => a.name == name);

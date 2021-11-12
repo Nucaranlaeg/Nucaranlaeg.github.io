@@ -231,15 +231,23 @@ svg {
 	padding-right: 16px;
 }
 
+.clone-info {
+	position: absolute;
+	bottom: 90px;
+	width: calc(100% - 19px);
+	border-top: 2px solid #5559;
+	left: -1px;
+	padding: 10px;
+}
+
+.clone-info h6 {
+	margin: -19 auto 0 auto;
+	text-align: center;
+	background-color: #acc;
+	width: 50%;
+}
+
 .queue-time {
-	/* display: inline-block; */
-	/* width: 130px; */
-	/* text-align: center; */
-	/* position: sticky; */
-	/* margin-top: -3px; */
-	/* right: 100px; */
-	/* background-color: #aaccccd0; */
-	/* font-size: 0; */
 	position: absolute;
 	bottom: 6px;
 	right: 8px;
@@ -250,6 +258,7 @@ svg {
 }
 
 #actions-spent,
+#time-spent-zone,
 #time-spent {
 	font-family: "Lucida Console", monospace;
 	font-size: 14px;min-width: 3.1em;
@@ -526,6 +535,11 @@ svg {
 	cursor: pointer;
 }
 
+.ripple {
+	background-color: #23b8da;
+	transition: background-color 1s;
+}
+
 .half-width {
 	width: 46%;
 }
@@ -705,8 +719,12 @@ h4#location-name {
 	background-color: #88cc88;
 }
 
+.routes .orphaned {
+	border: 1px solid #bf3333;
+}
+
 .route-legend {
-	width: 50%;
+	width: 33%;
 	display: inline-block;
 }
 
@@ -1225,8 +1243,8 @@ td:hover:after {
 #loop-log-wrapper {
 	position: absolute;
 	top: 10%;
-	left: 30%;
-	right: 30%;
+	left: 20%;
+	right: 20%;
 	width: 40%;
 	background-color: #aacccc;
 	padding: 10px;
@@ -1237,8 +1255,9 @@ td:hover:after {
 }
 
 #loop-stats,
-#loop-actions {
-	width: 49%;
+#loop-actions,
+#loop-prev {
+	width: 32%;
 	display: inline-block;
 	max-height: 70vh;
 	scrollbar-width: thin;
@@ -1267,6 +1286,10 @@ td:hover:after {
 
 .log-entry:hover:not(:first-child) .description {
 	visibility: visible;
+}
+
+.log-entry.previous {
+	cursor: pointer;
 }
 
 .queue-buttons {
@@ -1419,8 +1442,6 @@ td:hover:after {
 hr {
 	width: 100%;
 }
-
-
 
 .bottom-block:not(:hover)>.queue-buttons {
 	opacity: 0;

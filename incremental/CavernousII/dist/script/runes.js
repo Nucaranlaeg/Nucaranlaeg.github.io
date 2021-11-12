@@ -1,12 +1,13 @@
 "use strict";
 class Rune {
-    constructor(name, icon, isInscribable, manaCost, description, createEvent, activateAction) {
+    constructor(name, icon, isInscribable, manaCost, description, createEvent, chargeEvent, activateAction) {
         this.name = name;
         this.icon = icon;
         this.isInscribable = isInscribable;
         this.manaCost = manaCost;
         this.description = description;
         this.createEvent = createEvent;
+        this.chargeEvent = chargeEvent;
         this.activateAction = activateAction;
         this.unlocked = false;
         this.upgradeCount = 0;
@@ -87,7 +88,7 @@ function updateRunes() {
         }
     }
 }
-function createDuplication(location) {
+function createChargableRune(location) {
     location.presentDuration = location.remainingPresent = location?.temporaryPresent?.start(location) || 0;
 }
 function weakenCreatures(location) {
@@ -115,10 +116,10 @@ function getRune(name) {
     return runes.find(a => a.name == name);
 }
 const runes = [
-    new Rune("Weaken", "W", simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, () => { return "This rune weakens any orthogonally adjacent enemies,  decreasing their attack and defense by 1.<br>Requires:<br>{'0':'1 Iron Bar<br>1 Gold Nugget', '1':'2 Iron Bars<br>2 Gold Nuggets'}"; }, weakenCreatures),
-    new Rune("Wither", "H", simpleRequire([["Salt", 1], ["Iron Ore", 1], ["Gold Nugget", 1]]), 0, () => { return ("This rune allows you to kill even hardy orthogonally " + ((getRune("Wither").upgradeCount || 0) > 0 ? "or diagonally " : "") + "adjacent plants.  Interact with it to charge it up - it takes" + ((getRune("Wither").upgradeCount || 0) > 1 ? " 1/" + 2 ** (getRune("Wither").upgradeCount - 1) : "") + " as much time to charge as the plants you're trying to kill would take to chop.<br>Requires:<br>{'0':'1 Salt<br>1 Iron Ore<br>1 Gold Nugget', '1':'2 Salt<br>2 Iron Ore<br>2 Gold Nuggets'}"); }, null, "Charge Wither"),
-    new Rune("Duplication", "D", () => true, 1000, () => { return ("Mine more resources with this rune.  After placing it,  interact with it to charge it up.  You'll receive +" + (1 + (getRune("Duplication").upgradeCount || 0) * 0.25) + " of each (orthogonally or diagonally) adjacent resource (when mined),  though each rune placed in a zone makes it harder to charge others."); }, createDuplication, "Charge Duplication"),
-    new Rune("Teleport To", "T", canPlaceTeleport, 0, () => { return "This rune allows someone or something to come through from another place.  Only one can be placed,  and it must be charged after placement.  Use a pathfind action right after teleporting to fix the path prediction."; }, null, "Charge Teleport"),
-    new Rune("Teleport From", "F", simpleRequire([["Iron Ore", 2]]), 1000, () => { return "This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>{'0':'2 Iron Ore', '1':'4 Iron Ore'}"; }, null, "Teleport"),
+    new Rune("Weaken", "W", simpleRequire([["Iron Bar", 1], ["Gold Nugget", 1]]), 0, () => `This rune weakens any orthogonally adjacent enemies,  decreasing their attack and defense by 1.<br>Requires:<br>{'0':'1 Iron Bar<br>1 Gold Nugget', '1':'2 Iron Bars<br>2 Gold Nuggets'}`, weakenCreatures, null),
+    new Rune("Wither", "H", simpleRequire([["Salt", 1], ["Iron Ore", 1], ["Gold Nugget", 1]]), 0, () => `This rune allows you to kill even hardy orthogonally ${((getRune("Wither").upgradeCount || 0) > 0 ? "or diagonally " : "")}adjacent plants.  Interact with it to charge it up - it takes ${((getRune("Wither").upgradeCount || 0) > 1 ? "1/" + 2 ** (getRune("Wither").upgradeCount - 1) : "")} as much Temporal to charge as the plants you're trying to kill would take to chop.<br>Requires:<br>{'0':'1 Salt<br>1 Iron Ore${getRealm("Verdant Realm").completed ? "" : "<br>1 Gold Nugget"}', '1':'2 Salt<br>2 Iron Ore${getRealm("Verdant Realm").completed ? "" : "<br>2 Gold Nuggets"}'}`, null, null, "Charge Wither"),
+    new Rune("Duplication", "D", () => true, 1000, () => `Mine more resources with this rune.  After placing it,  interact with it to charge it up.  You'll receive +${(1 + (getRune("Duplication").upgradeCount || 0) * 0.25)} of each (orthogonally or diagonally) adjacent resource (when mined), though each rune placed in a zone makes it harder to charge others.`, createChargableRune, null, "Charge Duplication"),
+    new Rune("Teleport To", "T", canPlaceTeleport, 0, () => `This rune allows someone or something to come through from another place.  Only one can be placed,  and it must be charged after placement.  Use a pathfind action right after teleporting to fix the path prediction.`, null, null, "Charge Teleport"),
+    new Rune("Teleport From", "F", simpleRequire([["Iron Ore", 2]]), 1000, () => `This rune allows someone to slip beyond to another place.  Interact with it after inscribing it to activate it.<br>Requires:<br>{'0':'2 Iron Ore', '1':'4 Iron Ore'}`, null, null, "Teleport"),
 ];
 //# sourceMappingURL=runes.js.map

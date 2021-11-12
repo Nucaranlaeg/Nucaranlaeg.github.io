@@ -126,6 +126,10 @@
 				(<span class="base-value"></span>)
 			</span>
 		</div>
+		<div id="previous-log-template" class="log-entry previous">
+			<span class="name"></span>
+			<span class="value"></span>
+		</div>
 	</div>
 	<div class="vertical-blocks">
 		<div id="options" class="vertical-block">
@@ -201,43 +205,45 @@
 						: or ; to insert a breakpoint which pauses the game
 					</div>
 				</div>
-				<div class="option block clickable" onclick="save()">
-					<span class="name">Manually Save</span>
-					<div class="description">The game automatically saves every time a reset occurs.</div>
-				</div>
-				<div class="option block clickable" ondblclick="deleteSave()">
-					<span class="name">Clear Save (double click)</span>
-					<div class="description">Are you sure you want to restart the game?</div>
-				</div>
-				<div class="option-row">
-					<div class="option block clickable option--half-width" onclick="exportGame()">
-						<span class="name">Export</span>
-						<div class="description">This will put your save on your clipboard.</div>
+				<div onclick="displaySaveClick(event)">
+					<div class="option block clickable" onclick="save()">
+						<span class="name">Manually Save</span>
+						<div class="description">The game automatically saves every time a reset occurs.</div>
 					</div>
-					<div class="option block clickable option--half-width" onclick="importGame()">
-						<span class="name">Import</span>
-						<div class="description">Paste your save in the box.</div>
+					<div class="option block clickable" ondblclick="deleteSave()">
+						<span class="name">Clear Save (double click)</span>
+						<div class="description">Are you sure you want to restart the game?</div>
 					</div>
-				</div>
-				<div class="option-row">
-					<div class="option block clickable option--half-width" onclick="exportQueues()">
-						<span class="name">Export Queue</span>
-						<div class="description">This will put your current queues on your clipboard.</div>
+					<div class="option-row">
+						<div class="option block clickable option--half-width" onclick="exportGame()">
+							<span class="name">Export</span>
+							<div class="description">This will put your save on your clipboard.</div>
+						</div>
+						<div class="option block clickable option--half-width" onclick="importGame()">
+							<span class="name">Import</span>
+							<div class="description">Paste your save in the box.</div>
+						</div>
 					</div>
-					<div class="option block clickable option--half-width" onclick="importQueues()">
-						<span class="name">Import Queue</span>
-						<div class="description">Paste queues in the box.</div>
+					<div class="option-row">
+						<div class="option block clickable option--half-width" onclick="exportQueues()">
+							<span class="name">Export Queue</span>
+							<div class="description">This will put your current queues on your clipboard.</div>
+						</div>
+						<div class="option block clickable option--half-width" onclick="importQueues()">
+							<span class="name">Import Queue</span>
+							<div class="description">Paste queues in the box.</div>
+						</div>
 					</div>
-				</div>
-				<div class="option-row">
-					<div class="option block clickable option--half-width" onclick="longExportQueues()">
-						<span class="name">Long Export</span>
-						<div class="description">This will put your current queues (all zones, this realm) on your
-							clipboard.</div>
-					</div>
-					<div class="option block clickable option--half-width" onclick="longImportQueues()">
-						<span class="name">Long Import</span>
-						<div class="description">Paste queues for all zones in this realm in the box.</div>
+					<div class="option-row">
+						<div class="option block clickable option--half-width" onclick="longExportQueues()">
+							<span class="name">Long Export</span>
+							<div class="description">This will put your current queues (all zones, this realm) on your
+								clipboard.</div>
+						</div>
+						<div class="option block clickable option--half-width" onclick="longImportQueues()">
+							<span class="name">Long Import</span>
+							<div class="description">Paste queues for all zones in this realm in the box.</div>
+						</div>
 					</div>
 				</div>
 				<div class="option block clickable" onclick="displayLoopLog()">
@@ -249,14 +255,21 @@
 				<a href="https://paypal.me/SamBenner" target="_blank">Paypal</a>
 				<a href="https://www.patreon.com/nucaranlaeg" target="_blank">Patreon</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.3.2</span><br />
+				Version <span id="version">2.3.3</span><br />
 				©2021
 			</div>
 		</div>
 		<div id="stats" class="vertical-block">
 			<h3>Stats</h3>
+			<div class="clone-info">
+				<h6>Selected Clone</h6>
+				Health: <span class="health-amount"></span><br>
+				<span class="action-name"></span><br>
+				<span class="action-progress"></span> <small>clone-seconds</small>
+			</div>
 			<div class="queue-time">
 				<div id="queue-actions">Actions: <span id="actions-spent"></span></div>
+				Zone time: <span id="time-spent-zone">0</span>s<br>
 				Time spent: <span id="time-spent">0</span>s
 			</div>
 		</div>
@@ -482,6 +495,13 @@
 	<div id="loop-log-box" onclick="hideLoopLog()" hidden>
 		<div id="loop-log-wrapper">
 			<h3>Current Run Stats</h3>
+			<div id="gold-vaporized">
+				<span id="loop-gold-count"></span> gold vaporized for <span id="loop-gold-value"></span> mana
+			</div>
+			<div id="loop-prev">
+				<div class="log-entry" style="font-weight: bold;"><span>Previous Runs<small><br>(in development)</small></span></div>
+				<div id="loop-prev-list"></div>
+			</div>
 			<div id="loop-stats"></div>
 			<div id="loop-actions" class="timeline"></div>
 		</div>

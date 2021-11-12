@@ -148,7 +148,7 @@ function updateDropTarget() {
 function savedQueueDrop(event, el) {
     let source = +event.dataTransfer.getData("text/plain");
     let target = +el.id.replace("queue", "");
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.metaKey) {
         queues[target].copyQueueAt(savedQueues[source], null);
     }
     else {

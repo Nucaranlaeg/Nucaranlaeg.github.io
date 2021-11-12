@@ -79,7 +79,7 @@ function toggleUseWASD() {
 }
 
 function toggleGrindMana(event?: KeyboardEvent) {
-	if (event?.ctrlKey){
+	if (event?.ctrlKey || event?.metaKey){
 		Route.invalidateRouteCosts();
 		return;
 	}
@@ -87,6 +87,8 @@ function toggleGrindMana(event?: KeyboardEvent) {
 	document.querySelector("#grind-mana-toggle")!.innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
 	document.querySelector("#grind-mana-toggle")!.closest(".option")!.classList.toggle("option-highlighted", settings.grindMana);
 	settings.grindStats = false;
+	document.querySelector("#grind-stat-toggle")!.innerHTML = "Not grinding stats";
+	document.querySelector("#grind-stat-toggle")!.closest(".option")!.classList.remove("option-highlighted");
 	return settings.grindMana;
 }
 
@@ -95,6 +97,8 @@ function toggleGrindStats() {
 	document.querySelector("#grind-stat-toggle")!.innerHTML = settings.grindStats ? "Grinding stats" : "Not grinding stats";
 	document.querySelector("#grind-stat-toggle")!.closest(".option")!.classList.toggle("option-highlighted", settings.grindStats);
 	settings.grindMana = false;
+	document.querySelector("#grind-mana-toggle")!.innerHTML = "Not grinding mana rocks";
+	document.querySelector("#grind-mana-toggle")!.closest(".option")!.classList.remove("option-highlighted");
 	return settings.grindStats;
 }
 

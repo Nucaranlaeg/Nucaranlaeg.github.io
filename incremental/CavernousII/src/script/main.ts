@@ -128,44 +128,75 @@ function resetLoop() {
 	if (isNaN(timeBanked)) {
 		timeBanked = 0;
 	}
-	setStartData();
+	storeLoopLog();
 }
 
 /********************************************* Loop Log *********************************************/
 
-let loopActions: { [key in string]: number } = {};
+let loopActions: { [key in string]: number[] } = {};
 let loopStatStart: number[] = [];
+let previousLoopLogs: {
+	actions: { [key in string]: number[] };
+	stats: {current: number, base: number}[];
+	kept: boolean;
+}[] = [];
+let loopGoldVaporized: [number, number] = [0, 0];
 let loopLogVisible = false;
 const loopLogBox = document.querySelector("#loop-log-box") as HTMLElement;
 if (loopLogBox === null) throw new Error("No loop log box found");
 const logEntryTemplate = document.querySelector("#log-entry-template") as HTMLElement;
-if (logEntryTemplate === null) throw new Error("No log-entry template found");
 logEntryTemplate.removeAttribute("id");
 const statLogEntryTemplate = document.querySelector("#stat-log-entry-template") as HTMLElement;
-if (statLogEntryTemplate === null) throw new Error("No statlog-entry template found");
 statLogEntryTemplate.removeAttribute("id");
+const previousLogTemplate = document.querySelector("#previous-log-template") as HTMLElement;
+previousLogTemplate.removeAttribute("id");
+const MAX_EPHEMERAL_LOGS = 10;
+const loopGoldCountNode = document.querySelector("#loop-gold-count") as HTMLElement;
+const loopGoldValueNode = document.querySelector("#loop-gold-value") as HTMLElement;
 
-function setStartData() {
+function storeLoopLog(){
+	if (!Object.keys(loopActions).length){
+		loopStatStart = stats.map(s => s.base);
+		return;
+	}
+	const newLog = {
+		actions: {...loopActions},
+		stats: loopStatStart.map((s, i) => {
+			return {current: stats[i].current - loopStatStart[i], base: stats[i].base - loopStatStart[i]};
+		}),
+		kept: false,
+	};
 	loopActions = {};
 	loopStatStart = stats.map(s => s.base);
+	previousLoopLogs.push(newLog);
+	const ephemeralLogCount = previousLoopLogs.filter(l => l.kept).length;
+	if (ephemeralLogCount > MAX_EPHEMERAL_LOGS){
+		let filtered = false;
+		previousLoopLogs = previousLoopLogs.filter(l => filtered || l.kept || ((filtered = true) && false));
+		loopGoldVaporized = [0, 0];
+	}
 }
 
-function displayLoopLog() {
+function displayLoopLog(logActions = loopActions, logStats: {current: number, base: number}[] | null = null) {
 	loopLogBox.hidden = false;
 	loopLogVisible = true;
 	const loopActionNode = loopLogBox.querySelector("#loop-actions") as HTMLElement;
 	const loopStatNode = loopLogBox.querySelector("#loop-stats") as HTMLElement;
+	const loopPrevNode = loopLogBox.querySelector("#loop-prev-list") as HTMLElement;
 	while (loopActionNode.lastChild) {
 		loopActionNode.removeChild(loopActionNode.lastChild);
 	}
 	while (loopStatNode.lastChild) {
 		loopStatNode.removeChild(loopStatNode.lastChild);
 	}
-	let actions = Object.entries(loopActions);
-	actions = actions.sort((a, b) => b[1] - a[1]);
+	while (loopPrevNode.lastChild) {
+		loopPrevNode.removeChild(loopPrevNode.lastChild);
+	}
+	let actions = Object.entries(logActions);
+	actions = actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
 	const totalActionNode = logEntryTemplate.cloneNode(true) as HTMLElement;
 	totalActionNode.querySelector(".name")!.innerHTML = "Total clone-seconds";
-	totalActionNode.querySelector(".value")!.innerHTML = writeNumber(actions.reduce((a, c) => a + c[1], 0) / 1000, 1);
+	totalActionNode.querySelector(".value")!.innerHTML = writeNumber(actions.reduce((a, c) => a + c[1].reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1);
 	totalActionNode.style.fontWeight = "bold";
 	loopActionNode.append(totalActionNode);
 	const totalStatNode = statLogEntryTemplate.cloneNode(true) as HTMLElement;
@@ -176,7 +207,7 @@ function displayLoopLog() {
 		const node = logEntryTemplate.cloneNode(true) as HTMLElement;
 		node.classList.add(actions[i][0].replace(/ /g, "-"));
 		node.querySelector(".name")!.innerHTML = actions[i][0];
-		node.querySelector(".value")!.innerHTML = writeNumber(actions[i][1] / 1000, 1);
+		node.querySelector(".value")!.innerHTML = writeNumber(actions[i][1].reduce((acc, cur) => acc + cur, 0) / 1000, 1);
 		node.querySelector(".description")!.innerHTML = `Relevant stats:<br>${getAction(<anyActionName>actions[i][0])?.stats.map(s => `${s[0].name}: ${s[1]}`).join("<br>") || ""}`;
 		loopActionNode.append(node);
 		node.style.color = setRGBContrast(window.getComputedStyle(node).backgroundColor);
@@ -187,8 +218,13 @@ function displayLoopLog() {
 		if (stats[i].current == loopStatStart[i]) continue;
 		const node = statLogEntryTemplate.cloneNode(true) as HTMLElement;
 		node.querySelector(".name")!.innerHTML = stats[i].name;
-		node.querySelector(".current-value")!.innerHTML = writeNumber(stats[i].current - loopStatStart[i], 3);
-		node.querySelector(".base-value")!.innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
+		if (logStats === null){
+			node.querySelector(".current-value")!.innerHTML = writeNumber(stats[i].current - loopStatStart[i], 3);
+			node.querySelector(".base-value")!.innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
+		} else {
+			node.querySelector(".current-value")!.innerHTML = writeNumber(logStats[i].current, 3);
+			node.querySelector(".base-value")!.innerHTML = writeNumber(logStats[i].base, 3);
+		}
 		totalStats += stats[i].base - loopStatStart[i];
 		loopStatNode.append(node);
 	}
@@ -198,6 +234,26 @@ function displayLoopLog() {
 	} else {
 		loopActionNode.style.overflowY = "unset";
 	}
+	loopGoldCountNode.innerHTML = loopGoldVaporized[0].toString();
+	loopGoldValueNode.innerHTML = writeNumber(loopGoldVaporized[1], 3);
+	const node = previousLogTemplate.cloneNode(true) as HTMLElement;
+	node.querySelector(".name")!.innerHTML = "Current";
+	node.querySelector(".value")!.innerHTML = writeNumber(Object.values(loopActions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
+	node.onclick = e => {
+		displayLoopLog();
+		e.stopPropagation();
+	}
+	loopPrevNode.append(node);
+	previousLoopLogs.forEach(log => {
+		const node = previousLogTemplate.cloneNode(true) as HTMLElement;
+		node.querySelector(".name")!.innerHTML = "Previous log";
+		node.querySelector(".value")!.innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
+		node.onclick = e => {
+			displayLoopLog(log.actions, log.stats);
+			e.stopPropagation();
+		}
+		loopPrevNode.append(node);
+	});
 }
 
 function hideLoopLog() {
@@ -472,6 +528,13 @@ function importGame() {
 	window.location.reload();
 }
 
+function displaySaveClick(event: MouseEvent){
+	let el = (<HTMLElement>event.target).closest(".clickable");
+	if (!el) return;
+	el.classList.add("ripple");
+	setTimeout(() => el!.classList.remove("ripple"), 1000);
+}
+
 /** ****************************************** Game loop ********************************************/
 
 let lastAction = Date.now();
@@ -479,6 +542,7 @@ let timeBanked = 0;
 let queueTime = 0;
 let queuesNode: HTMLElement;
 let queueTimeNode: HTMLElement;
+let zoneTimeNode: HTMLElement;
 let queueActionNode: HTMLElement;
 let currentClone = 0;
 let loopCompletions = 0;
@@ -539,6 +603,7 @@ setInterval(function mainLoop() {
 	let timeLeft = timeAvailable;
 
 	let timeUsed = 0;
+	breakActions = false;
 	while (timeAvailable > 0) {
 		timeLeft = Clone.performActions(Math.min(timeAvailable, MAX_TICK));
 		if (timeLeft == timeAvailable || timeLeft == MAX_TICK) break;
@@ -554,11 +619,14 @@ setInterval(function mainLoop() {
 	} else if (!isNaN(time - timeUsed)) {
 		timeBanked += time - timeUsed;
 	}
-	if (timeLeft > 0.001 && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
+	if (timeLeft > 0.001 && settings.running && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
 		resetLoop();
 	}
+	clones[selectedQueues[0]?.clone].writeStats();
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
+	zoneTimeNode = zoneTimeNode || document.querySelector("#time-spent-zone");
+	zoneTimeNode.innerText = writeNumber((queueTime - (zones[currentZone].zoneStartTime || 0)) / 1000, 1);
 	queueActionNode = queueActionNode || document.querySelector("#actions-spent");
 	queueActionNode.innerText = `${writeNumber(loopCompletions, 0)} (x${writeNumber(1 + loopCompletions / 40, 3)})`;
 	redrawTimeNode();
