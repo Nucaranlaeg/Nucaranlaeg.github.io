@@ -134,7 +134,7 @@ function resetLoop() {
 let loopActions = {};
 let loopStatStart = [];
 let previousLoopLogs = [];
-let loopGoldVaporized = 0;
+let loopGoldVaporized = [0, 0];
 let loopLogVisible = false;
 const loopLogBox = document.querySelector("#loop-log-box");
 if (loopLogBox === null)
@@ -167,7 +167,7 @@ function storeLoopLog() {
     if (ephemeralLogCount > MAX_EPHEMERAL_LOGS) {
         let filtered = false;
         previousLoopLogs = previousLoopLogs.filter(l => filtered || l.kept || ((filtered = true) && false));
-        loopGoldVaporized = 0;
+        loopGoldVaporized = [0, 0];
     }
 }
 function displayLoopLog(logActions = loopActions, logStats = null) {
@@ -231,8 +231,8 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
     else {
         loopActionNode.style.overflowY = "unset";
     }
-    loopGoldCountNode.innerHTML = loopGoldVaporized.toString();
-    loopGoldValueNode.innerHTML = writeNumber(loopGoldVaporized * (getRealmMult("Verdant Realm") || 1) * GOLD_VALUE, 3);
+    loopGoldCountNode.innerHTML = loopGoldVaporized[0].toString();
+    loopGoldValueNode.innerHTML = writeNumber(loopGoldVaporized[1], 3);
     const node = previousLogTemplate.cloneNode(true);
     node.querySelector(".name").innerHTML = "Current";
     node.querySelector(".value").innerHTML = writeNumber(Object.values(loopActions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";

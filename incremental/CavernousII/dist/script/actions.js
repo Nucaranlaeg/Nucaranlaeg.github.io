@@ -251,7 +251,8 @@ function completeGoldMana() {
     gold.update(-1);
     const manaMult = getRealmMult("Verdant Realm") || 1;
     getStat("Mana").current += GOLD_VALUE * manaMult;
-    loopGoldVaporized++;
+    loopGoldVaporized[0]++;
+    loopGoldVaporized[1] += GOLD_VALUE * manaMult;
     return false;
 }
 function completeCrossPit(x, y) {
