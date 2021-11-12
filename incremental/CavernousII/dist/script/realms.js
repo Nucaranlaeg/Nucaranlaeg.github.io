@@ -135,7 +135,7 @@ const realms = [
     new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.05 points later per mana rock completion).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
         getRealm("Compounding Realm").machineCompletions++;
         getMessage("Time Barriers").display();
-    }, getCompoundingMultDesc, 0.05)
+    }, getCompoundingMultDesc, 0.1)
 ];
 function getRealm(name) {
     let realm = realms.find(a => a.name == name);

@@ -1288,6 +1288,10 @@ td:hover:after {
 	visibility: visible;
 }
 
+.log-entry.previous {
+	cursor: pointer;
+}
+
 .queue-buttons {
 	position: sticky;
 	display: inline-block;

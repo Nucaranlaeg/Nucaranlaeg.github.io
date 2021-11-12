@@ -578,6 +578,7 @@ function selectClone(target: HTMLElement | number, event?: MouseEvent) {
 
 	showCursors();
 	showFinalLocation();
+	clones[selectedQueues[0]?.clone].writeStats();
 }
 
 let clones: Clone[] = [];

@@ -187,7 +187,7 @@ const realms:Realm[] = [
 			getMessage("Time Barriers").display();
 		},
 		getCompoundingMultDesc,
-		0.05
+		0.1
 	)
 ];
 

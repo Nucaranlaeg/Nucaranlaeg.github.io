@@ -145,16 +145,20 @@ let loopLogVisible = false;
 const loopLogBox = document.querySelector("#loop-log-box") as HTMLElement;
 if (loopLogBox === null) throw new Error("No loop log box found");
 const logEntryTemplate = document.querySelector("#log-entry-template") as HTMLElement;
-if (logEntryTemplate === null) throw new Error("No log-entry template found");
 logEntryTemplate.removeAttribute("id");
 const statLogEntryTemplate = document.querySelector("#stat-log-entry-template") as HTMLElement;
-if (statLogEntryTemplate === null) throw new Error("No statlog-entry template found");
 statLogEntryTemplate.removeAttribute("id");
-const MAX_EPHEMERAL_LOGS = 5;
+const previousLogTemplate = document.querySelector("#previous-log-template") as HTMLElement;
+previousLogTemplate.removeAttribute("id");
+const MAX_EPHEMERAL_LOGS = 10;
 const loopGoldCountNode = document.querySelector("#loop-gold-count") as HTMLElement;
 const loopGoldValueNode = document.querySelector("#loop-gold-value") as HTMLElement;
 
 function storeLoopLog(){
+	if (!Object.keys(loopActions).length){
+		loopStatStart = stats.map(s => s.base);
+		return;
+	}
 	const newLog = {
 		actions: {...loopActions},
 		stats: loopStatStart.map((s, i) => {
@@ -162,6 +166,8 @@ function storeLoopLog(){
 		}),
 		kept: false,
 	};
+	loopActions = {};
+	loopStatStart = stats.map(s => s.base);
 	previousLoopLogs.push(newLog);
 	const ephemeralLogCount = previousLoopLogs.filter(l => l.kept).length;
 	if (ephemeralLogCount > MAX_EPHEMERAL_LOGS){
@@ -230,6 +236,24 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 	}
 	loopGoldCountNode.innerHTML = loopGoldVaporized.toString();
 	loopGoldValueNode.innerHTML = writeNumber(loopGoldVaporized * (getRealmMult("Verdant Realm") || 1) * GOLD_VALUE, 3);
+	const node = previousLogTemplate.cloneNode(true) as HTMLElement;
+	node.querySelector(".name")!.innerHTML = "Current";
+	node.querySelector(".value")!.innerHTML = writeNumber(Object.values(loopActions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
+	node.onclick = e => {
+		displayLoopLog();
+		e.stopPropagation();
+	}
+	loopPrevNode.append(node);
+	previousLoopLogs.forEach(log => {
+		const node = previousLogTemplate.cloneNode(true) as HTMLElement;
+		node.querySelector(".name")!.innerHTML = "Previous log";
+		node.querySelector(".value")!.innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
+		node.onclick = e => {
+			displayLoopLog(log.actions, log.stats);
+			e.stopPropagation();
+		}
+		loopPrevNode.append(node);
+	});
 }
 
 function hideLoopLog() {

@@ -49,7 +49,7 @@ class Stat {
         if (prevVal < 0) {
             prevVal = 0;
         }
-        const increase = (val - prevVal) / this.statIncreaseDivisor;
+        const increase = (val - prevVal) / this.statIncreaseDivisor * (0.99 + getRealmMult("Compounding Realm") / 100);
         this.base += increase;
     }
     setStat(amount) {

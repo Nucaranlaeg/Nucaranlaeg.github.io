@@ -569,6 +569,7 @@ function selectClone(target, event) {
     }
     showCursors();
     showFinalLocation();
+    clones[selectedQueues[0]?.clone].writeStats();
 }
 let clones = [];
 //# sourceMappingURL=clones.js.map
