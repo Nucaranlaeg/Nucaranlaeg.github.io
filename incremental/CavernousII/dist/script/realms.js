@@ -132,7 +132,7 @@ const realms = [
         getMessage("Upgraded Wither Rune").display();
     }, getVerdantMultDesc, 0.0005, 2),
     // Clones cannot help each other at all.
-    new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.05 points later per mana rock completion).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
+    new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.1 points later per mana rock completion and you'll gain base 0.1% faster).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
         getRealm("Compounding Realm").machineCompletions++;
         getMessage("Time Barriers").display();
     }, getCompoundingMultDesc, 0.1)
