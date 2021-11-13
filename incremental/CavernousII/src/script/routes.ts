@@ -123,7 +123,7 @@ class Route extends BaseRoute {
 			return i > this.zone ? a : a + z.cacheManaGain[this.realm]
 		}, 0);
 		est = est - this.manaUsed - (this.getRefineCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
-		return !ignoreInvalidate && this.invalidateCost ? est + 1000 : est;
+		return !ignoreInvalidate && this.invalidateCost ? est + 1e7 : est;
 	}
 
 	estimateRefineTimes() {

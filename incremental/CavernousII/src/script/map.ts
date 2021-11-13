@@ -80,8 +80,8 @@ const classMapping: classMappingType = {
 	"£": ["hammer", "Anvil - Hammer"],
 	"0": ["spring", "Spring"],
 	"|": ["sword3", "Enchanter - Sword"],
-	"<": ["armour3", "Enchanter - Shield"],
-	">": ["shield3", "Enchanter - Armour"],
+	"<": ["shield3", "Enchanter - Shield"],
+	">": ["armour3", "Enchanter - Armour"],
 	"1": ["barrier", "Timelike Barrier"],
 	"2": ["barrier", "Timelike Barrier"],
 };

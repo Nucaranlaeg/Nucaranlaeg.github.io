@@ -68,7 +68,11 @@ window.ondrop = e => e.preventDefault();
 
 /** ****************************************** Prestiges ********************************************/
 
+let resetting = false;
+
 function resetLoop() {
+	if (resetting) return;
+	resetting = true;
 	const mana = getStat("Mana");
 	if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm")) setSetting(toggleAutoRestart, 3);
 	if (mana.base == 5.5) getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
@@ -129,6 +133,7 @@ function resetLoop() {
 		timeBanked = 0;
 	}
 	storeLoopLog();
+	resetting = false;
 }
 
 /********************************************* Loop Log *********************************************/
@@ -169,12 +174,12 @@ function storeLoopLog(){
 	loopActions = {};
 	loopStatStart = stats.map(s => s.base);
 	previousLoopLogs.push(newLog);
-	const ephemeralLogCount = previousLoopLogs.filter(l => l.kept).length;
+	const ephemeralLogCount = previousLoopLogs.filter(l => !l.kept).length;
 	if (ephemeralLogCount > MAX_EPHEMERAL_LOGS){
 		let filtered = false;
 		previousLoopLogs = previousLoopLogs.filter(l => filtered || l.kept || ((filtered = true) && false));
-		loopGoldVaporized = [0, 0];
 	}
+	loopGoldVaporized = [0, 0];
 }
 
 function displayLoopLog(logActions = loopActions, logStats: {current: number, base: number}[] | null = null) {
@@ -619,7 +624,7 @@ setInterval(function mainLoop() {
 	} else if (!isNaN(time - timeUsed)) {
 		timeBanked += time - timeUsed;
 	}
-	if (timeLeft > 0.001 && settings.running && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
+	if (!breakActions && timeLeft > 0.001 && settings.running && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
 		resetLoop();
 	}
 	clones[selectedQueues[0]?.clone].writeStats();
