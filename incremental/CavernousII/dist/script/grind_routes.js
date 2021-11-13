@@ -46,7 +46,7 @@ class GrindRoute extends BaseRoute {
         let stat = getStat(pStatName);
         let val = (stat.base + pTotalStatGain + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
         let prevVal = (stat.base + 1) ** (0.9 * (stat.base > scalingStart ? scalingStart / stat.base : 1) ** 0.05) - (stat.base + 1);
-        return val < 0 ? 0 : (val - (prevVal < 0 ? 0 : prevVal)) / stat.statIncreaseDivisor;
+        return val < 0 ? 0 : (val - (prevVal < 0 ? 0 : prevVal)) / stat.statIncreaseDivisor * (0.99 + getRealmMult("Compounding Realm") / 100);
     }
     static getBestRoute(stat) {
         return grindRoutes.find(r => r.statName == stat);
