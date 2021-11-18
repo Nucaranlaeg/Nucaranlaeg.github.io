@@ -135,8 +135,8 @@ const verdantMapping: {[key: string]: string} = {
 	"╣": "§", // Basalt -> Oystershroom
 };
 
-function convertMapToVerdant(map:Zone["map"]): string[] {
-	return map.map(row => [...row].map(cell => verdantMapping[cell] || cell).join(""));
+function convertMapToVerdant(map:Zone["map"], zoneNumber: number): string[] {
+	return map.map(row => [...row].map(cell => zoneNumber > 6 ? "█" : (zoneNumber == 6 && cell == "Θ" ? "#" : verdantMapping[cell] || cell)).join(""));
 }
 
 const realms:Realm[] = [

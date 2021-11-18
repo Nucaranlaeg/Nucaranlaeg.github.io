@@ -242,6 +242,7 @@ class ActionQueue extends Array<QueueAction> {
 			let cursor = selectedQueues.find(q => q.clone == this.index);
 			if (cursor && cursor.pos !== null) cursor.pos++;
 		}
+		showCursorLocations();
 	}
 
 	removeActionAt(index: number | null) {
@@ -255,6 +256,7 @@ class ActionQueue extends Array<QueueAction> {
 			let cursor = selectedQueues.find(q => q.clone == this.index);
 			if (cursor && cursor.pos !== null) cursor.pos--;
 		}
+		showCursorLocations();
 	}
 
 	copyQueueAt(queue:unknown, index:number | null) {
@@ -593,6 +595,7 @@ function showCursors(){
 		cursorNode.style.left = (cursor.pos * 16 + 17) + "px";
 	});
 	selectedQueues = selectedQueues.filter(cursor => cursor.clone >= 0);
+	showCursorLocations();
 }
 
 function queueToString(queue:ActionQueue) {

@@ -74,7 +74,7 @@ class Zone {
         this.map = this.originalMap.slice();
         if (realms[currentRealm].name == "Verdant Realm") {
             // Visual changes
-            this.map = convertMapToVerdant(this.map);
+            this.map = convertMapToVerdant(this.map, this.index);
         }
         if (this.goalComplete)
             this.map = this.map.map(row => row.replace("√", "#"));

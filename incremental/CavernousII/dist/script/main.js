@@ -76,6 +76,7 @@ function resetLoop() {
         getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
     if (queueTime > 50)
         getMessage("Looper's Log: Supplemental").display();
+    storeLoopLog();
     stats.forEach((s, i) => {
         GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
         s.reset();
@@ -128,7 +129,7 @@ function resetLoop() {
     if (isNaN(timeBanked)) {
         timeBanked = 0;
     }
-    storeLoopLog();
+    // resetting = false;
 }
 /********************************************* Loop Log *********************************************/
 let loopActions = {};
@@ -148,6 +149,7 @@ previousLogTemplate.removeAttribute("id");
 const MAX_EPHEMERAL_LOGS = 10;
 const loopGoldCountNode = document.querySelector("#loop-gold-count");
 const loopGoldValueNode = document.querySelector("#loop-gold-value");
+let displayedOldLog = false;
 function storeLoopLog() {
     if (!Object.keys(loopActions).length) {
         loopStatStart = stats.map(s => s.base);
@@ -237,24 +239,28 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
     node.querySelector(".name").innerHTML = "Current";
     node.querySelector(".value").innerHTML = writeNumber(Object.values(loopActions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
     node.onclick = e => {
+        displayedOldLog = false;
         displayLoopLog();
         e.stopPropagation();
     };
     loopPrevNode.append(node);
-    previousLoopLogs.forEach(log => {
+    for (let i = previousLoopLogs.length - 1; i >= 0; i--) {
+        let log = previousLoopLogs[i];
         const node = previousLogTemplate.cloneNode(true);
         node.querySelector(".name").innerHTML = "Previous log";
         node.querySelector(".value").innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
         node.onclick = e => {
+            displayedOldLog = true;
             displayLoopLog(log.actions, log.stats);
             e.stopPropagation();
         };
         loopPrevNode.append(node);
-    });
+    }
 }
 function hideLoopLog() {
     loopLogBox.hidden = true;
     loopLogVisible = false;
+    displayedOldLog = false;
 }
 /** ******************************************* Saving *********************************************/
 const URLParams = new URL(document.location.href).searchParams;
@@ -581,7 +587,7 @@ setInterval(function mainLoop() {
     updateDropTarget();
     stats.forEach(e => e.update());
     drawMap();
-    if (loopLogVisible)
+    if (loopLogVisible && !displayedOldLog)
         displayLoopLog();
 }, Math.floor(1000 / fps));
 function setup() {

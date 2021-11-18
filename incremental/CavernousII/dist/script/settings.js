@@ -125,8 +125,10 @@ function loadSettings(savedSettings) {
     setSetting(toggleBankedTime, savedSettings.usingBankedTime);
     setSetting(toggleRunning, !!savedSettings.running);
     setSetting(toggleAutoRestart, savedSettings.autoRestart);
-    setSetting(toggleGrindMana, !!savedSettings.grindMana);
-    setSetting(toggleGrindStats, !!savedSettings.grindStats);
+    if (!!savedSettings.grindMana)
+        setSetting(toggleGrindMana, !!savedSettings.grindMana);
+    if (!!savedSettings.grindStats)
+        setSetting(toggleGrindStats, !!savedSettings.grindStats);
     setSetting(toggleLoadPrereqs, !!savedSettings.loadPrereqs);
     setSetting(toggleFollowZone, !!savedSettings.followZone);
     setSetting(toggleTimeline, !!savedSettings.timeline);
