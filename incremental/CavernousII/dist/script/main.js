@@ -134,6 +134,9 @@ function resetLoop() {
         timeBanked = 0;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> eca8039201291c4316e9f6deea13119129fa7f99
     resetting = false;
 =======
     // resetting = false;

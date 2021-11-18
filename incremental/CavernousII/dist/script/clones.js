@@ -506,8 +506,6 @@ class Clone {
         let count = 0;
         clones.forEach(c => c.isPausing = false);
         while (maxTime && !breakActions) {
-            if (count++ > 100)
-                break;
             const nextActionTimes = clones
                 .map(c => (c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime()))
                 .map((t, i, arr) => t[3] ? t[0] : t[0] / (arr.reduce((a, c) => a + Math.abs(+(c[1] !== null && c[2] !== null && c[1] === t[1] && c[2] === t[2])), 0) || 1));
@@ -522,6 +520,8 @@ class Clone {
             maxTime = Math.max(...clones.map((e, i) => (!e.noActionsAvailable && e.damage != Infinity && nextActionTimes[i] < Infinity ? e.timeAvailable || 0 : 0)));
             if (maxTime < 0.001)
                 break;
+            if (count++ > 100)
+                breakActions = true;
         }
         const timeNotSpent = Math.min(...clones.map(e => e.timeAvailable || 0));
         clones.forEach(c => {
