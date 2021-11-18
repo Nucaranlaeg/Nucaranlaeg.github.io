@@ -1,18 +1,13 @@
 "use strict";
 let finalLocations = [];
+let cursorLocations = [];
 let hoverLocation = null;
-function showIntermediateLocation(event) {
-    let queueNode = event.target.parentElement.parentElement;
-    let index = Array.from(queueNode.children)
-        .filter(n => !n.classList.contains("action-count"))
-        .findIndex(node => node == event.target.parentElement);
-    let queueNumber = +queueNode.parentElement.id.replace("queue", "");
-    if (isNaN(+queueNumber)) {
-        return;
-    }
-    showLocationAfterSteps(index, queueNumber, false, true);
-}
-function showLocationAfterSteps(index, queueNumber, isDraw = false, isHover = false) {
+const HIGHLIGHT_TYPES = {
+    FINAL: 0,
+    HOVER: 1,
+    CURSOR: 2,
+};
+function showLocationAfterSteps(index, queueNumber, isDraw = false, highlightType = HIGHLIGHT_TYPES.FINAL) {
     if (index == -1)
         return;
     let x = zones[displayZone].xOffset, y = zones[displayZone].yOffset;
@@ -22,10 +17,14 @@ function showLocationAfterSteps(index, queueNumber, isDraw = false, isHover = fa
     let target = getMapNode(x, y);
     if (!target)
         return;
-    if (isHover) {
+    if (highlightType == HIGHLIGHT_TYPES.HOVER) {
         hoverLocation && hoverLocation.classList.remove("hover-location");
         target.classList.add("hover-location");
         hoverLocation = target;
+    }
+    else if (highlightType == HIGHLIGHT_TYPES.CURSOR) {
+        target.classList.add("cursor-location");
+        cursorLocations.push(target);
     }
     else {
         target.classList.add("final-location");
@@ -77,6 +76,25 @@ function showFinalLocation(isDraw = false) {
     finalLocations = [];
     selectedQueues.forEach(q => {
         showLocationAfterSteps(zones[displayZone].queues[q.clone].length - 1, q.clone, isDraw);
+    });
+}
+function showIntermediateLocation(event) {
+    let queueNode = event.target.parentElement.parentElement;
+    let index = Array.from(queueNode.children)
+        .filter(n => !n.classList.contains("action-count"))
+        .findIndex(node => node == event.target.parentElement);
+    let queueNumber = +queueNode.parentElement.id.replace("queue", "");
+    if (isNaN(+queueNumber)) {
+        return;
+    }
+    showLocationAfterSteps(index, queueNumber, false, HIGHLIGHT_TYPES.HOVER);
+}
+function showCursorLocations() {
+    cursorLocations.forEach(f => f.classList.remove("cursor-location"));
+    selectedQueues.forEach(queue => {
+        if (queue.pos === null)
+            return;
+        showLocationAfterSteps(queue.pos, queue.clone, false, HIGHLIGHT_TYPES.CURSOR);
     });
 }
 //# sourceMappingURL=highlights.js.map

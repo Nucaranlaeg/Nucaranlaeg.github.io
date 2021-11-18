@@ -23,6 +23,7 @@ class Clone {
         this.timeAvailable = 0;
         this.occupiedNode = null;
         this.isPausing = false;
+        this.nextActionMove = false;
         this.id = id;
         this.createTimeline();
         this.reset();
@@ -218,6 +219,7 @@ class Clone {
     }
     getNextActionTime() {
         currentClone = this.id;
+        this.nextActionMove = false;
         let [action, actionIndex] = getNextAction();
         if (action === undefined) {
             // No actions available
@@ -282,6 +284,7 @@ class Clone {
             D: 1
         }[actionToDo] || 0;
         const hasOffset = !!actionXOffset || !!actionYOffset;
+        this.nextActionMove = hasOffset;
         const x = this.x + actionXOffset;
         const y = this.y + actionYOffset;
         const location = getMapLocation(x, y);
@@ -509,7 +512,9 @@ class Clone {
                 .map(c => (c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] : c.getNextActionTime()))
                 .map((t, i, arr) => t[3] ? t[0] : t[0] / (arr.reduce((a, c) => a + Math.abs(+(c[1] !== null && c[2] !== null && c[1] === t[1] && c[2] === t[2])), 0) || 1));
             const nextSingleActionTime = Math.min(...nextActionTimes) + 0.001; // Add .001 to prevent rounding errors.
-            clones.filter((c, i) => nextActionTimes[i] <= nextSingleActionTime).forEach(c => c.performSingleAction(Math.max(nextSingleActionTime, 1)));
+            // Run non-move actions before move actions.
+            clones.filter(c => !c.nextActionMove).forEach(c => c.performSingleAction(Math.max(nextSingleActionTime, 1)));
+            clones.filter(c => c.nextActionMove).forEach(c => c.performSingleAction(Math.max(nextSingleActionTime, 1)));
             if (clones.every(c => c.isPausing)) {
                 clones.forEach(c => c.revertTimelineWait(nextSingleActionTime));
                 return maxTime;

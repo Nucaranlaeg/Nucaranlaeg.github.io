@@ -311,7 +311,7 @@ function viewCell(target:HTMLElement) {
 				let match = description.match(/\{.*\}/)
 				if (match) {
 					let realmDesc = JSON.parse(match[0].replace(/'/g, '"'));
-					description = description.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0]);
+					description = description.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0] || "");
 				}
 				document.querySelector("#location-description")!.innerHTML = description.replace(/\n/g, "<br>");
 				if (type.nextCost) {
