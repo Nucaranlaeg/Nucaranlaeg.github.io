@@ -220,6 +220,7 @@ class ActionQueue extends Array {
             if (cursor && cursor.pos !== null)
                 cursor.pos++;
         }
+        showCursorLocations();
     }
     removeActionAt(index) {
         if (index === null) {
@@ -236,6 +237,7 @@ class ActionQueue extends Array {
             if (cursor && cursor.pos !== null)
                 cursor.pos--;
         }
+        showCursorLocations();
     }
     copyQueueAt(queue, index) {
         if (!(queue instanceof Array))
@@ -572,6 +574,7 @@ function showCursors() {
         cursorNode.style.left = (cursor.pos * 16 + 17) + "px";
     });
     selectedQueues = selectedQueues.filter(cursor => cursor.clone >= 0);
+    showCursorLocations();
 }
 function queueToString(queue) {
     return queue.toString();

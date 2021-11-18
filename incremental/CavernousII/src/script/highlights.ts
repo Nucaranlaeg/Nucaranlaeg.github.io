@@ -1,19 +1,14 @@
 let finalLocations: HTMLElement[] = [];
+let cursorLocations: HTMLElement[] = [];
 let hoverLocation: HTMLElement | null = null;
 
-function showIntermediateLocation(event: DOMEvent) {
-	let queueNode = event.target!.parentElement!.parentElement!;
-	let index = Array.from(queueNode.children)
-		.filter(n => !n.classList.contains("action-count"))
-		.findIndex(node => node == event.target.parentElement);
-	let queueNumber = +queueNode.parentElement!.id.replace("queue", "");
-	if (isNaN(+queueNumber)) {
-		return;
-	}
-	showLocationAfterSteps(index, queueNumber, false, true);
+const HIGHLIGHT_TYPES = {
+	FINAL: 0,
+	HOVER: 1,
+	CURSOR: 2,
 }
 
-function showLocationAfterSteps(index: number, queueNumber: number, isDraw = false, isHover = false) {
+function showLocationAfterSteps(index: number, queueNumber: number, isDraw = false, highlightType = HIGHLIGHT_TYPES.FINAL) {
 	if (index == -1) return;
 	let x: number | undefined = zones[displayZone].xOffset,
 		y: number | undefined = zones[displayZone].yOffset;
@@ -21,10 +16,13 @@ function showLocationAfterSteps(index: number, queueNumber: number, isDraw = fal
 	if (x === undefined || y === undefined) return;
 	let target = getMapNode(x, y);
 	if (!target) return;
-	if (isHover) {
+	if (highlightType == HIGHLIGHT_TYPES.HOVER) {
 		hoverLocation && hoverLocation.classList.remove("hover-location");
 		target.classList.add("hover-location");
 		hoverLocation = target;
+	} else if (highlightType == HIGHLIGHT_TYPES.CURSOR) {
+		target.classList.add("cursor-location");
+		cursorLocations.push(target);
 	} else {
 		target.classList.add("final-location");
 		finalLocations.push(target);
@@ -79,4 +77,24 @@ function showFinalLocation(isDraw = false) {
 	selectedQueues.forEach(q => {
 		showLocationAfterSteps(zones[displayZone].queues[q.clone].length - 1, q.clone, isDraw);
 	});
+}
+
+function showIntermediateLocation(event: DOMEvent) {
+	let queueNode = event.target!.parentElement!.parentElement!;
+	let index = Array.from(queueNode.children)
+		.filter(n => !n.classList.contains("action-count"))
+		.findIndex(node => node == event.target.parentElement);
+	let queueNumber = +queueNode.parentElement!.id.replace("queue", "");
+	if (isNaN(+queueNumber)) {
+		return;
+	}
+	showLocationAfterSteps(index, queueNumber, false, HIGHLIGHT_TYPES.HOVER);
+}
+
+function showCursorLocations() {
+	cursorLocations.forEach(f => f.classList.remove("cursor-location"));
+	selectedQueues.forEach(queue => {
+		if (queue.pos === null) return;
+		showLocationAfterSteps(queue.pos, queue.clone, false, HIGHLIGHT_TYPES.CURSOR);
+	})
 }

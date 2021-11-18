@@ -80,6 +80,7 @@ function resetLoop() {
 	if (mana.base == 7.4) getMessage("Buy More Time").display();
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
 	if (queueTime > 50) getMessage("Looper's Log: Supplemental").display();
+	storeLoopLog();
 	stats.forEach((s, i) => {
 		GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 		s.reset();
@@ -132,7 +133,6 @@ function resetLoop() {
 	if (isNaN(timeBanked)) {
 		timeBanked = 0;
 	}
-	storeLoopLog();
 	resetting = false;
 }
 
@@ -158,6 +158,7 @@ previousLogTemplate.removeAttribute("id");
 const MAX_EPHEMERAL_LOGS = 10;
 const loopGoldCountNode = document.querySelector("#loop-gold-count") as HTMLElement;
 const loopGoldValueNode = document.querySelector("#loop-gold-value") as HTMLElement;
+let displayedOldLog = false;
 
 function storeLoopLog(){
 	if (!Object.keys(loopActions).length){
@@ -245,25 +246,29 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 	node.querySelector(".name")!.innerHTML = "Current";
 	node.querySelector(".value")!.innerHTML = writeNumber(Object.values(loopActions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
 	node.onclick = e => {
+		displayedOldLog = false;
 		displayLoopLog();
 		e.stopPropagation();
 	}
 	loopPrevNode.append(node);
-	previousLoopLogs.forEach(log => {
+	for (let i = previousLoopLogs.length - 1; i >= 0; i--){
+		let log = previousLoopLogs[i];
 		const node = previousLogTemplate.cloneNode(true) as HTMLElement;
 		node.querySelector(".name")!.innerHTML = "Previous log";
 		node.querySelector(".value")!.innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
 		node.onclick = e => {
+			displayedOldLog = true;
 			displayLoopLog(log.actions, log.stats);
 			e.stopPropagation();
 		}
 		loopPrevNode.append(node);
-	});
+	}
 }
 
 function hideLoopLog() {
 	loopLogBox.hidden = true;
 	loopLogVisible = false;
+	displayedOldLog = false;
 }
 
 /** ******************************************* Saving *********************************************/
@@ -639,7 +644,7 @@ setInterval(function mainLoop() {
 
 	stats.forEach(e => e.update());
 	drawMap();
-	if (loopLogVisible) displayLoopLog();
+	if (loopLogVisible && !displayedOldLog) displayLoopLog();
 }, Math.floor(1000 / fps));
 
 function setup() {
