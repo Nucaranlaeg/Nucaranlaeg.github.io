@@ -133,7 +133,11 @@ function resetLoop() {
     if (isNaN(timeBanked)) {
         timeBanked = 0;
     }
+<<<<<<< HEAD
     resetting = false;
+=======
+    // resetting = false;
+>>>>>>> Merge
 }
 /********************************************* Loop Log *********************************************/
 let loopActions = {};
