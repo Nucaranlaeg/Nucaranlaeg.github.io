@@ -132,6 +132,7 @@ const locationTypes = [
 	new LocationType("Kudzushroom", "♣", "A giant mushroom which grows quickly.  It grows so fast each clone needs to make its own way every time. (Growth: 1+{'0':0.1,'2':0.5}t)", "Kudzu Chop", null, null, null, Infinity),
 	new LocationType("Sporeshroom", "α", "A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your clones cutting it for 1 damage per second. (Growth: 1+{'0':0.1,'2':0.5}t)", "Spore Chop", null, null),
 	new LocationType("Oystershroom", "§", "A giant mushroom which grows extremely quickly.  You don't think you've ever seen a mushroom grow that fast. (Growth: 1+{'0':0.2,'2':1}t)", "Oyster Chop", null, null),
+	new LocationType("Springshroom", "δ", "A giant mushroom which grows quickly.  It seems to continually spray water. (Growth: 1+{'0':0.1,'2':0.5}t)", "Chop", null, null, null, undefined, true, 0.001),
 	new LocationType("Anvil - Axe", "¢", "An anvil on which you can make an axe out of {'0':'an iron bar','1':'2 iron bars'}.", "Walk", "Create Axe", null),
 	new LocationType("Anvil - Pick", "¥", "An anvil on which you can make a pick out of {'0':'an iron bar','1':'2 iron bars'}.", "Walk", "Create Pick", null),
 	new LocationType("Anvil - Hammer", "£", "An anvil on which you can make a hammer out of {'0':'an iron bar','1':'2 iron bars'}.", "Walk", "Create Hammer", null),

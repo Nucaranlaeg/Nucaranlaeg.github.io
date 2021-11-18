@@ -157,6 +157,10 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 
 	zoneTick(time:number) {
 		if (!this.water) return;
+		if (this.baseType.name == "Springshroom") {
+			// Sporeshrooms add 0.2 water per second at 0 water, 0.05 at 1 water, and it drops off quadratically.
+			this.water = this.water + time / 1000 * 0.2 / ((1 + this.water) ** 2);
+		}
 		// [tile, loc] is actually [mapChar, MapLocation] but ts doesn't provide a way to typehint that.  Or it's just bad at complex types.
 		zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]: any) => {
 			if (!walkable.includes(tile) && !shrooms.includes(tile)) return;

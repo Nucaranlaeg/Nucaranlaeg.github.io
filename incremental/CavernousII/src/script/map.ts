@@ -75,6 +75,7 @@ const classMapping: classMappingType = {
 	"♣": ["kudzushroom", "Kudzushroom"],
 	"α": ["sporeshroom", "Sporeshroom"],
 	"§": ["oystershroom", "Oystershroom"],
+	"δ": ["springshroom", "Springshroom"],
 	"¢": ["axe", "Anvil - Axe"],
 	"¥": ["pick", "Anvil - Pick"],
 	"£": ["hammer", "Anvil - Hammer"],
@@ -99,7 +100,7 @@ setTimeout(() => {
 const walkable = '*.♥╬▣=⎶&║"()[]{}^WHTtFDd¢¥£©Θ|<>';
 
 // Water can flow through shrooms, albeit slower.
-const shrooms = "♠♣α§";
+const shrooms = "♠♣α§δ";
 
 const runesTiles = "WHTtDdF";
 

@@ -212,7 +212,7 @@ const messages = [
 	new Message(
 		"Game Slowdown",
 		`
-			At this point, the game slows down quite a bit.  You'll need to grind stats much more in order ot progress.  If that's not your thing, no worries!  Thanks for playing this far.  You've beaten the tightly-designed portion of the game, and I'd count that as a win.
+			At this point, the game slows down quite a bit.  You'll need to grind stats much more in order to progress.  If that's not your thing, no worries!  Thanks for playing this far.  You've beaten the tightly-designed portion of the game, and I'd count that as a win.
 
 			If you're sticking around, there's much more that you haven't yet reached.`
 	),
