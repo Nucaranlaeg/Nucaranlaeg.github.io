@@ -133,14 +133,8 @@ function resetLoop() {
     if (isNaN(timeBanked)) {
         timeBanked = 0;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> eca8039201291c4316e9f6deea13119129fa7f99
     resetting = false;
-=======
-    // resetting = false;
->>>>>>> Merge
+    currentRoute = null;
 }
 /********************************************* Loop Log *********************************************/
 let loopActions = {};
@@ -338,6 +332,11 @@ let save = function save() {
         };
     });
     const machines = realms.map(r => r.machineCompletions);
+    const realmData = realms.map(r => {
+        return {
+            completed: r.completed,
+        };
+    });
     let saveGame = {
         version: version,
         playerStats: playerStats,
@@ -352,6 +351,7 @@ let save = function save() {
         grindRoutes: savedGrindRoutes,
         runeData: runeData,
         machines: machines,
+        realmData: realmData,
     };
     let saveString = JSON.stringify(saveGame);
     // Typescript can't find LZString, and I don't care.
@@ -412,6 +412,10 @@ function load() {
         realms[i].machineCompletions = (saveGame.machines || [])[i] || 0;
         recalculateMana();
     }
+    saveGame.realmData.forEach((r, i) => {
+        if (r.completed)
+            realms[i].complete();
+    });
     clones = [];
     while (clones.length < saveGame.cloneData.count) {
         Clone.addNewClone(true);
@@ -425,7 +429,7 @@ function load() {
     }
     // ensureLegalQueues();
     lastAction = saveGame.time.saveTime;
-    timeBanked = +saveGame.time.timeBanked;
+    timeBanked = +saveGame.time.timeBanked + Date.now() - lastAction;
     if (saveGame.routes) {
         routes = Route.fromJSON(saveGame.routes);
     }
@@ -597,6 +601,7 @@ setInterval(function mainLoop() {
     redrawTimeNode();
     updateDropTarget();
     stats.forEach(e => e.update());
+    stuff.forEach(e => e.displayDescription());
     drawMap();
     if (loopLogVisible && !displayedOldLog)
         displayLoopLog();

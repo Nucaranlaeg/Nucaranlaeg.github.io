@@ -58,8 +58,8 @@ class ZoneRoute {
             // ts is really bad at arrays which hold multiple incompatible types.
             Object.entries(this.require).every(([key, value]) => zoneRoute.require[key].name == value.name && zoneRoute.require[key].count == value.count));
     }
-    pickRoute(zone, actualRequirements, health = clones.map(c => 0)) {
-        let routeOptions = zones[zone].sumRoute(actualRequirements, health);
+    pickRoute(zone, actualRequirements, health = clones.map(c => 0), actionCount = this.actionCount) {
+        let routeOptions = zones[zone].sumRoute(actualRequirements, health, actionCount);
         if (zone == 0) {
             if (routeOptions.length == 0)
                 return null;

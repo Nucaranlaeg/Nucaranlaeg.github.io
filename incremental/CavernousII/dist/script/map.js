@@ -60,6 +60,7 @@ const classMapping = {
     "♣": ["kudzushroom", "Kudzushroom"],
     "α": ["sporeshroom", "Sporeshroom"],
     "§": ["oystershroom", "Oystershroom"],
+    "δ": ["springshroom", "Springshroom"],
     "¢": ["axe", "Anvil - Axe"],
     "¥": ["pick", "Anvil - Pick"],
     "£": ["hammer", "Anvil - Hammer"],
@@ -83,7 +84,7 @@ setTimeout(() => {
 // The tiles that can be pathfinded through.
 const walkable = '*.♥╬▣=⎶&║"()[]{}^WHTtFDd¢¥£©Θ|<>';
 // Water can flow through shrooms, albeit slower.
-const shrooms = "♠♣α§";
+const shrooms = "♠♣α§δ";
 const runesTiles = "WHTtDdF";
 let mapDirt = [];
 let mapStain = [];

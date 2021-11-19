@@ -134,6 +134,7 @@ function resetLoop() {
 		timeBanked = 0;
 	}
 	resetting = false;
+	currentRoute = null;
 }
 
 /********************************************* Loop Log *********************************************/
@@ -316,6 +317,9 @@ interface saveGame {
 		upgradeCount: number;
 	}[];
 	machines: number[];
+	realmData: {
+		completed: boolean;
+	}[];
 }
 
 let save = function save() {
@@ -379,6 +383,11 @@ let save = function save() {
 		};
 	});
 	const machines = realms.map(r => r.machineCompletions);
+	const realmData = realms.map(r => {
+		return {
+			completed: r.completed,
+		};
+	});
 
 	let saveGame: saveGame = {
 		version: version,
@@ -394,6 +403,7 @@ let save = function save() {
 		grindRoutes: savedGrindRoutes,
 		runeData: runeData,
 		machines: machines,
+		realmData: realmData,
 	};
 	let saveString = JSON.stringify(saveGame);
 	// Typescript can't find LZString, and I don't care.
@@ -451,6 +461,9 @@ function load() {
 		realms[i].machineCompletions = (saveGame.machines || [])[i] || 0;
 		recalculateMana();
 	}
+	saveGame.realmData.forEach((r, i) => {
+		if (r.completed) realms[i].complete();
+	});
 	clones = [];
 	while (clones.length < saveGame.cloneData.count) {
 		Clone.addNewClone(true);
@@ -464,7 +477,7 @@ function load() {
 	}
 	// ensureLegalQueues();
 	lastAction = saveGame.time.saveTime;
-	timeBanked = +saveGame.time.timeBanked;
+	timeBanked = +saveGame.time.timeBanked + Date.now() - lastAction;
 	if (saveGame.routes) {
 		routes = Route.fromJSON(saveGame.routes);
 	}
@@ -643,6 +656,7 @@ setInterval(function mainLoop() {
 	updateDropTarget();
 
 	stats.forEach(e => e.update());
+	stuff.forEach(e => e.displayDescription());
 	drawMap();
 	if (loopLogVisible && !displayedOldLog) displayLoopLog();
 }, Math.floor(1000 / fps));

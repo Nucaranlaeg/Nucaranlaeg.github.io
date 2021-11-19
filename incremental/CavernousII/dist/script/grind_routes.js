@@ -9,6 +9,7 @@ class GrindRoute extends BaseRoute {
         this.statName = x;
         this.totalStatGain = totalStatGain;
         this.totalTime = queueTime;
+        this.goldVaporized = loopGoldVaporized;
         this.projectedGain = GrindRoute.calculateProjectedGain(this.statName, this.totalStatGain);
         this.zone = currentZone;
         this.realm = currentRealm;

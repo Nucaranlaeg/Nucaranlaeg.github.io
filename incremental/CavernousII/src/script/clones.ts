@@ -460,7 +460,9 @@ class Clone {
 		let percentRemaining;
 		[time, percentRemaining] = location.tick(time);
 		if (initialTime - time > 5 || !percentRemaining) this.selectQueueAction(actionIndex, 100 - percentRemaining * 100);
-		this.currentProgress = !hasOffset ? location.remainingPresent : location.remainingEnter;
+		this.currentProgress = (!hasOffset ?
+			locationPresentAction?.getProjectedDuration(location, 0, location.remainingPresent) :
+			locationEnterAction?.getProjectedDuration(location, location.wither, location.remainingEnter)) || 0;
 		if (!percentRemaining) {
 			this.completeNextAction();
 			this.currentProgress = 0;

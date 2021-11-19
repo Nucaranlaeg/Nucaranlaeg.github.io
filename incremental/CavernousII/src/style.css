@@ -456,15 +456,15 @@ svg {
 	position: relative;
 }
 
-.block.stuff {
+/* .block.stuff {
 	position: static;
-}
+} */
 
 .block > .description {
 	visibility: hidden;
 	position: absolute;
-	margin-top: 7px;
-	left: 5px;
+	margin-top: 0px;
+	left: 2px;
 	width: 180px;
 	background: #99bbbb;
 	border: 1px solid #00000033;
@@ -687,6 +687,7 @@ h4#location-name {
 	background-color: #88aaaa;
 }
 
+.require .actions,
 .zone .actions {
 	color: #000000;
 	font-weight: bold;
