@@ -37,7 +37,6 @@ class Stuff {
                 // @ts-ignore
             }[this.name]);
             const combatValue = Math.pow(stat.value, 0.01 * this.count);
-            console.log(combatValue);
             this.node.querySelector(".description").innerHTML = this.description.replace("{}", writeNumber(combatValue * 100, 1));
         }
     }

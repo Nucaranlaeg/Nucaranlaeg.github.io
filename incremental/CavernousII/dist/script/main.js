@@ -412,7 +412,7 @@ function load() {
         realms[i].machineCompletions = (saveGame.machines || [])[i] || 0;
         recalculateMana();
     }
-    saveGame.realmData.forEach((r, i) => {
+    saveGame.realmData?.forEach((r, i) => {
         if (r.completed)
             realms[i].complete();
     });

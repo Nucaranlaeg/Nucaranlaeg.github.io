@@ -134,7 +134,7 @@ function drawNewMap() {
                     }
                     cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
                     if (zones[displayZone].mapLocations[y][x].water > 0.1) {
-                        cellNode.classList.add(`watery-${Math.floor(zones[displayZone].mapLocations[y][x].water * 10)}`);
+                        cellNode.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), 11)}`);
                     }
                 }
                 else {
@@ -160,7 +160,7 @@ function drawCell(x, y) {
     let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
     cell.className = className;
     if (location.water > 0.1) {
-        cell.classList.add(`watery-${Math.floor(location.water * 10)}`);
+        cell.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), 11)}`);
     }
     cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
@@ -232,6 +232,7 @@ function setMined(x, y, icon) {
         "○": ".",
         "c": ".",
         "§": ".",
+        "δ": ".",
         "s": ".",
         "m": ".",
         "√": ".",
