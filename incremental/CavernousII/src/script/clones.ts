@@ -25,6 +25,7 @@ class Clone {
 	timeAvailable: number = 0;
 	occupiedNode: HTMLElement | null = null;
 	isPausing: boolean = false;
+	nextActionMove: boolean = false;
 	constructor(id: number) {
 		this.id = id;
 		this.createTimeline();
@@ -225,6 +226,7 @@ class Clone {
 
 	getNextActionTime(): [number, number | null, number | null, boolean?] {
 		currentClone = this.id;
+		this.nextActionMove = false;
 		let [action, actionIndex] = getNextAction();
 		if (action === undefined) {
 			// No actions available
@@ -292,6 +294,7 @@ class Clone {
 			D: 1
 		}[actionToDo] || 0;
 		const hasOffset = !!actionXOffset || !!actionYOffset;
+		this.nextActionMove = hasOffset;
 		const x = this.x + actionXOffset;
 		const y = this.y + actionYOffset;
 		const location = getMapLocation(x, y);
@@ -457,7 +460,9 @@ class Clone {
 		let percentRemaining;
 		[time, percentRemaining] = location.tick(time);
 		if (initialTime - time > 5 || !percentRemaining) this.selectQueueAction(actionIndex, 100 - percentRemaining * 100);
-		this.currentProgress = !hasOffset ? location.remainingPresent : location.remainingEnter;
+		this.currentProgress = (!hasOffset ?
+			locationPresentAction?.getProjectedDuration(location, 0, location.remainingPresent) :
+			locationEnterAction?.getProjectedDuration(location, location.wither, location.remainingEnter)) || 0;
 		if (!percentRemaining) {
 			this.completeNextAction();
 			this.currentProgress = 0;
@@ -517,18 +522,20 @@ class Clone {
 		let count = 0;
 		clones.forEach(c => c.isPausing = false);
 		while (maxTime && !breakActions) {
-			if (count++ > 100) break;
 			const nextActionTimes = clones
 				.map(c => (c.noActionsAvailable || c.damage == Infinity || !(c.timeAvailable || 0) ? [Infinity, null, null] as [number, null, null] : c.getNextActionTime()))
 				.map((t, i, arr) => t[3] ? t[0] : t[0] / (arr.reduce((a, c) => a + Math.abs(+(c[1] !== null && c[2] !== null && c[1] === t[1] && c[2] === t[2])), 0) || 1));
 			const nextSingleActionTime = Math.min(...nextActionTimes) + 0.001; // Add .001 to prevent rounding errors.
-			clones.filter((c, i) => nextActionTimes[i] <= nextSingleActionTime).forEach(c => c.performSingleAction(Math.max(nextSingleActionTime, 1)));
+			// Run non-move actions before move actions.
+			clones.filter(c => !c.nextActionMove).forEach(c => c.performSingleAction(Math.max(nextSingleActionTime, 1)));
+			clones.filter(c => c.nextActionMove).forEach(c => c.performSingleAction(Math.max(nextSingleActionTime, 1)));
 			if (clones.every(c => c.isPausing)) {
 				clones.forEach(c => c.revertTimelineWait(nextSingleActionTime));
 				return maxTime;
 			}
 			maxTime = Math.max(...clones.map((e, i) => (!e.noActionsAvailable && e.damage != Infinity && nextActionTimes[i] < Infinity ? e.timeAvailable || 0 : 0)));
 			if (maxTime < 0.001) break;
+			if (count++ > 100) breakActions = true;
 		}
 
 		const timeNotSpent = Math.min(...clones.map(e => e.timeAvailable || 0));

@@ -8,11 +8,12 @@ class Stuff {
         this.colour = colour;
         this.count = count;
         this.node = null;
+        this.countNode = null;
         this.min = 0;
         this.effect = effect;
     }
     update(newCount = 0) {
-        if (!this.node)
+        if (this.node === null)
             this.createNode();
         this.count += newCount;
         // Ensure we never have 0.9999989 gold.
@@ -20,11 +21,24 @@ class Stuff {
         if (this.effect !== null)
             this.effect(newCount);
         // Check if the number is an integer - if it's not, display one decimal place.
-        this.node.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 1);
+        this.countNode.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 1);
         if (this.count > 0) {
-            this.node.parentNode.style.display = "inline-block";
+            this.countNode.parentNode.style.display = "inline-block";
         }
         this.min = Math.min(this.count, this.min);
+        this.displayDescription();
+    }
+    displayDescription() {
+        if (this.description.includes("{}")) {
+            const stat = getStat({
+                "Iron Axe": "Woodcutting",
+                "Iron Pick": "Mining",
+                "Iron Hammer": "Smithing",
+                // @ts-ignore
+            }[this.name]);
+            const combatValue = Math.pow(stat.value, 0.01 * this.count);
+            this.node.querySelector(".description").innerHTML = this.description.replace("{}", writeNumber(combatValue * 100, 1));
+        }
     }
     createNode() {
         if (this.node)
@@ -33,15 +47,15 @@ class Stuff {
         if (stuffTemplate === null) {
             throw new Error('No stuff template');
         }
-        let el = stuffTemplate.cloneNode(true);
-        el.id = "stuff_" + this.name.replace(" ", "_");
-        el.querySelector(".name").innerHTML = this.name;
-        el.querySelector(".icon").innerHTML = this.icon;
-        el.querySelector(".description").innerHTML = this.description;
-        el.style.color = setContrast(this.colour);
-        el.style.backgroundColor = this.colour;
-        document.querySelector("#stuff-inner").appendChild(el);
-        this.node = el.querySelector(".count");
+        this.node = stuffTemplate.cloneNode(true);
+        this.node.id = "stuff_" + this.name.replace(" ", "_");
+        this.node.querySelector(".name").innerHTML = this.name;
+        this.node.querySelector(".icon").innerHTML = this.icon;
+        this.node.querySelector(".description").innerHTML = this.description.replace("{}", "0");
+        this.node.style.color = setContrast(this.colour);
+        this.node.style.backgroundColor = this.colour;
+        document.querySelector("#stuff-inner").appendChild(this.node);
+        this.countNode = this.node.querySelector(".count");
     }
     resetMin() {
         if (this.effect != null) {
@@ -93,9 +107,9 @@ const stuff = [
     new Stuff("Steel Sword", ")", "A steel sword.  Sharp! (+2 attack)  Max 1 weapon per clone.", "#222222", 0, calcCombatStats),
     new Stuff("Steel Shield", "[", "A steel shield.  This should help you not die. (+2 defense)  Max 1 shield per clone.", "#222222", 0, calcCombatStats),
     new Stuff("Steel Armour", "]", "A suit of steel armour.  This should help you take more hits. (+15 health)  Max 1 armour per clone.", "#222222", 0, calcCombatStats),
-    new Stuff("Iron Axe", "¢", "An iron axe.  Gives +15 or +15% to Woodcutting (whichever is greater), and applies 1% of your Woodcutting skill to combat.", "#777777", 0, getStatBonus("Woodcutting", 15)),
-    new Stuff("Iron Pick", "⛏", "An iron pickaxe.  Gives +15 or +15% to Mining (whichever is greater), and applies 1% of your Mining skill to combat.", "#777777", 0, getStatBonus("Mining", 15)),
-    new Stuff("Iron Hammer", hammerSVG, "An iron hammer.  Gives +15 or +15% to Smithing (whichever is greater), and applies 1% of your Smithing skill to combat.", "#777777", 0, getStatBonus("Smithing", 15)),
+    new Stuff("Iron Axe", "¢", "An iron axe.  Gives +15 or +15% to Woodcutting (whichever is greater), and applies 1% of your Woodcutting skill to combat ({}%).", "#777777", 0, getStatBonus("Woodcutting", 15)),
+    new Stuff("Iron Pick", "⛏", "An iron pickaxe.  Gives +15 or +15% to Mining (whichever is greater), and applies 1% of your Mining skill to combat ({}%).", "#777777", 0, getStatBonus("Mining", 15)),
+    new Stuff("Iron Hammer", hammerSVG, "An iron hammer.  Gives +15 or +15% to Smithing (whichever is greater), and applies 1% of your Smithing skill to combat ({}%).", "#777777", 0, getStatBonus("Smithing", 15)),
     new Stuff("+1 Sword", ")", "A magical sword.  Sharp! (+4 attack)  Max 1 weapon per clone.", "#688868", 0, calcCombatStats),
     new Stuff("+1 Shield", "[", "A magical shield.  This should help you not die. (+4 defense)  Max 1 shield per clone.", "#688868", 0, calcCombatStats),
     new Stuff("+1 Armour", "]", "A suit of magical armour.  This should help you take more hits. (+25 health)  Max 1 armour per clone.", "#688868", 0, calcCombatStats),
@@ -120,14 +134,14 @@ function displayStuff(node, route) {
         return `<span style="color: ${stuff.colour}">${thing.count}${stuff.icon}</span>`;
     }
     if (route.require?.length) {
-        node.querySelector(".require").innerHTML = route.require
+        node.querySelector(".require").innerHTML = `<span class="actions">${route.actionCount || ""}</span>` + route.require
             .map(displaySingleThing)
             .join("") + (route instanceof ZoneRoute ? rightArrowSVG : "");
     }
     else {
         let stuffNode = node.querySelector(".require");
         if (stuffNode)
-            stuffNode.innerHTML = "";
+            stuffNode.innerHTML = `<span class="actions">${route.actionCount || ""}</span>`;
     }
     if (route instanceof ZoneRoute && route.stuff.length) {
         node.querySelector(".stuff").innerHTML = route.stuff.map(displaySingleThing).join("");

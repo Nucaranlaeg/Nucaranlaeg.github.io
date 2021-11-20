@@ -288,9 +288,12 @@ function tickFight(usedTime, creature, baseTime) {
     if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current) {
         damage = baseTime / 1000;
     }
+    spreadDamage(damage);
+    clones[currentClone].inCombat = true;
+}
+function spreadDamage(damage) {
     const targetClones = clones.filter(c => c.x == clones[currentClone].x && c.y == clones[currentClone].y && c.damage < Infinity);
     targetClones.forEach(c => c.takeDamage(damage / targetClones.length));
-    clones[currentClone].inCombat = true;
 }
 let combatTools = [
     [getStuff("Iron Axe"), 0.01, getStat("Woodcutting")],
@@ -477,15 +480,15 @@ function getChopTime(base, increaseRate) {
     return () => base + increaseRate * queueTime * (realms[currentRealm].name == "Verdant Realm" ? 5 : 1);
 }
 function tickSpore(usedTime, creature, baseTime) {
-    clones[currentClone].takeDamage(baseTime / 1000);
+    spreadDamage(baseTime / 1000);
 }
 function completeBarrier(x, y) {
     zones[currentZone].manaDrain += 5;
     completeMove(x, y);
 }
 function startBarrier(location) {
-    location = getMapLocation(location.x, location.y, true);
-    if (getRealm("Compounding Realm").machineCompletions >= +location.baseType.symbol)
+    let barrierNumber = +zones[currentZone].map[location.y + zones[currentZone].yOffset][location.x + zones[currentZone].xOffset];
+    if (!isNaN(barrierNumber) && getRealm("Compounding Realm").machineCompletions >= barrierNumber)
         return CanStartReturnCode.Now;
     return CanStartReturnCode.Never;
 }

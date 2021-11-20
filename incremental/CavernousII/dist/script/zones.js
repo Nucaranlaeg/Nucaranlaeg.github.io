@@ -74,7 +74,7 @@ class Zone {
         this.map = this.originalMap.slice();
         if (realms[currentRealm].name == "Verdant Realm") {
             // Visual changes
-            this.map = convertMapToVerdant(this.map);
+            this.map = convertMapToVerdant(this.map, this.index);
         }
         if (this.goalComplete)
             this.map = this.map.map(row => row.replace("√", "#"));
@@ -143,7 +143,7 @@ class Zone {
         }
         this.display();
     }
-    sumRoute(require, startDamage) {
+    sumRoute(require, startDamage, actionCount) {
         let routeOptions = this.routes
             .filter(r => r.realm == currentRealm)
             .filter(r => {
@@ -159,6 +159,8 @@ class Zone {
                     return false;
                 }
             }
+            if (actionCount && r.actionCount > actionCount)
+                return false;
             return true;
         })
             .map(r => {
@@ -171,7 +173,7 @@ class Zone {
             let result = [r, r.require, health, effectiveMana];
             return result;
         });
-        return routeOptions.sort((a, b) => b[3] - a[3]);
+        return routeOptions.sort((a, b) => actionCount && a[0].actionCount != b[0].actionCount ? a[0].actionCount - b[0].actionCount : b[3] - a[3]);
     }
     enterZone() {
         this.display();
@@ -293,7 +295,7 @@ class Zone {
                     routeNode.classList.add("unused");
                     routeNode.title += "This route is not used for any saved route. ";
                 }
-                if (this.index > 0 && !zones[this.index - 1].sumRoute(this.routes[i].require, this.routes[i].cloneHealth.map(c => c[0])).length) {
+                if (this.index > 0 && !zones[this.index - 1].sumRoute(this.routes[i].require, this.routes[i].cloneHealth.map(c => c[0]), this.routes[i].actionCount).length) {
                     routeNode.classList.add("orphaned");
                     routeNode.title += "This route has no valid predecessor. ";
                 }
@@ -583,13 +585,13 @@ const zones = [
         "████████+███████",
         "███████#G#██████",
         "███████♣.♣██████",
-        "████████████████",
-        "████████████████",
-        "████████████████",
-        "████████████████",
-        "████████████████",
-        "████████████████",
-        "████████████████",
+        "████████#███████",
+        "███████δδδ██████",
+        "████████ █δ█████",
+        "█████+╖╖╖╖ ¤████",
+        "█████╣█████~████",
+        "█████╣█████δ████",
+        "█████+╖╖╖δδδ████",
         "████████████████",
         "████████████████",
         "████████████████",

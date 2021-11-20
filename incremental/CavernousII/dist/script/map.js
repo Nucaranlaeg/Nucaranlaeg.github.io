@@ -60,6 +60,7 @@ const classMapping = {
     "♣": ["kudzushroom", "Kudzushroom"],
     "α": ["sporeshroom", "Sporeshroom"],
     "§": ["oystershroom", "Oystershroom"],
+    "δ": ["springshroom", "Springshroom"],
     "¢": ["axe", "Anvil - Axe"],
     "¥": ["pick", "Anvil - Pick"],
     "£": ["hammer", "Anvil - Hammer"],
@@ -83,7 +84,7 @@ setTimeout(() => {
 // The tiles that can be pathfinded through.
 const walkable = '*.♥╬▣=⎶&║"()[]{}^WHTtFDd¢¥£©Θ|<>';
 // Water can flow through shrooms, albeit slower.
-const shrooms = "♠♣α§";
+const shrooms = "♠♣α§δ";
 const runesTiles = "WHTtDdF";
 let mapDirt = [];
 let mapStain = [];
@@ -133,7 +134,7 @@ function drawNewMap() {
                     }
                     cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
                     if (zones[displayZone].mapLocations[y][x].water > 0.1) {
-                        cellNode.classList.add(`watery-${Math.floor(zones[displayZone].mapLocations[y][x].water * 10)}`);
+                        cellNode.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), 11)}`);
                     }
                 }
                 else {
@@ -159,7 +160,7 @@ function drawCell(x, y) {
     let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
     cell.className = className;
     if (location.water > 0.1) {
-        cell.classList.add(`watery-${Math.floor(location.water * 10)}`);
+        cell.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), 11)}`);
     }
     cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
@@ -231,6 +232,7 @@ function setMined(x, y, icon) {
         "○": ".",
         "c": ".",
         "§": ".",
+        "δ": ".",
         "s": ".",
         "m": ".",
         "√": ".",
@@ -279,7 +281,7 @@ function viewCell(target) {
                 let match = description.match(/\{.*\}/);
                 if (match) {
                     let realmDesc = JSON.parse(match[0].replace(/'/g, '"'));
-                    description = description.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0]);
+                    description = description.replace(/\{.*\}/, realmDesc[currentRealm] || realmDesc[0] || "");
                 }
                 document.querySelector("#location-description").innerHTML = description.replace(/\n/g, "<br>");
                 if (type.nextCost) {

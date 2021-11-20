@@ -75,8 +75,8 @@ class ZoneRoute {
 		);
 	}
 
-	pickRoute(zone: number, actualRequirements: simpleStuffList, health = clones.map(c => 0)): ZoneRoute[] | null {
-		let routeOptions = zones[zone].sumRoute(actualRequirements, health);
+	pickRoute(zone: number, actualRequirements: simpleStuffList, health = clones.map(c => 0), actionCount = this.actionCount): ZoneRoute[] | null {
+		let routeOptions = zones[zone].sumRoute(actualRequirements, health, actionCount);
 		if (zone == 0) {
 			if (routeOptions.length == 0) return null;
 			let health = getStat("Health");

@@ -45,10 +45,13 @@ class Realm {
 	complete() {
 		this.completed = true;
 		this.node?.parentNode?.removeChild(this.node);
+		routes = routes.filter(r => r.realm !== this.index);
+		zones.forEach(z => z.routes = z.routes.filter(r => r.realm !== this.index));
+		grindRoutes = grindRoutes.filter(r => r.realm !== this.index);
 	}
 
 	display() {
-		if (!this.node) {
+		if (!this.node && !this.completed) {
 			const realmTemplate = document.querySelector("#realm-template");
 			if (realmTemplate === null) throw new Error("No realm template found");
 			this.node = realmTemplate.cloneNode(true) as HTMLElement;
@@ -135,8 +138,8 @@ const verdantMapping: {[key: string]: string} = {
 	"╣": "§", // Basalt -> Oystershroom
 };
 
-function convertMapToVerdant(map:Zone["map"]): string[] {
-	return map.map(row => [...row].map(cell => verdantMapping[cell] || cell).join(""));
+function convertMapToVerdant(map:Zone["map"], zoneNumber: number): string[] {
+	return map.map(row => [...row].map(cell => zoneNumber > 6 ? "█" : (zoneNumber == 6 && cell == "Θ" ? "#" : verdantMapping[cell] || cell)).join(""));
 }
 
 const realms:Realm[] = [
