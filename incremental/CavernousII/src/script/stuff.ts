@@ -156,12 +156,12 @@ function displayStuff(node:HTMLElement, route:BaseRoute | ZoneRoute){
 		return `<span style="color: ${stuff.colour}">${thing.count}${stuff.icon}</span>`;
 	}
 	if (route.require?.length){
-		node.querySelector(".require")!.innerHTML = `<span class="actions">${route.actionCount || ""}</span>` + route.require
+		node.querySelector(".require")!.innerHTML = `<span class="actions">${route.actionCount || ""}</span> ` + route.require
 			.map(displaySingleThing)
 			.join("") + (route instanceof ZoneRoute ? rightArrowSVG : "");
 	} else {
 		let stuffNode = node.querySelector(".require");
-		if (stuffNode) stuffNode.innerHTML = `<span class="actions">${route.actionCount || ""}</span>`;
+		if (stuffNode) stuffNode.innerHTML = `<span class="actions">${route.actionCount || ""}</span> `;
 	}
 	if (route instanceof ZoneRoute && route.stuff.length){
 		node.querySelector(".stuff")!.innerHTML = route.stuff.map(displaySingleThing).join("");
