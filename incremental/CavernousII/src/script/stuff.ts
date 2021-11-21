@@ -52,7 +52,7 @@ class Stuff<stuffName extends string> {
 				// @ts-ignore
 			}[<String>this.name]);
 			const combatValue = Math.pow(stat.value, 0.01 * this.count);
-			this.node!.querySelector(".description")!.innerHTML = this.description.replace("{}", writeNumber(combatValue * 100, 1));
+			if (this.node) this.node.querySelector(".description")!.innerHTML = this.description.replace("{}", writeNumber(combatValue * 100, 1));
 		}
 	}
 

@@ -78,10 +78,12 @@ class Action<actionName extends anyActionName = anyActionName> {
 			duration -= applyWither;
 		}
 		duration *= this.getSkillDiv();
-		if (realms[currentRealm].name == "Long Realm") {
-			duration *= 3;
-		} else if (realms[currentRealm].name == "Compounding Realm") {
-			duration *= 1 + loopCompletions / 40;
+		if (!useDuration){
+			if (realms[currentRealm].name == "Long Realm") {
+				duration *= 3;
+			} else if (realms[currentRealm].name == "Compounding Realm") {
+				duration *= 1 + loopCompletions / 40;
+			}
 		}
 		return duration;
 	}
