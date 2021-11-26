@@ -310,16 +310,20 @@ class Clone {
 			return [0, null, null];
 		}
 		if (hasOffset) {
-			let enterTime = location.type.getEnterAction(location.entered)?.getProjectedDuration(location, 0, location.remainingEnter || 0);
+			let enterTime = location.remainingEnter;
+			if (["Walk", "Kudzu Chop"].includes(location.type.getEnterAction(location.entered)?.name as string)){
+				enterTime = this.walkTime;
+			}
+			enterTime = location.type.getEnterAction(location.entered)?.getProjectedDuration(location, 0, enterTime || 0);
 			if (enterTime === undefined || isNaN(enterTime)) enterTime = 100;
-			return [enterTime, x, y, ["Walk", "Kudzu Chop"].includes(location.type.getEnterAction(location.entered)?.name as string) || !location.type.canWorkTogether];
+			return [enterTime, x, y, !location.type.canWorkTogether];
 		} else {
 			let presentTime =
 				location.type.presentAction?.getProjectedDuration(location, 0, location.remainingPresent || 0) || // Time a new action takes
 				location.temporaryPresent?.getProjectedDuration(location, 0, location.remainingPresent || 0) || // Time a new rune action takes
 				0; // Illegal present action
 			if (isNaN(presentTime)) presentTime = 100;
-			return [presentTime, x, y];
+			return [presentTime, x, y, ["Fountain"].includes(location.type.getEnterAction(location.entered)?.name as string) || !location.type.canWorkTogether];
 		}
 	}
 
@@ -482,6 +486,7 @@ class Clone {
 		if (this.noActionsAvailable || this.damage == Infinity) {
 			if (this.damage == Infinity) {
 				this.addToTimeline({ name: "Dead" }, maxTime);
+				this.timeAvailable = 0;
 			} else {
 				this.addToTimeline({ name: "No action" }, maxTime);
 			}
@@ -542,7 +547,9 @@ class Clone {
 		clones.forEach(c => {
 			if (c.timeAvailable > timeNotSpent) {
 				c.sustainSpells(c.timeAvailable - timeNotSpent);
-				if (c.noActionsAvailable) {
+				if (c.damage == Infinity) {
+					c.addToTimeline({ name: "Dead" }, c.timeAvailable - timeNotSpent);
+				} else if (c.noActionsAvailable) {
 					c.addToTimeline({ name: "No action" }, c.timeAvailable - timeNotSpent);
 				} else {
 					c.addToTimeline({ name: "Wait" }, c.timeAvailable - timeNotSpent);

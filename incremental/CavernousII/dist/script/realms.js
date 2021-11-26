@@ -43,7 +43,13 @@ class Realm {
             if (realmSelect === null)
                 throw new Error("No realm select found");
             realmSelect.appendChild(this.node);
-            this.node.onclick = () => changeRealms(this.index);
+            this.node.onclick = () => {
+                if (settings.grindStats)
+                    toggleGrindStats();
+                if (settings.grindMana)
+                    toggleGrindMana();
+                changeRealms(this.index);
+            };
             if (this.extraDescription) {
                 this.node.onmouseover = () => {
                     this.node.querySelector(".extra-description").innerHTML = this.extraDescription();
@@ -60,7 +66,7 @@ function changeRealms(newRealm) {
         return;
     // Reset the zones first to apply mana gained to the appropriate realm.
     zones.forEach(z => z.resetZone());
-    resetLoop();
+    resetLoop(true);
     currentRealm = newRealm;
     zones.forEach(z => (z.routesChanged = true));
     recalculateMana();
@@ -71,8 +77,7 @@ function changeRealms(newRealm) {
     let currentActiveRealm = realmSelect.querySelector(".active-realm");
     if (currentActiveRealm)
         currentActiveRealm.classList.remove("active-realm");
-    if (realmSelect.children[currentRealm])
-        realmSelect.children[currentRealm].classList.add("active-realm");
+    realms[newRealm].node?.classList.add("active-realm");
     document.querySelector("#queue-actions").style.display = currentRealm == 3 ? "block" : "none";
     resetLoop();
 }
@@ -99,9 +104,10 @@ function getCompoundingMultDesc() {
 function getRealmComplete(realm) {
     if (realm.name == "Verdant Realm") {
         const wither = getRune("Wither");
-        if (getRealmMult(realm.name, true) == realm.maxMult && wither.upgradeCount == 3) {
+        if ((getRealmMult(realm.name, true) == realm.maxMult && wither.upgradeCount >= 3) || realm.completed) {
             realm.complete();
             getMessage("Complete Verdant").display();
+            wither.upgradeCount = 3;
             wither.isInscribable = simpleRequire([["Salt", 1], ["Iron Ore", 1]]);
             wither.updateDescription();
         }
@@ -129,8 +135,10 @@ const realms = [
     }),
     // All rock-type locations become mushroom-type locations.
     // Mushroom growth rate is doubled.
-    new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion).", () => (getRune("Wither").upgradeCount || 0) + 3, () => {
-        getRune("Wither").upgradeCount++;
+    new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion).", () => (getRune("Wither").upgradeCount || 0) > 2 ? Infinity : (getRune("Wither").upgradeCount || 0) + 3, () => {
+        if (getRune("Wither").upgradeCount++ >= 1) {
+            getMessage("Reupgraded Wither Rune").display();
+        }
         getRune("Wither").updateDescription();
         getMessage("Upgraded Wither Rune").display();
     }, getVerdantMultDesc, 0.0005, 2),

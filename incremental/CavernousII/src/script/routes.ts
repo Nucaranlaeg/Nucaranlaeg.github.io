@@ -28,7 +28,12 @@ class BaseRoute {
 		return null;
 	}
 
-	loadRoute(){
+	loadRoute(turnOffAuto = false){
+		let stime = Date.now();
+		if (turnOffAuto){
+			if (settings.grindStats) toggleGrindStats();
+			if (settings.grindMana) toggleGrindMana();
+		}
 		let success = true;
 		if (this.zone > 0){
 			let routes = this.pickRoute(this.zone - 1, this.require, this.cloneHealth);
@@ -54,6 +59,7 @@ class BaseRoute {
 			}
 		}
 		redrawQueues();
+		console.log("Load time:", Date.now() - stime);
 		return success;
 	}
 }
@@ -144,12 +150,12 @@ class Route extends BaseRoute {
 			expectedMul /= 1 + loopCompletions / 40;
 			expectedMul *= 1 + this.actionCount / 40;
 		}
-		let loc = getMapLocation(this.x, this.y, true)!;
-		let duration = mineManaRockCost(loc) * expectedMul;
+		let loc = getMapLocation(this.x, this.y, true);
+		let duration = loc ? mineManaRockCost(loc) * expectedMul : Infinity;
 		this.manaUsed = +(mana.base - mana.current).toFixed(2);
 
 		this.reachTime = +(queueTime / 1000).toFixed(2);
-		this.progressBeforeReach = duration - loc.remainingPresent / 1000 * expectedMul;
+		this.progressBeforeReach = loc ? duration - loc.remainingPresent / 1000 * expectedMul : -Infinity;
 		this.require = zones[currentZone].startStuff.map(s => {
 			return {
 				"name": s.name,
@@ -161,7 +167,8 @@ class Route extends BaseRoute {
 	}
 
 	getRefineCost(relativeLevel = 0) {
-		let loc = getMapLocation(this.x, this.y, false, this.zone)!;
+		let loc = getMapLocation(this.x, this.y, false, this.zone);
+		if (!loc) return Infinity;
 		let mul = getAction("Collect Mana").getBaseDuration(this.realm) * (1 + this.manaDrain);
 		if (realms[this.realm].name == "Compounding Realm") {
 			mul /= 1 + loopCompletions / 40;
@@ -207,25 +214,26 @@ class Route extends BaseRoute {
 
 	static updateBestRoute(location: MapLocation) {
 		let cur = currentRoute;
+		let prev = Route.getBestRoute(location.x, location.y, currentZone);
 		if (cur === null){
 			currentRoute = cur = new Route(location);
+		} else if (prev) {
+			cur.updateRoute();
+			return cur;
 		} else {
 			cur.updateRoute();
 		}
-		let prev = Route.getBestRoute(location.x, location.y, currentZone);
 		if (prev == cur) return;
-		let curEff = cur.estimateRefineManaLeft();
-		if (!prev) {
-			routes.push(cur);
-			markRoutesChanged();
-			return cur;
+		if (prev) {
+			let curEff = cur.estimateRefineManaLeft();
+			let prevEff = prev.estimateRefineManaLeft();
+			if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {
+				return prev;
+			}
+			routes = routes.filter(e => e != prev);
 		}
-		let prevEff = prev.estimateRefineManaLeft();
-		if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {
-			return prev;
-		}
-		routes = routes.filter(e => e != prev);
 		routes.push(cur);
+		routes = routes.filter((r, i) => routes.findIndex(R => R.x == r.x && R.y == r.y && R.zone == r.zone && R.realm == r.realm) == i).map(r => new Route(r));
 		markRoutesChanged();
 		return cur;
 	}
@@ -247,7 +255,7 @@ class Route extends BaseRoute {
 
 	static fromJSON(ar:PropertiesOf<Route>[]) {
 		ar = this.migrate(ar);
-		return ar.map(r => new Route(r));
+		return ar.filter((r, i) => ar.findIndex(R => R.x == r.x && R.y == r.y && R.zone == r.zone && R.realm == r.realm) == i).map(r => new Route(r));
 	}
 
 	static loadBestRoute() {

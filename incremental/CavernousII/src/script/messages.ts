@@ -277,6 +277,12 @@ const messages = [
 			Wither now affects all diagonally adjacent plants as well as orthogonally adjacent plants.  Further upgrades will double its potency each time.`
 	),
 	new Message(
+		"Reupgraded Wither Rune",
+		`
+			You've upgraded the Wither rune again!
+			Wither now takes half as long to complete.  There's one more upgrade for Wither available, which will halve the time required again.`
+	),
+	new Message(
 		"Time Barriers",
 		`
 			You've unlocked the first of the time barriers!

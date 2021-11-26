@@ -63,9 +63,10 @@ function redrawTimeNode() {
 window.ondrop = e => e.preventDefault();
 /** ****************************************** Prestiges ********************************************/
 let resetting = false;
-function resetLoop() {
+function resetLoop(noLoad = false) {
     if (resetting)
         return;
+    shouldReset = false;
     resetting = true;
     const mana = getStat("Mana");
     if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm"))
@@ -86,7 +87,7 @@ function resetLoop() {
         s.reset();
         s.update();
     });
-    if (settings.grindMana && routes.length) {
+    if (settings.grindMana && routes.length && !noLoad) {
         Route.loadBestRoute();
     }
     if (settings.grindStats && grindRoutes.length) {
@@ -411,6 +412,7 @@ function load() {
         currentRealm = i;
         realms[i].machineCompletions = (saveGame.machines || [])[i] || 0;
         recalculateMana();
+        getRealmComplete(realms[i]);
     }
     saveGame.realmData?.forEach((r, i) => {
         if (r.completed)
@@ -517,7 +519,6 @@ let shouldReset = false;
 setInterval(function mainLoop() {
     if (shouldReset) {
         resetLoop();
-        shouldReset = false;
     }
     const time = Date.now() - lastAction;
     const mana = getStat("Mana");
@@ -709,6 +710,7 @@ const keyFunctions = {
     "^KeyA": () => {
         clones[0].select();
         clones.slice(1).map(e => e.select(true));
+        selectedQueues.forEach(q => q.pos = null);
     },
     "KeyC": () => {
         if (settings.useWASD) {
@@ -722,6 +724,18 @@ const keyFunctions = {
     },
     "End": () => {
         selectedQueues.forEach(q => q.pos = null);
+        showCursors();
+    },
+    "Home": () => {
+        selectedQueues.forEach(q => q.pos = -1);
+        showCursors();
+    },
+    "^ArrowLeft": () => {
+        selectedQueues.forEach((q, i) => q.pos === null ? q.pos = zones[displayZone].queues[i].length - 2 : q.pos > -1 ? q.pos-- : null);
+        showCursors();
+    },
+    "^ArrowRight": () => {
+        selectedQueues.forEach((q, i) => q.pos === null ? null : q.pos == zones[displayZone].queues[i].length - 2 ? q.pos = null : q.pos++);
         showCursors();
     },
     "Digit1": () => {
