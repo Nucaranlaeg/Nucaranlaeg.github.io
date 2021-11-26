@@ -29,7 +29,6 @@ class BaseRoute {
 	}
 
 	loadRoute(turnOffAuto = false){
-		let stime = Date.now();
 		if (turnOffAuto){
 			if (settings.grindStats) toggleGrindStats();
 			if (settings.grindMana) toggleGrindMana();
@@ -59,7 +58,6 @@ class BaseRoute {
 			}
 		}
 		redrawQueues();
-		console.log("Load time:", Date.now() - stime);
 		return success;
 	}
 }

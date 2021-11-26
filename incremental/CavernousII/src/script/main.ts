@@ -792,6 +792,52 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 		selectedQueues.forEach((q, i) => q.pos === null ? null : q.pos == zones[displayZone].queues[i].length - 2 ? q.pos = null : q.pos++);
 		showCursors();
 	},
+	"^KeyW": () => {
+		if (!settings.useWASD) return;
+		let q = zones[displayZone].queues;
+		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
+		for (let i = 1; i < clones.length; i++){
+			if (!selectedQueues.some(Q => Q.clone == i - 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone-- + Infinity : false)){
+				[q[i], q[i-1]] = [q[i-1], q[i]];
+			}
+		}
+		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		redrawQueues();
+	},
+	"^ArrowUp": () => {
+		let q = zones[displayZone].queues;
+		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
+		for (let i = 1; i < clones.length; i++){
+			if (!selectedQueues.some(Q => Q.clone == i - 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone-- + Infinity : false)){
+				[q[i], q[i-1]] = [q[i-1], q[i]];
+			}
+		}
+		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		redrawQueues();
+	},
+	"^KeyS": () => {
+		if (!settings.useWASD) return;
+		let q = zones[displayZone].queues;
+		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
+		for (let i = 1; i < clones.length; i++){
+			if (!selectedQueues.some(Q => Q.clone == i - 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone-- + Infinity : false)){
+				[q[i], q[i-1]] = [q[i-1], q[i]];
+			}
+		}
+		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		redrawQueues();
+	},
+	"^ArrowDown": () => {
+		let q = zones[displayZone].queues;
+		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
+		for (let i = clones.length - 2; i >= 0; i--){
+			if (!selectedQueues.some(Q => Q.clone == i + 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone++ + Infinity : false)){
+				[q[i], q[i+1]] = [q[i+1], q[i]];
+			}
+		}
+		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		redrawQueues();
+	},
 	"Digit1": () => {
 		addRuneAction(0, "rune");
 	},
