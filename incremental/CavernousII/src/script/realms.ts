@@ -165,7 +165,7 @@ const realms:Realm[] = [
 		() => {
 			getRune("Duplication").upgradeCount++;
 			getRune("Duplication").updateDescription();
-			getMessage("Upgraded Duplication Rune").display();
+			getMessage("Upgraded Duplication Rune").display(true);
 		}
 	),
 

@@ -1,127 +1,208 @@
-let queues:ActionQueue[] = [];
-let selectedQueues:{
-	clone: number;
-	pos: number | null;
-}[] = [];
-let savedQueues:SavedActionQueue[] = [];
+let actionBarWidth: number = 0;
+let currentClone: Clone;
 
-class QueueAction extends Array {
-	index: number | null = null;
-	clone: number | null = null;
-	constructor(actionID:string, undone = true, ...rest: any) {
-		// Spread should work fine into an array
-		// @ts-ignore
-		super(actionID, undone, ...rest);
-	}
-
-	get action():string | null {
-		return this[0];
-	}
-
-	get actionID():string {
-		return this[0];
-	}
-
-	get done():boolean {
-		return !this[1];
+class QueueAction {
+	actionID: string;
+	currentClone: Clone | null = null;
+	currentAction: ActionInstance | null = null;
+	done: ActionStatus = ActionStatus.NotStarted;
+	domNode: HTMLElement | null = null;
+	lastProgress: number = 0;
+	isProgressQueued: boolean = false;
+	queue: ActionQueue;
+	constructor(actionID: string, queue: ActionQueue, status: boolean = false) {
+		this.actionID = actionID;
+		this.queue = queue;
+		if (status) this.done = ActionStatus.Complete;
+		this.drawProgress();
 	}
 
 	get started() {
 		return this.node?.classList.contains("started");
 	}
 
-	get node() {
-		let node = createActionNode(this.actionID);
-		if (this.done) {
-			node.classList.add("started");
-			node.style.backgroundSize = "0%";
-		}
-		DefineObjectValue(this, "node", node);
-		return node;
+	get action(): string | null {
+		if (this.done == ActionStatus.Complete) return null;
+		if (this.actionID == "T") return "I";
+		return this.actionID;
 	}
 
-	static fromJSON(ch:string) {
-		ch = this.migrate(ch);
-		if (ch[0] == "Q"){
-			// return new QueueReferenceAction(ch);
-			// throw new Error("QueueReferenceAction is disabled");
-		} else if (ch[0] == "P") {
-			return new QueuePathfindAction(ch);
-		} else if (ch[0] == "T") {
-			return new QueueRepeatInteractAction(ch);
+	get node() {
+		if (this.domNode) return this.domNode;
+		this.domNode = createActionNode(this.actionID);
+		if (this.done == ActionStatus.Complete) {
+			this.domNode.classList.add("started");
+			this.domNode.style.backgroundSize = "0%";
 		}
-		return new QueueAction(ch);
+		return this.domNode;
+	}
+
+	drawProgress() {
+		if (this.isProgressQueued) return;
+		this.isProgressQueued = true;
+		setTimeout(() => {
+			if (this.done == ActionStatus.Started || this.done == ActionStatus.Complete){
+				this.node.classList.add("started");
+				if (this.currentAction){
+					let percent = 1 - this.currentAction.remainingDuration / this.currentAction.startingDuration;
+					percent *= 100;
+					this.node.style.backgroundSize = `${Math.max(0, percent)}%`;
+				} else {
+					this.node.style.backgroundSize = "100%";
+				}
+			} else {
+				this.node.classList.remove("started");
+				this.node.style.backgroundSize = "0%";
+			}
+			this.isProgressQueued = false;
+		});
+	}
+
+	static fromJSON(ch: string, queue: ActionQueue) {
+		ch = this.migrate(ch);
+		if (ch[0] == "P") {
+			return new QueuePathfindAction(ch, queue);
+		}
+		return new QueueAction(ch, queue);
 	}
 
 	static migrate(ar: string) {
-		if (previousVersion < 0.0304) {
-
-		}
 		return ar;
 	}
 
-	complete(force = false) {
-		this[1] = false;
+	start() {
+		if (!this.currentClone) {
+			this.currentClone = clones[this.queue.index];
+		}
+		if (this.done == ActionStatus.Started || this.done == ActionStatus.Complete) return;
+		this.drawProgress();
+		if (!this.currentAction){
+			if (!this.action) return this.complete();
+			if ("LURDI".includes(this.action)){
+				const targetX = this.currentClone.x + +(this.action == "R") - +(this.action == "L");
+				const targetY = this.currentClone.y + +(this.action == "D") - +(this.action == "U");
+				const location = getMapLocation(targetX, targetY);
+				const action = this.action == "I" ? location?.getPresentAction() : location?.getEnterAction();
+				if (!action){
+					this.done = ActionStatus.Complete;
+					return;
+				}
+				this.currentAction = action;
+			} else {
+				const fakeLocation = new MapLocation(0, 0, new Zone("Not a zone", ["."]), "Not a location");
+				this.currentAction = this.action == "." ? new ActionInstance(getAction("Wait"), fakeLocation, false)
+				                   : this.action == "," ? new ActionInstance(getAction("Long Wait"), fakeLocation, false)
+				                   : null;
+				if (!this.currentAction){
+					// Perform action immediately
+					if (this.action[0] == "N"){
+						const runeIndex = this.action.match(/N(\d+);/)?.[1];
+						if (!runeIndex) throw new Error(`Ill-formed rune action: ${this.action}`);
+						const created = runes[+runeIndex].create(this.currentClone.x, this.currentClone.y);
+						if (created){
+							this.complete();
+							this.currentClone.addToTimeline({name: "Create rune"});
+						} else {
+							this.setWaiting();
+						}
+						return;
+					}
+					switch (this.action){
+						case "=":
+							this.currentClone.sync();
+							this.setWaiting();
+							this.currentClone.addToTimeline({name: "Sync"});
+							break;
+						case "+":
+							this.currentClone.noSync();
+							this.complete();
+							break;
+						case ":":
+							if (settings.running) toggleRunning();
+							this.complete();
+							break;
+						case "<":
+							this.complete();
+							break;
+						case "W":
+							this.setWaiting();
+							break;
+						default:
+							throw new Error(`Unrecognized action: ${this.action}`);
+					}
+					return;
+				}
+			}
+		}
+		const startSuccess = this.currentAction.start(this.currentClone);
+		if (startSuccess == CanStartReturnCode.Now){
+			this.done = ActionStatus.Started;
+		} else if (startSuccess == CanStartReturnCode.NotNow){
+			this.setWaiting();
+		} else if (startSuccess == CanStartReturnCode.Never){
+			this.done = ActionStatus.Complete;
+		}
 	}
 
-	setCaller(clone: number, index: number) {
-		this.clone = clone;
-		this.index = index;
-	}
-}
-
-class QueueReferenceAction extends QueueAction {
-	constructor(queueID: string, undone = true, queueReference: SavedActionQueue) {
-		if (!queueReference) queueReference = savedQueues[getActionValue(queueID)];
-		super(queueID, undone, queueReference);
-	}
-
-	get queueReference() {
-		return this[2];
-	}
-
-	get action(): string {
-		if (!this[2]) this[2] = savedQueues[this[0]];
-		let nextAction = this[2].find((a: any) => a[`${this.clone}_${this.index}`] === undefined);
-		if (!nextAction) return "";
-		return nextAction[0];
+	tick(time: number) {
+		if (!this.currentAction) throw new Error("Attempted to run uninitialized action");
+		if (this.done != ActionStatus.Started){
+			return;
+		}
+		if (this.currentAction.remainingDuration == 0){
+			if ("LURD".includes(this.action!)) {
+				// Someone else completed this action; we need to walk
+				const targetX = this.currentClone!.x + +(this.action == "R") - +(this.action == "L");
+				const targetY = this.currentClone!.y + +(this.action == "D") - +(this.action == "U");
+				const location = getMapLocation(targetX, targetY);
+				this.currentAction = new ActionInstance(Object.create(getAction("Walk")), location!, true);
+				this.currentAction.start(this.currentClone);
+			} else {
+				// Pathfind or someone else completed this action
+				this.done = ActionStatus.Complete;
+			}
+			this.drawProgress();
+			return;
+		}
+		this.currentAction.tick(time, this.currentClone!);
+		this.drawProgress();
+		this.currentClone!.remainingTime = this.currentAction.remainingDuration;
+		if (this.currentAction.remainingDuration == 0){
+			this.complete();
+		}
+		this.currentClone!.addToTimeline(this.currentAction.action, time);
+		this.drawProgress();
 	}
 
 	complete() {
-		let nextAction = this[2].find((a: any) => a[`${this.clone}_${this.index}`] === undefined);
-		nextAction[`${this.clone}_${this.index}`] = false;
-		if (this[2].every((a: any) => a[`${this.clone}_${this.index}`] === false)) this[1] = false;
-	}
-}
-
-class QueueRepeatInteractAction extends QueueAction {
-	get action(){
-		let presentAction = zones[currentZone].getMapLocation(clones[this.clone!].x, clones[this.clone!].y)?.type.presentAction;
-		// Typescript can't read its own function types.
-		// @ts-ignore
-		if (presentAction && presentAction.canStart && presentAction.canStart() > 0){
-			return this[0];
-		}
-		return null;
+		this.done = this.actionID == "T" ? ActionStatus.NotStarted : ActionStatus.Complete;
+		this.drawProgress();
 	}
 
-	complete(force = false){
-		const location = zones[currentZone].getMapLocation(clones[this.clone!].x, clones[this.clone!].y);
-		if (location === null) throw (new Error("Tried loading non existant map location"))
-		let presentAction = location.type.presentAction;
-		// Typescript can't read its own function types.
-		// @ts-ignore
-		if ((presentAction === null) || presentAction.canStart!() < 0 || force){
-			this[1] = false;
-		}
+	setWaiting() {
+		this.done = this.actionID == "T" ? ActionStatus.Complete : ActionStatus.Waiting;
+		this.drawProgress();
+	}
+
+	reset() {
+		this.done = ActionStatus.NotStarted;
+		this.lastProgress = 0;
+		this.currentClone = null;
+		this.currentAction = null;
+		this.drawProgress();
+	}
+
+	toString() {
+		return this.actionID;
 	}
 }
 
 class QueuePathfindAction extends QueueAction {
 	targetXOffset: number;
 	targetYOffset: number;
-	constructor(actionID: string, undone = true) {
-		super(actionID, undone);
+	cacheAction: string | null = null;
+	constructor(actionID: string, queue: ActionQueue, status = false) {
+		super(actionID, queue, status);
 		const match = this.actionID.match(/P(-?\d+):(-?\d+);/);
 		if (match === null) throw new Error("Invalid pathfind action");
 
@@ -139,12 +220,18 @@ class QueuePathfindAction extends QueueAction {
 	}
 
 	get action() {
-		let originX = clones[this.clone!].x + zones[currentZone].xOffset, originY = clones[this.clone!].y + zones[currentZone].yOffset;
+		if (this.currentClone === null) throw new Error("Pathfind action not initialized");
+		if (this.cacheAction) return this.cacheAction;
+		let originX = this.currentClone.x + zones[currentZone].xOffset, originY = this.currentClone.y + zones[currentZone].yOffset;
 		// Do a simple search from the clone's current position to the target position.
 		// Return the direction the clone needs to go next.
 		let getDistance = (x1: number, x2: number, y1: number, y2: number) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
 		// Prevent pathing to the same spot.
-		if (getDistance(originX, this.targetX, originY, this.targetY) == 0) return null;
+		if (getDistance(originX, this.targetX, originY, this.targetY) == 0){
+			this.done = ActionStatus.Complete;
+			this.drawProgress();
+			return null;
+		}
 
 		let openList: [number, number, number, number, string][] = [];
 		let closedList = [[originY, originX]];
@@ -176,24 +263,59 @@ class QueuePathfindAction extends QueueAction {
 		return "W";
 	}
 
-	complete(){
-		let originX = clones[this.clone!].x + zones[currentZone].xOffset, originY = clones[this.clone!].y + zones[currentZone].yOffset;
-		if ((originX == this.targetX && originY == this.targetY) || this.action === null){
-			this[1] = false;
-		}
+	// Pathfind actions don't complete until there's no more path to find.
+	complete() {
+		this.cacheAction = null;
 	}
 }
 
 class ActionQueue extends Array<QueueAction> {
-	index: any;
-	constructor(...items:QueueAction[]) {
+	index: number;
+	cursorPos: number | null = null;
+	queueNode: HTMLElement | null = null;
+	cursorNode: HTMLElement | null = null;
+	constructor(index: number, ...items:QueueAction[]) {
 		super(...items);
+		this.index = index;
+		items.forEach(a => a.queue = this);
+	}
+
+	get cursor() {return this.cursorPos;}
+	set cursor(newVal) {
+		if (newVal !== null){
+			if (newVal < -1) newVal = -1;
+			if (newVal > this.length - 2) newVal = null;
+		}
+		this.cursorPos = newVal;
+		showCursorLocations();
+		if (!this.cursorNode) return;
+		if (this.cursorPos === null){
+			this.cursorNode.classList.remove("visible");
+		} else {
+			this.cursorNode.classList.add("visible");
+			this.cursorNode.style.left = (this.cursorPos * 16 + 17) + "px";
+		}
+	}
+
+	get selected() {return clones[this.index].isSelected;}
+	set selected(newVal) {
+		if (this.selected == newVal) return;
+		this.cursor = null;
+		clones[this.index].isSelected = newVal;
+		showCursorLocations();
+		if (this.selected){
+			this.node.parentElement!.classList.add("selected-clone");
+		} else {
+			this.node.parentElement!.classList.remove("selected-clone");
+		}
 	}
 
 	static fromJSON(ar:string[][]) {
 		ar = this.migrate(ar);
 		return ar.map((v, i) => {
-			let q = new ActionQueue(...v.map(e => QueueAction.fromJSON(e)));
+			// We assign a queue to the action late, so ignore this error.
+			// @ts-ignore
+			let q: ActionQueue = new ActionQueue(i, ...v.map(e => QueueAction.fromJSON(e, null)));
 			q.index = i;
 			return q;
 		});
@@ -203,87 +325,98 @@ class ActionQueue extends Array<QueueAction> {
 		return ar;
 	}
 
-	addActionAt(actionID: string, index: number | null) {
+	addAction(actionID: string) {
 		if (actionID == "B") {
-			return this.removeActionAt(index);
+			return this.removeAction();
 		}
 
 		// Standard action:     [UDLRI<=+\.,:]
-		// Rune/spell action:   [NS]\d+;
+		// Rune action:         N\d+;
 		// Repeat-Forge:        T
-		// Queue reference:     Q\d+;          Removed for now.
 		// Pathfind action:     P-?\d+:-?\d+;
-		if (!actionID.match(/^([UDLRI<=+\.,:]|[NS]\d+;|T|P-?\d+:-?\d+;)$/)){
+		if (!actionID.match(/^([UDLRI<=+\.,:]|N\d+;|T|P-?\d+:-?\d+;)$/)){
 			return;
 		}
-		if (index && index > 0 && !this[index]){
-			clearCursors();
-		}
 
-		let done = index == null ? false // last action, don't skip
-		         : index >= 0 ? this[index].done // middle action, skip if prior is done
+		let done = this.cursor == null ? false // last action, don't skip
+		         : this.cursor >= 0 ? this[this.cursor].done // middle action, skip if prior is done
 		         : this[0].started; // first action, skip if next is started
-		let newAction = //actionID[0] == "Q" ? new QueueReferenceAction(actionID, !done, savedQueues[getActionValue(actionID)]):
-		                actionID[0] == "P" ? new QueuePathfindAction(actionID, !done)
-		              : actionID[0] == "T" ? new QueueRepeatInteractAction(actionID, !done)
-		              : new QueueAction(actionID, !done);
 
-		if (index == null) {
+		let newAction = actionID[0] == "P" ? new QueuePathfindAction(actionID, this, Boolean(done))
+		              : new QueueAction(actionID, this, Boolean(done));
+
+		if (this.cursor == null) {
 			this.push(newAction);
 			this.queueNode?.append(newAction.node);
-		} else if (index >= 0) {
-			this.splice(index + 1, 0, newAction);
-			this[index].node.insertAdjacentElement("afterend", newAction.node);
-			let cursor = selectedQueues.find(q => q.clone == this.index);
-			if (cursor && cursor.pos !== null) cursor.pos++;
+		} else if (this.cursor >= 0) {
+			this.splice(this.cursor + 1, 0, newAction);
+			this[this.cursor].node.insertAdjacentElement("afterend", newAction.node);
+			this.cursor++;
 		} else {
 			this.unshift(newAction);
 			this.queueNode?.insertAdjacentElement("afterbegin", newAction.node);
-			let cursor = selectedQueues.find(q => q.clone == this.index);
-			if (cursor && cursor.pos !== null) cursor.pos++;
+			this.cursor++;
 		}
-		showCursorLocations();
+		this.scrollQueue();
 	}
 
-	removeActionAt(index: number | null) {
-		if (index === null) {
+	removeAction() {
+		if (this.cursor === null) {
 			const action = this.pop();
 			if (action === undefined) return;
 			action.node.remove();
 		} else {
-			if (this.length == 0 || index == -1) return;
-			this.splice(index, 1)[0].node.remove();
-			let cursor = selectedQueues.find(q => q.clone == this.index);
-			if (cursor && cursor.pos !== null) cursor.pos--;
-		}
-		showCursorLocations();
-	}
-
-	copyQueueAt(queue:unknown, index:number | null) {
-		if (!(queue instanceof Array)) return;
-		let increment = index !== undefined && index !== null;
-		for (let item of queue) {
-			if (item instanceof QueueAction) {
-				this.addActionAt(item.actionID, index);
-			}
-			else {
-				this.addActionAt(item[0], index);
-			}
-			if (increment){
-				increment && index!++
-			};
+			if (this.length == 0 || this.cursor == -1) return;
+			this.splice(this.cursor, 1)[0].node.remove();
+			this.cursor--;
 		}
 	}
 
-	get queueNode() {
-		let node = document.querySelector<HTMLElement>(`#queue${this.index} > .queue-inner`);
-		DefineObjectValue(this, "queueNode", node);
-		return node;
+	getNextAction(): QueueAction | null {
+		if (clones[this.index].damage === Infinity) return null;
+		const nextAction = this.find(a => a.done != ActionStatus.Complete) || null;
+		if (nextAction === null){
+			const index = this.findIndex(a => a.action == "<");
+			if (index > 0 && index < this.length - 1){
+				for (let i = index; i < this.length; i++){
+					this[i].done = ActionStatus.NotStarted;
+				}
+				return this.getNextAction();
+			}
+		}
+		return nextAction;
+	}
+
+	hasFutureSync() {
+		return this.some(a => (a.done == ActionStatus.NotStarted || a.done == ActionStatus.Waiting) && a.actionID == "=");
+	}
+
+	scrollQueue() {
+		if (!actionBarWidth) return setActionBarWidth(this.node);
+		this.node.parentElement!.scrollLeft = Math.max((this.cursor !== null ? this.cursor : 0) * 16 - (actionBarWidth / 2), 0);
+	}
+
+	get node(): HTMLElement {
+		if (this.queueNode !== null) return this.queueNode;
+		this.queueNode = document.querySelector<HTMLElement>(`#queue${this.index} > .queue-inner`);
+		if (this.queueNode !== null) return this.queueNode;
+		const queueTemplate = document.querySelector("#queue-template");
+		if (queueTemplate === null) throw new Error("No queue template found");
+		const node = queueTemplate.cloneNode(true) as HTMLElement;
+		node.id = `queue${this.index}`;
+		document.querySelector("#queues")!.append(node);
+		this.cursorNode = node.querySelector(".cursor");
+		this.queueNode = node.querySelector<HTMLElement>(".queue-inner");
+		return this.queueNode!;
 	}
 
 	clear() {
-		this.splice(0, this.length);
-		this.queueNode!.innerText = "";
+		this.splice(0, this.length).forEach(action => action.node.remove());
+		this.cursor = null;
+	}
+
+	reset() {
+		this.forEach(a => a.reset());
 	}
 
 	fromString(string: string) {
@@ -291,39 +424,32 @@ class ActionQueue extends Array<QueueAction> {
 		let prev = "";
 		let longAction = "";
 		for (let char of string) {
-			if (prev && "PQNS".includes(prev)) {
+			if (prev && "PN".includes(prev)) {
 				if (!longAction.length){
 					longAction = prev;
 				}
 				longAction += char;
 				if (char != ";") continue;
-				this.addActionAt(longAction, null);
+				this.addAction(longAction);
 				longAction = "";
-				prev = ";";
-				continue;
-			} else if (!"PQNS".includes(char)) {
-				this.addActionAt(char, null);
+			} else if (!"PN".includes(char)) {
+				this.addAction(char);
 			}
 			prev = char;
 		}
 	}
 
-	toString(): string {
-		return Array.from(this).map(q => {
-			return q[0] == "Q" ? queueToString(savedQueues[getActionValue(q[0])]) : q[0];
-		}).join("");
+	toString() {
+		return Array.from(this).join("");
 	}
 }
 
-class SavedActionQueue extends ActionQueue {
-	name: string;
-	icon: string;
-	colour: string;
-	constructor(...items:QueueAction[]) {
-		super(...items);
-		this.name = "";
-		this.icon = "";
-		this.colour = "";
+function selectClone(target: HTMLElement, event: MouseEvent) {
+	const index = +target.id.replace("queue", "");
+	if (event.ctrlKey || event.metaKey) {
+		zones[currentZone].queues[index].selected = !zones[currentZone].queues[index].selected;
+	} else {
+		zones[currentZone].queues.forEach((q, i) => q.selected = i == index);
 	}
 }
 
@@ -331,54 +457,26 @@ function getActionValue(action:string){
 	return +(action.match(/\d+/)?.[0] || 0);
 }
 
+function setActionBarWidth(node: HTMLElement){
+	actionBarWidth = node.parentElement!.clientWidth;
+}
+
 function addActionToQueue(action:string){
-	if (document.querySelector(".saved-queue:focus, .saved-name:focus")) return addActionToSavedQueue(action);
-	for (let i = 0; i < selectedQueues.length; i++){
-		zones[displayZone].queues[selectedQueues[i].clone].addActionAt(action, selectedQueues[i].pos);
-		scrollQueue(selectedQueues[i].clone, selectedQueues[i].pos || undefined);
-	}
+	zones[displayZone].queues.filter(q => q.selected).forEach(q => q.addAction(action));
 	showFinalLocation();
-	showCursors();
 	countMultipleActions();
-	return;
 }
 
-function addRuneAction(index:number, type:"rune" | "spell"){
-	if (type == "rune"){
-		if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index + ";");
-	} else if (type == "spell") {
-		if (index < spells.length && spells[index].canAddToQueue()) addActionToQueue("S" + index + ";");
-	}
+function addRuneAction(index:number){
+	if (index < runes.length && runes[index].canAddToQueue()) addActionToQueue("N" + index + ";");
 }
 
-function clearQueue(queue: number | null = null, noConfirm = false){
-	if (queue === null){
-		if (selectedQueues.length == 0) return;
-		if (selectedQueues.length == 1) {
-			clearQueue(selectedQueues[0].clone, noConfirm);
-		} else {
-			if (selectedQueues.length == queues.length) {
-				if (!noConfirm && !confirm("Really clear ALL queues?")) return;
-			} else {
-				if (!noConfirm && !confirm("Really clear ALL selected queues?")) return;
-			}
-			for (let i = 0; i < selectedQueues.length; i++) {
-				clearQueue(selectedQueues[i].clone, true);
-			}
-		}
-		return;
-	}
-	if (!noConfirm && !confirm("Really clear queue?")) return;
-	zones[displayZone].queues[queue].clear();
-	selectedQueues.forEach(q => {
-		if (q.clone == queue) q.pos = null;
-	});
-	showCursors();
+function clearQueues(){
+	if (settings.warnings && !confirm("Really clear selected queues?")) return;
+	zones[displayZone].queues.forEach(q => q.selected ? q.clear() : null);
 }
 
 function createActionNode(action: string){
-	if (action[0] == "Q") return createQueueActionNode(getActionValue(action));
-
 	const actionTemplate = document.querySelector("#action-template");
 	if (actionTemplate === null) throw new Error("No action template found");
 
@@ -401,7 +499,6 @@ function createActionNode(action: string){
 	if (!character){
 		let value = getActionValue(action)!;
 		character = action[0] == "N" ? runes[value].icon
-				  : action[0] == "S" ? spells[value].icon
 				  : action[0] == "P" ? pathfindSVG
 				  : "";
 	}
@@ -409,42 +506,11 @@ function createActionNode(action: string){
 	return actionNode;
 }
 
-function createQueueActionNode(queue: number){
-	const actionTemplate = document.querySelector("#action-template");
-	if (actionTemplate === null) throw new Error("No action template found");
-
-	let actionNode = actionTemplate.cloneNode(true) as HTMLElement;
-	actionNode.removeAttribute("id");
-	actionNode.style.color = savedQueues[queue].colour;
-	actionNode.querySelector(".character")!.innerHTML = savedQueues[queue].icon;
-	actionNode.setAttribute("title", savedQueues[queue].name);
-	actionNode.classList.add(`action${queue}`);
-	return actionNode;
-}
-
-function resetQueueHighlight(queue: number){
-	let nodes = document.querySelectorAll(`#queue${queue} .queue-inner .started`);
-	nodes.forEach(n => n.classList.remove("started"));
-}
-
-function highlightCompletedActions(){
-	if (!queuesNode) return;
-	for (let i = 0; i < zones[displayZone].queues.length; i++){
-		let queueBlock = queuesNode.children[i];
-		let queueNode = queueBlock.querySelector(".queue-inner");
-		if (queueNode === null) throw new Error("Queue node not found");
-
-		let nodes = [...queueNode.children].filter(n => !n.classList.contains("action-count")) as HTMLElement[];
-		for (let j = 0; j < zones[displayZone].queues[i].length; j++){
-			if (zones[displayZone].queues[i][j][1]){
-				nodes[j].classList.remove("started");
-				nodes[j].style.backgroundSize = "0%";
-			} else {
-				nodes[j].classList.add("started");
-				nodes[j].style.backgroundSize = "100%";
-			}
-		}
-	}
+function resetQueueHighlights(){
+	zones[currentZone].queues.forEach(queue => {
+		queue.forEach(action => action.drawProgress());
+		queue.scrollQueue();
+	});
 }
 
 function countMultipleActions(){
@@ -452,15 +518,13 @@ function countMultipleActions(){
 	queuesNode.querySelectorAll(".action-count").forEach(node => {
 		node.parentNode?.removeChild(node);
 	});
-	for (let i = 0; i < zones[displayZone].queues.length; i++){
-		let queueBlock = queuesNode.children[i];
-		let queueNode = queueBlock.querySelector(".queue-inner");
-		if (queueNode === null) throw new Error("Queue node not found");
+	zones[displayZone].queues.forEach(queue => {
+		const queueNode = queue.node;
 		let nodes = queueNode.children;
 		let actionCount = 0;
 		let countedType = null;
-		for (let j = 0; j < zones[displayZone].queues[i].length + 1; j++){
-			let nextType = zones[displayZone].queues[i][j]?.[0];
+		for (let j = 0; j < queue.length; j++){
+			let nextType = queue[j].actionID;
 			if (actionCount > 3 && nextType != countedType) {
 				let node = document.createElement("div");
 				node.classList.add("action-count");
@@ -480,29 +544,11 @@ function countMultipleActions(){
 				countedType = null;
 			}
 		}
-	}
+	});
 }
-
-let actionBarWidth: number | null = null;
 
 function selectQueueAction(queue: number, action: number, percent: number){
 	let queueBlock = queuesNode.children[queue];
-	let queueNode = queueBlock.querySelector(".queue-inner");
-	if (queueNode === null) throw new Error("Queue node not found");
-	actionBarWidth = actionBarWidth || queueNode.parentElement!.clientWidth;
-	let nodes = [...queueNode.children].filter(n => !n.classList.contains("action-count")) as HTMLElement[];
-	let node = nodes[action];
-	if (!node && percent == 100){
-		// This occurs whenever there's a zone change
-		return;
-	}
-	node.classList.add("started");
-	if (queues[queue][action][2]){
-		let complete = queues[queue][action][2].findIndex((q: any) => q[`${queue}_${action}`] === undefined);
-		percent /= queues[queue][action][2].length;
-		percent += (complete / queues[queue][action][2].length) * 100;
-	}
-	node.style.backgroundSize = `${Math.max(0, percent)}%`;
 	let workProgressBar = queueBlock.querySelector(".work-progress") as HTMLElement | null;
 	if (workProgressBar === null) throw new Error("workProgressBar not found");
 	let lastProgress = +(workProgressBar.getAttribute("lastProgress") || 0);
@@ -516,6 +562,7 @@ function selectQueueAction(queue: number, action: number, percent: number){
 		workProgressBar.style.width = "0%";
 	}
 	workProgressBar.setAttribute("lastProgress", percent.toString());
+	// TODO: Attempt to keep both cursor and active action in view
 	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
@@ -523,33 +570,23 @@ function clearWorkProgressBars(){
 	[...(queuesNode?.querySelectorAll<HTMLElement>(".work-progress") || [])].forEach(bar => bar.style.width = "0%");
 }
 
-function scrollQueue(queue:number, action:number = zones[displayZone].queues[queue].length){
-	let queueNode = document.querySelector<HTMLElement>(`#queue${queue} .queue-inner`);
-	if (queueNode === null) throw new Error("Queue node not found");
-
-	actionBarWidth = actionBarWidth || queueNode.parentElement!.clientWidth; //this should also probably not be here
-	queueNode.parentElement!.scrollLeft = Math.max(action * 16 - (actionBarWidth / 2), 0);
-}
-
 function redrawQueues(){
-	for (let i = 0; i < zones[displayZone].queues.length; i++){
-		let queueNode = document.querySelector(`#queue${i} .queue-inner`);
-		if (queueNode === null) throw new Error("Queue node not found");
-		while (queueNode.lastChild) {
-			queueNode.removeChild(queueNode.lastChild);
+	zones[displayZone].queues.forEach(q => {
+		while (q.node.lastChild) {
+			q.node.removeChild(q.node.lastChild);
 		}
-		for (let action of zones[displayZone].queues[i]){
+		for (let action of q){
 			let node = action.node;
-			queueNode.append(node);
+			q.node.append(node);
 		}
-	}
-	highlightCompletedActions();
+	});
+	resetQueueHighlights();
 	countMultipleActions();
 	let timelineEl = document.querySelector(`#timelines`);
 	if (timelineEl === null) throw new Error("Timelines node not found");
 	while (timelineEl.lastChild) {
 		timelineEl.removeChild(timelineEl.lastChild);
-	  }
+	}
 
 	for (const c of clones) {
 		timelineEl.append(c.timeLineElements[displayZone]);
@@ -561,50 +598,19 @@ function setCursor(event: MouseEvent, el: HTMLElement){
 	const offsetX = event.offsetX;
 	setTimeout(() => {
 		let nodes = Array.from(el.parentNode?.children || []);
-		let clone = parseInt(el.parentNode!.parentElement!.id.replace("queue", ""));
-		let cursor = (<{
-			clone: number;
-			pos: number | null;
-		}>selectedQueues.find(q => q.clone == clone) || selectedQueues.push({
-			clone: -1,
-			pos: null,
-		}) && selectedQueues[selectedQueues.length - 1]);
-		cursor.pos = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - +(offsetX < 8);
-		if (nodes.length - 1 == cursor.pos) cursor.pos = null;
-		showCursors();
+		let queue = zones[displayZone].queues[parseInt(el.parentNode!.parentElement!.id.replace("queue", ""))];
+		queue.cursor = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - +(offsetX < 8);
 	});
 }
 
 function clearCursors(event?:Event, el?:Element){
 	if (!event || event.target == el){
-		selectedQueues.forEach(q => q.pos = null);
-		showCursors();
+		zones[currentZone].queues.forEach(q => q.cursor = null);
 	}
-}
-
-function showCursors(){
-	document.querySelectorAll(".cursor.visible").forEach(el => el.classList.remove("visible"));
-	selectedQueues.forEach(cursor => {
-		if (cursor.pos == null) return;
-		let cursorNode = document.querySelector<HTMLElement>(`#queue${cursor.clone} .cursor`);
-		if (!cursorNode){
-			cursor.clone = -1;
-			return;
-		}
-		cursorNode.classList.add("visible");
-		cursorNode.style.left = (cursor.pos * 16 + 17) + "px";
-	});
-	selectedQueues = selectedQueues.filter(cursor => cursor.clone >= 0);
-	showCursorLocations();
 }
 
 function queueToString(queue:ActionQueue) {
 	return queue.toString();
-}
-
-function queueToStringStripped(queue: ActionQueue) {
-	let strippedQueue = queue.filter((q, i) => !q[1] || (!queue[i-1][1] && q[0] == "I"));
-	return strippedQueue.toString();
 }
 
 function exportQueues() {
@@ -663,17 +669,4 @@ function longImportQueues(queueString: string | null) {
 		// Clean up any issues
 		longImportQueues(tempQueues);
 	}
-}
-
-
-
-function DefineObjectValue(o:object, name: string | Function, value:unknown = name, enumerable = false) {
-	if (typeof name == "function")
-		name = name.name
-	return Object.defineProperty(o, name, {
-		enumerable,
-		configurable: true,
-		writable: true,
-		value
-	})
 }

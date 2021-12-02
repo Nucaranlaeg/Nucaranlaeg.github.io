@@ -33,7 +33,7 @@ class Zone {
 		this.xOffset = map[this.yOffset].indexOf(".");
 		this.mapLocations = [];
 		this.manaGain = 0;
-		this.queues = ActionQueue.fromJSON([[]]);
+		this.queues = ActionQueue.fromJSON([]);
 		this.routes = [];
 		this.routesChanged = true;
 		this.node = null;
@@ -50,8 +50,8 @@ class Zone {
 		});
 	}
 
-	getMapLocation(x: number, y: number, adj = false):MapLocation | null {
-		if (!adj && this.map[y + this.yOffset][x + this.xOffset] != "█") {
+	getMapLocation(x: number, y: number, noView = false): MapLocation | null {
+		if (!noView && this.map[y + this.yOffset][x + this.xOffset] != "█") {
 			this.getMapLocation(x - 1, y - 1, true);
 			this.getMapLocation(x, y - 1, true);
 			this.getMapLocation(x + 1, y - 1, true);
@@ -214,10 +214,7 @@ class Zone {
 		mana.min = mana.current;
 		this.startMana = mana.current;
 		this.zoneStartTime = queueTime;
-		queues = this.queues;
-		queues.forEach((_, i) => {
-			resetQueueHighlight(i);
-		});
+		resetQueueHighlights();
 		clones.forEach(c => c.enterZone());
 		redrawQueues();
 		isDrawn = false;
@@ -243,8 +240,7 @@ class Zone {
 
 	display() {
 		while (this.queues.length < clones.length) {
-			let q = new ActionQueue();
-			q.index = this.queues.length;
+			let q = new ActionQueue(this.queues.length);
 			this.queues.push(q);
 		}
 		if (!this.node) {
@@ -260,8 +256,6 @@ class Zone {
 			document.querySelector("#zone-name")!.innerHTML = this.name;
 			setTimeout(() => showFinalLocation());
 		}
-		// Scroll queues so that there isn't a huge amount of blank queue displayed (especially when it shouldn't scroll)
-		queues.forEach((q, i) => scrollQueue(i, 0));
 		this.node.querySelector(".name")!.innerHTML = this.name;
 		this.node.querySelector(".mana")!.innerHTML = `+${this.manaGain}`;
 		this.node.onclick = () => {

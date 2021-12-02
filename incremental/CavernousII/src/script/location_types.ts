@@ -71,7 +71,7 @@ function startCollectManaCost(
 	y: number
 ): string {
 	return `${writeNumber(
-		this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, false, zone.index)!) / 1000 : -1,
+		this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, true, zone.index)!) / 1000 : -1,
 		2
 	)}s`;
 }
@@ -142,4 +142,5 @@ const locationTypes = [
 	new LocationType("Armour Enchanter", ">", "An anvil on which you can enchant a steel suit of armour using {'0':5,'1':10} gems.", "Walk", "Enchant Armour", null),
 	new LocationType("Timelike Barrier", "1", "A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}", "Enter Barrier", null, null),
 	new LocationType("Timelike Barrier", "2", "A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}", "Enter Barrier", null, null),
+	new LocationType("Not a location", "", "", null, null),
 ];

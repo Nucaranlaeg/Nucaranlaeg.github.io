@@ -111,11 +111,11 @@ let visibleX: number | null = null,
 	visibleY: number | null = null;
 
 // Not a view function; consider moving.
-function getMapLocation(x: number, y: number, adj = false, zone: number | null = null) {
+function getMapLocation(x: number, y: number, noView = false, zone: number | null = null) {
 	if (zone !== null) {
-		return zones[zone].getMapLocation(x, y, adj);
+		return zones[zone].getMapLocation(x, y, noView);
 	}
-	return zones[currentZone].getMapLocation(x, y, adj);
+	return zones[currentZone].getMapLocation(x, y, noView);
 }
 
 const mapNode = (() => {
@@ -325,9 +325,7 @@ function viewCell(target:HTMLElement) {
 					)}`;
 				} else if (primaryAction) {
 					let baseTimeDisplay = primaryAction.getProjectedDuration(location, location.wither);
-					let timeDisplay = primaryAction.getProjectedDuration(location, location.wither, location.remainingPresent || location.remainingEnter);
-					document.querySelector("#location-next")!.innerHTML = `Time: ${writeNumber(timeDisplay / 1000, 2)}s`;
-					if (timeDisplay < baseTimeDisplay) document.querySelector("#location-next")!.innerHTML += ` / ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
+					document.querySelector("#location-next")!.innerHTML = `Time: ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
 				} else {
 					document.querySelector("#location-next")!.innerHTML = "";
 				}

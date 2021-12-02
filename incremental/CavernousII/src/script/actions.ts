@@ -1,20 +1,64 @@
 type statList = [Stat<anyStatName>, number][];
 
+class ActionInstance {
+	action: Action;
+	location: MapLocation;
+	remainingDuration: number;
+	startingDuration: number;
+	isMove: boolean;
+	appliedWither: number = 0;
+	constructor(action: Action, location: MapLocation, isMove: boolean) {
+		this.action = action;
+		this.location = location;
+		this.isMove = isMove;
+		this.startingDuration = this.remainingDuration = 0;
+	}
+
+	start(clone: Clone | null = null): CanStartReturnCode {
+		// We check for strict equality to true, so this.location is falsey when it matters.
+		// @ts-ignore
+		const canStart = this.action.canStart(this.location, clone);
+		if (canStart == CanStartReturnCode.Now && this.remainingDuration == 0){
+			this.startingDuration = this.remainingDuration = this.action.getDuration(this.location, clone!);
+		}
+		return canStart;
+	}
+
+	tick(time: number, clone: Clone) {
+		this.remainingDuration = Math.max(0, this.remainingDuration + this.appliedWither - this.location.wither);
+		const skillDiv = this.action.getSkillDiv();
+		let usedTime = Math.min(time / skillDiv, this.remainingDuration);
+		this.action.tick(usedTime, this.location, usedTime * skillDiv, clone);
+		this.remainingDuration -= usedTime;
+		if (this.remainingDuration == 0){
+			if (this.action.complete(this.location, clone)){
+				this.start();
+			} else if (this.isMove) {
+				loopCompletions++;
+				this.location.entered++;
+			} else {
+				this.location.completions++;
+			}
+		}
+		usedTime *= skillDiv;
+	}
+}
+
 class Action<actionName extends anyActionName = anyActionName> {
 	name: actionName;
 	baseDuration: number | (() => number);
 	stats: statList;
-	complete: (x: number, y: number, creature?: Creature | null) => boolean | void;
-	canStart: ({(spend?: boolean): CanStartReturnCode; itemCount: number;}) | ((location: MapLocation) => CanStartReturnCode) | null;
+	complete: (loc: MapLocation, clone: Clone) => boolean | void;
+	canStart: ({(spend?: boolean): CanStartReturnCode; itemCount: number;}) | ((location: MapLocation, clone: Clone) => CanStartReturnCode);
 	tickExtra: this["tick"] | null;
-	specialDuration: (location: MapLocation) => number;
+	specialDuration: (location: MapLocation, clone?: Clone) => number;
 
 	constructor(
 		name: actionName,
 		baseDuration: number | (() => number),
 		stats: [anyStatName, number][],
-		complete: (x: number, y: number, creature?: Creature | null) => boolean | void,
-		canStart: Action["canStart"] = null,
+		complete: (loc: MapLocation, clone: Clone) => boolean | void,
+		canStart: Action["canStart"] | null = null,
 		tickExtra: Action["tick"] | null = null,
 		specialDuration: Action["specialDuration"] = () => 1
 	) {
@@ -27,27 +71,17 @@ class Action<actionName extends anyActionName = anyActionName> {
 		this.specialDuration = specialDuration;
 	}
 
-	start(location: MapLocation) {
-		if (this.canStart) {
-			// Typescript can't read its own function types.
-			// @ts-ignore
-			let canStart = <number>this.canStart(location);
-			if (canStart <= 0) return canStart;
-		}
-		return this.getDuration(location);
-	}
-
-	tick(usedTime: number, creature: Creature | null = null, baseTime: number = 0) {
+	tick(usedTime: number, loc: MapLocation, baseTime: number = 0, clone: Clone) {
 		for (let i = 0; i < this.stats.length; i++) {
 			this.stats[i][0].gainSkill((baseTime / 1000) * this.stats[i][1]);
 		}
 		if (this.tickExtra) {
-			this.tickExtra(usedTime, creature, baseTime);
+			this.tickExtra(usedTime, loc, baseTime, clone);
 		}
 	}
 
-	getDuration(location: MapLocation) {
-		let duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) * this.specialDuration(location);
+	getDuration(location: MapLocation, clone: Clone) {
+		let duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) * this.specialDuration(location, clone);
 		if (realms[currentRealm].name == "Long Realm") {
 			duration *= 3;
 		} else if (realms[currentRealm].name == "Compounding Realm") {
@@ -58,9 +92,6 @@ class Action<actionName extends anyActionName = anyActionName> {
 
 	getBaseDuration(realm: number = currentRealm) {
 		let duration = (typeof this.baseDuration == "function" ? this.baseDuration() : this.baseDuration) / 1000;
-		for (let i = 0; i < this.stats.length; i++) {
-			duration *= Math.pow(this.stats[i][0].baseValue, this.stats[i][1]);
-		}
 		if (realms[realm].name == "Long Realm") {
 			duration *= 3;
 		} else if (realms[realm].name == "Compounding Realm") {
@@ -110,23 +141,14 @@ function baseWalkLength() {
 	return 100 * (realms[currentRealm].name == "Long Realm" ? 3 : 1);
 }
 
-function completeMove(x: number, y: number) {
-	clones[currentClone].x = x;
-	clones[currentClone].y = y;
-	setMined(x, y);
+function completeMove(loc: MapLocation, clone: Clone) {
+	clone.x = loc.x;
+	clone.y = loc.y;
+	setMined(loc.x, loc.y);
 }
 
-function startWalk(this: Action): CanStartReturnCode {
-	//giving getduration dummylocation because an actual location isnt available
-	if (!clones[currentClone].walkTime) clones[currentClone].walkTime = this.getDuration(new MapLocation(0, 0, zones[0], "Tunnel"));
-	return CanStartReturnCode.Now;
-}
-
-function tickWalk(time: number) {
-	clones[currentClone].walkTime = Math.max(0, clones[currentClone].walkTime - time);
-}
-
-function getDuplicationAmount(x: number, y: number) {
+function getDuplicationAmount(loc: MapLocation) {
+	let x = loc.x, y = loc.y;
 	let amount = 1;
 	const zone = zones[currentZone];
 	x += zone.xOffset;
@@ -147,55 +169,50 @@ function getDuplicationAmount(x: number, y: number) {
 	return amount;
 }
 
-function completeGoldMine(x: number, y: number) {
+function completeGoldMine(loc: MapLocation, clone: Clone) {
 	const gold = getStuff("Gold Nugget");
-	gold.update(getDuplicationAmount(x, y));
+	gold.update(getDuplicationAmount(loc));
 	if (gold.count >= 5) getMessage("Mass Manufacturing").display();
-	completeMove(x, y);
+	completeMove(loc, clone);
 }
 
-function completeIronMine(x: number, y: number) {
+function completeIronMine(loc: MapLocation, clone: Clone) {
 	const iron = getStuff("Iron Ore");
-	iron.update(getDuplicationAmount(x, y));
-	completeMove(x, y);
+	iron.update(getDuplicationAmount(loc));
+	completeMove(loc, clone);
 }
 
-function completeCoalMine(x: number, y: number) {
-	getStuff("Coal").update(getDuplicationAmount(x, y));
-	completeMove(x, y);
+function completeCoalMine(loc: MapLocation, clone: Clone) {
+	getStuff("Coal").update(getDuplicationAmount(loc));
+	completeMove(loc, clone);
 }
 
-function completeSaltMine(x: number, y: number) {
-	getStuff("Salt").update(getDuplicationAmount(x, y));
-	completeMove(x, y);
+function completeSaltMine(loc: MapLocation, clone: Clone) {
+	getStuff("Salt").update(getDuplicationAmount(loc));
+	completeMove(loc, clone);
 }
 
-function completeCollectMana(x: number, y: number) {
-	const location = getMapLocation(x, y);
-	if (location === null) throw new Error("Location not found");
-	Route.updateBestRoute(location);
+function completeCollectMana(loc: MapLocation) {
+	Route.updateBestRoute(loc);
 	zones[currentZone].mineComplete();
-	setMined(x, y, ".");
-	if (settings.autoRestart == 1 && settings.grindMana) shouldReset = true;
+	setMined(loc.x, loc.y, ".");
+	if (settings.autoRestart == AutoRestart.RestartDone && settings.grindMana) shouldReset = true;
 	getRealmComplete(realms[currentRealm]);
 }
 
-function tickCollectMana() {
-	const clone = clones[currentClone];
-	const location = getMapLocation(clone.x, clone.y);
-	if (location === null) throw new Error("Location not found");
-	Route.updateBestRoute(location);
+function tickCollectMana(usedTime: number, loc: MapLocation) {
+	Route.updateBestRoute(loc);
 }
 
 function longZoneCompletionMult(x: number, y: number, z: number) {
 	if (x === undefined || y === undefined) return 1;
-	const location = zones[z].getMapLocation(x, y);
+	const location = zones[z].getMapLocation(x, y, true);
 	if (location === null) throw new Error("Location not found");
 	return 0.99 ** (location.priorCompletionData[1] ** 0.75);
 }
 
-function mineManaRockCost(location: MapLocation, realm:number | null = null, completionOveride?: number) {
-	return location.completions
+function mineManaRockCost(location: MapLocation, clone: Clone | null = null, realm:number | null = null, completionOveride?: number) {
+	return location.completions && !completionOveride
 		? 0
 		: Math.pow(1 + (0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(location.x, location.y, location.zone.index), completionOveride ?? location.priorCompletions);
 }
@@ -204,8 +221,8 @@ function mineGemCost(location: MapLocation){
 	return (location.completions + 1) ** 1.4
 }
 
-function completeCollectGem(x: number, y: number) {
-	getStuff("Gem").update(getDuplicationAmount(x, y));
+function completeCollectGem(loc: MapLocation) {
+	getStuff("Gem").update(getDuplicationAmount(loc));
 }
 
 function startActivateMachine(): CanStartReturnCode {
@@ -214,7 +231,7 @@ function startActivateMachine(): CanStartReturnCode {
 	return gold.count >= needed ? CanStartReturnCode.Now : CanStartReturnCode.NotNow;
 }
 
-function completeActivateMachine(x: number, y: number) {
+function completeActivateMachine() {
 	const gold = getStuff("Gold Nugget");
 	const needed = realms[currentRealm].getNextActivateAmount();
 	gold.update(-needed);
@@ -247,8 +264,6 @@ function simpleRequire(requirement: [anyStuffName, number][], doubleExcempt = fa
 		for (let i = 0; i < requirement.length; i++) {
 			const stuff = getStuff(requirement[i][0]);
 			if (stuff.count < requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield|Bridge/) ? 1 : mult)) return CanStartReturnCode.NotNow;
-			// In other functions it's (x, y, creature), so just check that it's exactly true
-			// spend is used for placing runes.
 			if (spend === true) stuff.update(-requirement[i][1] * (requirement[i][0].match(/Armour|Sword|Shield|Bridge/) ? 1 : mult));
 		}
 		return CanStartReturnCode.Now;
@@ -284,46 +299,49 @@ function completeGoldMana() {
 	return false;
 }
 
-function completeCrossPit(x: number, y: number) {
+function completeCrossPit(loc: MapLocation, clone: Clone) {
 	let bridge: Stuff<"Iron Bridge" | "Steel Bridge"> = getStuff("Iron Bridge");
 	if (bridge.count < 1) {
 		bridge = getStuff("Steel Bridge");
 		if (bridge.count < 1 || !settings.useDifferentBridges) return true;
 	}
 	bridge.update(-1);
-	completeMove(x, y);
+	completeMove(loc, clone);
 	return false;
 }
 
-function completeCrossLava(x: number, y: number) {
+function completeCrossLava(loc: MapLocation, clone: Clone) {
 	let bridge: Stuff<"Iron Bridge" | "Steel Bridge"> = getStuff("Steel Bridge");
 	if (bridge.count < 1) {
 		bridge = getStuff("Iron Bridge");
 		if (bridge.count < 1 || !settings.useDifferentBridges) return true;
 		bridge.update(-1);
-		completeMove(x, y);
+		completeMove(loc, clone);
 		getMessage("Lava Can't Melt Steel Bridges").display();
 		return;
 	}
 	bridge.update(-1);
-	setMined(x, y, ".");
-	completeMove(x, y);
-	getMapLocation(x, y)!.entered = Infinity;
+	setMined(loc.x, loc.y, ".");
+	completeMove(loc, clone);
+	loc.entered = Infinity;
 	return false;
 }
 
-function tickFight(usedTime: number, creature: Creature, baseTime: number) {
-	let damage = (Math.max(creature.attack - getStat("Defense").current, 0) * baseTime) / 1000;
-	if (creature.defense >= getStat("Attack").current && creature.attack <= getStat("Defense").current) {
+function tickFight(usedTime: number, loc: MapLocation, baseTime: number) {
+	if (!loc.creature) throw new Error("No creature to fight");
+	let damage = (Math.max(loc.creature.attack - getStat("Defense").current, 0) * baseTime) / 1000;
+	if (loc.creature.defense >= getStat("Attack").current && loc.creature.attack <= getStat("Defense").current) {
 		damage = baseTime / 1000;
 	}
-	spreadDamage(damage);
-	clones[currentClone].inCombat = true;
+	spreadDamage(damage, loc, true);
 }
 
-function spreadDamage(damage: number){
-	const targetClones = clones.filter(c => c.x == clones[currentClone].x && c.y == clones[currentClone].y && c.damage < Infinity);
-	targetClones.forEach(c => c.takeDamage(damage / targetClones.length));
+function spreadDamage(damage: number, loc: MapLocation, combat: boolean = false){
+	const targetClones = clones.filter(c => c.x == loc.x && c.y == loc.y && c.damage < Infinity);
+	targetClones.forEach(c => {
+		c.takeDamage(damage / targetClones.length);
+		if (combat) c.inCombat = true;
+	});
 }
 
 let combatTools: [Stuff<anyStuffName>, number, Stat<anyStatName>][] = [
@@ -340,39 +358,39 @@ function combatDuration() {
 	return duration;
 }
 
-function completeFight(x: number, y: number, creature: Creature | null | undefined) {
+function completeFight(loc: MapLocation, clone: Clone) {
 	const attack = getStat("Attack").current;
-	if (creature!.health) {
-		creature!.health = Math.max(creature!.health - Math.max(attack - creature!.defense, 0) * (clones[currentClone].activeSpells.find(spell => spell.name == "Mystic Blade") ? 2 : 1), 0);
-		creature!.drawHealth();
+	const creature = loc.creature;
+	if (!creature) throw new Error("No creature to fight");
+	if (creature.health) {
+		creature.health = Math.max(creature.health - Math.max(attack - creature.defense, 0), 0);
+		creature.drawHealth();
 	}
-	if (!creature!.health) {
+	if (!creature.health) {
 		clones.forEach(c => {
-			if ((Math.abs(c.x - x) <= 1) || (Math.abs(c.y - y) <= 1)) {
-				c.activeSpells = c.activeSpells.filter(s => !s.endOnCombat);
-			}
 			c.inCombat = false;
 		});
-		return completeMove(x, y);
+		return completeMove(loc, clone);
 	}
 	return true;
 }
 
 // Prevent backing out of combat
-function startHeal(){
-	return clones[currentClone].inCombat ? CanStartReturnCode.Never : CanStartReturnCode.Now;
+function startHeal(loc: MapLocation, clone: Clone){
+	return clone.inCombat ? CanStartReturnCode.Never : CanStartReturnCode.Now;
 }
 
-function tickHeal(usedTime: number) {
-	clones[currentClone].takeDamage(-usedTime / 1000);
+function tickHeal(usedTime: number, loc: MapLocation, baseTime: number, clone: Clone) {
+	clone.takeDamage(-usedTime / 1000);
 }
 
-function completeHeal() {
-	return clones[currentClone].damage > 0;
+function completeHeal(loc: MapLocation, clone: Clone) {
+	return clone.damage > 0;
 }
 
-function predictHeal() {
-	return Math.max(clones[currentClone].damage * getStat("Runic Lore").value, 0.01);
+function predictHeal(loc: MapLocation, clone: Clone | null = null) {
+	if (!clone) return 1;
+	return Math.max(clone.damage * getStat("Runic Lore").value, 0.01);
 }
 
 function startChargeTeleport() {
@@ -397,12 +415,12 @@ function startTeleport(): CanStartReturnCode {
 	return CanStartReturnCode.NotNow;
 }
 
-function completeTeleport() {
+function completeTeleport(loc: MapLocation, clone: Clone) {
 	for (let y = 0; y < zones[currentZone].map.length; y++) {
 		for (let x = 0; x < zones[currentZone].map[y].length; x++) {
 			if (zones[currentZone].map[y][x] == "t") {
-				clones[currentClone].x = x - zones[currentZone].xOffset;
-				clones[currentClone].y = y - zones[currentZone].yOffset;
+				clone.x = x - zones[currentZone].xOffset;
+				clone.y = y - zones[currentZone].yOffset;
 				return;
 			}
 		}
@@ -422,9 +440,9 @@ function predictTeleport(){
 
 function startChargableRune(location: MapLocation) {
 	if (location.completions > 0) {
-		return 0;
+		return CanStartReturnCode.Never;
 	}
-	return 1;
+	return CanStartReturnCode.Now;
 }
 
 function duplicateDuration() {
@@ -435,13 +453,13 @@ function duplicateDuration() {
 	return 2 ** (runes - 1);
 }
 
-function completeChargeRune(x: number, y: number) {
-	setMined(x, y, zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset].toLowerCase());
+function completeChargeRune(loc: MapLocation) {
+	setMined(loc.x, loc.y, zones[currentZone].map[loc.y + zones[currentZone].yOffset][loc.x + zones[currentZone].xOffset].toLowerCase());
 }
 
-function tickWither(usedTime: number, { x, y }:Creature) {
-	x += zones[currentZone].xOffset;
-	y += zones[currentZone].yOffset;
+function tickWither(usedTime: number, loc: MapLocation) {
+	let x = loc.x + zones[currentZone].xOffset;
+	let y = loc.y + zones[currentZone].yOffset;
 	const wither = getRune("Wither");
 	const adjacentPlants = [
 		shrooms.includes(zones[currentZone].map[y - 1][x]) ? zones[currentZone].mapLocations[y - 1][x] : null,
@@ -463,15 +481,14 @@ function tickWither(usedTime: number, { x, y }:Creature) {
 		loc.wither += usedTime * (wither.upgradeCount ? 2 ** (wither.upgradeCount - 1) : 1);
 		if (loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither) <= 0) {
 			setMined(loc.x, loc.y, ".");
-			loc.enterDuration = loc.remainingEnter = Math.min(baseWalkLength(), loc.remainingEnter);
 			loc.entered = Infinity;
 		}
 	});
 }
 
-function completeWither(x: number, y: number) {
-	x += zones[currentZone].xOffset;
-	y += zones[currentZone].yOffset;
+function completeWither(loc: MapLocation) {
+	let x = loc.x + zones[currentZone].xOffset;
+	let y = loc.y + zones[currentZone].yOffset;
 	const adjacentPlants = [
 		shrooms.includes(zones[currentZone].map[y - 1][x]) ? zones[currentZone].mapLocations[y - 1][x] : null,
 		shrooms.includes(zones[currentZone].map[y][x - 1]) ? zones[currentZone].mapLocations[y][x - 1] : null,
@@ -524,22 +541,22 @@ function activatePortal() {
 	moveToZone(currentZone + 1);
 }
 
-function completeGoal(x: number, y: number) {
+function completeGoal(loc: MapLocation, clone: Clone) {
 	zones[currentZone].completeGoal();
-	completeMove(x, y);
+	completeMove(loc, clone);
 }
 
 function getChopTime(base: number, increaseRate: number) {
 	return () => base + increaseRate * queueTime * (realms[currentRealm].name == "Verdant Realm" ? 5 : 1);
 }
 
-function tickSpore(usedTime: number, creature: Creature, baseTime: number) {
-	spreadDamage(baseTime / 1000);
+function tickSpore(usedTime: number, loc: MapLocation, baseTime: number) {
+	spreadDamage(baseTime / 1000, loc);
 }
 
-function completeBarrier(x: number, y: number) {
+function completeBarrier(loc: MapLocation, clone: Clone) {
 	zones[currentZone].manaDrain += 5;
-	completeMove(x, y);
+	completeMove(loc, clone);
 }
 
 function startBarrier(location: MapLocation) {
@@ -611,9 +628,9 @@ enum ACTION {
 type anyActionName = `${ACTION}`
 type anyAction = Action<anyActionName>;
 const actions: anyAction[] = [
-	new Action("Walk", 100, [["Speed", 1]], completeMove, startWalk, tickWalk),
-	new Action("Wait", 100, [], () => {}, startWalk, tickWalk),
-	new Action("Long Wait", () => settings.longWait, [], () => {}, startWalk, tickWalk),
+	new Action("Walk", 100, [["Speed", 1]], completeMove),
+	new Action("Wait", 100, [], () => {}),
+	new Action("Long Wait", () => settings.longWait, [], () => {}),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMove),
 	new Action("Mine Granite", 350000, [["Mining", 1], ["Speed", 0.2]], completeMove),
@@ -652,7 +669,7 @@ const actions: anyAction[] = [
 	new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
 	new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),
 	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
-	new Action("Kudzu Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, startWalk, tickWalk),
+	new Action("Kudzu Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
 	new Action("Spore Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, null, tickSpore),
 	new Action("Oyster Chop", getChopTime(1000, 0.2), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
 	new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),

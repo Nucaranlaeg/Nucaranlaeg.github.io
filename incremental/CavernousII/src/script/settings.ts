@@ -7,7 +7,6 @@ interface settings {
 	grindMana: boolean;
 	grindStats: boolean;
 	loadPrereqs: boolean;
-	showingRunes: boolean;
 	warnings: boolean;
 	followZone: boolean;
 	timeline: boolean;
@@ -29,7 +28,6 @@ const settings: settings = {
 	grindMana: false,
 	grindStats: false,
 	loadPrereqs: false,
-	showingRunes: true,
 	warnings: true,
 	followZone: true,
 	timeline: true,
@@ -57,6 +55,13 @@ function toggleRunning() {
 	document.querySelector("#running-toggle")!.innerHTML = settings.running ? "Running" : "Paused";
 	document.querySelector("#running-toggle")!.closest(".option")!.classList.toggle("option-highlighted", !settings.running);
 	return settings.running;
+}
+
+enum AutoRestart {
+	WaitAny = 0,
+	RestartDone = 1,
+	RestartAlways = 2,
+	WaitAll = 3,
 }
 
 function toggleAutoRestart() {
@@ -133,13 +138,6 @@ function toggleStatGrindPerSec() {
 	return settings.statGrindPerSec;
 }
 
-function switchRuneList() {
-	settings.showingRunes = !settings.showingRunes;
-	document.querySelector("#runes")!.classList.toggle("active-pane", settings.showingRunes);
-	document.querySelector("#spells")!.classList.toggle("active-pane", !settings.showingRunes);
-	return settings.showingRunes;
-}
-
 function setMaxTickTime(element: HTMLInputElement) {
 	let value = +element.value;
 	if (!isNaN(value)){
@@ -166,7 +164,6 @@ function loadSettings(savedSettings: settings) {
 	setSetting(toggleFollowZone, !!savedSettings.followZone);
 	setSetting(toggleTimeline, !!savedSettings.timeline);
 	setSetting(toggleStatGrindPerSec, !!savedSettings.statGrindPerSec);
-	setSetting(switchRuneList, !!savedSettings.showingRunes);
 	const maxTimeInput = <HTMLInputElement>document.querySelector("#max-time");
 	if (maxTimeInput) setMaxTickTime(maxTimeInput);
 	const longWaitInput = <HTMLInputElement>document.querySelector("#long-wait");

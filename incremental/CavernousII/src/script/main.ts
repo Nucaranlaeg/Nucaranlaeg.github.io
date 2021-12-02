@@ -10,31 +10,6 @@ let previousVersion: number;
 
 let skipActionComplete = false;
 
-function getNextAction(clone = currentClone): [QueueAction | undefined, number] {
-	const index = queues[clone].findIndex(a => a[1]);
-	const action = queues[clone][index];
-	if (!action) return [undefined, index];
-	// if (action[0][0] == "Q" && action[2].length == 0) {
-	// 	// If there are no actions in the saved queue, skip it.
-	// 	action[1] = false;
-	// 	return getNextAction(clone);
-	// }
-	action.setCaller(clone, index);
-	return [action, index];
-}
-
-function completeNextAction(force = false) {
-	if (skipActionComplete) {
-		skipActionComplete = false;
-		return;
-	}
-	const index = queues[currentClone].findIndex(a => a[1]);
-	const action = queues[currentClone][index];
-	clones[currentClone].currentCompletions = null;
-	if (!action) return;
-	action.complete(force);
-}
-
 function getLocationTypeBySymbol(symbol: LocationType["symbol"]) {
 	return locationTypes.find(a => a.symbol == symbol)?.name;
 }
@@ -100,14 +75,6 @@ function resetLoop(noLoad = false) {
 	clones.forEach(c => c.reset());
 	queueTime = 0;
 	loopCompletions = 0;
-	savedQueues = savedQueues.map((q: any) => {
-		const [name, icon, colour] = [q.name, q.icon, q.colour];
-		q = q.map((a: any) => [a[0]]);
-		q.name = name;
-		q.icon = icon;
-		q.colour = colour;
-		return q;
-	});
 	creatures.forEach(c => {
 		c.attack = c.creature.attack;
 		c.defense = c.creature.defense;
@@ -116,15 +83,9 @@ function resetLoop(noLoad = false) {
 	});
 	zones.forEach(z => {
 		z.resetZone();
-		(z.queues || []).forEach((q, i) => {
-			q.forEach(a => {
-				a[1] = true;
-				a[2] = undefined;
-			});
-		});
+		(z.queues || []).forEach(q => q.reset());
 	});
 	updateRunes();
-	// updateSpells(mana.base);
 	moveToZone(0, false);
 	getStat("Mana").dirty = true;
 	getStat("Mana").update();
@@ -135,7 +96,7 @@ function resetLoop(noLoad = false) {
 		timeBanked = 0;
 	}
 	resetting = false;
-	currentRoute = null;
+	currentRoutes = [];
 }
 
 /********************************************* Loop Log *********************************************/
@@ -298,12 +259,6 @@ interface saveGame {
 	cloneData: {
 		count: number;
 	};
-	stored: {
-		queue: any; //probably a savedqueue
-		name: string;
-		icon: number;
-		colour: string;
-	}[];
 	time: {
 		saveTime: number;
 		timeBanked: number;
@@ -352,14 +307,6 @@ let save = function save() {
 	const cloneData = {
 		count: clones.length,
 	};
-	const stored = savedQueues.map((q: any) => {
-		return {
-			queue: q,
-			name: q.name,
-			icon: possibleActionIcons.indexOf(q.icon),
-			colour: q.colour,
-		};
-	});
 	const time = {
 		saveTime: Date.now(),
 		timeBanked,
@@ -396,7 +343,6 @@ let save = function save() {
 		zoneData: zoneData,
 		currentRealm: currentRealm,
 		cloneData: cloneData,
-		stored: stored,
 		time: time,
 		messageData: messageData,
 		settings: settings,
@@ -414,6 +360,7 @@ let save = function save() {
 
 function load() {
 	if (!localStorage[saveName]) return setup();
+	if (savingDisabled) return setup();
 	let saveGame: saveGame;
 	try {
 		// Typescript can't find LZString, and I don't care.
@@ -431,13 +378,18 @@ function load() {
 
 	stats.forEach(s => (s.current = 0));
 	for (let i = 0; i < saveGame.playerStats.length; i++) {
-		getStat(saveGame.playerStats[i].name).base = saveGame.playerStats[i].base;
+		const stat = getStat(saveGame.playerStats[i].name);
+		if (stat) stat.base = saveGame.playerStats[i].base;
 	}
 	for (let i = 0; i < saveGame.messageData.length; i++) {
 		const message = getMessage(saveGame.messageData[i][0]);
 		if (message) {
 			message.displayed = saveGame.messageData[i][1];
 		}
+	}
+	clones = [];
+	while (clones.length < saveGame.cloneData.count) {
+		Clone.addNewClone(true);
 	}
 	for (let i = 0; i < saveGame.zoneData.length; i++) {
 		const zone = zones.find(z => z.name == saveGame.zoneData[i].name);
@@ -446,8 +398,8 @@ function load() {
 		for (let j = 0; j < saveGame.zoneData[i].locations.length; j++) {
 			const mapLocation = zone.getMapLocation(saveGame.zoneData[i].locations[j][0], saveGame.zoneData[i].locations[j][1], true);
 			if (mapLocation === null){
-				console.warn(new Error("Tried loading non-existent map location"))
-				continue
+				console.warn(new Error("Tried loading non-existent map location"));
+				continue;
 			}
 			mapLocation.priorCompletionData = saveGame.zoneData[i].locations[j][2];
 			while (mapLocation.priorCompletionData.length < realms.length) mapLocation.priorCompletionData.push(0);
@@ -466,18 +418,6 @@ function load() {
 	saveGame.realmData?.forEach((r, i) => {
 		if (r.completed) realms[i].complete();
 	});
-	clones = [];
-	while (clones.length < saveGame.cloneData.count) {
-		Clone.addNewClone(true);
-	}
-	savedQueues = [];
-	for (let i = 0; i < saveGame.stored.length; i++) {
-		savedQueues.push(saveGame.stored[i].queue);
-		savedQueues[i].name = saveGame.stored[i].name;
-		savedQueues[i].icon = possibleActionIcons[saveGame.stored[i].icon];
-		savedQueues[i].colour = saveGame.stored[i].colour;
-	}
-	// ensureLegalQueues();
 	lastAction = saveGame.time.saveTime;
 	timeBanked = +saveGame.time.timeBanked + Date.now() - lastAction;
 	if (saveGame.routes) {
@@ -492,7 +432,7 @@ function load() {
 
 	loadSettings(saveGame.settings);
 
-	selectClone(0);
+	zones[0].queues[0].selected = true;
 	queuesNode = queuesNode || document.querySelector("#queues");
 	redrawQueues();
 
@@ -506,19 +446,6 @@ function load() {
 	drawMap();
 
 	applyCustomStyling();
-}
-
-function ensureLegalQueues() {
-	for (let i = 0; i < queues.length; i++) {
-		if (queues[i].some(q => q[0] == "Q" && getActionValue(q[0]) >= savedQueues.length)) {
-			queues[i] = new ActionQueue();
-		}
-	}
-	for (let i = 0; i < savedQueues.length; i++) {
-		if (savedQueues[i].some(q => q[0] == "Q" && getActionValue(q[0]) >= savedQueues.length)) {
-			savedQueues[i] = new SavedActionQueue();
-		}
-	}
 }
 
 function deleteSave() {
@@ -542,11 +469,9 @@ function importGame() {
 	try {
 		const queueNode = document.querySelector("#queues") as HTMLElement;
 		queueNode.innerHTML = "";
-		queues = [];
 		load();
 	} catch (e) {
 		console.log(e)
-		queues = [];
 		localStorage[saveName] = temp;
 		load();
 	}
@@ -563,13 +488,12 @@ function displaySaveClick(event: MouseEvent){
 /** ****************************************** Game loop ********************************************/
 
 let lastAction = Date.now();
-let timeBanked = 0;
+let timeBanked = 1e9;
 let queueTime = 0;
 let queuesNode: HTMLElement;
 let queueTimeNode: HTMLElement;
 let zoneTimeNode: HTMLElement;
 let queueActionNode: HTMLElement;
-let currentClone = 0;
 let loopCompletions = 0;
 const fps = 60;
 let shouldReset = false;
@@ -578,36 +502,33 @@ setInterval(function mainLoop() {
 	if (shouldReset) {
 		resetLoop();
 	}
-	const time = Date.now() - lastAction;
 	const mana = getStat("Mana");
 	queuesNode = queuesNode || document.querySelector("#queues");
 	if (isNaN(mana.current) && settings.running) toggleRunning();
+	const time = Date.now() - lastAction;
 	lastAction = Date.now();
 	if (settings.running){
 		if (mana.current == 0 || clones.every(c => c.damage === Infinity)){
 			queuesNode.classList.add("out-of-mana");
 			getMessage("Out of Mana").display();
-			if (settings.autoRestart == 2 || (settings.autoRestart == 1 && clones.every(c => c.repeated))){
+			if (settings.autoRestart == AutoRestart.RestartAlways || (settings.autoRestart == AutoRestart.RestartDone && clones.every(c => c.repeated))){
 				resetLoop();
 			}
 		} else {
 			queuesNode.classList.remove("out-of-mana");
 		}
-		if (settings.autoRestart == 2 && clones.every(c => c.noActionsAvailable || c.damage == Infinity)){
+		if (settings.autoRestart == AutoRestart.RestartAlways && zones[currentZone].queues.every(q => !q.getNextAction())){
 			queuesNode.classList.remove("out-of-mana");
 			resetLoop();
 		}
 	}
 	if (!settings.running ||
 			mana.current == 0 ||
-			(settings.autoRestart == 0 && queues.some((q, i) => getNextAction(i)[0] === undefined && (q[q.length - 1] || [""])[0] !== "=")) ||
-			(settings.autoRestart == 3 &&
-				queues.every((q, i) => getNextAction(i)[0] === undefined || clones[i].damage == Infinity) &&
-				clones.some(c => c.damage < Infinity)) ||
+			(settings.autoRestart == AutoRestart.WaitAny && zones[currentZone].queues.some(q => !q.getNextAction() && (!q.length || q[q.length - 1].actionID != "="))) ||
+			(settings.autoRestart == AutoRestart.WaitAll && zones[currentZone].queues.every(q => !q.getNextAction()) && clones.some(c => c.damage < Infinity)) ||
 			!messageBox.hidden) {
-		if (!isNaN(time / 1)) timeBanked += time;
+		timeBanked += time;
 		redrawTimeNode();
-		updateDropTarget();
 		return;
 	}
 	let timeAvailable = time;
@@ -615,38 +536,18 @@ setInterval(function mainLoop() {
 		const speedMultiplier = 3 + zones[0].cacheManaGain[0] ** 0.5;
 		timeAvailable = Math.min(time + timeBanked, time * speedMultiplier);
 	}
-	if (timeAvailable > settings.maxTotalTick) {
-		timeAvailable = settings.maxTotalTick;
-	}
-	if (timeAvailable > mana.current * 1000) {
-		timeAvailable = mana.current * 1000;
-	}
-	if (timeAvailable < 0) {
-		timeAvailable = 0;
-	}
-	let timeLeft = timeAvailable;
+	timeAvailable = Math.min(timeAvailable, settings.maxTotalTick, mana.current * 1000);
+	if (timeAvailable < 0) timeAvailable = 0;
 
-	let timeUsed = 0;
-	breakActions = false;
-	while (timeAvailable > 0) {
-		timeLeft = Clone.performActions(Math.min(timeAvailable, MAX_TICK));
-		if (timeLeft == timeAvailable || timeLeft == MAX_TICK) break;
-		const tickTimeUsed = Math.min(timeAvailable - timeLeft, MAX_TICK);
-		timeUsed += tickTimeUsed;
-		zones[currentZone].tick(tickTimeUsed);
-		timeAvailable -= MAX_TICK;
-	}
+	let timeLeft = runActions(timeAvailable);
 
-	if (timeUsed > time && !isNaN(timeUsed - time)) {
-		timeBanked -= timeUsed - time;
-		if (timeBanked <= 0) timeBanked = 0;
-	} else if (!isNaN(time - timeUsed)) {
-		timeBanked += time - timeUsed;
+
+	timeBanked += (time + timeLeft - timeAvailable);
+	if (timeBanked < 0) timeBanked = 0;
+
+	if (zones[currentZone].queues.some(q => q.selected)){
+		clones[zones[currentZone].queues.findIndex(q => q.selected)].writeStats();
 	}
-	if (!breakActions && timeLeft > 0.001 && settings.running && ((settings.autoRestart == 1 && !clones.every(c => c.isPausing)) || settings.autoRestart == 2)) {
-		resetLoop();
-	}
-	clones[selectedQueues[0]?.clone].writeStats();
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	zoneTimeNode = zoneTimeNode || document.querySelector("#time-spent-zone");
@@ -654,7 +555,6 @@ setInterval(function mainLoop() {
 	queueActionNode = queueActionNode || document.querySelector("#actions-spent");
 	queueActionNode.innerText = `${writeNumber(loopCompletions, 0)} (x${writeNumber(1 + loopCompletions / 40, 3)})`;
 	redrawTimeNode();
-	updateDropTarget();
 
 	stats.forEach(e => e.update());
 	stuff.forEach(e => e.displayDescription());
@@ -662,10 +562,51 @@ setInterval(function mainLoop() {
 	if (loopLogVisible && !displayedOldLog) displayLoopLog();
 }, Math.floor(1000 / fps));
 
+function runActions(time: number): number {
+	const mana = getStat("Mana");
+	while (time > 0.001){
+		let actions = <QueueAction[]>zones[currentZone].queues.map(q => q.getNextAction());
+		const nullActions = actions.map((a, i) => a === null ? i : -1).filter(a => a > -1);
+		actions = actions.filter(a => a !== null);
+		if (actions.length == 0){
+			if (settings.autoRestart == AutoRestart.RestartAlways || settings.autoRestart == AutoRestart.RestartDone){
+				resetLoop();
+			}
+			console.log("No Actions")
+			return time;
+		}
+		if (actions.some(a => a.done == ActionStatus.NotStarted)){
+			actions.forEach(a => a.start());
+			continue;
+		}
+		const waitActions = actions.filter(a => a.done != ActionStatus.Started);
+		actions = actions.filter(a => a.done == ActionStatus.Started);
+		if (actions.length == 0){
+			if (zones[currentZone].queues.every((q, i) => clones[i].isSyncing || clones[i].damage == Infinity || !q.hasFutureSync())){
+				waitActions.filter(a => a.action == "=").forEach(a => a.complete());
+				clones.forEach(c => c.unSync());
+				continue;
+			}
+			return time;
+		}
+		const instances = actions.map(a => <ActionInstance>a.currentAction);
+		const nextTickTime = Math.min(...instances.map(i => i.remainingDuration / instances.reduce((a, c) => a + +(c === i), 0)), time);
+		actions.forEach(a => a.tick(nextTickTime));
+		nullActions.forEach(a => clones[a].addToTimeline({name: clones[a].damage === Infinity ? "Dead" : "None"}, nextTickTime));
+		waitActions.forEach(a => a.currentClone!.addToTimeline({name: "Wait"}, nextTickTime));
+		clones.forEach(c => c.drown(nextTickTime));
+		zones[currentZone].tick(nextTickTime);
+		mana.spendMana(nextTickTime / 1000);
+		time -= nextTickTime;
+		queueTime += nextTickTime;
+	}
+	return 0;
+}
+
 function setup() {
 	Clone.addNewClone();
 	zones[0].enterZone();
-	selectClone(0);
+	zones[0].queues[0].selected = true;
 	getMapLocation(0, 0);
 	drawMap();
 	getMessage("Welcome to Cavernous!").display();
@@ -699,10 +640,7 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 		addActionToQueue("B");
 	},
 	"^Backspace": () => {
-		if (!selectedQueues.every(e => zones[displayZone].queues[e.clone].length == 0)) {
-			clearQueue(null, !settings.warnings);
-			return;
-		}
+		clearQueues();
 	},
 	"KeyW": () => {
 		if (settings.useWASD) {
@@ -740,10 +678,6 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	"KeyB": () => {
 		toggleBankedTime();
 	},
-	"KeyN": () => {
-		if (!document.querySelector("#stuff .spell")) return;
-		switchRuneList();
-	},
 	"KeyG": () => {
 		toggleGrindMana();
 	},
@@ -754,17 +688,17 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 		toggleLoadPrereqs();
 	},
 	"Tab": (e:Event) => {
-		selectClone((selectedQueues[selectedQueues.length - 1].clone + 1) % clones.length);
+		const previous = zones[currentZone].queues.findIndex(q => q.selected);
+		zones[currentZone].queues.forEach((q, i) => q.selected = i == (previous + 1) % clones.length);
 		e.stopPropagation();
 	},
 	">Tab": (e:Event) => {
-		selectClone((clones.length + selectedQueues[selectedQueues.length - 1].clone - 1) % clones.length);
+		const previous = zones[currentZone].queues.findIndex(q => q.selected);
+		zones[currentZone].queues.forEach((q, i) => q.selected = previous == (i + 1) % clones.length);
 		e.stopPropagation();
 	},
 	"^KeyA": () => {
-		clones[0].select();
-		clones.slice(1).map(e => e.select(true));
-		selectedQueues.forEach(q => q.pos = null);
+		zones[currentZone].queues.forEach(q => [q.selected, q.cursor] = [true, null]);
 	},
 	"KeyC": () => {
 		if (settings.useWASD) {
@@ -777,114 +711,92 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 		}
 	},
 	"End": () => {
-		selectedQueues.forEach(q => q.pos = null);
-		showCursors();
+		zones[displayZone].queues.forEach(q => q.cursor = null);
 	},
 	"Home": () => {
-		selectedQueues.forEach(q => q.pos = -1);
-		showCursors();
+		zones[displayZone].queues.forEach(q => q.cursor = -1);
 	},
 	"^ArrowLeft": () => {
-		selectedQueues.forEach((q, i) => q.pos === null ? q.pos = zones[displayZone].queues[i].length - 2 : q.pos > -1 ? q.pos-- : null);
-		showCursors();
+		zones[displayZone].queues.forEach(q => q.cursor === null || q.cursor--);
 	},
 	"^ArrowRight": () => {
-		selectedQueues.forEach((q, i) => q.pos === null ? null : q.pos == zones[displayZone].queues[i].length - 2 ? q.pos = null : q.pos++);
-		showCursors();
+		zones[displayZone].queues.forEach(q => q.cursor === null || q.cursor++);
 	},
 	"^KeyW": () => {
 		if (!settings.useWASD) return;
-		let q = zones[displayZone].queues;
+		let queues = zones[displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
 		for (let i = 1; i < clones.length; i++){
-			if (!selectedQueues.some(Q => Q.clone == i - 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone-- + Infinity : false)){
-				[q[i], q[i-1]] = [q[i-1], q[i]];
+			if (!queues.some(q => q.index == i - 1) && queues.some(q => q.index == i ? q.index-- + Infinity : false)){
+				[queues[i], queues[i-1]] = [queues[i-1], queues[i]];
 			}
 		}
-		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		queues.forEach(q => q.selected = true);
 		redrawQueues();
 	},
 	"^ArrowUp": () => {
-		let q = zones[displayZone].queues;
+		let queues = zones[displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
 		for (let i = 1; i < clones.length; i++){
-			if (!selectedQueues.some(Q => Q.clone == i - 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone-- + Infinity : false)){
-				[q[i], q[i-1]] = [q[i-1], q[i]];
+			if (!queues.some(q => q.index == i - 1) && queues.some(q => q.index == i ? q.index-- + Infinity : false)){
+				[queues[i], queues[i-1]] = [queues[i-1], queues[i]];
 			}
 		}
-		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		queues.forEach(q => q.selected = true);
 		redrawQueues();
 	},
 	"^KeyS": () => {
 		if (!settings.useWASD) return;
-		let q = zones[displayZone].queues;
+		let queues = zones[displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
 		for (let i = 1; i < clones.length; i++){
-			if (!selectedQueues.some(Q => Q.clone == i - 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone-- + Infinity : false)){
-				[q[i], q[i-1]] = [q[i-1], q[i]];
+			if (!queues.some(q => q.index == i - 1) && queues.some(q => q.index == i ? q.index-- + Infinity : false)){
+				[queues[i], queues[i-1]] = [queues[i-1], queues[i]];
 			}
 		}
-		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		queues.forEach(q => q.selected = true);
 		redrawQueues();
 	},
 	"^ArrowDown": () => {
-		let q = zones[displayZone].queues;
+		let queues = zones[displayZone].queues;
 		document.querySelectorAll(`.selected-clone`).forEach(n => n.classList.remove("selected-clone"));
 		for (let i = clones.length - 2; i >= 0; i--){
-			if (!selectedQueues.some(Q => Q.clone == i + 1) && selectedQueues.some(Q => Q.clone == i ? Q.clone++ + Infinity : false)){
-				[q[i], q[i+1]] = [q[i+1], q[i]];
+			if (!queues.some(q => q.index == i + 1) && queues.some(q => q.index == i ? q.index++ + Infinity : false)){
+				[queues[i], queues[i+1]] = [queues[i+1], queues[i]];
 			}
 		}
-		selectedQueues.forEach(Q => clones[Q.clone].select(true));
+		queues.forEach(q => q.selected = true);
 		redrawQueues();
 	},
 	"Digit1": () => {
-		addRuneAction(0, "rune");
+		addRuneAction(0);
 	},
 	"Digit2": () => {
-		addRuneAction(1, "rune");
+		addRuneAction(1);
 	},
 	"Digit3": () => {
-		addRuneAction(2, "rune");
+		addRuneAction(2);
 	},
 	"Digit4": () => {
-		addRuneAction(3, "rune");
+		addRuneAction(3);
 	},
 	"Digit5": () => {
-		addRuneAction(4, "rune");
+		addRuneAction(4);
 	},
 	"Numpad1": () => {
-		addRuneAction(0, "rune");
+		addRuneAction(0);
 	},
 	"Numpad2": () => {
-		addRuneAction(1, "rune");
+		addRuneAction(1);
 	},
 	"Numpad3": () => {
-		addRuneAction(2, "rune");
+		addRuneAction(2);
 	},
 	"Numpad4": () => {
-		addRuneAction(3, "rune");
+		addRuneAction(3);
 	},
 	"Numpad5": () => {
-		addRuneAction(4, "rune");
-	},
-	">Digit1": () => {
-		addRuneAction(0, "spell");
-	},
-	">Digit2": () => {
-		addRuneAction(1, "spell");
-	},
-	">Digit3": () => {
-		addRuneAction(2, "spell");
-	},
-	">Numpad1": () => {
-		addRuneAction(0, "spell");
-	},
-	">Numpad2": () => {
-		addRuneAction(1, "spell");
-	},
-	">Numpad3": () => {
-		addRuneAction(2, "spell");
+		addRuneAction(4);
 	},
 	"Equal": () => {
 		addActionToQueue("=");
@@ -921,15 +833,6 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 };
 
 setTimeout(() => {
-	const templateSelect = document.querySelector("#saved-queue-template .icon-select");
-	if (templateSelect === null) throw new Error("No select template found");
-
-	for (let i = 0; i < possibleActionIcons.length; i++) {
-		const el = document.createElement("option");
-		el.value = possibleActionIcons[i];
-		el.innerHTML = possibleActionIcons[i];
-		templateSelect.append(el);
-	}
 	document.body.onkeydown = e => {
 		if (!document.querySelector("input:focus")) {
 			const key = `${e.ctrlKey || e.metaKey ? "^" : ""}${e.shiftKey ? ">" : ""}${e.code}`;

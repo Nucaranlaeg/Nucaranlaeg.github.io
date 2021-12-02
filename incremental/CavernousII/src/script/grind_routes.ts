@@ -26,7 +26,7 @@ class GrindRoute extends BaseRoute {
 
 		this.zone = currentZone;
 		this.realm = currentRealm;
-		let route = queues.map((r, i) => queueToString(r));
+		let route = zones[currentZone].queues.map(r => queueToString(r));
 		route = route.filter(e => e.length);
 
 		if (route.every((e, i, a) => e == a[0])) {

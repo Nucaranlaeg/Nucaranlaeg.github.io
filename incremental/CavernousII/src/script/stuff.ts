@@ -35,7 +35,7 @@ class Stuff<stuffName extends string> {
 		this.count = Math.round(this.count * 100) / 100;
 		if (this.effect !== null) this.effect(newCount);
 		// Check if the number is an integer - if it's not, display one decimal place.
-		this.countNode!.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 1);
+		this.countNode!.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 2).replace(/(?<=\d)0$/, "");
 		if (this.count > 0){
 			(this.countNode!.parentNode as HTMLElement).style.display = "inline-block";
 		}
