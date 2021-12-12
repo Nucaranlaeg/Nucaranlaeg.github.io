@@ -15,13 +15,14 @@ class Stuff {
     update(newCount = 0) {
         if (this.node === null)
             this.createNode();
+        if (this.effect !== null) {
+            this.effect(this.count, this.count + newCount);
+        }
         this.count += newCount;
         // Ensure we never have 0.9999989 gold.
         this.count = Math.round(this.count * 100) / 100;
-        if (this.effect !== null)
-            this.effect(newCount);
         // Check if the number is an integer - if it's not, display one decimal place.
-        this.countNode.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 1);
+        this.countNode.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 2).replace(/(?<=\d)0$/, "");
         if (this.count > 0) {
             this.countNode.parentNode.style.display = "inline-block";
         }
@@ -90,7 +91,7 @@ function calcCombatStats() {
 }
 function getStatBonus(name, mult) {
     let stat = getStat(name);
-    return (amount) => stat.getBonus(Math.floor(amount + 0.01) * mult);
+    return (oldAmount, amount) => stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult);
 }
 const stuff = [
     new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),

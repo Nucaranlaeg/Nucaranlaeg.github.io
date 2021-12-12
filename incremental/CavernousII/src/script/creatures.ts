@@ -18,6 +18,7 @@ let baseCreatures = [
 	new BaseCreature('Skeleton', 5, 5, 50),
 	new BaseCreature('Goblin Champion', 15, 8, 50),
 	new BaseCreature('Golem', 15, 15, 50),
+	new BaseCreature('Guardian', 25, 20, 100),
 ];
 
 class Creature {

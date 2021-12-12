@@ -9,7 +9,6 @@ const settings = {
     grindMana: false,
     grindStats: false,
     loadPrereqs: false,
-    showingRunes: true,
     warnings: true,
     followZone: true,
     timeline: true,
@@ -36,6 +35,13 @@ function toggleRunning() {
     document.querySelector("#running-toggle").closest(".option").classList.toggle("option-highlighted", !settings.running);
     return settings.running;
 }
+var AutoRestart;
+(function (AutoRestart) {
+    AutoRestart[AutoRestart["WaitAny"] = 0] = "WaitAny";
+    AutoRestart[AutoRestart["RestartDone"] = 1] = "RestartDone";
+    AutoRestart[AutoRestart["RestartAlways"] = 2] = "RestartAlways";
+    AutoRestart[AutoRestart["WaitAll"] = 3] = "WaitAll";
+})(AutoRestart || (AutoRestart = {}));
 function toggleAutoRestart() {
     const autoRestartText = ["Wait when any complete", "Restart when complete", "Restart always", "Wait when all complete"];
     settings.autoRestart = (settings.autoRestart + 1) % autoRestartText.length;
@@ -101,12 +107,6 @@ function toggleStatGrindPerSec() {
     document.querySelector("#stat-grind-per-sec").innerHTML = settings.statGrindPerSec ? "Stat grind strategy: Per sec" : "Stat grind strategy: Total";
     return settings.statGrindPerSec;
 }
-function switchRuneList() {
-    settings.showingRunes = !settings.showingRunes;
-    document.querySelector("#runes").classList.toggle("active-pane", settings.showingRunes);
-    document.querySelector("#spells").classList.toggle("active-pane", !settings.showingRunes);
-    return settings.showingRunes;
-}
 function setMaxTickTime(element) {
     let value = +element.value;
     if (!isNaN(value)) {
@@ -133,7 +133,6 @@ function loadSettings(savedSettings) {
     setSetting(toggleFollowZone, !!savedSettings.followZone);
     setSetting(toggleTimeline, !!savedSettings.timeline);
     setSetting(toggleStatGrindPerSec, !!savedSettings.statGrindPerSec);
-    setSetting(switchRuneList, !!savedSettings.showingRunes);
     const maxTimeInput = document.querySelector("#max-time");
     if (maxTimeInput)
         setMaxTickTime(maxTimeInput);

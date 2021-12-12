@@ -71,7 +71,7 @@ function startCollectManaCost(
 	y: number
 ): string {
 	return `${writeNumber(
-		this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, false, zone.index)!) / 1000 : -1,
+		this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, true, zone.index)!) / 1000 : -1,
 		2
 	)}s`;
 }
@@ -90,6 +90,7 @@ const locationTypes = [
 	new LocationType("Travertine", "«", "A whole bunch of rock, but much harder than usual.", "Mine Travertine", null, null),
 	new LocationType("Granite", "╖", "This stone just doesn't want to budge.", "Mine Granite", null, null),
 	new LocationType("Basalt", "╣", "You've hit a wall.", "Mine Basalt", null, null),
+	new LocationType("Chert", "■", "You'd think it was the hard rock all around it, but it's a different colour.", "Mine Chert", null, null),
 	new LocationType("Gold ore", "+", "Rocks with veins of gold ore.", "Mine Gold", null, null),
 	new LocationType("Iron ore", "%", "Rocks with veins of iron ore.", "Mine Iron", null, null),
 	new LocationType("Salt", "░", "A wall of rock salt.  It only takes so long to mine it because you want to sort out the salt and not carry a ton of gravel with you.", "Mine Salt", null, null),
@@ -105,6 +106,7 @@ const locationTypes = [
 	new LocationType("Goblin Champion", "m", "The largest of the goblins.  You're going to have to work hard to take him down.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Skeleton", "s", "An undead.  It's not very dangerous, but it is resilient.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Golem", "G", "A towering golem made out of finely crafted stone.  There aren't even any chinks in its armour!\n{STATS}", "Attack Creature", null, null),
+	new LocationType("Guardian", "X", "This massive creature exudes an aura of implacable doom.\n{STATS}", "Attack Creature", null, null),
 	new LocationType("Weaken Rune", "W", "Weakens adjacent creatures.", "Walk", null, null),
 	new LocationType("Wither Rune", "H", "This rune kills plants next to it.", "Walk", null, null),
 	new LocationType("Teleport To Rune", "T", "This rune allows someone or something to come through from another place.", "Walk", null, null),
@@ -112,6 +114,7 @@ const locationTypes = [
 	new LocationType("Teleport From Rune", "F", "This rune allows someone to slip beyond to another place.", "Walk", null, null),
 	new LocationType("Duplication Rune", "D", "This rune increases the yield of mining in the 8 tiles next to it.", "Walk", null, null),
 	new LocationType("Duplication Rune - Charged", "d", "This rune increases the yield of mining in the 8 tiles next to it.", "Walk", null, null),
+	new LocationType("Pump Rune", "P", "This rune drains water from it and orthogonally adjacent tiles.", "Walk", null, null),
 	new LocationType("Coal", "○", "Bituminous coal is present in these rocks.", "Mine Coal", null, null),
 	new LocationType("Gem", "☼", "You can find gems studded in the walls here.  Each time you extract a gem from this tile (in one reset), it gets a bit harder to get the next one.", "Mine Gem", "Collect Gem", null),
 	new LocationType("Gem Tunnel", "©", "You can find gems studded in the walls here.  Each time you extract a gem from this tile (in one reset), it gets a bit harder to get the next one.", "Mine Gem", "Collect Gem", null),
@@ -142,4 +145,7 @@ const locationTypes = [
 	new LocationType("Armour Enchanter", ">", "An anvil on which you can enchant a steel suit of armour using {'0':5,'1':10} gems.", "Walk", "Enchant Armour", null),
 	new LocationType("Timelike Barrier", "1", "A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}", "Enter Barrier", null, null),
 	new LocationType("Timelike Barrier", "2", "A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}", "Enter Barrier", null, null),
+	new LocationType("Timelike Barrier", "3", "A wall made of a strange energy that saps your mana. {'3':'Its duration does not compound.'}", "Enter Barrier", null, null),
+	new LocationType("Exit", "!", "A door.  Opening to the outside world", "Exit", null, null),
+	new LocationType("Not a location", "", "", null, null),
 ];

@@ -14,9 +14,9 @@ class Stuff<stuffName extends string> {
 	node: HTMLElement | null;
 	countNode: HTMLElement | null;
 	min: number;
-	effect: ((newCount:number)=>void) | null;
+	effect: ((oldCount:number, newCount:number)=>void) | null;
 
-	constructor(name:stuffName, icon:string, description:string, colour:string, count = 0, effect: ((newCount:number)=>void) | null = null){
+	constructor(name:stuffName, icon:string, description:string, colour:string, count = 0, effect: ((oldCount:number, newCount:number)=>void) | null = null){
 		this.name = name;
 		this.icon = icon;
 		this.description = description;
@@ -30,12 +30,14 @@ class Stuff<stuffName extends string> {
 
 	update(newCount = 0) {
 		if (this.node === null) this.createNode();
+		if (this.effect !== null){
+			this.effect(this.count, this.count + newCount);
+		}
 		this.count += newCount;
 		// Ensure we never have 0.9999989 gold.
 		this.count = Math.round(this.count * 100) / 100;
-		if (this.effect !== null) this.effect(newCount);
 		// Check if the number is an integer - if it's not, display one decimal place.
-		this.countNode!.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 1);
+		this.countNode!.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 2).replace(/(?<=\d)0$/, "");
 		if (this.count > 0){
 			(this.countNode!.parentNode as HTMLElement).style.display = "inline-block";
 		}
@@ -106,7 +108,7 @@ function calcCombatStats() {
 
 function getStatBonus(name:anyStatName, mult:number){
 	let stat = getStat(name);
-	return (amount:number) => stat.getBonus(Math.floor(amount + 0.01) * mult);
+	return (oldAmount:number, amount:number) => stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult);
 }
 
 type anyStuffName = typeof stuff[number]['name'];
@@ -150,7 +152,7 @@ function getStuff<T extends anyStuffName>(name:T) {
 	return stuff.find(a => a.name == name) as Stuff<T>;
 }
 
-function displayStuff(node:HTMLElement, route:BaseRoute | ZoneRoute){
+function displayStuff(node:HTMLElement, route:Route | ZoneRoute){
 	function displaySingleThing(thing:simpleStuffList[number]) {
 		let stuff = getStuff(thing.name);
 		return `<span style="color: ${stuff.colour}">${thing.count}${stuff.icon}</span>`;

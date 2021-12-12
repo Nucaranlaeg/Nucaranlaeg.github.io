@@ -161,8 +161,6 @@ class Stat<statName extends anyStatName> {
 			if (!document.querySelector(".active-pane")) {
 				document.querySelector("#runes")!.classList.add("active-pane");
 			}
-		} else if (this.name === "Spellcraft" || (this.name === "Magic" && this.base >= 75)) {
-			document.querySelectorAll<HTMLElement>(".rune-spell-toggle").forEach(n => (n.style.display = "inline-block"));
 		}
 	}
 
@@ -212,7 +210,7 @@ class Stat<statName extends anyStatName> {
 	}
 }
 
-type anyStatName = "Mana" | "Mining" | "Woodcutting" | "Magic" | "Speed" | "Smithing" | "Runic Lore" | "Spellcraft" | "Combat" | "Gemcraft" | "Chronomancy" | "Attack" | "Defense" | "Health";
+type anyStatName = "Mana" | "Mining" | "Woodcutting" | "Magic" | "Speed" | "Smithing" | "Runic Lore" | "Combat" | "Gemcraft" | "Chronomancy" | "Attack" | "Defense" | "Health";
 
 const stats:Stat<anyStatName>[] = [
 	new Stat("Mana", "", "How long you can resist being pulled back to your cave.  Also increases the maximum speed the game runs at.", 5, false),
@@ -222,7 +220,6 @@ const stats:Stat<anyStatName>[] = [
 	new Stat("Speed", "", "How quick you are."),
 	new Stat("Smithing", hammerSVG, "Your skill at turning raw ores into usable objects."),
 	new Stat("Runic Lore", "🕮", "A measure of your understanding of magical runes."),
-	new Stat("Spellcraft", "", "Wield the energies you've torn from the ground in powerful ways."),
 	new Stat("Combat", "", "Your ability to kill things.", 0),
 	new Stat("Gemcraft", "", "You pick pretty stuff from the walls - in one piece.", 0),
 	new Stat("Chronomancy", "", "Your command of magic has expanded, even affecting the flow of time! (It helps you resist the leeching of time barriers)", 0),

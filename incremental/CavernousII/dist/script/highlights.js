@@ -38,11 +38,7 @@ function getQueueOffset(x, y, queue, maxIndex = -1) {
         if (!queue || !queue[i] || x === undefined || y === undefined) {
             return [undefined, undefined];
         }
-        let action = queue[i][0];
-        if (action[0] == "Q") {
-            [x, y] = getQueueOffset(x, y, savedQueues[getActionValue(action)], savedQueues[getActionValue(action)].length - 1);
-            continue;
-        }
+        let action = queue[i].actionID;
         [x, y] = getActionOffset(x, y, action);
         if (!zones[displayZone].hasMapLocation(x, y)) {
             return [undefined, undefined];
@@ -74,8 +70,10 @@ function stopHovering() {
 function showFinalLocation(isDraw = false) {
     finalLocations.forEach(f => f.classList.remove("final-location"));
     finalLocations = [];
-    selectedQueues.forEach(q => {
-        showLocationAfterSteps(zones[displayZone].queues[q.clone].length - 1, q.clone, isDraw);
+    zones[displayZone].queues.forEach(q => {
+        if (!q.selected)
+            return;
+        showLocationAfterSteps(q.cursor || q.length - 1, q.index, isDraw);
     });
 }
 function showIntermediateLocation(event) {
@@ -91,10 +89,10 @@ function showIntermediateLocation(event) {
 }
 function showCursorLocations() {
     cursorLocations.forEach(f => f.classList.remove("cursor-location"));
-    selectedQueues.forEach(queue => {
-        if (queue.pos === null)
+    zones[currentZone].queues.forEach(queue => {
+        if (queue.cursor === null)
             return;
-        showLocationAfterSteps(queue.pos, queue.clone, false, HIGHLIGHT_TYPES.CURSOR);
+        showLocationAfterSteps(queue.cursor, queue.index, false, HIGHLIGHT_TYPES.CURSOR);
     });
 }
 //# sourceMappingURL=highlights.js.map

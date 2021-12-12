@@ -174,6 +174,7 @@ td.revisit {
 
 .character {
 	width: 16px;
+	line-height: 14px;
 }
 
 svg {
@@ -184,7 +185,7 @@ svg {
 	display: inline-block;
 	vertical-align: top;
 	width: 100%;
-	height: auto;
+	height: 26px;
 	box-sizing: border-box;
 	border: 1px solid #00000077;
 	border-radius: 5px;
@@ -337,6 +338,7 @@ svg {
 .timeline > div.Mine-Travertine,
 .timeline > div.Mine-Granite,
 .timeline > div.Mine-Basalt,
+.timeline > div.Mine-Chert,
 .timeline > div.Mine-Iron,
 .timeline > div.Mine-Coal,
 .timeline > div.Mine-Salt
@@ -877,6 +879,10 @@ td.basalt {
 	background: repeating-linear-gradient(-45deg, #2b251d, #2b251d 1px, #4b453d 2px, #5b554d 2px);
 }
 
+td.chert {
+	background: repeating-linear-gradient(60deg, #000000, #4b453d 1px, #000000 2px, #7b756d 2px);
+}
+
 td.mushroom {
 	background-color: #135513;
 }
@@ -1037,7 +1043,8 @@ td.rune-weak,
 td.rune-wither,
 td.rune-to,
 td.rune-from,
-td.rune-dup {
+td.rune-dup,
+td.pump {
 	background-color: #c99868;
 }
 
@@ -1069,6 +1076,10 @@ td.rune-dup-charged {
 	background-color: #c9ff68
 }
 
+td.pump:before {
+	content: "P";
+}
+
 td.chieftain {
 	background-color: #cc0000;
 }
@@ -1089,6 +1100,10 @@ td.golem {
 	background-color: #000000;
 }
 
+td.guardian {
+	background-color: #000000;
+}
+
 td.chieftain:before,
 td.champion:before,
 td.goblin:before {
@@ -1099,6 +1114,13 @@ td.goblin:before {
 td.golem:before {
 	content: "웃";
 	color: #cc0000;
+	font-weight: bold;
+	font-size: 0.91666em;
+}
+
+td.guardian:before {
+	content: "웃";
+	color: #862424;
 	font-weight: bold;
 	font-size: 0.91666em;
 }
@@ -1146,12 +1168,20 @@ td.zone:before {
 }
 
 .timeline > div.Complete-Goal,
-td.goal {
+td.goal,
+td.exit {
 	background-color: #17ac17;
 }
 
 td.goal:before {
 	content: "√";
+	color: #1a461a;
+	font-size: 1.166em;
+	padding-bottom: 10%;
+}
+
+td.exit:before {
+	content: "♦";
 	color: #1a461a;
 	font-size: 1.166em;
 	padding-bottom: 10%;

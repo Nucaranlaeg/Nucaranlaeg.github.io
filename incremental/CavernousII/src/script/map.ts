@@ -33,7 +33,7 @@ const classMapping: classMappingType = {
 	"«": ["travertine", "Travertine"], // Mohs 6
 	"╖": ["granite", "Granite"], // Mohs 5
 	"╣": ["basalt", "Basalt"], // Mohs 6
-	"????": ["chert", "Chert"], // Mohs 7, unused
+	"■": ["chert", "Chert"], // Mohs 7, unused
 	"♥": ["clone-machine", "Strange Machine"],
 	"+": ["gold", "Gold Ore"],
 	"%": ["iron", "Iron Ore"],
@@ -61,6 +61,7 @@ const classMapping: classMappingType = {
 	"F": ["rune-from", "Teleport From Rune"],
 	"D": ["rune-dup", "Duplication Rune"],
 	"d": ["rune-dup-charged", "Duplication Rune"],
+	"P": ["rune-pump", "Pump Rune"],
 	"○": ["coal", "Coal"],
 	"☼": ["gem", "Gem"],
 	"©": ["mined-gem", "Gem Tunnel"],
@@ -69,6 +70,7 @@ const classMapping: classMappingType = {
 	"s": ["skeleton", "Skeleton"],
 	"m": ["champion", "Goblin Champion"],
 	"G": ["golem", "Golem"],
+	"X": ["guardian", "Guardian"],
 	"Θ": ["zone", "Zone Portal"],
 	"√": ["goal", "Goal"],
 	"♠": ["mushroom", "Mushroom"],
@@ -85,6 +87,8 @@ const classMapping: classMappingType = {
 	">": ["armour3", "Enchanter - Armour"],
 	"1": ["barrier", "Timelike Barrier"],
 	"2": ["barrier", "Timelike Barrier"],
+	"3": ["barrier", "Timelike Barrier"],
+	"!": ["exit", "Exit"],
 };
 
 setTimeout(() => {
@@ -111,11 +115,11 @@ let visibleX: number | null = null,
 	visibleY: number | null = null;
 
 // Not a view function; consider moving.
-function getMapLocation(x: number, y: number, adj = false, zone: number | null = null) {
+function getMapLocation(x: number, y: number, noView = false, zone: number | null = null) {
 	if (zone !== null) {
-		return zones[zone].getMapLocation(x, y, adj);
+		return zones[zone].getMapLocation(x, y, noView);
 	}
-	return zones[currentZone].getMapLocation(x, y, adj);
+	return zones[currentZone].getMapLocation(x, y, noView);
 }
 
 const mapNode = (() => {
@@ -325,9 +329,7 @@ function viewCell(target:HTMLElement) {
 					)}`;
 				} else if (primaryAction) {
 					let baseTimeDisplay = primaryAction.getProjectedDuration(location, location.wither);
-					let timeDisplay = primaryAction.getProjectedDuration(location, location.wither, location.remainingPresent || location.remainingEnter);
-					document.querySelector("#location-next")!.innerHTML = `Time: ${writeNumber(timeDisplay / 1000, 2)}s`;
-					if (timeDisplay < baseTimeDisplay) document.querySelector("#location-next")!.innerHTML += ` / ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
+					document.querySelector("#location-next")!.innerHTML = `Time: ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
 				} else {
 					document.querySelector("#location-next")!.innerHTML = "";
 				}
@@ -365,8 +367,12 @@ function getOffsetMapNode(x: number, y: number) {
 	return getMapNode(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
 }
 
-function getMapTile(x: number, y: number) {
+function getMapTile(x: number, y: number): string {
 	return zones[displayZone].map[y] && zones[displayZone].map[y][x];
+}
+
+function getOffsetMapTile(x: number, y: number): string {
+	return getMapTile(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
 }
 
 function displayCreatureHealth(creature:Creature) {

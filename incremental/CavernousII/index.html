@@ -22,15 +22,15 @@
 	<script type="text/javascript" defer src="dist/script/map.js"></script>
 	<script type="text/javascript" defer src="dist/script/routes.js"></script>
 	<script type="text/javascript" defer src="dist/script/grind_routes.js"></script>
-	<script type="text/javascript" defer src="dist/script/saved_queues.js"></script>
 	<script type="text/javascript" defer src="dist/script/highlights.js"></script>
-	<script type="text/javascript" defer src="dist/script/spells.js"></script>
 	<script type="text/javascript" defer src="dist/script/runes.js"></script>
 	<script type="text/javascript" defer src="dist/script/clones.js"></script>
 	<script type="text/javascript" defer src="dist/script/messages.js"></script>
-	<!-- <script type="text/javascript" defer src="dist/script/experiment.js"></script> -->
 
 	<script type="text/javascript" defer src="dist/script/main.js"></script>
+
+	<script type="text/javascript" defer src="dist/script/test_util.js"></script>
+	<script type="text/javascript" defer src="dist/script/test.js"></script>
 </head>
 
 <body>
@@ -42,12 +42,6 @@
 			<div class="description"></div>
 		</div>
 		<div id="rune-template" class="stat block">
-			<span class="name"></span>
-			<span class="icon"></span>
-			<span class="index"></span>
-			<div class="description"></div>
-		</div>
-		<div id="spell-template" class="stat block spell">
 			<span class="name"></span>
 			<span class="icon"></span>
 			<span class="index"></span>
@@ -75,14 +69,9 @@
 				<td id="grind-cell-template"></td>
 			</tr>
 		</table>
-		<div id="queue-template" class="bottom-block" onclick="selectClone(this, event)"
-			ondrop="savedQueueDrop(event, this)" ondragover="queueDragOver(event)">
+		<div id="queue-template" class="bottom-block" onclick="selectClone(this, event)">
 			<div class="damage" style="width: 100%"></div>
 			<div class="queue-inner" onclick="clearCursors(event, this)"></div>
-			<div class="queue-buttons">
-				<!-- <span class="button" onclick="saveQueue(this)">Save</span> -->
-				<!-- <span class="button" onclick="clearQueue(this.parentNode.parentNode.id.replace('queue', ''), settings.warnings)">Clear</span> -->
-			</div>
 			<div class="cursor"></div>
 			<div class="work-progress"></div>
 		</div>
@@ -102,16 +91,6 @@
 			<span class="require"></span>
 			<span class="stuff"></span>
 			<span class="delete-route"><span class="delete-route-inner">x</span></span>
-		</div>
-		<div id="saved-queue-template" class="bottom-block saved-queue" tabindex="-1" draggable="true"
-			onclick="selectSavedQueue(event, this)" ondblclick="insertSavedQueue(event, this)"
-			ondragstart="startSavedQueueDrag(event, this)" ondrop="savedQueueMove(event, this)"
-			ondragover="savedQueueDragOver(event, this)" ondragleave="savedQueueDragOut(this)">
-			<input class="saved-name" onchange="setSavedQueueName(this)" />
-			<select class="icon-select" onchange="setSavedQueueIcon(this)"></select>
-			<input type="color" class="colour-select" onchange="setSavedQueueColour(this)" />
-			<div class="queue-inner"></div>
-			<div class="queue-buttons"><span class="button" onclick="deleteSavedQueue(this)">Delete</span></div>
 		</div>
 		<div id="message-link-template" class="message-link" onclick="viewMessage(event, this)"></div>
 		<div id="log-entry-template" class="log-entry">
@@ -259,7 +238,7 @@
 				<a href="https://paypal.me/SamBenner" target="_blank">Paypal</a>
 				<a href="https://www.patreon.com/nucaranlaeg" target="_blank">Patreon</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.3.6</span><br />
+				Version <span id="version">2.4.0</span><br />
 				©2021
 			</div>
 		</div>
@@ -283,10 +262,6 @@
 			<div id="runes">
 				<hr />
 				<h3 title="Press the rune's number to insert it into your queue.">Runes</h3>
-			</div>
-			<div id="spells">
-				<hr />
-				<h3 title="Press ctrl and the spell's number to insert it into your queue.">Spells</h3>
 			</div>
 		</div>
 		<div id="map" class="vertical-block wide" onclick="viewCell(event.target)">
@@ -323,8 +298,6 @@
 					<div id="route-has-route">
 						Route time: <span id="route-best-time"></span>s<br />
 						Stuff used: <span id="route-requirements"><span class="require"></span></span><br />
-						Mana used: <span id="route-best-mana-used"></span><br />
-						Clones lost: <span id="route-best-clones-lost"></span><br />
 						Est. mana left: <span id="route-best-mana-left"></span>s<br />
 						Probably
 						<span id="route-best-unminable" hidden>cannot be refined</span>
@@ -389,13 +362,9 @@
 						<span id="add-action-teleport-from">F</span>
 						<div class="description">Teleport From Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions['>Digit1']()">
-						<span id="add-action-arcane-shield">A</span>
-						<div class="description">Arcane Shield Spell</div>
-					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions['>Digit2']()">
-						<span id="add-action-mystic-blade">M</span>
-						<div class="description">Mystic Blade Spell</div>
+					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit6()">
+						<span id="add-action-pump">P</span>
+						<div class="description">Pump Rune</div>
 					</div>
 				</div>
 				<div class="block-row">
@@ -443,14 +412,6 @@
 	</div>
 	<div id="queues"></div>
 	<div id="timelines"></div>
-	<!-- <div id="saved-queues">
-		<div>
-			Search saved queues:
-			<input id="search-saved" onkeyup="filterSaved(this)" />
-			<button id="save-all" onclick="saveAllQueues()">Save All Queues</button>
-		</div>
-		<div id="saved-queues-inner"></div>
-	</div> -->
 	<div id="message-box" onclick="hideMessages()" hidden>
 		<div id="message-wrapper">
 			<h3 id="message-title"></h3>

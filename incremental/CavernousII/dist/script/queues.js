@@ -1,112 +1,238 @@
 "use strict";
-let queues = [];
-let selectedQueues = [];
-let savedQueues = [];
-class QueueAction extends Array {
-    constructor(actionID, undone = true, ...rest) {
-        // Spread should work fine into an array
-        // @ts-ignore
-        super(actionID, undone, ...rest);
-        this.index = null;
-        this.clone = null;
-    }
-    get action() {
-        return this[0];
-    }
-    get actionID() {
-        return this[0];
-    }
-    get done() {
-        return !this[1];
+let actionBarWidth = 0;
+let currentClone;
+class QueueAction {
+    constructor(actionID, queue, status = false) {
+        this.currentClone = null;
+        this.currentAction = null;
+        this.done = ActionStatus.NotStarted;
+        this.domNode = null;
+        this.lastProgress = 0;
+        this.isProgressQueued = false;
+        this.actionID = actionID;
+        this.queue = queue;
+        if (status)
+            this.done = ActionStatus.Complete;
+        this.drawProgress();
     }
     get started() {
         return this.node?.classList.contains("started");
     }
-    get node() {
-        let node = createActionNode(this.actionID);
-        if (this.done) {
-            node.classList.add("started");
-            node.style.backgroundSize = "0%";
-        }
-        DefineObjectValue(this, "node", node);
-        return node;
+    get action() {
+        if (this.done == ActionStatus.Complete)
+            return null;
+        if (this.actionID == "T")
+            return "I";
+        return this.actionID;
     }
-    static fromJSON(ch) {
+    get node() {
+        if (this.domNode)
+            return this.domNode;
+        this.domNode = createActionNode(this.actionID);
+        if (this.done == ActionStatus.Complete) {
+            this.domNode.classList.add("started");
+            this.domNode.style.backgroundSize = "0%";
+        }
+        return this.domNode;
+    }
+    drawProgress() {
+        if (this.isProgressQueued)
+            return;
+        this.isProgressQueued = true;
+        setTimeout(() => {
+            if (this.done == ActionStatus.Started || this.done == ActionStatus.Complete) {
+                this.node.classList.add("started");
+                if (this.currentAction) {
+                    let percent = 1 - this.currentAction.remainingDuration / this.currentAction.startingDuration;
+                    percent *= 100;
+                    this.node.style.backgroundSize = `${Math.max(0, percent)}%`;
+                }
+                else {
+                    this.node.style.backgroundSize = "100%";
+                }
+            }
+            else {
+                this.node.classList.remove("started");
+                this.node.style.backgroundSize = "0%";
+            }
+            this.isProgressQueued = false;
+        });
+    }
+    static fromJSON(ch, queue) {
         ch = this.migrate(ch);
-        if (ch[0] == "Q") {
-            // return new QueueReferenceAction(ch);
-            // throw new Error("QueueReferenceAction is disabled");
+        if (ch[0] == "P") {
+            return new QueuePathfindAction(ch, queue);
         }
-        else if (ch[0] == "P") {
-            return new QueuePathfindAction(ch);
-        }
-        else if (ch[0] == "T") {
-            return new QueueRepeatInteractAction(ch);
-        }
-        return new QueueAction(ch);
+        return new QueueAction(ch, queue);
     }
     static migrate(ar) {
-        if (previousVersion < 0.0304) {
-        }
         return ar;
     }
-    complete(force = false) {
-        this[1] = false;
+    start() {
+        if (!this.currentClone) {
+            this.currentClone = clones[this.queue.index];
+        }
+        if (this.done == ActionStatus.Started || this.done == ActionStatus.Complete)
+            return;
+        this.drawProgress();
+        if (!this.currentAction) {
+            if (!this.action)
+                return this.complete();
+            if ("LURDI".includes(this.action)) {
+                const targetX = this.currentClone.x + +(this.action == "R") - +(this.action == "L");
+                const targetY = this.currentClone.y + +(this.action == "D") - +(this.action == "U");
+                const location = getMapLocation(targetX, targetY);
+                const action = this.action == "I" ? location?.getPresentAction() : location?.getEnterAction();
+                if (!action) {
+                    this.done = ActionStatus.Complete;
+                    return;
+                }
+                this.currentAction = action;
+            }
+            else {
+                const fakeLocation = new MapLocation(0, 0, new Zone("Not a zone", ["."]), "Not a location");
+                this.currentAction = this.action == "." ? new ActionInstance(getAction("Wait"), fakeLocation, false)
+                    : this.action == "," ? new ActionInstance(getAction("Long Wait"), fakeLocation, false)
+                        : null;
+                if (!this.currentAction) {
+                    // Perform action immediately
+                    if (this.action[0] == "N") {
+                        const runeIndex = this.action.match(/N(\d+);/)?.[1];
+                        if (!runeIndex)
+                            throw new Error(`Ill-formed rune action: ${this.action}`);
+                        const created = runes[+runeIndex].create(this.currentClone.x, this.currentClone.y);
+                        if (created) {
+                            this.complete();
+                            this.currentClone.addToTimeline({ name: "Create rune" });
+                        }
+                        else {
+                            this.setWaiting();
+                        }
+                        return;
+                    }
+                    switch (this.action) {
+                        case "=":
+                            this.currentClone.sync();
+                            this.setWaiting();
+                            this.currentClone.addToTimeline({ name: "Sync" });
+                            break;
+                        case "+":
+                            this.currentClone.noSync();
+                            this.complete();
+                            break;
+                        case ":":
+                            if (settings.running)
+                                toggleRunning();
+                            this.complete();
+                            break;
+                        case "<":
+                            this.complete();
+                            break;
+                        case "W":
+                            this.setWaiting();
+                            break;
+                        default:
+                            throw new Error(`Unrecognized action: ${this.action}`);
+                    }
+                    return;
+                }
+            }
+        }
+        const startSuccess = this.currentAction.start(this.currentClone);
+        if (startSuccess == CanStartReturnCode.Now) {
+            this.done = ActionStatus.Started;
+        }
+        else if (startSuccess == CanStartReturnCode.NotNow) {
+            this.setWaiting();
+        }
+        else if (startSuccess == CanStartReturnCode.Never) {
+            this.done = ActionStatus.Complete;
+        }
     }
-    setCaller(clone, index) {
-        this.clone = clone;
-        this.index = index;
-    }
-}
-class QueueReferenceAction extends QueueAction {
-    constructor(queueID, undone = true, queueReference) {
-        if (!queueReference)
-            queueReference = savedQueues[getActionValue(queueID)];
-        super(queueID, undone, queueReference);
-    }
-    get queueReference() {
-        return this[2];
-    }
-    get action() {
-        if (!this[2])
-            this[2] = savedQueues[this[0]];
-        let nextAction = this[2].find((a) => a[`${this.clone}_${this.index}`] === undefined);
-        if (!nextAction)
-            return "";
-        return nextAction[0];
+    tick(time) {
+        if (!this.currentAction)
+            throw new Error("Attempted to run uninitialized action");
+        if (this.done != ActionStatus.Started) {
+            return;
+        }
+        if (this.currentAction.remainingDuration == 0) {
+            if ("LURD".includes(this.action)) {
+                // Someone else completed this action; this should have already been taken care of.
+                // We can still get here (if, for instance, it happens with an iron bridge onto lava), so no error.
+                // Try again with the action.
+                this.done = ActionStatus.NotStarted;
+            }
+            else {
+                // Pathfind or someone else completed this action
+                this.done = ActionStatus.Complete;
+            }
+            this.drawProgress();
+            return;
+        }
+        this.currentAction.tick(time, this.currentClone);
+        this.drawProgress();
+        this.currentClone.remainingTime = this.currentAction.remainingDuration;
+        this.currentClone.addToTimeline(this.currentAction.action, time);
+        if (this.currentAction.remainingDuration == 0) {
+            const targetX = this.currentClone.x + +(this.action == "R") - +(this.action == "L");
+            const targetY = this.currentClone.y + +(this.action == "D") - +(this.action == "U");
+            if ("LURD".includes(this.action)
+                && (targetX != this.currentClone.x || targetY != this.currentClone.y)
+                && ".*©".includes(getOffsetMapTile(targetX, targetY))
+                && !["Walk", "Kudzu Chop"].includes(this.currentAction.action.name)) {
+                const location = getMapLocation(targetX, targetY);
+                const actions = [];
+                clones.forEach((c, i) => {
+                    const action = zones[currentZone].queues[i].getNextAction();
+                    if (!action)
+                        return;
+                    const cloneX = c.x + +(action.action == "R") - +(action.action == "L");
+                    const cloneY = c.y + +(action.action == "D") - +(action.action == "U");
+                    if (cloneX == targetX && cloneY == targetY) {
+                        action.currentAction = new ActionInstance(Object.create(getAction("Walk")), location, true);
+                        action.currentAction.start(this.currentClone);
+                        actions.push(action.currentAction);
+                    }
+                });
+                if (actions.length > 1) {
+                    actions.forEach(a => a.remainingDuration = a.remainingDuration / actions.length);
+                }
+                else {
+                    // Force complete of solo walk;
+                    this.currentAction.remainingDuration = 0;
+                    this.currentAction.tick(0, this.currentClone);
+                    this.complete();
+                }
+            }
+            else {
+                this.complete();
+            }
+        }
+        this.drawProgress();
     }
     complete() {
-        let nextAction = this[2].find((a) => a[`${this.clone}_${this.index}`] === undefined);
-        nextAction[`${this.clone}_${this.index}`] = false;
-        if (this[2].every((a) => a[`${this.clone}_${this.index}`] === false))
-            this[1] = false;
+        this.done = this.actionID == "T" ? ActionStatus.NotStarted : ActionStatus.Complete;
+        this.drawProgress();
     }
-}
-class QueueRepeatInteractAction extends QueueAction {
-    get action() {
-        let presentAction = zones[currentZone].getMapLocation(clones[this.clone].x, clones[this.clone].y)?.type.presentAction;
-        // Typescript can't read its own function types.
-        // @ts-ignore
-        if (presentAction && presentAction.canStart && presentAction.canStart() > 0) {
-            return this[0];
-        }
-        return null;
+    setWaiting() {
+        this.done = this.actionID == "T" ? ActionStatus.Complete : ActionStatus.Waiting;
+        this.drawProgress();
     }
-    complete(force = false) {
-        const location = zones[currentZone].getMapLocation(clones[this.clone].x, clones[this.clone].y);
-        if (location === null)
-            throw (new Error("Tried loading non existant map location"));
-        let presentAction = location.type.presentAction;
-        // Typescript can't read its own function types.
-        // @ts-ignore
-        if ((presentAction === null) || presentAction.canStart() < 0 || force) {
-            this[1] = false;
-        }
+    reset() {
+        this.done = ActionStatus.NotStarted;
+        this.lastProgress = 0;
+        this.currentClone = null;
+        this.currentAction = null;
+        this.drawProgress();
+    }
+    toString() {
+        return this.actionID;
     }
 }
 class QueuePathfindAction extends QueueAction {
-    constructor(actionID, undone = true) {
-        super(actionID, undone);
+    constructor(actionID, queue, status = false) {
+        super(actionID, queue, status);
+        this.cacheAction = null;
         const match = this.actionID.match(/P(-?\d+):(-?\d+);/);
         if (match === null)
             throw new Error("Invalid pathfind action");
@@ -121,13 +247,20 @@ class QueuePathfindAction extends QueueAction {
         return this.targetYOffset + zones[currentZone].yOffset;
     }
     get action() {
-        let originX = clones[this.clone].x + zones[currentZone].xOffset, originY = clones[this.clone].y + zones[currentZone].yOffset;
+        if (this.currentClone === null)
+            throw new Error("Pathfind action not initialized");
+        if (this.cacheAction)
+            return this.cacheAction;
+        let originX = this.currentClone.x + zones[currentZone].xOffset, originY = this.currentClone.y + zones[currentZone].yOffset;
         // Do a simple search from the clone's current position to the target position.
         // Return the direction the clone needs to go next.
         let getDistance = (x1, x2, y1, y2) => Math.abs(x1 - x2) + Math.abs(y1 - y2);
         // Prevent pathing to the same spot.
-        if (getDistance(originX, this.targetX, originY, this.targetY) == 0)
+        if (getDistance(originX, this.targetX, originY, this.targetY) == 0) {
+            this.done = ActionStatus.Complete;
+            this.drawProgress();
             return null;
+        }
         let openList = [];
         let closedList = [[originY, originX]];
         if (walkable.includes(zones[currentZone].map[originY - 1][originX]))
@@ -141,8 +274,10 @@ class QueuePathfindAction extends QueueAction {
         while (openList.length > 0) {
             let best_next = openList.reduce((a, c) => a < c[3] ? a : c[3], Infinity);
             let active = openList.splice(openList.findIndex(x => x[3] == best_next), 1)[0];
-            if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0)
+            if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0) {
+                this.cacheAction = active[4];
                 return active[4];
+            }
             // Add adjacent tiles
             if (walkable.includes(zones[currentZone].map[active[0] - 1][active[1]]) && !closedList.find(x => x[0] == active[0] - 1 && x[1] == active[1]))
                 openList.push([active[0] - 1, active[1], active[2] + 1, active[2] + getDistance(active[1], this.targetX, active[0] - 1, this.targetY), active[4]]);
@@ -158,21 +293,63 @@ class QueuePathfindAction extends QueueAction {
         // Wait if we don't have a path.
         return "W";
     }
+    // Pathfind actions don't complete until there's no more path to find.
     complete() {
-        let originX = clones[this.clone].x + zones[currentZone].xOffset, originY = clones[this.clone].y + zones[currentZone].yOffset;
-        if ((originX == this.targetX && originY == this.targetY) || this.action === null) {
-            this[1] = false;
-        }
+        this.cacheAction = null;
+        this.currentAction = null;
+        if (this.done != ActionStatus.Complete)
+            this.done = ActionStatus.NotStarted;
     }
 }
 class ActionQueue extends Array {
-    constructor(...items) {
+    constructor(index, ...items) {
         super(...items);
+        this.cursorPos = null;
+        this.queueNode = null;
+        this.cursorNode = null;
+        this.index = index;
+        items.forEach(a => a.queue = this);
+    }
+    get cursor() { return this.cursorPos; }
+    set cursor(newVal) {
+        if (newVal !== null) {
+            if (newVal < -1)
+                newVal = -1;
+            if (newVal > this.length - 2)
+                newVal = null;
+        }
+        this.cursorPos = newVal;
+        showCursorLocations();
+        if (!this.cursorNode)
+            return;
+        if (this.cursorPos === null) {
+            this.cursorNode.classList.remove("visible");
+        }
+        else {
+            this.cursorNode.classList.add("visible");
+            this.cursorNode.style.left = (this.cursorPos * 16 + 17) + "px";
+        }
+    }
+    get selected() { return clones[this.index].isSelected; }
+    set selected(newVal) {
+        if (this.selected == newVal)
+            return;
+        this.cursor = null;
+        clones[this.index].isSelected = newVal;
+        showCursorLocations();
+        if (this.selected) {
+            this.node.parentElement.classList.add("selected-clone");
+        }
+        else {
+            this.node.parentElement.classList.remove("selected-clone");
+        }
     }
     static fromJSON(ar) {
         ar = this.migrate(ar);
         return ar.map((v, i) => {
-            let q = new ActionQueue(...v.map(e => QueueAction.fromJSON(e)));
+            // We assign a queue to the action late, so ignore this error.
+            // @ts-ignore
+            let q = new ActionQueue(i, ...v.map(e => QueueAction.fromJSON(e, null)));
             q.index = i;
             return q;
         });
@@ -180,187 +357,154 @@ class ActionQueue extends Array {
     static migrate(ar) {
         return ar;
     }
-    addActionAt(actionID, index) {
+    addAction(actionID) {
         if (actionID == "B") {
-            return this.removeActionAt(index);
+            return this.removeAction();
         }
         // Standard action:     [UDLRI<=+\.,:]
-        // Rune/spell action:   [NS]\d+;
+        // Rune action:         N\d+;
         // Repeat-Forge:        T
-        // Queue reference:     Q\d+;          Removed for now.
         // Pathfind action:     P-?\d+:-?\d+;
-        if (!actionID.match(/^([UDLRI<=+\.,:]|[NS]\d+;|T|P-?\d+:-?\d+;)$/)) {
+        if (!actionID.match(/^([UDLRI<=+\.,:]|N\d+;|T|P-?\d+:-?\d+;)$/)) {
             return;
         }
-        if (index && index > 0 && !this[index]) {
-            clearCursors();
-        }
-        let done = index == null ? false // last action, don't skip
-            : index >= 0 ? this[index].done // middle action, skip if prior is done
+        let done = this.cursor == null ? false // last action, don't skip
+            : this.cursor >= 0 ? this[this.cursor].done // middle action, skip if prior is done
                 : this[0].started; // first action, skip if next is started
-        let newAction = //actionID[0] == "Q" ? new QueueReferenceAction(actionID, !done, savedQueues[getActionValue(actionID)]):
-         actionID[0] == "P" ? new QueuePathfindAction(actionID, !done)
-            : actionID[0] == "T" ? new QueueRepeatInteractAction(actionID, !done)
-                : new QueueAction(actionID, !done);
-        if (index == null) {
+        let newAction = actionID[0] == "P" ? new QueuePathfindAction(actionID, this, Boolean(done))
+            : new QueueAction(actionID, this, Boolean(done));
+        if (this.cursor == null) {
             this.push(newAction);
             this.queueNode?.append(newAction.node);
         }
-        else if (index >= 0) {
-            this.splice(index + 1, 0, newAction);
-            this[index].node.insertAdjacentElement("afterend", newAction.node);
-            let cursor = selectedQueues.find(q => q.clone == this.index);
-            if (cursor && cursor.pos !== null)
-                cursor.pos++;
+        else if (this.cursor >= 0) {
+            this.splice(this.cursor + 1, 0, newAction);
+            this[this.cursor].node.insertAdjacentElement("afterend", newAction.node);
+            this.cursor++;
         }
         else {
             this.unshift(newAction);
             this.queueNode?.insertAdjacentElement("afterbegin", newAction.node);
-            let cursor = selectedQueues.find(q => q.clone == this.index);
-            if (cursor && cursor.pos !== null)
-                cursor.pos++;
+            this.cursor++;
         }
-        showCursorLocations();
+        this.scrollQueue();
     }
-    removeActionAt(index) {
-        if (index === null) {
+    removeAction() {
+        if (this.cursor === null) {
             const action = this.pop();
             if (action === undefined)
                 return;
             action.node.remove();
         }
         else {
-            if (this.length == 0 || index == -1)
+            if (this.length == 0 || this.cursor == -1)
                 return;
-            this.splice(index, 1)[0].node.remove();
-            let cursor = selectedQueues.find(q => q.clone == this.index);
-            if (cursor && cursor.pos !== null)
-                cursor.pos--;
-        }
-        showCursorLocations();
-    }
-    copyQueueAt(queue, index) {
-        if (!(queue instanceof Array))
-            return;
-        let increment = index !== undefined && index !== null;
-        for (let item of queue) {
-            if (item instanceof QueueAction) {
-                this.addActionAt(item.actionID, index);
-            }
-            else {
-                this.addActionAt(item[0], index);
-            }
-            if (increment) {
-                increment && index++;
-            }
-            ;
+            this.splice(this.cursor, 1)[0].node.remove();
+            this.cursor--;
         }
     }
-    get queueNode() {
-        let node = document.querySelector(`#queue${this.index} > .queue-inner`);
-        DefineObjectValue(this, "queueNode", node);
-        return node;
+    getNextAction() {
+        if (clones[this.index].damage === Infinity)
+            return null;
+        const nextAction = this.find(a => a.done != ActionStatus.Complete) || null;
+        if (nextAction === null) {
+            const index = this.findIndex(a => a.action == "<");
+            if (index > 0 && index < this.length - 1) {
+                for (let i = index; i < this.length; i++) {
+                    this[i].done = ActionStatus.NotStarted;
+                }
+                return this.getNextAction();
+            }
+        }
+        return nextAction;
+    }
+    hasFutureSync() {
+        return this.some(a => (a.done == ActionStatus.NotStarted || a.done == ActionStatus.Waiting) && a.actionID == "=");
+    }
+    scrollQueue() {
+        if (!actionBarWidth)
+            return setActionBarWidth(this.node);
+        this.node.parentElement.scrollLeft = Math.max((this.cursor !== null ? this.cursor : 0) * 16 - (actionBarWidth / 2), 0);
+    }
+    get node() {
+        if (this.queueNode !== null)
+            return this.queueNode;
+        this.queueNode = document.querySelector(`#queue${this.index} > .queue-inner`);
+        if (this.queueNode !== null)
+            return this.queueNode;
+        const queueTemplate = document.querySelector("#queue-template");
+        if (queueTemplate === null)
+            throw new Error("No queue template found");
+        const node = queueTemplate.cloneNode(true);
+        node.id = `queue${this.index}`;
+        document.querySelector("#queues").append(node);
+        this.cursorNode = node.querySelector(".cursor");
+        this.queueNode = node.querySelector(".queue-inner");
+        return this.queueNode;
     }
     clear() {
-        this.splice(0, this.length);
-        this.queueNode.innerText = "";
+        this.splice(0, this.length).forEach(action => action.node.remove());
+        this.cursor = null;
+        countMultipleActions();
+    }
+    reset() {
+        this.forEach(a => a.reset());
     }
     fromString(string) {
         this.clear();
         let prev = "";
         let longAction = "";
         for (let char of string) {
-            if (prev && "PQNS".includes(prev)) {
+            if (prev && "PN".includes(prev)) {
                 if (!longAction.length) {
                     longAction = prev;
                 }
                 longAction += char;
                 if (char != ";")
                     continue;
-                this.addActionAt(longAction, null);
+                this.addAction(longAction);
                 longAction = "";
-                prev = ";";
-                continue;
             }
-            else if (!"PQNS".includes(char)) {
-                this.addActionAt(char, null);
+            else if (!"PN".includes(char)) {
+                this.addAction(char);
             }
             prev = char;
         }
     }
     toString() {
-        return Array.from(this).map(q => {
-            return q[0] == "Q" ? queueToString(savedQueues[getActionValue(q[0])]) : q[0];
-        }).join("");
+        return Array.from(this).join("");
     }
 }
-class SavedActionQueue extends ActionQueue {
-    constructor(...items) {
-        super(...items);
-        this.name = "";
-        this.icon = "";
-        this.colour = "";
+function selectClone(target, event) {
+    const index = +target.id.replace("queue", "");
+    if (event.ctrlKey || event.metaKey) {
+        zones[currentZone].queues[index].selected = !zones[currentZone].queues[index].selected;
+    }
+    else {
+        zones[currentZone].queues.forEach((q, i) => q.selected = i == index);
     }
 }
 function getActionValue(action) {
     return +(action.match(/\d+/)?.[0] || 0);
 }
+function setActionBarWidth(node) {
+    actionBarWidth = node.parentElement.clientWidth;
+}
 function addActionToQueue(action) {
-    if (document.querySelector(".saved-queue:focus, .saved-name:focus"))
-        return addActionToSavedQueue(action);
-    for (let i = 0; i < selectedQueues.length; i++) {
-        zones[displayZone].queues[selectedQueues[i].clone].addActionAt(action, selectedQueues[i].pos);
-        scrollQueue(selectedQueues[i].clone, selectedQueues[i].pos || undefined);
-    }
+    zones[displayZone].queues.filter(q => q.selected).forEach(q => q.addAction(action));
     showFinalLocation();
-    showCursors();
     countMultipleActions();
-    return;
 }
-function addRuneAction(index, type) {
-    if (type == "rune") {
-        if (index < runes.length && runes[index].canAddToQueue())
-            addActionToQueue("N" + index + ";");
-    }
-    else if (type == "spell") {
-        if (index < spells.length && spells[index].canAddToQueue())
-            addActionToQueue("S" + index + ";");
-    }
+function addRuneAction(index) {
+    if (index < runes.length && runes[index].canAddToQueue())
+        addActionToQueue("N" + index + ";");
 }
-function clearQueue(queue = null, noConfirm = false) {
-    if (queue === null) {
-        if (selectedQueues.length == 0)
-            return;
-        if (selectedQueues.length == 1) {
-            clearQueue(selectedQueues[0].clone, noConfirm);
-        }
-        else {
-            if (selectedQueues.length == queues.length) {
-                if (!noConfirm && !confirm("Really clear ALL queues?"))
-                    return;
-            }
-            else {
-                if (!noConfirm && !confirm("Really clear ALL selected queues?"))
-                    return;
-            }
-            for (let i = 0; i < selectedQueues.length; i++) {
-                clearQueue(selectedQueues[i].clone, true);
-            }
-        }
+function clearQueues() {
+    if (settings.warnings && !confirm("Really clear selected queues?"))
         return;
-    }
-    if (!noConfirm && !confirm("Really clear queue?"))
-        return;
-    zones[displayZone].queues[queue].clear();
-    selectedQueues.forEach(q => {
-        if (q.clone == queue)
-            q.pos = null;
-    });
-    showCursors();
+    zones[displayZone].queues.forEach(q => q.selected ? q.clear() : null);
 }
 function createActionNode(action) {
-    if (action[0] == "Q")
-        return createQueueActionNode(getActionValue(action));
     const actionTemplate = document.querySelector("#action-template");
     if (actionTemplate === null)
         throw new Error("No action template found");
@@ -383,49 +527,17 @@ function createActionNode(action) {
     if (!character) {
         let value = getActionValue(action);
         character = action[0] == "N" ? runes[value].icon
-            : action[0] == "S" ? spells[value].icon
-                : action[0] == "P" ? pathfindSVG
-                    : "";
+            : action[0] == "P" ? pathfindSVG
+                : "";
     }
     actionNode.querySelector(".character").innerHTML = character || "";
     return actionNode;
 }
-function createQueueActionNode(queue) {
-    const actionTemplate = document.querySelector("#action-template");
-    if (actionTemplate === null)
-        throw new Error("No action template found");
-    let actionNode = actionTemplate.cloneNode(true);
-    actionNode.removeAttribute("id");
-    actionNode.style.color = savedQueues[queue].colour;
-    actionNode.querySelector(".character").innerHTML = savedQueues[queue].icon;
-    actionNode.setAttribute("title", savedQueues[queue].name);
-    actionNode.classList.add(`action${queue}`);
-    return actionNode;
-}
-function resetQueueHighlight(queue) {
-    let nodes = document.querySelectorAll(`#queue${queue} .queue-inner .started`);
-    nodes.forEach(n => n.classList.remove("started"));
-}
-function highlightCompletedActions() {
-    if (!queuesNode)
-        return;
-    for (let i = 0; i < zones[displayZone].queues.length; i++) {
-        let queueBlock = queuesNode.children[i];
-        let queueNode = queueBlock.querySelector(".queue-inner");
-        if (queueNode === null)
-            throw new Error("Queue node not found");
-        let nodes = [...queueNode.children].filter(n => !n.classList.contains("action-count"));
-        for (let j = 0; j < zones[displayZone].queues[i].length; j++) {
-            if (zones[displayZone].queues[i][j][1]) {
-                nodes[j].classList.remove("started");
-                nodes[j].style.backgroundSize = "0%";
-            }
-            else {
-                nodes[j].classList.add("started");
-                nodes[j].style.backgroundSize = "100%";
-            }
-        }
-    }
+function resetQueueHighlights() {
+    zones[currentZone].queues.forEach(queue => {
+        queue.forEach(action => action.drawProgress());
+        queue.scrollQueue();
+    });
 }
 function countMultipleActions() {
     if (!queuesNode)
@@ -433,16 +545,13 @@ function countMultipleActions() {
     queuesNode.querySelectorAll(".action-count").forEach(node => {
         node.parentNode?.removeChild(node);
     });
-    for (let i = 0; i < zones[displayZone].queues.length; i++) {
-        let queueBlock = queuesNode.children[i];
-        let queueNode = queueBlock.querySelector(".queue-inner");
-        if (queueNode === null)
-            throw new Error("Queue node not found");
+    zones[displayZone].queues.forEach(queue => {
+        const queueNode = queue.node;
         let nodes = queueNode.children;
         let actionCount = 0;
         let countedType = null;
-        for (let j = 0; j < zones[displayZone].queues[i].length + 1; j++) {
-            let nextType = zones[displayZone].queues[i][j]?.[0];
+        for (let j = 0; j < queue.length; j++) {
+            let nextType = queue[j].actionID;
             if (actionCount > 3 && nextType != countedType) {
                 let node = document.createElement("div");
                 node.classList.add("action-count");
@@ -464,28 +573,10 @@ function countMultipleActions() {
                 countedType = null;
             }
         }
-    }
+    });
 }
-let actionBarWidth = null;
 function selectQueueAction(queue, action, percent) {
     let queueBlock = queuesNode.children[queue];
-    let queueNode = queueBlock.querySelector(".queue-inner");
-    if (queueNode === null)
-        throw new Error("Queue node not found");
-    actionBarWidth = actionBarWidth || queueNode.parentElement.clientWidth;
-    let nodes = [...queueNode.children].filter(n => !n.classList.contains("action-count"));
-    let node = nodes[action];
-    if (!node && percent == 100) {
-        // This occurs whenever there's a zone change
-        return;
-    }
-    node.classList.add("started");
-    if (queues[queue][action][2]) {
-        let complete = queues[queue][action][2].findIndex((q) => q[`${queue}_${action}`] === undefined);
-        percent /= queues[queue][action][2].length;
-        percent += (complete / queues[queue][action][2].length) * 100;
-    }
-    node.style.backgroundSize = `${Math.max(0, percent)}%`;
     let workProgressBar = queueBlock.querySelector(".work-progress");
     if (workProgressBar === null)
         throw new Error("workProgressBar not found");
@@ -501,32 +592,23 @@ function selectQueueAction(queue, action, percent) {
         workProgressBar.style.width = "0%";
     }
     workProgressBar.setAttribute("lastProgress", percent.toString());
+    // TODO: Attempt to keep both cursor and active action in view
     // queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 function clearWorkProgressBars() {
     [...(queuesNode?.querySelectorAll(".work-progress") || [])].forEach(bar => bar.style.width = "0%");
 }
-function scrollQueue(queue, action = zones[displayZone].queues[queue].length) {
-    let queueNode = document.querySelector(`#queue${queue} .queue-inner`);
-    if (queueNode === null)
-        throw new Error("Queue node not found");
-    actionBarWidth = actionBarWidth || queueNode.parentElement.clientWidth; //this should also probably not be here
-    queueNode.parentElement.scrollLeft = Math.max(action * 16 - (actionBarWidth / 2), 0);
-}
 function redrawQueues() {
-    for (let i = 0; i < zones[displayZone].queues.length; i++) {
-        let queueNode = document.querySelector(`#queue${i} .queue-inner`);
-        if (queueNode === null)
-            throw new Error("Queue node not found");
-        while (queueNode.lastChild) {
-            queueNode.removeChild(queueNode.lastChild);
+    zones[displayZone].queues.forEach(q => {
+        while (q.node.lastChild) {
+            q.node.removeChild(q.node.lastChild);
         }
-        for (let action of zones[displayZone].queues[i]) {
+        for (let action of q) {
             let node = action.node;
-            queueNode.append(node);
+            q.node.append(node);
         }
-    }
-    highlightCompletedActions();
+    });
+    resetQueueHighlights();
     countMultipleActions();
     let timelineEl = document.querySelector(`#timelines`);
     if (timelineEl === null)
@@ -543,45 +625,17 @@ function setCursor(event, el) {
     const offsetX = event.offsetX;
     setTimeout(() => {
         let nodes = Array.from(el.parentNode?.children || []);
-        let clone = parseInt(el.parentNode.parentElement.id.replace("queue", ""));
-        let cursor = (selectedQueues.find(q => q.clone == clone) || selectedQueues.push({
-            clone: -1,
-            pos: null,
-        }) && selectedQueues[selectedQueues.length - 1]);
-        cursor.pos = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - +(offsetX < 8);
-        if (nodes.length - 1 == cursor.pos)
-            cursor.pos = null;
-        showCursors();
+        let queue = zones[displayZone].queues[parseInt(el.parentNode.parentElement.id.replace("queue", ""))];
+        queue.cursor = nodes.filter(n => !n.classList.contains("action-count")).findIndex(e => e == el) - +(offsetX < 8);
     });
 }
 function clearCursors(event, el) {
     if (!event || event.target == el) {
-        selectedQueues.forEach(q => q.pos = null);
-        showCursors();
+        zones[currentZone].queues.forEach(q => q.cursor = null);
     }
-}
-function showCursors() {
-    document.querySelectorAll(".cursor.visible").forEach(el => el.classList.remove("visible"));
-    selectedQueues.forEach(cursor => {
-        if (cursor.pos == null)
-            return;
-        let cursorNode = document.querySelector(`#queue${cursor.clone} .cursor`);
-        if (!cursorNode) {
-            cursor.clone = -1;
-            return;
-        }
-        cursorNode.classList.add("visible");
-        cursorNode.style.left = (cursor.pos * 16 + 17) + "px";
-    });
-    selectedQueues = selectedQueues.filter(cursor => cursor.clone >= 0);
-    showCursorLocations();
 }
 function queueToString(queue) {
     return queue.toString();
-}
-function queueToStringStripped(queue) {
-    let strippedQueue = queue.filter((q, i) => !q[1] || (!queue[i - 1][1] && q[0] == "I"));
-    return strippedQueue.toString();
 }
 function exportQueues() {
     let exportString = zones[displayZone].queues.map(queue => queueToString(queue));
@@ -640,15 +694,5 @@ function longImportQueues(queueString) {
         // Clean up any issues
         longImportQueues(tempQueues);
     }
-}
-function DefineObjectValue(o, name, value = name, enumerable = false) {
-    if (typeof name == "function")
-        name = name.name;
-    return Object.defineProperty(o, name, {
-        enumerable,
-        configurable: true,
-        writable: true,
-        value
-    });
 }
 //# sourceMappingURL=queues.js.map

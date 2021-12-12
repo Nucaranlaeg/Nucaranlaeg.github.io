@@ -1,4 +1,5 @@
 "use strict";
+let suppressMessages = false;
 const messageBox = document.querySelector("#message-box") ??
     (() => {
         throw new Error("No config box found");
@@ -10,7 +11,7 @@ class Message {
         this.displayed = false;
     }
     display(show_again = false) {
-        if (this.displayed && !show_again)
+        if ((this.displayed && !show_again) || suppressMessages)
             return false;
         document.querySelector("#message-title").innerHTML = this.name;
         document.querySelector("#message-text").innerHTML = this.message;
@@ -111,8 +112,7 @@ const messages = [
     new Message("Third Clone", `
 			You've created yet another clone.
 			Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...
-			You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.
-			Careful with syncing too much, though, as syncs less than 500ms after another sync are ignored.`),
+			You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.`),
     new Message("Fourth Clone", `
 			Time seems to be a bit unstable.  How many of you must there be before you escape the final zone?`),
     new Message("Goblin", `
@@ -163,6 +163,9 @@ const messages = [
     new Message("Unlocked Teleport Runes", `
 			You've unlocked a rune!  Well, two runes.
 			You can place one To rune per zone, and any number of From runes.  Activating any From rune teleports you to the To rune.`),
+    new Message("Unlocked Pump Rune", `
+			You've unlocked a rune!
+			A pump rune costs 2 steel bars and 2 iron bars and drains the water from the 4 surrounding spaces.  It's pricy, but it'll keep you from drowning.`),
     new Message("Other Realms", `
 			There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort and twice as many resources.
 			Mining mana there will reduce the cost scaling of that mana rock in all Realms.`),
@@ -187,6 +190,11 @@ const messages = [
 			You've unlocked the first of the time barriers!
 			There's one in each zone, behind which is a mana rock.  However, breaching a time barrier causes the zone to leech 5 of your mana per second.`),
     new Message("Complete Verdant", `
-			You've learned all that you can in the Verdant Realm.  You no longer have access to it - but wither runes no longer cost any gold.`)
+			You've learned all that you can in the Verdant Realm.  You no longer have access to it - but wither runes no longer cost any gold.`),
+    new Message("You Win!", `
+			You've beaten the game!
+			There may be, in the future, further updates to this game.
+			It is highly likely, however, that those updates will be in the form of Cavernous III.
+			Thanks for playing!`),
 ];
 //# sourceMappingURL=messages.js.map
