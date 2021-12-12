@@ -1,3 +1,5 @@
+let suppressMessages = false;
+
 const messageBox: HTMLElement =
 	document.querySelector("#message-box") ??
 	(() => {
@@ -16,7 +18,7 @@ class Message<messageName extends string> {
 	}
 
 	display(show_again = false) {
-		if (this.displayed && !show_again) return false;
+		if ((this.displayed && !show_again) || suppressMessages) return false;
 		document.querySelector("#message-title")!.innerHTML = this.name;
 		document.querySelector("#message-text")!.innerHTML = this.message;
 		messageBox.hidden = false;
@@ -152,8 +154,7 @@ const messages = [
 		`
 			You've created yet another clone.
 			Soon you'll have a personal army!  Perhaps one of them will know why you're in this place...
-			You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.
-			Careful with syncing too much, though, as syncs less than 500ms after another sync are ignored.`
+			You might begin to notice now that some of your old routes don't work any more - this might be because you're getting so efficient the old ways get out of sync.`
 	),
 	new Message(
 		"Fourth Clone",
@@ -245,6 +246,12 @@ const messages = [
 			You can place one To rune per zone, and any number of From runes.  Activating any From rune teleports you to the To rune.`
 	),
 	new Message(
+		"Unlocked Pump Rune",
+		`
+			You've unlocked a rune!
+			A pump rune costs 2 steel bars and 2 iron bars and drains the water from the 4 surrounding spaces.  It's pricy, but it'll keep you from drowning.`
+	),
+	new Message(
 		"Other Realms",
 		`
 			There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort and twice as many resources.
@@ -292,5 +299,13 @@ const messages = [
 		"Complete Verdant",
 		`
 			You've learned all that you can in the Verdant Realm.  You no longer have access to it - but wither runes no longer cost any gold.`
-	)
+	),
+	new Message(
+		"You Win!",
+		`
+			You've beaten the game!
+			There may be, in the future, further updates to this game.
+			It is highly likely, however, that those updates will be in the form of Cavernous III.
+			Thanks for playing!`
+	),
 ];

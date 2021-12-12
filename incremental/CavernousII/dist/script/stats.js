@@ -141,9 +141,6 @@ class Stat {
                 document.querySelector("#runes").classList.add("active-pane");
             }
         }
-        else if (this.name === "Spellcraft" || (this.name === "Magic" && this.base >= 75)) {
-            document.querySelectorAll(".rune-spell-toggle").forEach(n => (n.style.display = "inline-block"));
-        }
     }
     loadGrindRoute(event) {
         if (!this.learnable)
@@ -196,7 +193,6 @@ const stats = [
     new Stat("Speed", "", "How quick you are."),
     new Stat("Smithing", hammerSVG, "Your skill at turning raw ores into usable objects."),
     new Stat("Runic Lore", "🕮", "A measure of your understanding of magical runes."),
-    new Stat("Spellcraft", "", "Wield the energies you've torn from the ground in powerful ways."),
     new Stat("Combat", "", "Your ability to kill things.", 0),
     new Stat("Gemcraft", "", "You pick pretty stuff from the walls - in one piece.", 0),
     new Stat("Chronomancy", "", "Your command of magic has expanded, even affecting the flow of time! (It helps you resist the leeching of time barriers)", 0),

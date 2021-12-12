@@ -267,7 +267,7 @@ interface saveGame {
 	settings: settings;
 	routes: Exclude<Route, "usedRoutes">[];
 	savedRoutes?: string;
-	grindRoutes: Exclude<GrindRoute, "usedRoutes">[];
+	grindRoutes: GrindRoute[];
 	runeData: {
 		name: anyRuneName;
 		upgradeCount: number;
@@ -318,12 +318,6 @@ let save = function save() {
 			return value;
 		})
 	);
-	const savedGrindRoutes = JSON.parse(
-		JSON.stringify(grindRoutes, (key, value) => {
-			if (key == "usedRoutes") return undefined;
-			return value;
-		})
-	);
 	const runeData = runes.map(r => {
 		return {
 			name: r.name,
@@ -347,7 +341,7 @@ let save = function save() {
 		messageData: messageData,
 		settings: settings,
 		routes: savedRoutes,
-		grindRoutes: savedGrindRoutes,
+		grindRoutes: grindRoutes,
 		runeData: runeData,
 		machines: machines,
 		realmData: realmData,
@@ -495,6 +489,7 @@ let queueTimeNode: HTMLElement;
 let zoneTimeNode: HTMLElement;
 let queueActionNode: HTMLElement;
 let loopCompletions = 0;
+let gameStatus = {paused: false};
 const fps = 60;
 let shouldReset = false;
 
@@ -528,6 +523,7 @@ setInterval(function mainLoop() {
 			(settings.autoRestart == AutoRestart.WaitAll && zones[currentZone].queues.every(q => !q.getNextAction()) && clones.some(c => c.damage < Infinity)) ||
 			!messageBox.hidden) {
 		timeBanked += time;
+		gameStatus.paused = true;
 		redrawTimeNode();
 		return;
 	}
@@ -540,7 +536,6 @@ setInterval(function mainLoop() {
 	if (timeAvailable < 0) timeAvailable = 0;
 
 	let timeLeft = runActions(timeAvailable);
-
 
 	timeBanked += (time + timeLeft - timeAvailable);
 	if (timeBanked < 0) timeBanked = 0;
@@ -572,7 +567,7 @@ function runActions(time: number): number {
 			if (settings.autoRestart == AutoRestart.RestartAlways || settings.autoRestart == AutoRestart.RestartDone){
 				resetLoop();
 			}
-			console.log("No Actions")
+			gameStatus.paused = true;
 			return time;
 		}
 		if (actions.some(a => a.done == ActionStatus.NotStarted)){
@@ -581,12 +576,14 @@ function runActions(time: number): number {
 		}
 		const waitActions = actions.filter(a => a.done != ActionStatus.Started);
 		actions = actions.filter(a => a.done == ActionStatus.Started);
+		if (zones[currentZone].queues.every((q, i) => clones[i].isSyncing || clones[i].damage == Infinity || clones[i].notSyncing || !q.hasFutureSync())
+		      && waitActions.some(a => a.action == "=")){
+			waitActions.filter(a => a.action == "=").forEach(a => a.complete());
+			clones.forEach(c => c.unSync());
+			continue;
+		}
 		if (actions.length == 0){
-			if (zones[currentZone].queues.every((q, i) => clones[i].isSyncing || clones[i].damage == Infinity || !q.hasFutureSync())){
-				waitActions.filter(a => a.action == "=").forEach(a => a.complete());
-				clones.forEach(c => c.unSync());
-				continue;
-			}
+			gameStatus.paused = true;
 			return time;
 		}
 		const instances = actions.map(a => <ActionInstance>a.currentAction);
@@ -600,6 +597,7 @@ function runActions(time: number): number {
 		time -= nextTickTime;
 		queueTime += nextTickTime;
 	}
+	gameStatus.paused = false;
 	return 0;
 }
 
@@ -783,6 +781,9 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	"Digit5": () => {
 		addRuneAction(4);
 	},
+	"Digit6": () => {
+		addRuneAction(5);
+	},
 	"Numpad1": () => {
 		addRuneAction(0);
 	},
@@ -797,6 +798,9 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	},
 	"Numpad5": () => {
 		addRuneAction(4);
+	},
+	"Numpad6": () => {
+		addRuneAction(5);
 	},
 	"Equal": () => {
 		addActionToQueue("=");

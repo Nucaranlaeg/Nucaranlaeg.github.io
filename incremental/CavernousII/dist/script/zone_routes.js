@@ -2,7 +2,7 @@
 class ZoneRoute {
     constructor(z) {
         if (z instanceof Zone) {
-            let route = queues.map((r, i) => queueToString(r));
+            let route = zones[currentZone].queues.map(r => queueToString(r));
             route = route.filter(e => e.length);
             this.realm = currentRealm;
             if (route.every((e, i, a) => e == a[0])) {
@@ -107,7 +107,7 @@ class ZoneRoute {
 }
 function findUsedZoneRoutes(breakCache = false) {
     let usedZoneRoutes = [];
-    [...routes, ...grindRoutes].forEach(route => {
+    routes.forEach(route => {
         if (route.zone == 0 || route.realm != currentRealm)
             return;
         let used;

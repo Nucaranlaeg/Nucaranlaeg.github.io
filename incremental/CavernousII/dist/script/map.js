@@ -18,7 +18,7 @@ const classMapping = {
     "«": ["travertine", "Travertine"],
     "╖": ["granite", "Granite"],
     "╣": ["basalt", "Basalt"],
-    "????": ["chert", "Chert"],
+    "■": ["chert", "Chert"],
     "♥": ["clone-machine", "Strange Machine"],
     "+": ["gold", "Gold Ore"],
     "%": ["iron", "Iron Ore"],
@@ -46,6 +46,7 @@ const classMapping = {
     "F": ["rune-from", "Teleport From Rune"],
     "D": ["rune-dup", "Duplication Rune"],
     "d": ["rune-dup-charged", "Duplication Rune"],
+    "P": ["rune-pump", "Pump Rune"],
     "○": ["coal", "Coal"],
     "☼": ["gem", "Gem"],
     "©": ["mined-gem", "Gem Tunnel"],
@@ -54,6 +55,7 @@ const classMapping = {
     "s": ["skeleton", "Skeleton"],
     "m": ["champion", "Goblin Champion"],
     "G": ["golem", "Golem"],
+    "X": ["guardian", "Guardian"],
     "Θ": ["zone", "Zone Portal"],
     "√": ["goal", "Goal"],
     "♠": ["mushroom", "Mushroom"],
@@ -70,6 +72,8 @@ const classMapping = {
     ">": ["armour3", "Enchanter - Armour"],
     "1": ["barrier", "Timelike Barrier"],
     "2": ["barrier", "Timelike Barrier"],
+    "3": ["barrier", "Timelike Barrier"],
+    "!": ["exit", "Exit"],
 };
 setTimeout(() => {
     Object.entries(classMapping).forEach(e => {
@@ -90,11 +94,11 @@ let mapDirt = [];
 let mapStain = [];
 let visibleX = null, visibleY = null;
 // Not a view function; consider moving.
-function getMapLocation(x, y, adj = false, zone = null) {
+function getMapLocation(x, y, noView = false, zone = null) {
     if (zone !== null) {
-        return zones[zone].getMapLocation(x, y, adj);
+        return zones[zone].getMapLocation(x, y, noView);
     }
-    return zones[currentZone].getMapLocation(x, y, adj);
+    return zones[currentZone].getMapLocation(x, y, noView);
 }
 const mapNode = (() => {
     let node = document.querySelector("#map-inner");
@@ -289,10 +293,7 @@ function viewCell(target) {
                 }
                 else if (primaryAction) {
                     let baseTimeDisplay = primaryAction.getProjectedDuration(location, location.wither);
-                    let timeDisplay = primaryAction.getProjectedDuration(location, location.wither, location.remainingPresent || location.remainingEnter);
-                    document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(timeDisplay / 1000, 2)}s`;
-                    if (timeDisplay < baseTimeDisplay)
-                        document.querySelector("#location-next").innerHTML += ` / ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
+                    document.querySelector("#location-next").innerHTML = `Time: ${writeNumber(baseTimeDisplay / 1000, 2)}s`;
                 }
                 else {
                     document.querySelector("#location-next").innerHTML = "";
@@ -332,6 +333,9 @@ function getOffsetMapNode(x, y) {
 }
 function getMapTile(x, y) {
     return zones[displayZone].map[y] && zones[displayZone].map[y][x];
+}
+function getOffsetMapTile(x, y) {
+    return getMapTile(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
 }
 function displayCreatureHealth(creature) {
     if (currentZone != displayZone)

@@ -1,10 +1,50 @@
 "use strict";
-let currentRoute;
-class BaseRoute {
-    constructor() {
-        this.loadingFailed = false;
+let currentRoutes = [];
+class Route {
+    constructor(base) {
         this.actionCount = 0;
+        this.cachedEstimate = 0;
         this.goldVaporized = [0, 0];
+        this.loadingFailed = false;
+        this.manaDrain = 0;
+        this.needsNewEstimate = true;
+        if (base instanceof MapLocation) {
+            this.x = base.x;
+            this.y = base.y;
+            this.zone = currentZone;
+            this.realm = currentRealm;
+            this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
+            this.manaDrain = zones[currentZone].manaDrain;
+            this.goldVaporized = loopGoldVaporized;
+            let route = zones[currentZone].queues.map(r => queueToString(r));
+            route = route.filter(e => e.length);
+            if (route.every((e, i, a) => e == a[0])) {
+                route = [route[0]];
+            }
+            else {
+                let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
+                let ununique = route.find(e => e != unique);
+                if (route.every(e => e == unique || e == ununique) && unique && ununique) {
+                    route = [unique, ununique];
+                }
+            }
+            this.route = route;
+            // Route requirements
+            // cloneHealth is [min (from start), delta]
+            this.cloneHealth = clones.map(c => c.minHealth);
+            this.require = zones[currentZone].startStuff.map(s => {
+                return {
+                    "name": s.name,
+                    "count": s.count - getStuff(s.name).min,
+                };
+            }).filter(s => s.count > 0);
+            this.cloneArriveTimes = clones.filter(c => c.x == this.x && c.y == this.y).map(c => queueTime);
+            this.allDead = false;
+            this.invalidateCost = false;
+            this.estimateRefineManaLeft();
+            return;
+        }
+        Object.assign(this, base);
     }
     pickRoute(zone, actualRequirements, health = clones.map(c => 0), actionCount = this.actionCount) {
         let routeOptions = zones[zone].sumRoute(actualRequirements, health, actionCount);
@@ -46,6 +86,8 @@ class BaseRoute {
                 this.loadingFailed = true;
             }
         }
+        if (!success)
+            return false;
         for (let i = 0; i < zones[this.zone].queues.length; i++) {
             if (i == 0 || this.route.length == 1) {
                 zones[this.zone].queues[i].fromString(this.route[0]);
@@ -58,58 +100,11 @@ class BaseRoute {
             }
         }
         redrawQueues();
-        return success;
-    }
-}
-class Route extends BaseRoute {
-    constructor(base) {
-        super();
-        this.manaDrain = 0;
-        if (base instanceof MapLocation) {
-            this.x = base.x;
-            this.y = base.y;
-            this.zone = currentZone;
-            this.realm = currentRealm;
-            this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
-            this.manaDrain = zones[currentZone].manaDrain;
-            this.goldVaporized = loopGoldVaporized;
-            let route = queues.map(r => queueToString(r));
-            route = route.filter(e => e.length);
-            if (route.every((e, i, a) => e == a[0])) {
-                route = [route[0]];
-            }
-            else {
-                let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
-                let ununique = route.find(e => e != unique);
-                if (route.every(e => e == unique || e == ununique) && unique && ununique) {
-                    route = [unique, ununique];
-                }
-            }
-            this.route = route;
-            // cloneHealth is [min (from start), delta]
-            this.cloneHealth = clones.map(c => c.minHealth);
-            this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
-            let mana = getStat("Mana");
-            let expectedMul = getAction("Collect Mana").getBaseDuration(this.realm);
-            let duration = mineManaRockCost(base) * expectedMul;
-            this.manaUsed = +(mana.base - mana.current).toFixed(2);
-            this.reachTime = +(queueTime / 1000).toFixed(2);
-            this.progressBeforeReach = duration - base.remainingPresent / 1000 * expectedMul;
-            this.require = zones[currentZone].startStuff.map(s => {
-                return {
-                    "name": s.name,
-                    "count": s.count - getStuff(s.name).min,
-                };
-            }).filter(s => s.count > 0);
-            this.allDead = false;
-            this.invalidateCost = false;
-            return;
-        }
-        Object.assign(this, base);
+        return true;
     }
     updateRoute() {
         this.manaDrain = zones[currentZone].manaDrain;
-        let route = queues.map(r => queueToString(r));
+        let route = zones[currentZone].queues.map(r => queueToString(r));
         route = route.filter(e => e.length);
         if (route.every((e, i, a) => e == a[0])) {
             route = [route[0]];
@@ -124,29 +119,19 @@ class Route extends BaseRoute {
         this.route = route;
         // cloneHealth is [min (from start), delta]
         this.cloneHealth = clones.map(c => c.minHealth);
-        this.clonesLost = clones.filter(c => c.x != this.x || c.y != this.y).length;
-        let mana = getStat("Mana");
-        let expectedMul = getAction("Collect Mana").getBaseDuration(this.realm);
-        if (realms[this.realm].name == "Compounding Realm") {
-            expectedMul /= 1 + loopCompletions / 40;
-            expectedMul *= 1 + this.actionCount / 40;
-        }
-        let loc = getMapLocation(this.x, this.y, true);
-        let duration = loc ? mineManaRockCost(loc) * expectedMul : Infinity;
-        this.manaUsed = +(mana.base - mana.current).toFixed(2);
-        this.reachTime = +(queueTime / 1000).toFixed(2);
-        this.progressBeforeReach = loc ? duration - loc.remainingPresent / 1000 * expectedMul : -Infinity;
         this.require = zones[currentZone].startStuff.map(s => {
             return {
                 "name": s.name,
                 "count": s.count - getStuff(s.name).min,
             };
         }).filter(s => s.count > 0);
-        this.allDead = false;
-        this.invalidateCost = false;
+        const arrivedClones = clones.filter(c => c.x == this.x && c.y == this.y).length;
+        while (arrivedClones > this.cloneArriveTimes.length) {
+            this.cloneArriveTimes.push(queueTime);
+        }
     }
     getRefineCost(relativeLevel = 0) {
-        let loc = getMapLocation(this.x, this.y, false, this.zone);
+        let loc = getMapLocation(this.x, this.y, true, this.zone);
         if (!loc)
             return Infinity;
         let mul = getAction("Collect Mana").getBaseDuration(this.realm) * (1 + this.manaDrain);
@@ -154,60 +139,52 @@ class Route extends BaseRoute {
             mul /= 1 + loopCompletions / 40;
             mul *= 1 + this.actionCount / 40;
         }
-        return mineManaRockCost(loc, this.realm, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel) * mul;
+        return mineManaRockCost(loc, null, this.realm, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel) * mul;
     }
-    estimateRefineManaLeft(ignoreInvalidate = false) {
-        let est = 5 + zones.reduce((a, z, i) => {
-            return i > this.zone ? a : a + z.cacheManaGain[this.realm];
-        }, 0);
-        est = est - this.manaUsed - (this.getRefineCost() - this.progressBeforeReach) / (clones.length - this.clonesLost);
+    estimateRefineManaLeft(current = false, ignoreInvalidate = false) {
+        if (!this.needsNewEstimate && this.cachedEstimate)
+            return !ignoreInvalidate && this.invalidateCost ? this.cachedEstimate + 1e9 : this.cachedEstimate;
         const manaMult = getRealmMult("Verdant Realm") || 1;
-        est += this.goldVaporized[0] * GOLD_VALUE * manaMult - this.goldVaporized[1];
-        return !ignoreInvalidate && this.invalidateCost ? est + 1e7 : est;
+        const manaTotal = 5 + zones.reduce((a, z, i) => {
+            return i > this.zone ? a : a + z.cacheManaGain[this.realm];
+        }, 0) + (current ? this.goldVaporized[0] * GOLD_VALUE * manaMult : this.goldVaporized[1]);
+        const totalRockTime = this.cloneArriveTimes.reduce((a, c) => a + (manaTotal - (c / 1000)), 0);
+        const rockCost = this.getRefineCost();
+        const magic = getStat("Magic").base;
+        const finalMagic = magic + (totalRockTime + this.goldVaporized[0]) / 10;
+        let estimate = totalRockTime - rockCost / (((magic + finalMagic) / 2 + 100) / 100);
+        estimate /= this.cloneArriveTimes.length;
+        this.cachedEstimate = estimate;
+        return !ignoreInvalidate && this.invalidateCost ? estimate + 1e9 : estimate;
     }
     estimateRefineTimes() {
         let times = 0;
-        let currentLeft = this.estimateRefineManaLeft(true);
+        let currentLeft = this.estimateRefineManaLeft(false, true);
         let currentCost = this.getRefineCost(times);
         let nextDiff = 0;
-        while (currentLeft + 0.1 * times * this.zone > nextDiff) {
-            nextDiff = (this.getRefineCost(++times) - currentCost) / (clones.length - this.clonesLost);
+        while (currentLeft + 0.1 * times * (this.zone + 1) > nextDiff) {
+            nextDiff = (this.getRefineCost(++times) - currentCost) / this.cloneArriveTimes.length;
             if (nextDiff == 0)
                 return 0;
         }
         return times;
     }
-    estimateRefineTimesAtOnce() {
-        let baseTime = (getStat("Mana").base - this.manaUsed) * (clones.length - this.clonesLost) + this.progressBeforeReach;
-        const manaMult = getRealmMult("Verdant Realm") || 1;
-        baseTime += this.goldVaporized[0] * GOLD_VALUE * manaMult - this.goldVaporized[1];
-        let times = 0;
-        let cost = this.getRefineCost(times);
-        while (baseTime > cost) {
-            baseTime -= cost;
-            cost = this.getRefineCost(++times);
-        }
-        return times;
-    }
     static updateBestRoute(location) {
-        let cur = currentRoute;
+        let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
         let prev = Route.getBestRoute(location.x, location.y, currentZone);
-        if (cur === null) {
-            currentRoute = cur = new Route(location);
-        }
-        else if (prev) {
-            cur.updateRoute();
-            return cur;
+        if (cur === undefined) {
+            cur = new Route(location);
+            currentRoutes.push(cur);
         }
         else {
             cur.updateRoute();
         }
         if (prev == cur)
-            return;
+            return prev;
         if (prev) {
-            let curEff = cur.estimateRefineManaLeft();
+            let curEff = cur.estimateRefineManaLeft(true);
             let prevEff = prev.estimateRefineManaLeft();
-            if (curEff < prevEff + 1e-4 && !prev.invalidateCost) {
+            if (curEff < prevEff && !prev.invalidateCost) {
                 return prev;
             }
             routes = routes.filter(e => e != prev);
@@ -228,6 +205,9 @@ class Route extends BaseRoute {
                 route.require = route.requirements;
                 route.requirements = undefined;
             }
+            if (!route.cloneArriveTimes) {
+                route.cloneArriveTimes = [0];
+            }
         });
         return ar;
     }
@@ -239,7 +219,7 @@ class Route extends BaseRoute {
         let effs = routes.map(r => {
             if (r.realm != currentRealm || r.allDead)
                 return null;
-            return [r.estimateRefineManaLeft(), r];
+            return [r.estimateRefineManaLeft() + (+r.loadingFailed * -1e8), r];
         }).filter((r) => r !== null)
             .sort((a, b) => b[0] - a[0]);
         for (let i = 0; i < effs.length; i++) {
@@ -254,10 +234,12 @@ class Route extends BaseRoute {
         document.querySelector("#location-route").hidden = false;
         document.querySelector("#route-has-route").hidden = false;
         document.querySelector("#route-not-visited").hidden = true;
-        document.querySelector("#route-best-time").innerText = this.reachTime.toString();
-        document.querySelector("#route-best-mana-used").innerText = this.manaUsed.toString();
-        document.querySelector("#route-best-clones-lost").innerText = this.clonesLost.toString();
         let est = this.estimateRefineManaLeft(true);
+        const manaMult = getRealmMult("Verdant Realm") || 1;
+        let manaTotal = 5 + zones.reduce((a, z, i) => {
+            return i > this.zone ? a : a + z.cacheManaGain[this.realm];
+        }, 0) + this.goldVaporized[0] * GOLD_VALUE * manaMult - this.goldVaporized[1];
+        document.querySelector("#route-best-time").innerText = writeNumber(manaTotal - est, 1);
         document.querySelector("#route-best-mana-left").innerText = est.toFixed(2);
         document.querySelector("#route-best-unminable").hidden = est >= 0;
         document.querySelector("#route-best-minable").hidden = est < 0;

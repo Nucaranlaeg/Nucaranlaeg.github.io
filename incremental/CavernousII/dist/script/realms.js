@@ -118,7 +118,8 @@ const verdantMapping = {
     "√": "♠",
     "«": "♣",
     "╖": "α",
-    "╣": "§", // Basalt -> Oystershroom
+    "╣": "§",
+    "■": "δ", // Chert -> Springshroom (you can't get here, but still...)
 };
 function convertMapToVerdant(map, zoneNumber) {
     return map.map(row => [...row].map(cell => zoneNumber > 6 ? "█" : (zoneNumber == 6 && cell == "Θ" ? "♠" : verdantMapping[cell] || cell)).join(""));
@@ -131,7 +132,7 @@ const realms = [
     new Realm("Long Realm", "A realm where everything takes thrice as long and costs twice as much (except bars and vaporizing gold).  It will help you slow down how quickly mana rocks become harder to mine.", () => (getRune("Duplication").upgradeCount || 0) + 3, () => {
         getRune("Duplication").upgradeCount++;
         getRune("Duplication").updateDescription();
-        getMessage("Upgraded Duplication Rune").display();
+        getMessage("Upgraded Duplication Rune").display(true);
     }),
     // All rock-type locations become mushroom-type locations.
     // Mushroom growth rate is doubled.

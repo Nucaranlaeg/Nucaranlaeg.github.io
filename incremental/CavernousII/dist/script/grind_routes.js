@@ -1,7 +1,6 @@
 "use strict";
-class GrindRoute extends BaseRoute {
+class GrindRoute {
     constructor(x, totalStatGain = 0) {
-        super();
         if (typeof x !== 'string') {
             Object.assign(this, x);
             return;
@@ -9,38 +8,20 @@ class GrindRoute extends BaseRoute {
         this.statName = x;
         this.totalStatGain = totalStatGain;
         this.totalTime = queueTime;
-        this.goldVaporized = loopGoldVaporized;
         this.projectedGain = GrindRoute.calculateProjectedGain(this.statName, this.totalStatGain);
-        this.zone = currentZone;
         this.realm = currentRealm;
-        let route = queues.map((r, i) => queueToString(r));
-        route = route.filter(e => e.length);
-        if (route.every((e, i, a) => e == a[0])) {
-            route = [route[0]];
-        }
-        else {
-            let unique = route.find((e, i, a) => a.filter(el => el == e).length == 1);
-            let ununique = route.find(e => e != unique);
-            if (route.every(e => e == unique || e == ununique) && unique && ununique) {
-                route = [unique, ununique];
-            }
-        }
-        this.route = route;
-        // cloneHealth is [min (from start), delta]
-        this.cloneHealth = clones.map(c => c.minHealth);
-        this.require = zones[currentZone].startStuff
-            .map(s => {
-            return {
-                name: s.name,
-                count: s.count - getStuff(s.name).min
-            };
-        })
-            .filter(s => s.count > 0);
+        this.route = zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q);
     }
     loadRoute() {
         if (this.realm !== currentRealm)
             changeRealms(this.realm);
-        return super.loadRoute();
+        this.route.forEach((q, i) => {
+            zones[i].queues.map(e => e.clear());
+            for (let j = 0; j < q.length; j++) {
+                zones[i].queues[j].fromString(q[j]);
+            }
+        });
+        redrawQueues();
     }
     static calculateProjectedGain(pStatName, pTotalStatGain) {
         let scalingStart = 99 + getRealmMult('Compounding Realm');
@@ -80,12 +61,7 @@ class GrindRoute extends BaseRoute {
     static migrate(ar) {
         if (!ar)
             return ar;
-        ar.forEach((route) => {
-            if (route.requirements) {
-                route.require = route.requirements;
-                route.requirements = undefined;
-            }
-        });
+        ar = ar.filter(r => !r.zone);
         return ar;
     }
     static fromJSON(ar) {

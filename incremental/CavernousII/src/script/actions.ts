@@ -147,6 +147,10 @@ function completeMove(loc: MapLocation, clone: Clone) {
 	setMined(loc.x, loc.y);
 }
 
+function completeMine(loc: MapLocation) {
+	setMined(loc.x, loc.y);
+}
+
 function getDuplicationAmount(loc: MapLocation) {
 	let x = loc.x, y = loc.y;
 	let amount = 1;
@@ -169,27 +173,27 @@ function getDuplicationAmount(loc: MapLocation) {
 	return amount;
 }
 
-function completeGoldMine(loc: MapLocation, clone: Clone) {
+function completeGoldMine(loc: MapLocation) {
 	const gold = getStuff("Gold Nugget");
 	gold.update(getDuplicationAmount(loc));
 	if (gold.count >= 5) getMessage("Mass Manufacturing").display();
-	completeMove(loc, clone);
+	setMined(loc.x, loc.y);
 }
 
-function completeIronMine(loc: MapLocation, clone: Clone) {
+function completeIronMine(loc: MapLocation) {
 	const iron = getStuff("Iron Ore");
 	iron.update(getDuplicationAmount(loc));
-	completeMove(loc, clone);
+	setMined(loc.x, loc.y);
 }
 
-function completeCoalMine(loc: MapLocation, clone: Clone) {
+function completeCoalMine(loc: MapLocation) {
 	getStuff("Coal").update(getDuplicationAmount(loc));
-	completeMove(loc, clone);
+	setMined(loc.x, loc.y);
 }
 
-function completeSaltMine(loc: MapLocation, clone: Clone) {
+function completeSaltMine(loc: MapLocation) {
 	getStuff("Salt").update(getDuplicationAmount(loc));
-	completeMove(loc, clone);
+	setMined(loc.x, loc.y);
 }
 
 function completeCollectMana(loc: MapLocation) {
@@ -299,14 +303,14 @@ function completeGoldMana() {
 	return false;
 }
 
-function completeCrossPit(loc: MapLocation, clone: Clone) {
+function completeCrossPit(loc: MapLocation) {
 	let bridge: Stuff<"Iron Bridge" | "Steel Bridge"> = getStuff("Iron Bridge");
 	if (bridge.count < 1) {
 		bridge = getStuff("Steel Bridge");
 		if (bridge.count < 1 || !settings.useDifferentBridges) return true;
 	}
 	bridge.update(-1);
-	completeMove(loc, clone);
+	setMined(loc.x, loc.y);
 	return false;
 }
 
@@ -322,7 +326,6 @@ function completeCrossLava(loc: MapLocation, clone: Clone) {
 	}
 	bridge.update(-1);
 	setMined(loc.x, loc.y, ".");
-	completeMove(loc, clone);
 	loc.entered = Infinity;
 	return false;
 }
@@ -358,7 +361,7 @@ function combatDuration() {
 	return duration;
 }
 
-function completeFight(loc: MapLocation, clone: Clone) {
+function completeFight(loc: MapLocation) {
 	const attack = getStat("Attack").current;
 	const creature = loc.creature;
 	if (!creature) throw new Error("No creature to fight");
@@ -370,7 +373,8 @@ function completeFight(loc: MapLocation, clone: Clone) {
 		clones.forEach(c => {
 			c.inCombat = false;
 		});
-		return completeMove(loc, clone);
+		setMined(loc.x, loc.y);
+		return false;
 	}
 	return true;
 }
@@ -541,9 +545,9 @@ function activatePortal() {
 	moveToZone(currentZone + 1);
 }
 
-function completeGoal(loc: MapLocation, clone: Clone) {
+function completeGoal(loc: MapLocation) {
 	zones[currentZone].completeGoal();
-	completeMove(loc, clone);
+	setMined(loc.x, loc.y);
 }
 
 function getChopTime(base: number, increaseRate: number) {
@@ -554,9 +558,9 @@ function tickSpore(usedTime: number, loc: MapLocation, baseTime: number) {
 	spreadDamage(baseTime / 1000, loc);
 }
 
-function completeBarrier(loc: MapLocation, clone: Clone) {
+function completeBarrier(loc: MapLocation) {
 	zones[currentZone].manaDrain += 5;
-	completeMove(loc, clone);
+	setMined(loc.x, loc.y);
 }
 
 function startBarrier(location: MapLocation) {
@@ -572,6 +576,10 @@ function barrierDuration(){
 	return 1;
 }
 
+function completeGame(){
+	getMessage("You Win!").display(true);
+}
+
 enum ACTION {
 	WALK = "Walk",
 	WAIT = "Wait",
@@ -580,6 +588,7 @@ enum ACTION {
 	MINE_TRAVERTINE = "Mine Travertine",
 	MINE_GRANITE = "Mine Granite",
 	MINE_BASALT = "Mine Basalt",
+	MINE_CHERT = "Mine Chert",
 	MINE_GOLD = "Mine Gold",
 	MINE_IRON = "Mine Iron",
 	MINE_COAL = "Mine Coal",
@@ -611,7 +620,7 @@ enum ACTION {
 	CHARGE_DUPLICATION = "Charge Duplication",
 	CHARGE_WITHER = "Charge Wither",
 	CHARGE_TELEPORT = "Charge Teleport",
-	CHARGE_TEMPORAL_REVERSION = "Charge Temporal Reversion",
+	PUMP = "Pump",
 	HEAL = "Heal",
 	PORTAL = "Portal",
 	COMPLETE_GOAL = "Complete Goal",
@@ -623,6 +632,7 @@ enum ACTION {
 	CREATE_PICK = "Create Pick",
 	CREATE_HAMMER = "Create Hammer",
 	ENTER_BARRIER = "Enter Barrier",
+	EXIT = "Exit",
 }
 
 type anyActionName = `${ACTION}`
@@ -631,15 +641,16 @@ const actions: anyAction[] = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove),
 	new Action("Wait", 100, [], () => {}),
 	new Action("Long Wait", () => settings.longWait, [], () => {}),
-	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMove),
-	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMove),
-	new Action("Mine Granite", 350000, [["Mining", 1], ["Speed", 0.2]], completeMove),
-	new Action("Mine Basalt", 4000000, [["Mining", 1], ["Speed", 0.2]], completeMove),
+	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMine),
+	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMine),
+	new Action("Mine Granite", 350000, [["Mining", 1], ["Speed", 0.2]], completeMine),
+	new Action("Mine Basalt", 4000000, [["Mining", 1], ["Speed", 0.2]], completeMine),
+	new Action("Mine Chert", 50000000, [["Mining", 1], ["Speed", 0.2]], completeMine),
 	new Action("Mine Gold", 1000, [["Mining", 1], ["Speed", 0.2]], completeGoldMine),
 	new Action("Mine Iron", 2500, [["Mining", 2]], completeIronMine),
 	new Action("Mine Coal", 5000, [["Mining", 2]], completeCoalMine),
 	new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
-	new Action("Mine Gem", 100000, [["Mining", 0.75], ["Gemcraft", 0.25]], completeMove),
+	new Action("Mine Gem", 100000, [["Mining", 0.75], ["Gemcraft", 0.25]], completeMine),
 	new Action("Collect Gem", 100000, [["Smithing", 0.1], ["Gemcraft", 1]], completeCollectGem, null, null, mineGemCost),
 	new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, null, tickCollectMana, mineManaRockCost),
 	new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
@@ -665,17 +676,19 @@ const actions: anyAction[] = [
 	new Action("Charge Duplication", 50000, [["Runic Lore", 1]], completeChargeRune, startChargableRune, null, duplicateDuration),
 	new Action("Charge Wither", 1000, [["Runic Lore", 1]], completeWither, null, tickWither, predictWither),
 	new Action("Charge Teleport", 50000, [["Runic Lore", 1]], completeChargeRune, startChargeTeleport),
+	new Action("Pump", 0, [], () => {}),
 	new Action("Heal", 1000, [["Runic Lore", 1]], completeHeal, startHeal, tickHeal, predictHeal),
 	new Action("Portal", 1, [["Magic", 0.5], ["Runic Lore", 0.5]], activatePortal),
 	new Action("Complete Goal", 1000, [["Speed", 1]], completeGoal),
-	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
+	new Action("Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMine),
 	new Action("Kudzu Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
-	new Action("Spore Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMove, null, tickSpore),
-	new Action("Oyster Chop", getChopTime(1000, 0.2), [["Woodcutting", 1], ["Speed", 0.2]], completeMove),
+	new Action("Spore Chop", getChopTime(1000, 0.1), [["Woodcutting", 1], ["Speed", 0.2]], completeMine, null, tickSpore),
+	new Action("Oyster Chop", getChopTime(1000, 0.2), [["Woodcutting", 1], ["Speed", 0.2]], completeMine),
 	new Action("Create Axe", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Axe", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Enter Barrier", 10000, [["Chronomancy", 1]], completeBarrier, startBarrier, null, barrierDuration),
+	new Action("Exit", 100000000, [["Mana", 0.1], ["Mining", 0.1], ["Woodcutting", 0.1], ["Magic", 0.1], ["Speed", 0.1], ["Smithing", 0.1], ["Runic Lore", 0.1], ["Combat", 0.1], ["Gemcraft", 0.1], ["Chronomancy", 0.1]], completeGame),
 ];
 
 function getAction<actionName extends anyActionName>(name: actionName) {

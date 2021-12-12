@@ -128,7 +128,7 @@ class ZoneRoute {
 
 function findUsedZoneRoutes(breakCache = false) {
 	let usedZoneRoutes: ZoneRoute[] = [];
-	[...routes, ...grindRoutes].forEach(route => {
+	routes.forEach(route => {
 		if (route.zone == 0 || route.realm != currentRealm) return;
 		let used;
 		if (!breakCache && route.usedRoutes && route.usedRoutes.every((r: ZoneRoute, i: number) => zones[i].routes.some(route => r == route))) {

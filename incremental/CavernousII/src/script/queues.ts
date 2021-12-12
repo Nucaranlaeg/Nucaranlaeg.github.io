@@ -151,12 +151,10 @@ class QueueAction {
 		}
 		if (this.currentAction.remainingDuration == 0){
 			if ("LURD".includes(this.action!)) {
-				// Someone else completed this action; we need to walk
-				const targetX = this.currentClone!.x + +(this.action == "R") - +(this.action == "L");
-				const targetY = this.currentClone!.y + +(this.action == "D") - +(this.action == "U");
-				const location = getMapLocation(targetX, targetY);
-				this.currentAction = new ActionInstance(Object.create(getAction("Walk")), location!, true);
-				this.currentAction.start(this.currentClone);
+				// Someone else completed this action; this should have already been taken care of.
+				// We can still get here (if, for instance, it happens with an iron bridge onto lava), so no error.
+				// Try again with the action.
+				this.done = ActionStatus.NotStarted;
 			} else {
 				// Pathfind or someone else completed this action
 				this.done = ActionStatus.Complete;
@@ -167,10 +165,39 @@ class QueueAction {
 		this.currentAction.tick(time, this.currentClone!);
 		this.drawProgress();
 		this.currentClone!.remainingTime = this.currentAction.remainingDuration;
-		if (this.currentAction.remainingDuration == 0){
-			this.complete();
-		}
 		this.currentClone!.addToTimeline(this.currentAction.action, time);
+		if (this.currentAction.remainingDuration == 0){
+			const targetX = this.currentClone!.x + +(this.action == "R") - +(this.action == "L");
+			const targetY = this.currentClone!.y + +(this.action == "D") - +(this.action == "U");
+			if ("LURD".includes(this.action!)
+			  && (targetX != this.currentClone!.x || targetY != this.currentClone!.y)
+			  && ".*©".includes(getOffsetMapTile(targetX, targetY))
+			  && !["Walk", "Kudzu Chop"].includes(this.currentAction.action.name)){
+				const location = getMapLocation(targetX, targetY);
+				const actions: ActionInstance[] = [];
+				clones.forEach((c, i) => {
+					const action = zones[currentZone].queues[i].getNextAction();
+					if (!action) return;
+					const cloneX = c.x + +(action.action == "R") - +(action.action == "L");
+					const cloneY = c.y + +(action.action == "D") - +(action.action == "U");
+					if (cloneX == targetX && cloneY == targetY){
+						action.currentAction = new ActionInstance(Object.create(getAction("Walk")), location!, true);
+						action.currentAction.start(this.currentClone);
+						actions.push(action.currentAction);
+					}
+				});
+				if (actions.length > 1){
+					actions.forEach(a => a.remainingDuration = a.remainingDuration / actions.length);
+				} else {
+					// Force complete of solo walk;
+					this.currentAction.remainingDuration = 0;
+					this.currentAction.tick(0, this.currentClone!);
+					this.complete();
+				}
+			} else {
+				this.complete();
+			}
+		}
 		this.drawProgress();
 	}
 
@@ -246,7 +273,10 @@ class QueuePathfindAction extends QueueAction {
 		while (openList.length > 0) {
 			let best_next = openList.reduce((a, c) => a < c[3] ? a : c[3], Infinity);
 			let active = openList.splice(openList.findIndex(x => x[3] == best_next), 1)[0];
-			if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0) return active[4];
+			if (getDistance(active[1], this.targetX, active[0], this.targetY) == 0){
+				this.cacheAction = active[4];
+				return active[4];
+			}
 			// Add adjacent tiles
 			if (walkable.includes(zones[currentZone].map[active[0] - 1][active[1]]) && !closedList.find(x => x[0] == active[0] - 1 && x[1] == active[1]))
 				openList.push([active[0] - 1, active[1], active[2] + 1, active[2] + getDistance(active[1], this.targetX, active[0] - 1, this.targetY), active[4]])
@@ -266,6 +296,8 @@ class QueuePathfindAction extends QueueAction {
 	// Pathfind actions don't complete until there's no more path to find.
 	complete() {
 		this.cacheAction = null;
+		this.currentAction = null;
+		if (this.done != ActionStatus.Complete) this.done = ActionStatus.NotStarted;
 	}
 }
 
@@ -413,6 +445,7 @@ class ActionQueue extends Array<QueueAction> {
 	clear() {
 		this.splice(0, this.length).forEach(action => action.node.remove());
 		this.cursor = null;
+		countMultipleActions();
 	}
 
 	reset() {

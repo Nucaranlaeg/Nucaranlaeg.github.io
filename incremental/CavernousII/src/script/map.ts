@@ -33,7 +33,7 @@ const classMapping: classMappingType = {
 	"«": ["travertine", "Travertine"], // Mohs 6
 	"╖": ["granite", "Granite"], // Mohs 5
 	"╣": ["basalt", "Basalt"], // Mohs 6
-	"????": ["chert", "Chert"], // Mohs 7, unused
+	"■": ["chert", "Chert"], // Mohs 7, unused
 	"♥": ["clone-machine", "Strange Machine"],
 	"+": ["gold", "Gold Ore"],
 	"%": ["iron", "Iron Ore"],
@@ -61,6 +61,7 @@ const classMapping: classMappingType = {
 	"F": ["rune-from", "Teleport From Rune"],
 	"D": ["rune-dup", "Duplication Rune"],
 	"d": ["rune-dup-charged", "Duplication Rune"],
+	"P": ["rune-pump", "Pump Rune"],
 	"○": ["coal", "Coal"],
 	"☼": ["gem", "Gem"],
 	"©": ["mined-gem", "Gem Tunnel"],
@@ -69,6 +70,7 @@ const classMapping: classMappingType = {
 	"s": ["skeleton", "Skeleton"],
 	"m": ["champion", "Goblin Champion"],
 	"G": ["golem", "Golem"],
+	"X": ["guardian", "Guardian"],
 	"Θ": ["zone", "Zone Portal"],
 	"√": ["goal", "Goal"],
 	"♠": ["mushroom", "Mushroom"],
@@ -85,6 +87,8 @@ const classMapping: classMappingType = {
 	">": ["armour3", "Enchanter - Armour"],
 	"1": ["barrier", "Timelike Barrier"],
 	"2": ["barrier", "Timelike Barrier"],
+	"3": ["barrier", "Timelike Barrier"],
+	"!": ["exit", "Exit"],
 };
 
 setTimeout(() => {
@@ -363,8 +367,12 @@ function getOffsetMapNode(x: number, y: number) {
 	return getMapNode(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
 }
 
-function getMapTile(x: number, y: number) {
+function getMapTile(x: number, y: number): string {
 	return zones[displayZone].map[y] && zones[displayZone].map[y][x];
+}
+
+function getOffsetMapTile(x: number, y: number): string {
+	return getMapTile(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
 }
 
 function displayCreatureHealth(creature:Creature) {

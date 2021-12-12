@@ -1,6 +1,8 @@
 "use strict";
 class MapLocation {
     constructor(x, y, zone, type) {
+        this.activeEnter = null;
+        this.activePresent = null;
         this.x = x;
         this.y = y;
         this.zone = zone;
@@ -16,10 +18,6 @@ class MapLocation {
         this.priorCompletionData = Array(realms.length).fill(0);
         this.completions = 0;
         this.entered = 0;
-        this.remainingEnter = 0;
-        this.remainingPresent = 0;
-        this.enterDuration = 0;
-        this.presentDuration = 0;
         this.temporaryPresent = null;
         this.wither = 0;
         this.water = this.type.startWater;
@@ -36,97 +34,45 @@ class MapLocation {
         }
         return this.baseType;
     }
-    start() {
-        if (clones[currentClone].x == this.x && clones[currentClone].y == this.y) {
+    getEnterAction() {
+        if (this.activeEnter?.remainingDuration == 0)
+            this.activeEnter = null;
+        const action = this.type.getEnterAction(this.entered);
+        if (action == null)
+            return null;
+        if (this.type.canWorkTogether && action.name != "Walk") {
+            if (this.activeEnter === null)
+                this.activeEnter = new ActionInstance(action, this, true);
+            return this.activeEnter;
+        }
+        return new ActionInstance(action, this, true);
+    }
+    getPresentAction() {
+        if (this.activePresent?.remainingDuration == 0)
+            this.activePresent = null;
+        if (this.type.canWorkTogether) {
+            if (this.activePresent !== null)
+                return this.activePresent;
             if (this.type.presentAction) {
-                this.remainingPresent = this.type.presentAction.start(this);
+                this.activePresent = new ActionInstance(this.type.presentAction, this, false);
             }
             else if (this.temporaryPresent) {
-                this.remainingPresent = this.temporaryPresent.start(this);
+                this.activePresent = new ActionInstance(this.temporaryPresent, this, false);
             }
             else {
-                return false;
+                return null;
             }
-            this.presentDuration = this.remainingPresent;
-            return this.remainingPresent;
+            return this.activePresent;
         }
-        const enterAction = this.type.getEnterAction(this.entered);
-        if (!enterAction)
-            return false;
-        clones[currentClone].walkTime = 0;
-        this.remainingEnter = enterAction.start(this);
-        if (this.remainingEnter > 0) {
-            this.remainingEnter = Math.max(Object.create(getAction("Walk")).start(this), this.remainingEnter - this.wither);
+        if (this.type.presentAction) {
+            return new ActionInstance(this.type.presentAction, this, false);
         }
-        this.enterDuration = this.remainingEnter;
-        return this.remainingEnter;
-    }
-    tick(time) {
-        let usedTime;
-        let percent;
-        if (clones[currentClone].x == this.x && clones[currentClone].y == this.y) {
-            const action = (this.type.presentAction || this.temporaryPresent);
-            const skillDiv = action.getSkillDiv();
-            usedTime = Math.min(time / skillDiv, this.remainingPresent);
-            action.tick(usedTime, { x: this.x, y: this.y }, usedTime * skillDiv);
-            this.remainingPresent -= usedTime;
-            if (this.remainingPresent == 0) {
-                if (action.complete(this.x, this.y)) {
-                    // Something got taken away in the middle of completing this.
-                    this.remainingPresent = 100;
-                    this.usedTime = time;
-                }
-                else {
-                    if (this.type.canWorkTogether) {
-                        this.completions++;
-                    }
-                }
-            }
-            percent = this.remainingPresent / (this.presentDuration || 1);
-            // Don't pass back effective time.
-            usedTime *= skillDiv;
+        else if (this.temporaryPresent) {
+            return new ActionInstance(this.temporaryPresent, this, false);
         }
         else {
-            if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name)) {
-                if (!clones[currentClone].walkTime) {
-                    // Second and following entrances
-                    clones[currentClone].walkTime = this.type.getEnterAction(this.entered).start(this);
-                }
-                this.remainingEnter = clones[currentClone].walkTime;
-            }
-            else {
-                clones[currentClone].walkTime = 0;
-            }
-            const skillDiv = this.type.getEnterAction(this.entered).getSkillDiv();
-            usedTime = Math.min(time / skillDiv, this.remainingEnter);
-            this.type.getEnterAction(this.entered).tick(usedTime, this.creature, usedTime * skillDiv);
-            this.remainingEnter -= usedTime;
-            if (this.remainingEnter == 0) {
-                if (this.type.getEnterAction(this.entered).complete(this.x, this.y, this.creature)) {
-                    if (this.type.name == "Goblin")
-                        getMessage("Goblin").display();
-                    // If it was a fight it's not over.
-                    if (this.creature) {
-                        this.start();
-                    }
-                    else {
-                        loopCompletions++;
-                        this.remainingEnter = 1;
-                        this.usedTime = time;
-                    }
-                }
-                else {
-                    loopCompletions++;
-                    this.entered++;
-                }
-            }
-            percent = this.remainingEnter / (this.enterDuration || 1);
-            if (["Walk", "Kudzu Chop"].includes(this.type.getEnterAction(this.entered).name))
-                this.remainingEnter = baseWalkLength();
-            // Don't pass back effective time.
-            usedTime *= skillDiv;
+            return null;
         }
-        return [time - usedTime, percent];
     }
     setTemporaryPresent(rune) {
         if (this.type.presentAction) {
@@ -139,13 +85,29 @@ class MapLocation {
         this.priorCompletionData[currentRealm] = this.type.reset(this.completions, this.priorCompletions);
         this.completions = 0;
         this.entered = 0;
-        this.remainingEnter = 0;
-        this.remainingPresent = 0;
         this.temporaryPresent = null;
         this.wither = 0;
         this.water = this.type.startWater;
+        this.activeEnter = null;
+        this.activePresent = null;
     }
     zoneTick(time) {
+        if (this.temporaryPresent?.name == "Pump") {
+            const pumpAmount = Math.log2(getStat("Runic Lore").current) / 25 * time / 1000;
+            if (this.water > 0.1)
+                mapDirt.push([this.x, this.y]);
+            this.water = Math.max(0, this.water - pumpAmount);
+            // [tile, loc] is actually [mapChar, MapLocation] but ts doesn't provide a way to typehint that.  Or it's just bad at complex types.
+            zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]) => {
+                if (!loc || !loc.water)
+                    return;
+                const prev_level = Math.floor(loc.water * 10);
+                loc.water = Math.max(0, loc.water - (pumpAmount / 4));
+                if (prev_level != Math.floor(loc.water * 10)) {
+                    mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
+                }
+            });
+        }
         if (!this.water)
             return;
         if (this.baseType.name == "Springshroom" && !this.entered) {
