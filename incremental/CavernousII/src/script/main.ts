@@ -366,9 +366,9 @@ function load() {
 	}
 	if (!saveGame.routes) saveGame.routes = JSON.parse(saveGame.savedRoutes as string);
 	previousVersion = saveGame.version || 2;
-	if (version < previousVersion) {
-		alert(`Error: Version number reduced!\n${previousVersion} -> ${version}`);
-	}
+	// if (version < previousVersion) {
+	// 	alert(`Error: Version number reduced!\n${previousVersion} -> ${version}`);
+	// }
 
 	stats.forEach(s => (s.current = 0));
 	for (let i = 0; i < saveGame.playerStats.length; i++) {
