@@ -150,7 +150,7 @@ class QueueAction {
 			return;
 		}
 		if (this.currentAction.remainingDuration == 0){
-			if ("LURD".includes(this.action!)) {
+			if ("LURD".includes(this.action!) || this.actionID == "T") {
 				// Someone else completed this action; this should have already been taken care of.
 				// We can still get here (if, for instance, it happens with an iron bridge onto lava), so no error.
 				// Try again with the action.
@@ -177,7 +177,7 @@ class QueueAction {
 				const actions: ActionInstance[] = [];
 				clones.forEach((c, i) => {
 					const action = zones[currentZone].queues[i].getNextAction();
-					if (!action) return;
+					if (!action || action.done == ActionStatus.NotStarted) return;
 					const cloneX = c.x + +(action.action == "R") - +(action.action == "L");
 					const cloneY = c.y + +(action.action == "D") - +(action.action == "U");
 					if (cloneX == targetX && cloneY == targetY){
