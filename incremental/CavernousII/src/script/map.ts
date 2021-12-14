@@ -271,8 +271,10 @@ function setMined(x: number, y: number, icon?: string) {
 		"░": ".",
 		"╖": ".",
 		"╣": ".",
+		"■": ".",
 		"1": ".",
 		"2": ".",
+		"3": ".",
 	}
 	x += zones[currentZone].xOffset;
 	y += zones[currentZone].yOffset;

@@ -243,8 +243,10 @@ function setMined(x, y, icon) {
         "░": ".",
         "╖": ".",
         "╣": ".",
+        "■": ".",
         "1": ".",
         "2": ".",
+        "3": ".",
     };
     x += zones[currentZone].xOffset;
     y += zones[currentZone].yOffset;

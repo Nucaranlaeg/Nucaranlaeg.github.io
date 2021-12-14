@@ -24,7 +24,7 @@ class ActionInstance {
         this.remainingDuration -= usedTime;
         if (this.remainingDuration == 0) {
             if (this.action.complete(this.location, clone)) {
-                this.start();
+                this.start(clone);
             }
             else if (this.isMove) {
                 loopCompletions++;
@@ -295,21 +295,20 @@ function completeCrossLava(loc, clone) {
     loc.entered = Infinity;
     return false;
 }
-function tickFight(usedTime, loc, baseTime) {
+function tickFight(usedTime, loc, baseTime, clone) {
     if (!loc.creature)
         throw new Error("No creature to fight");
     let damage = (Math.max(loc.creature.attack - getStat("Defense").current, 0) * baseTime) / 1000;
     if (loc.creature.defense >= getStat("Attack").current && loc.creature.attack <= getStat("Defense").current) {
         damage = baseTime / 1000;
     }
-    spreadDamage(damage, loc, true);
+    clone.inCombat = true;
+    spreadDamage(damage, clone);
 }
-function spreadDamage(damage, loc, combat = false) {
-    const targetClones = clones.filter(c => c.x == loc.x && c.y == loc.y && c.damage < Infinity);
+function spreadDamage(damage, clone) {
+    const targetClones = clones.filter(c => c.x == clone.x && c.y == clone.y && c.damage < Infinity);
     targetClones.forEach(c => {
         c.takeDamage(damage / targetClones.length);
-        if (combat)
-            c.inCombat = true;
     });
 }
 let combatTools = [
@@ -498,8 +497,8 @@ function completeGoal(loc) {
 function getChopTime(base, increaseRate) {
     return () => base + increaseRate * queueTime * (realms[currentRealm].name == "Verdant Realm" ? 5 : 1);
 }
-function tickSpore(usedTime, loc, baseTime) {
-    spreadDamage(baseTime / 1000, loc);
+function tickSpore(usedTime, loc, baseTime, clone) {
+    spreadDamage(baseTime / 1000, clone);
 }
 function completeBarrier(loc) {
     zones[currentZone].manaDrain += 5;

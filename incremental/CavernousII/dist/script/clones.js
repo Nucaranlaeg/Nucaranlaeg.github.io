@@ -35,6 +35,7 @@ class Clone {
         this.minHealth = 0;
         this.isSyncing = false;
         this.notSyncing = false;
+        this.inCombat = false;
     }
     reset() {
         this.enterZone();
@@ -67,8 +68,11 @@ class Clone {
         this.styleDamage();
     }
     styleDamage() {
-        if (!this.el)
-            return;
+        if (!this.el) {
+            this.el = document.querySelector(`#queue${this.id}`);
+            if (!this.el)
+                return;
+        }
         const hp = 1 - Math.min(this.damage / getStat("Health").current);
         this.el.querySelector(".damage").style.width = hp == 1 || !Number.isFinite(hp) ? "0" : hp * 100 + "%";
         if (hp < 0) {

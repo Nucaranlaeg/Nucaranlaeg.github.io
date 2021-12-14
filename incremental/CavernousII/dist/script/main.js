@@ -367,7 +367,6 @@ function load() {
         currentRealm = i;
         realms[i].machineCompletions = (saveGame.machines || [])[i] || 0;
         recalculateMana();
-        getRealmComplete(realms[i]);
     }
     saveGame.realmData?.forEach((r, i) => {
         if (r.completed)
@@ -383,6 +382,9 @@ function load() {
     }
     for (let i = 0; i < (saveGame.runeData || []).length; i++) {
         runes[i].upgradeCount = saveGame.runeData[i].upgradeCount || 0;
+    }
+    for (let i = 0; i < realms.length; i++) {
+        getRealmComplete(realms[i]);
     }
     loadSettings(saveGame.settings);
     zones[0].queues[0].selected = true;
