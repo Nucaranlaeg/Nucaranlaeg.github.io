@@ -90,7 +90,7 @@ function showIntermediateLocation(event: DOMEvent) {
 
 function showCursorLocations() {
 	cursorLocations.forEach(f => f.classList.remove("cursor-location"));
-	zones[currentZone].queues.forEach(queue => {
+	zones[displayZone].queues.forEach(queue => {
 		if (queue.cursor === null) return;
 		showLocationAfterSteps(queue.cursor, queue.index, false, HIGHLIGHT_TYPES.CURSOR);
 	})

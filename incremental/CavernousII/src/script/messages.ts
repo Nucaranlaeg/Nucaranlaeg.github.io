@@ -68,7 +68,7 @@ const messages = [
 			One of the walls looks soft enough for you to dig through,
 			but you have a feeling you'll be back here again.
 
-			Move around with <u>arrow keys</u>.
+			Move around with <u>arrow keys</u> - try going right!
 			Click anywhere to continue.`
 	),
 	new Message(
@@ -249,7 +249,7 @@ const messages = [
 		"Unlocked Pump Rune",
 		`
 			You've unlocked a rune!
-			A pump rune costs 2 steel bars and 2 iron bars and drains the water from the 4 surrounding spaces.  It's pricy, but it'll keep you from drowning.`
+			A pump rune costs a steel bar and 3 iron bars and drains the water from the 4 surrounding spaces.  It's pricy, but it'll keep you from drowning.`
 	),
 	new Message(
 		"Other Realms",

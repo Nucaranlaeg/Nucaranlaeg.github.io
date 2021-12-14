@@ -47,6 +47,12 @@ class QueueAction {
 					let percent = 1 - this.currentAction.remainingDuration / this.currentAction.startingDuration;
 					percent *= 100;
 					this.node.style.backgroundSize = `${Math.max(0, percent)}%`;
+					if (percent < this.lastProgress + 100/(0.5*60)) { // 0.5 second @ 60fps
+						this.queue.displayActionProgress(percent);
+					} else {
+						this.queue.displayActionProgress(0);
+					}
+					this.lastProgress = percent;
 				} else {
 					this.node.style.backgroundSize = "100%";
 				}
@@ -150,7 +156,7 @@ class QueueAction {
 			return;
 		}
 		if (this.currentAction.remainingDuration == 0){
-			if ("LURD".includes(this.action!) || this.actionID == "T") {
+			if ("LURD".includes(this.action!) || this.actionID == "T" || this.currentAction.action.name == "Teleport") {
 				// Someone else completed this action; this should have already been taken care of.
 				// We can still get here (if, for instance, it happens with an iron bridge onto lava), so no error.
 				// Try again with the action.
@@ -171,7 +177,7 @@ class QueueAction {
 			const targetY = this.currentClone!.y + +(this.action == "D") - +(this.action == "U");
 			if ("LURD".includes(this.action!)
 			  && (targetX != this.currentClone!.x || targetY != this.currentClone!.y)
-			  && ".*©".includes(getOffsetMapTile(targetX, targetY))
+			  && ".*©".includes(getOffsetCurrentMapTile(targetX, targetY))
 			  && !["Walk", "Kudzu Chop"].includes(this.currentAction.action.name)){
 				const location = getMapLocation(targetX, targetY);
 				const actions: ActionInstance[] = [];
@@ -306,6 +312,7 @@ class ActionQueue extends Array<QueueAction> {
 	cursorPos: number | null = null;
 	queueNode: HTMLElement | null = null;
 	cursorNode: HTMLElement | null = null;
+	progressNode: HTMLElement | null = null;
 	constructor(index: number, ...items:QueueAction[]) {
 		super(...items);
 		this.index = index;
@@ -320,7 +327,10 @@ class ActionQueue extends Array<QueueAction> {
 		}
 		this.cursorPos = newVal;
 		showCursorLocations();
-		if (!this.cursorNode) return;
+		if (!this.cursorNode){
+			this.cursorNode = document.querySelector(`#queue${this.index} .cursor`);
+			if (!this.cursorNode) return;
+		}
 		if (this.cursorPos === null){
 			this.cursorNode.classList.remove("visible");
 		} else {
@@ -419,6 +429,12 @@ class ActionQueue extends Array<QueueAction> {
 		return nextAction;
 	}
 
+	displayActionProgress(percent: number) {
+		if (!this.progressNode) this.progressNode = this.node.parentNode?.querySelector(".work-progress") as HTMLElement | null;
+		if (!this.progressNode) return;
+		this.progressNode.style.width = percent + "%";
+	}
+
 	hasFutureSync() {
 		return this.some(a => (a.done == ActionStatus.NotStarted || a.done == ActionStatus.Waiting) && a.actionID == "=");
 	}
@@ -480,9 +496,9 @@ class ActionQueue extends Array<QueueAction> {
 function selectClone(target: HTMLElement, event: MouseEvent) {
 	const index = +target.id.replace("queue", "");
 	if (event.ctrlKey || event.metaKey) {
-		zones[currentZone].queues[index].selected = !zones[currentZone].queues[index].selected;
+		zones[displayZone].queues[index].selected = !zones[displayZone].queues[index].selected;
 	} else {
-		zones[currentZone].queues.forEach((q, i) => q.selected = i == index);
+		zones[displayZone].queues.forEach((q, i) => q.selected = i == index);
 	}
 }
 
@@ -578,25 +594,6 @@ function countMultipleActions(){
 			}
 		}
 	});
-}
-
-function selectQueueAction(queue: number, action: number, percent: number){
-	let queueBlock = queuesNode.children[queue];
-	let workProgressBar = queueBlock.querySelector(".work-progress") as HTMLElement | null;
-	if (workProgressBar === null) throw new Error("workProgressBar not found");
-	let lastProgress = +(workProgressBar.getAttribute("lastProgress") || 0);
-	if (percent < lastProgress || lastProgress == 100) {
-		workProgressBar.style.width = "0%";
-		lastProgress = 0;
-	}
-	if (percent < lastProgress + 100/(1*60)){ // 1s@60fps
-		workProgressBar.style.width = percent + "%";
-	} else if (lastProgress) {
-		workProgressBar.style.width = "0%";
-	}
-	workProgressBar.setAttribute("lastProgress", percent.toString());
-	// TODO: Attempt to keep both cursor and active action in view
-	// queueNode.parentNode.scrollLeft = Math.max(action * 16 - (this.width / 2), 0);
 }
 
 function clearWorkProgressBars(){

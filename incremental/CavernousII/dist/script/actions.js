@@ -485,7 +485,7 @@ function predictWither(location) {
     }
     if (!adjacentPlants.length)
         return 0;
-    return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither))) / 2000;
+    return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither))) / 2000 + 0.1;
 }
 function activatePortal() {
     breakActions = true;

@@ -96,11 +96,6 @@ class Clone {
     noSync() {
         this.notSyncing = !this.notSyncing;
     }
-    selectQueueAction(actionIndex, n) {
-        if (currentZone == displayZone) {
-            selectQueueAction(this.id, actionIndex, n);
-        }
-    }
     drown(time) {
         const location = zones[currentZone].getMapLocation(this.x, this.y, true);
         if (location?.water)

@@ -56,7 +56,7 @@ const messages = [
 			One of the walls looks soft enough for you to dig through,
 			but you have a feeling you'll be back here again.
 
-			Move around with <u>arrow keys</u>.
+			Move around with <u>arrow keys</u> - try going right!
 			Click anywhere to continue.`),
     new Message("Out of Mana", `
 			You've run out of mana.  You feel drawn back to the room where you started.
@@ -165,7 +165,7 @@ const messages = [
 			You can place one To rune per zone, and any number of From runes.  Activating any From rune teleports you to the To rune.`),
     new Message("Unlocked Pump Rune", `
 			You've unlocked a rune!
-			A pump rune costs 2 steel bars and 2 iron bars and drains the water from the 4 surrounding spaces.  It's pricy, but it'll keep you from drowning.`),
+			A pump rune costs a steel bar and 3 iron bars and drains the water from the 4 surrounding spaces.  It's pricy, but it'll keep you from drowning.`),
     new Message("Other Realms", `
 			There are realms beyond this one, and you've just discovered a way to get to the Long Realm! The Long Realm looks just like the Core Realm, but almost everything takes thrice as much effort and twice as many resources.
 			Mining mana there will reduce the cost scaling of that mana rock in all Realms.`),

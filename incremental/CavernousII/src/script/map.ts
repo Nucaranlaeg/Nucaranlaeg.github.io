@@ -371,8 +371,8 @@ function getMapTile(x: number, y: number): string {
 	return zones[displayZone].map[y] && zones[displayZone].map[y][x];
 }
 
-function getOffsetMapTile(x: number, y: number): string {
-	return getMapTile(x + zones[displayZone].xOffset, y + zones[displayZone].yOffset);
+function getOffsetCurrentMapTile(x: number, y: number): string {
+	return zones[currentZone].map[y + zones[currentZone].yOffset] && zones[currentZone].map[y + zones[currentZone].yOffset][x + zones[currentZone].xOffset];
 }
 
 function displayCreatureHealth(creature:Creature) {
