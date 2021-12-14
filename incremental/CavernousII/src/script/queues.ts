@@ -256,6 +256,7 @@ class QueuePathfindAction extends QueueAction {
 	get action() {
 		if (this.currentClone === null) throw new Error("Pathfind action not initialized");
 		if (this.cacheAction) return this.cacheAction;
+		if (this.done == ActionStatus.Complete) return null;
 		let originX = this.currentClone.x + zones[currentZone].xOffset, originY = this.currentClone.y + zones[currentZone].yOffset;
 		// Do a simple search from the clone's current position to the target position.
 		// Return the direction the clone needs to go next.
@@ -305,6 +306,15 @@ class QueuePathfindAction extends QueueAction {
 		this.cacheAction = null;
 		this.currentAction = null;
 		if (this.done != ActionStatus.Complete) this.done = ActionStatus.NotStarted;
+	}
+
+	reset() {
+		this.done = ActionStatus.NotStarted;
+		this.lastProgress = 0;
+		this.cacheAction = null;
+		this.currentClone = null;
+		this.currentAction = null;
+		this.drawProgress();
 	}
 }
 
@@ -442,7 +452,8 @@ class ActionQueue extends Array<QueueAction> {
 
 	scrollQueue() {
 		if (!actionBarWidth) return setActionBarWidth(this.node);
-		this.node.parentElement!.scrollLeft = Math.max((this.cursor !== null ? this.cursor : 0) * 16 - (actionBarWidth / 2), 0);
+		this.node.parentElement!.scrollLeft = Math.max((this.cursor !== null ? this.cursor : this.length) * 16 - (actionBarWidth / 2), 0);
+		// Potentially take active action into account
 	}
 
 	get node(): HTMLElement {

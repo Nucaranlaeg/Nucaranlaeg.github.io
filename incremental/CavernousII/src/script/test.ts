@@ -108,6 +108,34 @@ const tests: {
 			assertEqual(100/315, magic.value);
 		},
 	},
+	{
+		name: "HealthEtcAreProperlyCalculated",
+		test: () => {
+			let ironSword = getStuff("Iron Sword"), steelSword = getStuff("Steel Sword"), plus1Sword = getStuff("+1 Sword");
+			let ironShield = getStuff("Iron Shield"), steelShield = getStuff("Steel Shield"), plus1Shield = getStuff("+1 Shield");
+			let ironArmour = getStuff("Iron Armour"), steelArmour = getStuff("Steel Armour"), plus1Armour = getStuff("+1 Armour");
+			let health = getStat("Health"), attack = getStat("Attack"), defense = getStat("Defense");
+			clones = Array(5).fill(0).map((x, i) => new Clone(i));
+			ironSword.update(1);
+			assertEqual(1, attack.current);
+			steelSword.update(2);
+			assertEqual(5, attack.current);
+			plus1Sword.update(3);
+			assertEqual(16, attack.current);
+			ironShield.update(1);
+			assertEqual(1, defense.current);
+			steelShield.update(2);
+			assertEqual(5, defense.current);
+			plus1Shield.update(3);
+			assertEqual(16, defense.current);
+			ironArmour.update(1);
+			assertEqual(15, health.current);
+			steelArmour.update(2);
+			assertEqual(45, health.current);
+			plus1Armour.update(3);
+			assertEqual(115, health.current);
+		},
+	},
 	/************************************************ Integration *********************************************/
 	{
 		name: "ManyActionsAreNotSkipped",

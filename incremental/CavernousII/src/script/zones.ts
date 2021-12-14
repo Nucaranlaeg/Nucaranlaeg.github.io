@@ -100,7 +100,7 @@ class Zone {
 		}
 		if (this.goalComplete) this.map = this.map.map(row => row.replace("√", "#"));
 		let unlockedBarriers = getRealm("Compounding Realm").machineCompletions;
-		for (let i = 0; i < 3; i++){
+		for (let i = 1; i <= 9; i++){
 			if (i > unlockedBarriers) this.map = this.map.map(row => row.replace(i.toString(), "█"));
 		}
 		this.mapLocations.forEach((ml, y) => {
