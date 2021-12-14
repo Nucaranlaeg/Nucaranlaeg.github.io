@@ -688,7 +688,7 @@ const actions: anyAction[] = [
 	new Action("Create Pick", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Pick", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Create Hammer", 2500, [["Smithing", 1]], simpleConvert([["Iron Bar", 1]], [["Iron Hammer", 1]]), simpleRequire([["Iron Bar", 1]])),
 	new Action("Enter Barrier", 10000, [["Chronomancy", 1]], completeBarrier, startBarrier, null, barrierDuration),
-	new Action("Exit", 100000000, [["Mana", 0.1], ["Mining", 0.1], ["Woodcutting", 0.1], ["Magic", 0.1], ["Speed", 0.1], ["Smithing", 0.1], ["Runic Lore", 0.1], ["Combat", 0.1], ["Gemcraft", 0.1], ["Chronomancy", 0.1]], completeGame),
+	new Action("Exit", 100000000, [["Mining", 0.2], ["Woodcutting", 0.2], ["Magic", 0.2], ["Speed", 0.2], ["Smithing", 0.2], ["Runic Lore", 0.2], ["Combat", 0.2], ["Gemcraft", 0.2], ["Chronomancy", 0.2]], completeGame),
 ];
 
 function getAction<actionName extends anyActionName>(name: actionName) {

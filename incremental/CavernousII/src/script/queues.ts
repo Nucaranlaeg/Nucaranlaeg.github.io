@@ -160,6 +160,7 @@ class QueueAction {
 				// Someone else completed this action; this should have already been taken care of.
 				// We can still get here (if, for instance, it happens with an iron bridge onto lava), so no error.
 				// Try again with the action.
+				this.currentAction = null;
 				this.done = ActionStatus.NotStarted;
 			} else {
 				// Pathfind or someone else completed this action
@@ -572,8 +573,8 @@ function countMultipleActions(){
 		let nodes = queueNode.children;
 		let actionCount = 0;
 		let countedType = null;
-		for (let j = 0; j < queue.length; j++){
-			let nextType = queue[j].actionID;
+		for (let j = 0; j <= queue.length; j++){
+			let nextType = queue[j]?.actionID;
 			if (actionCount > 3 && nextType != countedType) {
 				let node = document.createElement("div");
 				node.classList.add("action-count");

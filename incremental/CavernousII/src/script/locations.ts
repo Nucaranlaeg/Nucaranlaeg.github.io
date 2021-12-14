@@ -60,7 +60,7 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 
 	getPresentAction() : ActionInstance | null {
 		if (this.activePresent?.remainingDuration == 0) this.activePresent = null;
-		if (this.type.canWorkTogether){
+		if (this.type.canWorkTogether || this.temporaryPresent){
 			if (this.activePresent !== null) return this.activePresent;
 			if (this.type.presentAction){
 				this.activePresent = new ActionInstance(this.type.presentAction, this, false);
@@ -73,8 +73,6 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 		}
 		if (this.type.presentAction){
 			return new ActionInstance(this.type.presentAction, this, false);
-		} else if (this.temporaryPresent){
-			return new ActionInstance(this.temporaryPresent, this, false);
 		} else {
 			return null;
 		}

@@ -76,6 +76,7 @@ class Stat<statName extends anyStatName> {
 		// For combat stats.
 		this.current = this.base + amount;
 		this.dirty = true;
+		this.update();
 	}
 
 	update(forceIncreaseAtUpdate = false): void {

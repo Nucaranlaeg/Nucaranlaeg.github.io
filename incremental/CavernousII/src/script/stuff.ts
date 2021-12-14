@@ -30,14 +30,14 @@ class Stuff<stuffName extends string> {
 
 	update(newCount = 0) {
 		if (this.node === null) this.createNode();
-		if (this.effect !== null){
-			this.effect(this.count, this.count + newCount);
-		}
 		this.count += newCount;
+		if (this.effect !== null){
+			this.effect(this.count - newCount, this.count);
+		}
 		// Ensure we never have 0.9999989 gold.
 		this.count = Math.round(this.count * 100) / 100;
 		// Check if the number is an integer - if it's not, display one decimal place.
-		this.countNode!.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 2).replace(/(?<=\d)0$/, "");
+		this.countNode!.innerText = writeNumber(this.count, Math.abs(Math.round(this.count) - this.count) < 0.01 ? 0 : 2).replace(/(\.[123456789])0+$/, "$1");
 		if (this.count > 0){
 			(this.countNode!.parentNode as HTMLElement).style.display = "inline-block";
 		}

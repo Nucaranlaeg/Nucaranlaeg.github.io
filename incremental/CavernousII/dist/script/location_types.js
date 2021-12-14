@@ -91,7 +91,7 @@ const locationTypes = [
     new LocationType("Portal", "Θ", "A portal to another zone.", "Walk", "Portal", null),
     new LocationType("Complete Goal", "√", "A strange energy field where you can obtain additional powers.", "Complete Goal", null, null),
     new LocationType("Mushroom", "♠", "A giant mushroom which grows quickly.  It's harder to cut the longer you wait. (Growth: 1+{'0':0.1,'2':0.5}t)", "Chop", null, null),
-    new LocationType("Kudzushroom", "♣", "A giant mushroom which grows quickly.  It grows so fast each clone needs to make its own way every time. (Growth: 1+{'0':0.1,'2':0.5}t)", "Kudzu Chop", null, null, null, Infinity),
+    new LocationType("Kudzushroom", "♣", "A giant mushroom which grows quickly.  It grows so fast each clone needs to make its own way every time. (Growth: 1+{'0':0.1,'2':0.5}t)", "Kudzu Chop", null, null, null, Infinity, false),
     new LocationType("Sporeshroom", "α", "A giant mushroom which grows quickly.  While you cut it, it lets out poisonous spores, injuring your clones cutting it for 1 damage per second. (Growth: 1+{'0':0.1,'2':0.5}t)", "Spore Chop", null, null),
     new LocationType("Oystershroom", "§", "A giant mushroom which grows extremely quickly.  You don't think you've ever seen a mushroom grow that fast. (Growth: 1+{'0':0.2,'2':1}t)", "Oyster Chop", null, null),
     new LocationType("Springshroom", "δ", "A giant mushroom which grows quickly.  It seems to continually spray water. (Growth: 1+{'0':0.1,'2':0.5}t)", "Chop", null, null, null, undefined, true, 0.001),

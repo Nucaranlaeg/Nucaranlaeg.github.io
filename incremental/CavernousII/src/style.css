@@ -1044,7 +1044,7 @@ td.rune-wither,
 td.rune-to,
 td.rune-from,
 td.rune-dup,
-td.pump {
+td.rune-pump {
 	background-color: #c99868;
 }
 
@@ -1076,7 +1076,7 @@ td.rune-dup-charged {
 	background-color: #c9ff68
 }
 
-td.pump:before {
+td.rune-pump:before {
 	content: "P";
 }
 
