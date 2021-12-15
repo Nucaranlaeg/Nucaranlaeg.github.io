@@ -40,6 +40,7 @@ class Clone {
 		this.isSyncing = false;
 		this.notSyncing = false;
 		this.inCombat = false;
+		this.repeated = false;
 	}
 
 	reset() {
@@ -47,7 +48,6 @@ class Clone {
 		this.remainingTime = 0;
 		this.damage = 0;
 		this.styleDamage();
-		this.repeated = false;
 		this.resetTimeLine();
 	}
 

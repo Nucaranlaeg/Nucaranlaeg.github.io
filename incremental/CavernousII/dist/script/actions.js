@@ -7,6 +7,10 @@ class ActionInstance {
         this.isMove = isMove;
         this.startingDuration = this.remainingDuration = 0;
     }
+    get expectedLeft() {
+        const skillDiv = this.action.getSkillDiv();
+        return this.remainingDuration * skillDiv;
+    }
     start(clone = null) {
         // We check for strict equality to true, so this.location is falsey when it matters.
         // @ts-ignore
@@ -182,6 +186,11 @@ function longZoneCompletionMult(x, y, z) {
     if (location === null)
         throw new Error("Location not found");
     return 0.99 ** (location.priorCompletionData[1] ** 0.75);
+}
+function canMineMana(location) {
+    if (location.completions)
+        return CanStartReturnCode.Never;
+    return CanStartReturnCode.Now;
 }
 function mineManaRockCost(location, clone = null, realm = null, completionOveride) {
     return location.completions && !completionOveride
@@ -435,6 +444,7 @@ function tickWither(usedTime, loc) {
         loc.wither += usedTime * (wither.upgradeCount ? 2 ** (wither.upgradeCount - 1) : 1);
         if (loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither) <= 0) {
             setMined(loc.x, loc.y, ".");
+            loc.wither = 0;
             loc.entered = Infinity;
         }
     });
@@ -589,7 +599,7 @@ const actions = [
     new Action("Mine Salt", 50000, [["Mining", 1]], completeSaltMine),
     new Action("Mine Gem", 100000, [["Mining", 0.75], ["Gemcraft", 0.25]], completeMine),
     new Action("Collect Gem", 100000, [["Smithing", 0.1], ["Gemcraft", 1]], completeCollectGem, null, null, mineGemCost),
-    new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, null, tickCollectMana, mineManaRockCost),
+    new Action("Collect Mana", 1000, [["Magic", 1]], completeCollectMana, canMineMana, tickCollectMana, mineManaRockCost),
     new Action("Activate Machine", 1000, [], completeActivateMachine, startActivateMachine),
     new Action("Make Iron Bars", 5000, [["Smithing", 1]], simpleConvert([["Iron Ore", 1]], [["Iron Bar", 1]], true), simpleRequire([["Iron Ore", 1]], true)),
     new Action("Make Steel Bars", 15000, [["Smithing", 1]], simpleConvert([["Iron Bar", 1], ["Coal", 1]], [["Steel Bar", 1]], true), simpleRequire([["Iron Bar", 1], ["Coal", 1]], true)),

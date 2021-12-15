@@ -197,6 +197,27 @@ const tests: {
 		},
 	},
 	{
+		name: "WitherWorksOnOldKudzus",
+		reloadBefore: true,
+		test: async () => {
+			clones = Array(5).fill(0).map((x, i) => new Clone(i));
+			zones[0].queues.forEach(q => q.fromString("RRRRRDDN1;IDN1;I"));
+			resetLoop();
+			getStat("Mana").current = 10;
+			getStuff("Gold Nugget").count = 2;
+			getStuff("Iron Ore").count = 2;
+			getStuff("Salt").count = 2;
+			settings.autoRestart = AutoRestart.WaitAll;
+			settings.running = true;
+			settings.usingBankedTime = true;
+			timeBanked = Infinity;
+			await waitForPause();
+			zones[0].queues.forEach(q => {
+				assertEqual(null, q.getNextAction());
+			});
+		},
+	},
+	{
 		name: "CanPathfind",
 		reloadBefore: true,
 		test: async () => {

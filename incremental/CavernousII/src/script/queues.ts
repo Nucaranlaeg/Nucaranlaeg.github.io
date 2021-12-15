@@ -429,11 +429,12 @@ class ActionQueue extends Array<QueueAction> {
 		if (clones[this.index].damage === Infinity) return null;
 		const nextAction = this.find(a => a.done != ActionStatus.Complete) || null;
 		if (nextAction === null){
-			const index = this.findIndex(a => a.action == "<");
+			const index = this.findIndex(a => a.actionID == "<");
 			if (index > 0 && index < this.length - 1){
 				for (let i = index; i < this.length; i++){
 					this[i].done = ActionStatus.NotStarted;
 				}
+				clones[this.index].repeated = true;
 				return this.getNextAction();
 			}
 		}

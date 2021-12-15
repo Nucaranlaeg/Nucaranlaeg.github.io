@@ -485,7 +485,7 @@ function displaySaveClick(event: MouseEvent){
 /** ****************************************** Game loop ********************************************/
 
 let lastAction = Date.now();
-let timeBanked = 1e9;
+let timeBanked = 0;
 let queueTime = 0;
 let queuesNode: HTMLElement;
 let queueTimeNode: HTMLElement;
@@ -590,7 +590,7 @@ function runActions(time: number): number {
 			return time;
 		}
 		const instances = actions.map(a => <ActionInstance>a.currentAction);
-		const nextTickTime = Math.min(...instances.map(i => i.remainingDuration / instances.reduce((a, c) => a + +(c === i), 0)), time);
+		const nextTickTime = Math.min(...instances.map(i => i.expectedLeft / instances.reduce((a, c) => a + +(c === i), 0)), time);
 		actions.forEach(a => a.tick(nextTickTime));
 		nullActions.forEach(a => clones[a].addToTimeline({name: clones[a].damage === Infinity ? "Dead" : "None"}, nextTickTime));
 		waitActions.forEach(a => a.currentClone!.addToTimeline({name: "Wait"}, nextTickTime));

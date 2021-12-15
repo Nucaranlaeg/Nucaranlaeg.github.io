@@ -36,13 +36,13 @@ class Clone {
         this.isSyncing = false;
         this.notSyncing = false;
         this.inCombat = false;
+        this.repeated = false;
     }
     reset() {
         this.enterZone();
         this.remainingTime = 0;
         this.damage = 0;
         this.styleDamage();
-        this.repeated = false;
         this.resetTimeLine();
     }
     takeDamage(amount) {

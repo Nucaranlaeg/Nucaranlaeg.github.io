@@ -118,7 +118,8 @@ function updateRunes() {
 }
 
 function createChargableRune(location: MapLocation) {
-	location.getPresentAction();
+	let action = location.getPresentAction();
+	action?.start();
 }
 
 function weakenCreatures(location: MapLocation) {

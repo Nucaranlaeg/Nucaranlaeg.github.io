@@ -91,7 +91,8 @@ function updateRunes() {
     }
 }
 function createChargableRune(location) {
-    location.getPresentAction();
+    let action = location.getPresentAction();
+    action?.start();
 }
 function weakenCreatures(location) {
     let x = location.x;

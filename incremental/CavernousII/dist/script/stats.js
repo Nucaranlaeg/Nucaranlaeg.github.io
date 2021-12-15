@@ -174,7 +174,7 @@ class Stat {
             return;
         }
         this.current -= amount;
-        if (this.current < 0) {
+        if (this.current < 0.01) {
             this.current = 0;
         }
         this.dirty = true;
