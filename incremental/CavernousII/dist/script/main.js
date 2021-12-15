@@ -541,7 +541,9 @@ function runActions(time) {
             return time;
         }
         const instances = actions.map(a => a.currentAction);
-        const nextTickTime = Math.min(...instances.map(i => i.expectedLeft / instances.reduce((a, c) => a + +(c === i), 0)), time);
+        let nextTickTime = Math.min(...instances.map(i => i.expectedLeft / instances.reduce((a, c) => a + +(c === i), 0)), time);
+        if (nextTickTime < 0.01)
+            nextTickTime = 0.01;
         actions.forEach(a => a.tick(nextTickTime));
         nullActions.forEach(a => clones[a].addToTimeline({ name: clones[a].damage === Infinity ? "Dead" : "None" }, nextTickTime));
         waitActions.forEach(a => a.currentClone.addToTimeline({ name: "Wait" }, nextTickTime));
