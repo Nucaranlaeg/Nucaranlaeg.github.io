@@ -1,12 +1,16 @@
 type statList = [Stat<anyStatName>, number][];
 
+let actionIdCounter = 0;
+
 class ActionInstance {
 	action: Action;
 	location: MapLocation;
 	remainingDuration: number;
 	startingDuration: number;
 	isMove: boolean;
+	moved: boolean = false;
 	appliedWither: number = 0;
+	id: number = actionIdCounter++; // Every ActionInstance gets a unique id!
 	constructor(action: Action, location: MapLocation, isMove: boolean) {
 		this.action = action;
 		this.location = location;
@@ -36,7 +40,7 @@ class ActionInstance {
 		this.action.tick(usedTime, this.location, usedTime * skillDiv, clone);
 		this.remainingDuration -= usedTime;
 		if (this.remainingDuration == 0){
-			if (this.action.complete(this.location, clone)){
+			if (this.action.complete(this.location, clone, this)){
 				this.start(clone);
 			} else if (this.isMove) {
 				loopCompletions++;
@@ -53,7 +57,7 @@ class Action<actionName extends anyActionName = anyActionName> {
 	name: actionName;
 	baseDuration: number | (() => number);
 	stats: statList;
-	complete: (loc: MapLocation, clone: Clone) => boolean | void;
+	complete: (loc: MapLocation, clone: Clone, action: ActionInstance) => boolean | void;
 	canStart: ({(spend?: boolean): CanStartReturnCode; itemCount: number;}) | ((location: MapLocation, clone: Clone) => CanStartReturnCode);
 	tickExtra: this["tick"] | null;
 	specialDuration: (location: MapLocation, clone?: Clone) => number;
@@ -62,7 +66,7 @@ class Action<actionName extends anyActionName = anyActionName> {
 		name: actionName,
 		baseDuration: number | (() => number),
 		stats: [anyStatName, number][],
-		complete: (loc: MapLocation, clone: Clone) => boolean | void,
+		complete: (loc: MapLocation, clone: Clone, action: ActionInstance) => boolean | void,
 		canStart: Action["canStart"] | null = null,
 		tickExtra: Action["tick"] | null = null,
 		specialDuration: Action["specialDuration"] = () => 1
@@ -146,10 +150,11 @@ function baseWalkLength() {
 	return 100 * (realms[currentRealm].name == "Long Realm" ? 3 : 1);
 }
 
-function completeMove(loc: MapLocation, clone: Clone) {
+function completeMove(loc: MapLocation, clone: Clone, action: ActionInstance) {
 	clone.x = loc.x;
 	clone.y = loc.y;
 	setMined(loc.x, loc.y);
+	action.moved = true;
 }
 
 function completeMine(loc: MapLocation) {
@@ -324,13 +329,13 @@ function completeCrossPit(loc: MapLocation) {
 	return false;
 }
 
-function completeCrossLava(loc: MapLocation, clone: Clone) {
+function completeCrossLava(loc: MapLocation, clone: Clone, action: ActionInstance) {
 	let bridge: Stuff<"Iron Bridge" | "Steel Bridge"> = getStuff("Steel Bridge");
 	if (bridge.count < 1) {
 		bridge = getStuff("Iron Bridge");
 		if (bridge.count < 1 || !settings.useDifferentBridges) return true;
 		bridge.update(-1);
-		completeMove(loc, clone);
+		completeMove(loc, clone, action);
 		getMessage("Lava Can't Melt Steel Bridges").display();
 		return;
 	}

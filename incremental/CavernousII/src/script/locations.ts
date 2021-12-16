@@ -59,7 +59,7 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 	}
 
 	getPresentAction() : ActionInstance | null {
-		if (this.activePresent?.remainingDuration == 0) this.activePresent = null;
+		if (this.activePresent?.remainingDuration == 0 && this.activePresent.startingDuration != 0) this.activePresent = null;
 		if (this.type.canWorkTogether || this.temporaryPresent){
 			if (this.activePresent !== null) return this.activePresent;
 			if (this.type.presentAction){

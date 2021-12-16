@@ -1,7 +1,10 @@
 "use strict";
+let actionIdCounter = 0;
 class ActionInstance {
     constructor(action, location, isMove) {
+        this.moved = false;
         this.appliedWither = 0;
+        this.id = actionIdCounter++; // Every ActionInstance gets a unique id!
         this.action = action;
         this.location = location;
         this.isMove = isMove;
@@ -27,7 +30,7 @@ class ActionInstance {
         this.action.tick(usedTime, this.location, usedTime * skillDiv, clone);
         this.remainingDuration -= usedTime;
         if (this.remainingDuration == 0) {
-            if (this.action.complete(this.location, clone)) {
+            if (this.action.complete(this.location, clone, this)) {
                 this.start(clone);
             }
             else if (this.isMove) {
@@ -119,10 +122,11 @@ class Action {
 function baseWalkLength() {
     return 100 * (realms[currentRealm].name == "Long Realm" ? 3 : 1);
 }
-function completeMove(loc, clone) {
+function completeMove(loc, clone, action) {
     clone.x = loc.x;
     clone.y = loc.y;
     setMined(loc.x, loc.y);
+    action.moved = true;
 }
 function completeMine(loc) {
     setMined(loc.x, loc.y);
@@ -288,14 +292,14 @@ function completeCrossPit(loc) {
     setMined(loc.x, loc.y);
     return false;
 }
-function completeCrossLava(loc, clone) {
+function completeCrossLava(loc, clone, action) {
     let bridge = getStuff("Steel Bridge");
     if (bridge.count < 1) {
         bridge = getStuff("Iron Bridge");
         if (bridge.count < 1 || !settings.useDifferentBridges)
             return true;
         bridge.update(-1);
-        completeMove(loc, clone);
+        completeMove(loc, clone, action);
         getMessage("Lava Can't Melt Steel Bridges").display();
         return;
     }

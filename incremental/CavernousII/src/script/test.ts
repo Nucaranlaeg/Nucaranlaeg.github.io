@@ -21,7 +21,6 @@ function nextTest(){
 }
 
 function revealWholeMap(zone:number){
-	console.log(zones[zone].map.length, zones[zone].yOffset)
 	for (let i = 0 - zones[zone].yOffset; i < zones[zone].map.length - zones[zone].yOffset; i++){
 		for (let j = 0 - zones[zone].xOffset; j < zones[zone].map[0].length - zones[zone].xOffset; j++){
 			zones[zone].getMapLocation(j, i, true);
@@ -214,6 +213,29 @@ const tests: {
 			await waitForPause();
 			zones[0].queues.forEach(q => {
 				assertEqual(null, q.getNextAction());
+			});
+		},
+	},
+	{
+		name: "IronBridgesWorkProperlyOnLava",
+		reloadBefore: true,
+		test: async () => {
+			clones = Array(2).fill(0).map((x, i) => new Clone(i));
+			zones[0].queues.forEach(q => q.fromString("RRR"));
+			resetLoop();
+			setMined(2, 0, "~");
+			getStat("Mana").current = 10;
+			getStuff("Iron Bridge").count = 2;
+			settings.autoRestart = AutoRestart.WaitAll;
+			settings.running = true;
+			settings.usingBankedTime = true;
+			timeBanked = Infinity;
+			await waitForPause();
+			zones[0].queues.forEach(q => {
+				assertEqual(null, q.getNextAction());
+			});
+			clones.forEach(c => {
+				assertEqual(3, c.x);
 			});
 		},
 	},

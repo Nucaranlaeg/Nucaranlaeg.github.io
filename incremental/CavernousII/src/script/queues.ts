@@ -178,6 +178,7 @@ class QueueAction {
 			const targetY = this.currentClone!.y + +(this.action == "D") - +(this.action == "U");
 			if ("LURD".includes(this.action!)
 			  && (targetX != this.currentClone!.x || targetY != this.currentClone!.y)
+			  && !this.currentAction.moved
 			  && ".*©".includes(getOffsetCurrentMapTile(targetX, targetY))
 			  && !["Walk", "Kudzu Chop"].includes(this.currentAction.action.name)){
 				const location = getMapLocation(targetX, targetY);
