@@ -710,3 +710,6 @@ const actions: anyAction[] = [
 function getAction<actionName extends anyActionName>(name: actionName) {
 	return actions.find(a => a.name == name) as Action<actionName>;
 }
+
+getAction("Wait").getDuration = getAction("Wait").getBaseDuration = getAction("Wait").getProjectedDuration = () => <number>getAction("Wait").baseDuration;
+getAction("Long Wait").getDuration = getAction("Long Wait").getBaseDuration = getAction("Long Wait").getProjectedDuration = () => (<() => number>getAction("Long Wait").baseDuration)();

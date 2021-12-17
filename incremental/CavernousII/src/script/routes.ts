@@ -141,6 +141,7 @@ class Route {
 		while (arrivedClones > this.cloneArriveTimes.length){
 			this.cloneArriveTimes.push(queueTime);
 		}
+		this.needsNewEstimate = true;
 	}
 
 	getRefineCost(relativeLevel = 0) {
@@ -156,6 +157,7 @@ class Route {
 
 	estimateRefineManaLeft(current = false, ignoreInvalidate = false) {
 		if (!this.needsNewEstimate && this.cachedEstimate) return !ignoreInvalidate && this.invalidateCost ? this.cachedEstimate + 1e9 : this.cachedEstimate;
+		this.needsNewEstimate = false;
 		const manaMult = getRealmMult("Verdant Realm") || 1;
 		const manaTotal = 5 + zones.reduce((a, z, i) => {
 			return i > this.zone ? a : a + z.cacheManaGain[this.realm]

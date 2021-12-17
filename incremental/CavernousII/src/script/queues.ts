@@ -181,6 +181,7 @@ class QueueAction {
 			  && !this.currentAction.moved
 			  && ".*©".includes(getOffsetCurrentMapTile(targetX, targetY))
 			  && !["Walk", "Kudzu Chop"].includes(this.currentAction.action.name)){
+				loopCompletions--;
 				const location = getMapLocation(targetX, targetY);
 				const actions: ActionInstance[] = [];
 				clones.forEach((c, i) => {

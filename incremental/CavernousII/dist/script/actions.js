@@ -644,4 +644,6 @@ const actions = [
 function getAction(name) {
     return actions.find(a => a.name == name);
 }
+getAction("Wait").getDuration = getAction("Wait").getBaseDuration = getAction("Wait").getProjectedDuration = () => getAction("Wait").baseDuration;
+getAction("Long Wait").getDuration = getAction("Long Wait").getBaseDuration = getAction("Long Wait").getProjectedDuration = () => getAction("Long Wait").baseDuration();
 //# sourceMappingURL=actions.js.map
