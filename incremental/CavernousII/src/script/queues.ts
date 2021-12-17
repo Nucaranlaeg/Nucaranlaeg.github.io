@@ -363,6 +363,7 @@ class ActionQueue extends Array<QueueAction> {
 		} else {
 			this.node.parentElement!.classList.remove("selected-clone");
 		}
+		showFinalLocation();
 	}
 
 	static fromJSON(ar:string[][]) {

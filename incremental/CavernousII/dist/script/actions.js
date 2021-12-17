@@ -192,6 +192,7 @@ function longZoneCompletionMult(x, y, z) {
     return 0.99 ** (location.priorCompletionData[1] ** 0.75);
 }
 function canMineMana(location) {
+    Route.updateBestRoute(location);
     if (location.completions)
         return CanStartReturnCode.Never;
     return CanStartReturnCode.Now;

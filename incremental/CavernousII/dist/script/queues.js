@@ -367,6 +367,7 @@ class ActionQueue extends Array {
         else {
             this.node.parentElement.classList.remove("selected-clone");
         }
+        showFinalLocation();
     }
     static fromJSON(ar) {
         ar = this.migrate(ar);
