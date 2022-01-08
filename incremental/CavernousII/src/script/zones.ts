@@ -174,6 +174,7 @@ class Zone {
 
 	sumRoute(require: simpleStuffList, startDamage: number[], actionCount: number) {
 		let routeOptions = this.routes
+			// .filter(r => !r.noValidPrior)
 			.filter(r => r.realm == currentRealm)
 			.filter(r => {
 				let reqs = (require || []).map(s => {

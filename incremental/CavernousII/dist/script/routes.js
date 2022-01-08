@@ -8,6 +8,7 @@ class Route {
         this.loadingFailed = false;
         this.manaDrain = 0;
         this.needsNewEstimate = true;
+        this.usedRoutes = null;
         if (base instanceof MapLocation) {
             this.x = base.x;
             this.y = base.y;
@@ -58,8 +59,10 @@ class Route {
         for (let i = 0; i < routeOptions.length; i++) {
             let routes = this.pickRoute(zone - 1, routeOptions[i][1], routeOptions[i][2], routeOptions[i][0].actionCount);
             if (routes !== null) {
+                routeOptions[i][0].noValidPrior = false;
                 return [...routes, routeOptions[i][0]];
             }
+            routeOptions[i][0].noValidPrior = true;
         }
         return null;
     }
@@ -72,7 +75,11 @@ class Route {
         }
         let success = true;
         if (this.zone > 0) {
+            if (this.invalidateCost)
+                this.usedRoutes = null;
+            let stime = Date.now();
             let routes = this.pickRoute(this.zone - 1, this.require, this.cloneHealth);
+            console.log(Date.now() - stime);
             markRoutesChanged();
             this.usedRoutes = routes;
             if (routes !== null) {

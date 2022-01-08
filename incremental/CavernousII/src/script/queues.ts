@@ -326,6 +326,7 @@ class ActionQueue extends Array<QueueAction> {
 	queueNode: HTMLElement | null = null;
 	cursorNode: HTMLElement | null = null;
 	progressNode: HTMLElement | null = null;
+	isScrolling: boolean = false;
 	constructor(index: number, ...items:QueueAction[]) {
 		super(...items);
 		this.index = index;
@@ -455,9 +456,14 @@ class ActionQueue extends Array<QueueAction> {
 	}
 
 	scrollQueue() {
-		if (!actionBarWidth) return setActionBarWidth(this.node);
-		this.node.parentElement!.scrollLeft = Math.max((this.cursor !== null ? this.cursor : this.length) * 16 - (actionBarWidth / 2), 0);
-		// Potentially take active action into account
+		if (this.isScrolling) return;
+		this.isScrolling = true;
+		setTimeout(() => {
+			if (!actionBarWidth) return setActionBarWidth(this.node);
+			this.node.parentElement!.scrollLeft = Math.max((this.cursor !== null ? this.cursor : this.length) * 16 - (actionBarWidth / 2), 0);
+			// Potentially take active action into account
+			this.isScrolling = false;
+		});
 	}
 
 	get node(): HTMLElement {

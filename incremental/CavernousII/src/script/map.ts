@@ -261,6 +261,7 @@ function setMined(x: number, y: number, icon?: string) {
 		" ": ".",
 		"g": ".",
 		"G": ".",
+		"X": ".",
 		"○": ".",
 		"c": ".",
 		"§": ".",

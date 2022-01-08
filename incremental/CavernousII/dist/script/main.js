@@ -38,7 +38,7 @@ function redrawTimeNode() {
 window.ondrop = e => e.preventDefault();
 /** ****************************************** Prestiges ********************************************/
 let resetting = false;
-function resetLoop(noLoad = false) {
+function resetLoop(noLoad = false, saveGame = true) {
     if (resetting)
         return;
     shouldReset = false;
@@ -90,7 +90,8 @@ function resetLoop(noLoad = false) {
     getStat("Mana").dirty = true;
     getStat("Mana").update();
     drawMap();
-    save();
+    if (saveGame)
+        save();
     showFinalLocation();
     if (isNaN(timeBanked)) {
         timeBanked = 0;
@@ -234,7 +235,7 @@ const URLParams = new URL(document.location.href).searchParams;
 let saveName = URLParams.get("save") || "";
 saveName = `saveGameII${saveName && "_"}${saveName}`;
 const savingDisabled = URLParams.get("saving") == "disabled";
-let save = function save() {
+let save = async function save() {
     if (savingDisabled)
         return;
     const playerStats = stats.map(s => {
@@ -413,7 +414,7 @@ function importGame() {
         return;
     save();
     // Disable saving until the next reload.
-    save = () => { };
+    save = async () => { };
     const temp = localStorage[saveName];
     localStorage[saveName] = saveString;
     try {

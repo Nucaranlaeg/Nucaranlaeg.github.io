@@ -328,6 +328,7 @@ class ActionQueue extends Array {
         this.queueNode = null;
         this.cursorNode = null;
         this.progressNode = null;
+        this.isScrolling = false;
         this.index = index;
         items.forEach(a => a.queue = this);
     }
@@ -455,10 +456,16 @@ class ActionQueue extends Array {
         return this.some(a => (a.done == ActionStatus.NotStarted || a.done == ActionStatus.Waiting) && a.actionID == "=");
     }
     scrollQueue() {
-        if (!actionBarWidth)
-            return setActionBarWidth(this.node);
-        this.node.parentElement.scrollLeft = Math.max((this.cursor !== null ? this.cursor : this.length) * 16 - (actionBarWidth / 2), 0);
-        // Potentially take active action into account
+        if (this.isScrolling)
+            return;
+        this.isScrolling = true;
+        setTimeout(() => {
+            if (!actionBarWidth)
+                return setActionBarWidth(this.node);
+            this.node.parentElement.scrollLeft = Math.max((this.cursor !== null ? this.cursor : this.length) * 16 - (actionBarWidth / 2), 0);
+            // Potentially take active action into account
+            this.isScrolling = false;
+        });
     }
     get node() {
         if (this.queueNode !== null)

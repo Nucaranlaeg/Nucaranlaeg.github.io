@@ -1,6 +1,7 @@
 "use strict";
 class ZoneRoute {
     constructor(z) {
+        this.noValidPrior = false;
         if (z instanceof Zone) {
             let route = zones[currentZone].queues.map(r => queueToString(r));
             route = route.filter(e => e.length);

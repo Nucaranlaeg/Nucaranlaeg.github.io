@@ -7,6 +7,7 @@ class ZoneRoute {
 	manaRequired!: number;
 	require!: simpleStuffList;
 	actionCount!: number;
+	noValidPrior: boolean = false;
 
 	constructor(z: Zone | PropertiesOf<ZoneRoute>) {
 		if (z instanceof Zone) {
