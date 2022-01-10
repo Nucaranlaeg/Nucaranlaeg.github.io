@@ -33,7 +33,7 @@ const classMapping: classMappingType = {
 	"«": ["travertine", "Travertine"], // Mohs 6
 	"╖": ["granite", "Granite"], // Mohs 5
 	"╣": ["basalt", "Basalt"], // Mohs 6
-	"■": ["chert", "Chert"], // Mohs 7, unused
+	"■": ["chert", "Chert"], // Mohs 7
 	"♥": ["clone-machine", "Strange Machine"],
 	"+": ["gold", "Gold Ore"],
 	"%": ["iron", "Iron Ore"],
