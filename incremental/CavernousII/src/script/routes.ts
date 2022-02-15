@@ -191,7 +191,7 @@ class Route {
 		return times;
 	}
 
-	static updateBestRoute(location: MapLocation) {
+	static updateBestRoute(location: MapLocation, completed: boolean = false) {
 		let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
 		let prev = Route.getBestRoute(location.x, location.y, currentZone);
 		if (cur === undefined){
@@ -200,11 +200,11 @@ class Route {
 		} else {
 			cur.updateRoute();
 		}
-		if (prev == cur) return prev;
+		if (prev == cur) return cur;
 		if (prev) {
 			let curEff = cur.estimateRefineManaLeft(true);
 			let prevEff = prev.estimateRefineManaLeft();
-			if (curEff < prevEff && !prev.invalidateCost) {
+			if (curEff < prevEff && !(prev.invalidateCost || completed)) {
 				return prev;
 			}
 			routes = routes.filter(e => e != prev);

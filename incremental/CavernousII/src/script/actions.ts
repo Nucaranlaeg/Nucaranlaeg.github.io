@@ -207,7 +207,7 @@ function completeSaltMine(loc: MapLocation) {
 }
 
 function completeCollectMana(loc: MapLocation) {
-	Route.updateBestRoute(loc);
+	Route.updateBestRoute(loc, true);
 	zones[currentZone].mineComplete();
 	setMined(loc.x, loc.y, ".");
 	if (settings.autoRestart == AutoRestart.RestartDone && settings.grindMana) shouldReset = true;
