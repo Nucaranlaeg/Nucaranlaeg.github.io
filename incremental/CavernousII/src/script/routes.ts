@@ -91,7 +91,6 @@ class Route {
 			if (this.invalidateCost) this.usedRoutes = null;
 			let stime = Date.now();
 			let routes = this.pickRoute(this.zone - 1, this.require, this.cloneHealth);
-			console.log(Date.now() - stime);
 			markRoutesChanged();
 			this.usedRoutes = routes;
 			if (routes !== null){

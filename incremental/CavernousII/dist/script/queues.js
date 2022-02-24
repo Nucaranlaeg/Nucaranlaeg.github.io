@@ -52,7 +52,7 @@ class QueueAction {
                     else {
                         this.queue.displayActionProgress(0);
                     }
-                    this.lastProgress = percent;
+                    this.lastProgress = isNaN(percent) ? 0 : percent;
                 }
                 else {
                     this.node.style.backgroundSize = "100%";

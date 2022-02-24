@@ -562,6 +562,7 @@ setInterval(function mainLoop() {
 
 function runActions(time: number): number {
 	const mana = getStat("Mana");
+	let loops = 0;
 	while (time > 0.001){
 		let actions = <QueueAction[]>zones[currentZone].queues.map(q => q.getNextAction());
 		const nullActions = actions.map((a, i) => a === null ? i : -1).filter(a => a > -1);
@@ -590,6 +591,13 @@ function runActions(time: number): number {
 			return time;
 		}
 		const instances = actions.map(a => <ActionInstance>a.currentAction);
+		if (instances.some(i => i.expectedLeft == 0)){
+			// If it's started and has nothing left, it's tried to start an action with no duration - like starting a Wither activation when it's complete.
+			instances.forEach((i, index) => {
+				if (i.expectedLeft == 0) actions[index].done = 3;
+			});
+			continue;
+		}
 		let nextTickTime = Math.min(...instances.map(i => i.expectedLeft / instances.reduce((a, c) => a + +(c === i), 0)), time);
 		if (nextTickTime < 0.01) nextTickTime = 0.01;
 		actions.forEach(a => a.tick(nextTickTime));
