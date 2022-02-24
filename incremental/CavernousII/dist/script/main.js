@@ -271,7 +271,8 @@ let save = async function save() {
     };
     const messageData = messages.map(m => [m.name, m.displayed]);
     const savedRoutes = JSON.parse(JSON.stringify(routes, (key, value) => {
-        if (key == "usedRoutes")
+        if (key == "usedRoutes" ||
+            key == "lastUpdate")
             return undefined;
         return value;
     }));

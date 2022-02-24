@@ -196,7 +196,7 @@ class QueueAction {
 					}
 				});
 				if (actions.length > 1){
-					actions.forEach(a => a.remainingDuration = a.remainingDuration / actions.length);
+					actions.forEach(a => a.remainingDuration = a.remainingDuration * (actions.length - 1) / actions.length);
 				} else {
 					// Force complete of solo walk;
 					this.currentAction.remainingDuration = 0;

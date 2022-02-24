@@ -9,6 +9,7 @@ class Route {
         this.manaDrain = 0;
         this.needsNewEstimate = true;
         this.usedRoutes = null;
+        this.lastUpdate = Date.now();
         if (base instanceof MapLocation) {
             this.x = base.x;
             this.y = base.y;
@@ -187,12 +188,12 @@ class Route {
         else {
             cur.updateRoute();
         }
-        if (prev == cur)
+        if (prev == cur && !completed)
             return cur;
         if (prev) {
             let curEff = cur.estimateRefineManaLeft(true);
             let prevEff = prev.estimateRefineManaLeft();
-            if (curEff < prevEff && !(prev.invalidateCost || completed)) {
+            if (curEff < prevEff && !(prev.invalidateCost || completed) && prev.route.join(",") != cur.route.join(",")) {
                 return prev;
             }
             routes = routes.filter(e => e != prev);
@@ -242,7 +243,7 @@ class Route {
         document.querySelector("#location-route").hidden = false;
         document.querySelector("#route-has-route").hidden = false;
         document.querySelector("#route-not-visited").hidden = true;
-        let est = this.estimateRefineManaLeft(true);
+        let est = this.estimateRefineManaLeft();
         const manaMult = getRealmMult("Verdant Realm") || 1;
         let manaTotal = 5 + zones.reduce((a, z, i) => {
             return i > this.zone ? a : a + z.cacheManaGain[this.realm];
