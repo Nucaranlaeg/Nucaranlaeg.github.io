@@ -9,7 +9,6 @@ class Route {
         this.manaDrain = 0;
         this.needsNewEstimate = true;
         this.usedRoutes = null;
-        this.lastUpdate = Date.now();
         if (base instanceof MapLocation) {
             this.x = base.x;
             this.y = base.y;

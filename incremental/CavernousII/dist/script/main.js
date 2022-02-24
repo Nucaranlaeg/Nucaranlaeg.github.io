@@ -271,8 +271,7 @@ let save = async function save() {
     };
     const messageData = messages.map(m => [m.name, m.displayed]);
     const savedRoutes = JSON.parse(JSON.stringify(routes, (key, value) => {
-        if (key == "usedRoutes" ||
-            key == "lastUpdate")
+        if (key == "usedRoutes")
             return undefined;
         return value;
     }));
@@ -544,11 +543,11 @@ function runActions(time) {
             return time;
         }
         const instances = actions.map(a => a.currentAction);
-        if (instances.some(i => i.expectedLeft == 0)) {
+        if (actions.some(a => a.currentAction?.expectedLeft === 0 && a.actionID == "T")) {
             // If it's started and has nothing left, it's tried to start an action with no duration - like starting a Wither activation when it's complete.
-            instances.forEach((i, index) => {
-                if (i.expectedLeft == 0)
-                    actions[index].done = 3;
+            actions.forEach(a => {
+                if (a.currentAction?.expectedLeft === 0 && a.actionID == "T")
+                    a.done = 3;
             });
             continue;
         }
