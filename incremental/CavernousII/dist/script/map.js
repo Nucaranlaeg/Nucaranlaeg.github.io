@@ -259,6 +259,8 @@ function setMined(x, y, icon) {
     if (tile !== old) {
         mapDirt.push([x, y]);
     }
+    if (tile == "*")
+        getMessage("Mana Extraction").display();
 }
 function viewCell(target) {
     let x = parseInt(target.dataset.x ?? "-1"), y = parseInt(target.dataset.y ?? "-1");

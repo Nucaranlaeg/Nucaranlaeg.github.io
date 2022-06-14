@@ -34,7 +34,7 @@ function storeCompletions(completions, priorCompletions) {
     return completions + priorCompletions;
 }
 function getNextActivateCost() {
-    return `${realms[currentRealm].getNextActivateAmount()} gold`;
+    return `${realms[currentRealm].getNextActivateAmount()} gold nuggets, 1s`;
 }
 function startCollectManaCost(completions, priorCompletions, zone, x, y) {
     return `${writeNumber(this.presentAction ? this.presentAction.getProjectedDuration(getMapLocation(x, y, true, zone.index)) / 1000 : -1, 2)}s`;

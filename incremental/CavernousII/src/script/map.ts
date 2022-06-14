@@ -288,6 +288,7 @@ function setMined(x: number, y: number, icon?: string) {
 	if (tile !== old) {
 		mapDirt.push([x, y]);
 	}
+	if (tile == "*") getMessage("Mana Extraction").display();
 }
 
 function viewCell(target:HTMLElement) {

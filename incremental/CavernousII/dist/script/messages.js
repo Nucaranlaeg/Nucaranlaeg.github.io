@@ -57,11 +57,16 @@ const messages = [
 			but you have a feeling you'll be back here again.
 
 			Move around with <u>arrow keys</u> - try going right!
+			You can click on a tile to view its description.
 			Click anywhere to continue.`),
+    new Message("Digging", `
+			That wall was surprisingly easy to dig through. It only took 1 second!
+			It looks like 1 mana drained away while you did it, though.
+			You wonder what will happen when you run out of mana.`),
     new Message("Out of Mana", `
-			You've run out of mana.  You feel drawn back to the room where you started.
+			As your mana runs out you freeze in place, and feel a tugging on your spirit to draw you back to where you started.
 
-			(Click "Travel back in time" or press the <u>R</u> key)`),
+			(Click "Travel back in time" or press the <u>R</u> key to reset)`),
     new Message("Time Travel", `
 			You're back in the room you first found yourself in.
 			This time, you feel slightly more competent than last time.
@@ -75,14 +80,21 @@ const messages = [
 			<u>Ctrl+Backspace</u> to clear queue
 			<u>Arrows</u> to move
 			<u>Spacebar</u> to interact`),
+    new Message("Persisted Programming", `
+			The actions you input are remembered below the map and will repeat each loop.
+			Use backspace to clear the actions before resetting if you want to try something different.`),
     new Message("The Looping of Looping Loops", `
 			The time repeats itself over and over, the cave stays the same.
 
 			Check the <u>Options</u> panel for the <u>Auto-Restart requirement (W)</u>
 			Setting it to "Wait when any complete" will ignore clones that end with a Sync (=) action.`),
+    new Message("Mana Extraction", `
+			You found a mana spring!
+			If you use space to interact, you can drain the mana from here to increase your starting mana, which will increase the time you can spend in a loop.
+			When you reset the loop, the mana spring regenerates and you can drain it again, increasing your starting mana further.`),
     new Message("Strip Mining", `
 			It's getting harder to extract mana from that rock.
-			You'll have to go out and find another rock to extract mana from.
+			Soon, you'll have to go out and find another rock to extract mana from.
 			Maybe you can come back to this one later when you have more mana to spend on it.
 
 			Check the right panel to estimate how many more times you can refine this rock`),
@@ -101,7 +113,7 @@ const messages = [
 			You've created your first clone!  It can carry out actions in exactly the same way you can.
 			You can create more clones by bringing more gold to a Clone Machine.  Click on a Clone Machine to find out how much the next clone costs.
 			Your clones can act independently or help each other out by cooperating on the same task.  Keeping them idle doesn't save you any mana.
-			Two clones can work in the same space, taking half the time it takes one clone to complete the job.
+			Two clones can work in the same space, taking slightly more than half the time it takes one clone to complete the job (they don't help each other walk around).
 
 			Use CTRL-click to select more than one clone or CTRL-A to select them all.  Tab rotates through them.`),
     new Message("Second Clone", `

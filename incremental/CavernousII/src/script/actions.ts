@@ -159,6 +159,7 @@ function completeMove(loc: MapLocation, clone: Clone, action: ActionInstance) {
 
 function completeMine(loc: MapLocation) {
 	setMined(loc.x, loc.y);
+	getMessage("Digging").display();
 }
 
 function getDuplicationAmount(loc: MapLocation) {
@@ -708,7 +709,7 @@ const actions: anyAction[] = [
 	new Action("Exit", 50000000, [["Mining", 0.25], ["Woodcutting", 0.25], ["Magic", 0.25], ["Speed", 0.25], ["Smithing", 0.25], ["Runic Lore", 0.25], ["Combat", 0.25], ["Gemcraft", 0.25], ["Chronomancy", 0.25]], completeGame),
 ];
 
-function getAction<actionName extends anyActionName>(name: actionName) {
+function getAction<actionName extends anyActionName>(name: actionName): anyAction {
 	return actions.find(a => a.name == name) as Action<actionName>;
 }
 

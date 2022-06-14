@@ -59,7 +59,7 @@ function storeCompletions(completions: number, priorCompletions: number) {
 }
 
 function getNextActivateCost() {
-	return `${realms[currentRealm].getNextActivateAmount()} gold`;
+	return `${realms[currentRealm].getNextActivateAmount()} gold nuggets, 1s`;
 }
 
 function startCollectManaCost(
