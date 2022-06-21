@@ -1,4 +1,4 @@
-let suppressMessages = false;
+let suppressMessages = (new URL(document.location.href).searchParams).get("messages") == "disabled";
 
 const messageBox: HTMLElement =
 	document.querySelector("#message-box") ??

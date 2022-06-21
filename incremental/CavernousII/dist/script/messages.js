@@ -1,5 +1,5 @@
 "use strict";
-let suppressMessages = false;
+let suppressMessages = (new URL(document.location.href).searchParams).get("messages") == "disabled";
 const messageBox = document.querySelector("#message-box") ??
     (() => {
         throw new Error("No config box found");

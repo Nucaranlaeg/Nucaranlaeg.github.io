@@ -3,7 +3,7 @@ let currentRoutes: Route[] = [];
 class Route {
 	actionCount: number = 0;
 	allDead!: boolean;
-	cachedEstimate: number = 0;
+	_cachedEstimate: number = 0;
 	cloneArriveTimes!: number[];
 	cloneHealth!: number[];
 	goldVaporized: [number, number] = [0, 0];
@@ -60,6 +60,14 @@ class Route {
 			return;
 		}
 		Object.assign(this, base);
+	}
+
+	set cachedEstimate(value: number){
+		this._cachedEstimate = value - getStat("Mana").base;
+	}
+
+	get cachedEstimate(){
+		return this._cachedEstimate + getStat("Mana").base;
 	}
 
 	pickRoute(zone:number, actualRequirements: simpleStuffList, health = clones.map(c => 0), actionCount = this.actionCount): ZoneRoute[] | null {
@@ -159,7 +167,7 @@ class Route {
 		return mineManaRockCost(loc, null, this.realm, loc.completions + loc.priorCompletionData[this.realm] + relativeLevel) * mul;
 	}
 
-	estimateRefineManaLeft(current = false, ignoreInvalidate = false) {
+	estimateRefineManaLeft(current = false, ignoreInvalidate = false, completed = false) {
 		if (!this.needsNewEstimate && this.cachedEstimate) return !ignoreInvalidate && this.invalidateCost ? this.cachedEstimate + 1e9 : this.cachedEstimate;
 		this.needsNewEstimate = false;
 		const manaMult = getRealmMult("Verdant Realm") || 1;
@@ -167,7 +175,7 @@ class Route {
 			return i > this.zone ? a : a + z.cacheManaGain[this.realm]
 		}, 0) + (current ? this.goldVaporized[0] * GOLD_VALUE * manaMult : this.goldVaporized[1]);
 		const totalRockTime = this.cloneArriveTimes.reduce((a, c) => a + (manaTotal - (c / 1000)), 0);
-		const rockCost = this.getRefineCost();
+		const rockCost = this.getRefineCost(completed ? 1 : 0);
 		const magic = getStat("Magic").base;
 		const finalMagic = magic + (totalRockTime + this.goldVaporized[0]) / 10;
 
@@ -192,7 +200,7 @@ class Route {
 
 	static updateBestRoute(location: MapLocation, completed: boolean = false) {
 		let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
-		let prev = Route.getBestRoute(location.x, location.y, currentZone);
+		const prev = Route.getBestRoute(location.x, location.y, currentZone);
 		if (cur === undefined){
 			cur = new Route(location);
 			currentRoutes.push(cur);
@@ -201,7 +209,7 @@ class Route {
 		}
 		if (prev == cur && !completed) return cur;
 		if (prev) {
-			let curEff = cur.estimateRefineManaLeft(true);
+			let curEff = cur.estimateRefineManaLeft(true, false, completed);
 			let prevEff = prev.estimateRefineManaLeft();
 			if (curEff < prevEff && !(prev.invalidateCost || completed) && prev.route.join(",") != cur.route.join(",")) {
 				return prev;
