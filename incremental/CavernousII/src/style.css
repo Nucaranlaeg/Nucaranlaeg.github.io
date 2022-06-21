@@ -1322,6 +1322,19 @@ td:hover:after {
 	user-select: none;
 }
 
+.loop-zone {
+	display: inline-block;
+	width: 25px;
+	height: 25px;
+	line-height: 25px;
+	border: 1px solid;
+	cursor: pointer;
+}
+
+.loop-zone.active {
+	background-color: #279427;
+}
+
 #loop-stats,
 #loop-actions,
 #loop-prev {
@@ -1358,6 +1371,19 @@ td:hover:after {
 
 .log-entry.previous {
 	cursor: pointer;
+}
+
+.log-entry.previous .pin {
+	color: #ffffff;
+	border: 1px;
+}
+
+.log-entry.previous .pin.pinned {
+	color: #279427;
+}
+
+.log-entry.previous .pin.disabled {
+	color: #cccccc;
 }
 
 .queue-buttons {

@@ -15,6 +15,7 @@ const settings = {
     maxTotalTick: 10000,
     statGrindPerSec: false,
     longWait: 5000,
+    pauseOnPortal: false,
 };
 function setSetting(toggler, value, ...args) {
     for (let i = 0; i < 99; i++) {
@@ -106,6 +107,11 @@ function toggleStatGrindPerSec() {
     settings.statGrindPerSec = !settings.statGrindPerSec;
     document.querySelector("#stat-grind-per-sec").innerHTML = settings.statGrindPerSec ? "Stat grind strategy: Per sec" : "Stat grind strategy: Total";
     return settings.statGrindPerSec;
+}
+function togglePauseOnPortal() {
+    settings.pauseOnPortal = !settings.pauseOnPortal;
+    document.querySelector("#pause-on-portal-toggle").innerHTML = settings.pauseOnPortal ? "Pause when entering a portal" : "Do not pause on portal";
+    return settings.pauseOnPortal;
 }
 function setMaxTickTime(element) {
     let value = +element.value;

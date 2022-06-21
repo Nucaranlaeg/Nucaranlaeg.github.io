@@ -561,6 +561,7 @@ function predictWither(location: MapLocation) {
 function activatePortal() {
 	breakActions = true;
 	moveToZone(currentZone + 1);
+	if (settings.pauseOnPortal && settings.running) toggleRunning();
 }
 
 function completeGoal(loc: MapLocation) {

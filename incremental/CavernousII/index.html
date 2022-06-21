@@ -106,9 +106,11 @@
 			</span>
 		</div>
 		<div id="previous-log-template" class="log-entry previous">
+			<span class="pin">♦</span>
 			<span class="name"></span>
 			<span class="value"></span>
 		</div>
+		<div id="loop-zone-template" class="loop-zone"></div>
 	</div>
 	<div class="vertical-blocks">
 		<div id="options" class="vertical-block">
@@ -220,8 +222,7 @@
 					<div class="option-row">
 						<div class="option block clickable option--half-width" onclick="longExportQueues()">
 							<span class="name">Long Export</span>
-							<div class="description">This will put your current queues (all zones, this realm) on your
-								clipboard.</div>
+							<div class="description">This will put your current queues (all zones, this realm) on your clipboard.</div>
 						</div>
 						<div class="option block clickable option--half-width" onclick="longImportQueues()">
 							<span class="name">Long Import</span>
@@ -237,7 +238,7 @@
 			<div class="version" title="By Nucaranlaeg">
 				<a href="https://paypal.me/SamBenner" target="_blank">Paypal</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.4.15</span><br />
+				Version <span id="version">2.5.1</span><br />
 				©2021-2022
 			</div>
 		</div>
@@ -423,6 +424,10 @@
 				<span id="follow-zone-toggle">Follow on zone complete</span> (Z)
 				<div class="description big-description">Adjust what happens when your clones exit the zone you're currently viewing.</div>
 			</div>
+			<div class="option block clickable" onclick="togglePauseOnPortal()">
+				<span id="pause-on-portal-toggle">Do not pause on portal</span> (L)
+				<div class="description big-description">Pause when your clones enter a new zone.</div>
+			</div>
 			<div class="option block clickable" onclick="findUsedZoneRoutes(true)">
 				<span class="name">Check zone route usage</span>
 				<div class="description big-description">
@@ -469,6 +474,7 @@
 	<div id="loop-log-box" onclick="hideLoopLog()" hidden>
 		<div id="loop-log-wrapper">
 			<h3>Current Run Stats</h3>
+			<div id="loop-log-zones"></div>
 			<div id="gold-vaporized">
 				<span id="loop-gold-count"></span> gold vaporized for <span id="loop-gold-value"></span> mana
 			</div>

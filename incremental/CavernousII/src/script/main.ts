@@ -123,6 +123,8 @@ const MAX_EPHEMERAL_LOGS = 10;
 const loopGoldCountNode = document.querySelector("#loop-gold-count") as HTMLElement;
 const loopGoldValueNode = document.querySelector("#loop-gold-value") as HTMLElement;
 let displayedOldLog = false;
+let loopZoneDisplayed = -1;
+const loopZoneTemplate = document.querySelector("#loop-zone-template") as HTMLElement;
 
 function storeLoopLog(){
 	if (!Object.keys(loopActions).length){
@@ -153,6 +155,7 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 	const loopActionNode = loopLogBox.querySelector("#loop-actions") as HTMLElement;
 	const loopStatNode = loopLogBox.querySelector("#loop-stats") as HTMLElement;
 	const loopPrevNode = loopLogBox.querySelector("#loop-prev-list") as HTMLElement;
+	const loopZoneNode = loopLogBox.querySelector("#loop-log-zones") as HTMLElement;
 	while (loopActionNode.lastChild) {
 		loopActionNode.removeChild(loopActionNode.lastChild);
 	}
@@ -162,8 +165,17 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 	while (loopPrevNode.lastChild) {
 		loopPrevNode.removeChild(loopPrevNode.lastChild);
 	}
+	while (loopZoneNode.lastChild) {
+		loopZoneNode.removeChild(loopZoneNode.lastChild);
+	}
 	let actions = Object.entries(logActions);
-	actions = actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
+	let zoneCount = Math.max(...actions.map(a => Math.max(...a[1].map((c, i) => c ? i : 0))), -1);
+	if (loopZoneDisplayed > zoneCount) loopZoneDisplayed = -1;
+	if (loopZoneDisplayed == -1){
+		actions = actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
+	} else {
+		actions = actions.sort((a, b) => b[1][loopZoneDisplayed] - a[1][loopZoneDisplayed]);
+	}
 	const totalActionNode = logEntryTemplate.cloneNode(true) as HTMLElement;
 	totalActionNode.querySelector(".name")!.innerHTML = "Total clone-seconds";
 	totalActionNode.querySelector(".value")!.innerHTML = writeNumber(actions.reduce((a, c) => a + c[1].reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1);
@@ -174,10 +186,12 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 	totalStatNode.style.fontWeight = "bold";
 	loopStatNode.append(totalStatNode);
 	for (let i = 0; i < actions.length; i++) {
+		const actionValue = (loopZoneDisplayed == -1 ? actions[i][1].reduce((acc, cur) => acc + cur, 0) : actions[i][1][loopZoneDisplayed]) / 1000;
+		if (actionValue === 0) continue;
 		const node = logEntryTemplate.cloneNode(true) as HTMLElement;
 		node.classList.add(actions[i][0].replace(/ /g, "-"));
 		node.querySelector(".name")!.innerHTML = actions[i][0];
-		node.querySelector(".value")!.innerHTML = writeNumber(actions[i][1].reduce((acc, cur) => acc + cur, 0) / 1000, 1);
+		node.querySelector(".value")!.innerHTML = writeNumber(actionValue, 1);
 		node.querySelector(".description")!.innerHTML = `Relevant stats:<br>${getAction(<anyActionName>actions[i][0])?.stats.map(s => `${s[0].name}: ${s[1]}`).join("<br>") || ""}`;
 		loopActionNode.append(node);
 		node.style.color = setRGBContrast(window.getComputedStyle(node).backgroundColor);
@@ -207,6 +221,7 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 	loopGoldCountNode.innerHTML = loopGoldVaporized[0].toString();
 	loopGoldValueNode.innerHTML = writeNumber(loopGoldVaporized[1], 3);
 	const node = previousLogTemplate.cloneNode(true) as HTMLElement;
+	node.querySelector(".pin")!.classList.add("disabled");
 	node.querySelector(".name")!.innerHTML = "Current";
 	node.querySelector(".value")!.innerHTML = writeNumber(Object.values(loopActions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
 	node.onclick = e => {
@@ -218,7 +233,9 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 	for (let i = previousLoopLogs.length - 1; i >= 0; i--){
 		let log = previousLoopLogs[i];
 		const node = previousLogTemplate.cloneNode(true) as HTMLElement;
-		node.querySelector(".name")!.innerHTML = "Previous log";
+		if (log.kept) node.querySelector(".pin")!.classList.add("pinned");
+		(node.querySelector(".pin")! as HTMLElement).onmousedown = () => log.kept = !log.kept;
+		node.querySelector(".name")!.innerHTML = "Previous";
 		node.querySelector(".value")!.innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
 		node.onclick = e => {
 			displayedOldLog = true;
@@ -226,6 +243,19 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 			e.stopPropagation();
 		}
 		loopPrevNode.append(node);
+	}
+	for (let i = -1; i <= zoneCount; i++){
+		const zoneNode = loopZoneTemplate.cloneNode(true) as HTMLElement;
+		zoneNode.innerHTML = i < 0 ? "All" : `z${i + 1}`;
+		if (i == loopZoneDisplayed) zoneNode.classList.add("active");
+		const changeLogZone = ((z) => (e: MouseEvent) => {
+			e.stopPropagation();
+			loopZoneDisplayed = z;
+			displayLoopLog(logActions, logStats);
+		})(i);
+		zoneNode.onmousedown = changeLogZone;
+		zoneNode.onmouseup = changeLogZone;
+		loopZoneNode.append(zoneNode);
 	}
 }
 
@@ -694,6 +724,9 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	},
 	"KeyZ": () => {
 		toggleFollowZone();
+	},
+	"KeyL": () => {
+		togglePauseOnPortal();
 	},
 	"KeyQ": () => {
 		toggleLoadPrereqs();
