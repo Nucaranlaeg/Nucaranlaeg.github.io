@@ -879,7 +879,25 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 		if (visibleX === null || visibleY === null) return;
 		addActionToQueue(`P${visibleX}:${visibleY};`);
 		(document.activeElement as HTMLElement).blur();
-	}
+	},
+	">Digit1": (e) => selectClone(0, e as unknown as MouseEvent),
+	">Digit2": (e) => selectClone(1, e as unknown as MouseEvent),
+	">Digit3": (e) => selectClone(2, e as unknown as MouseEvent),
+	">Digit4": (e) => selectClone(3, e as unknown as MouseEvent),
+	">Digit5": (e) => selectClone(4, e as unknown as MouseEvent),
+	">Digit6": (e) => selectClone(5, e as unknown as MouseEvent),
+	">Digit7": (e) => selectClone(6, e as unknown as MouseEvent),
+	">Digit8": (e) => selectClone(7, e as unknown as MouseEvent),
+	">Digit9": (e) => selectClone(8, e as unknown as MouseEvent),
+	"^>Digit1": (e) => selectClone(0, e as unknown as MouseEvent),
+	"^>Digit2": (e) => selectClone(1, e as unknown as MouseEvent),
+	"^>Digit3": (e) => selectClone(2, e as unknown as MouseEvent),
+	"^>Digit4": (e) => selectClone(3, e as unknown as MouseEvent),
+	"^>Digit5": (e) => selectClone(4, e as unknown as MouseEvent),
+	"^>Digit6": (e) => selectClone(5, e as unknown as MouseEvent),
+	"^>Digit7": (e) => selectClone(6, e as unknown as MouseEvent),
+	"^>Digit8": (e) => selectClone(7, e as unknown as MouseEvent),
+	"^>Digit9": (e) => selectClone(8, e as unknown as MouseEvent),
 };
 
 setTimeout(() => {

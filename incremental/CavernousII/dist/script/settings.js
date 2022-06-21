@@ -34,6 +34,7 @@ function toggleRunning() {
     settings.running = !settings.running;
     document.querySelector("#running-toggle").innerHTML = settings.running ? "Running" : "Paused";
     document.querySelector("#running-toggle").closest(".option").classList.toggle("option-highlighted", !settings.running);
+    document.title = "Cavernous II" + (settings.running ? "" : " - Paused");
     return settings.running;
 }
 var AutoRestart;

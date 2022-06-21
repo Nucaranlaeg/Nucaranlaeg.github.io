@@ -517,7 +517,15 @@ class ActionQueue extends Array {
     }
 }
 function selectClone(target, event) {
-    const index = +target.id.replace("queue", "");
+    let index;
+    if (target instanceof HTMLElement) {
+        index = +target.id.replace("queue", "");
+    }
+    else {
+        index = target;
+        if (zones[displayZone].queues.length <= index)
+            return;
+    }
     if (event.ctrlKey || event.metaKey) {
         zones[displayZone].queues[index].selected = !zones[displayZone].queues[index].selected;
     }

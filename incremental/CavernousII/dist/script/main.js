@@ -841,7 +841,25 @@ const keyFunctions = {
             return;
         addActionToQueue(`P${visibleX}:${visibleY};`);
         document.activeElement.blur();
-    }
+    },
+    ">Digit1": (e) => selectClone(0, e),
+    ">Digit2": (e) => selectClone(1, e),
+    ">Digit3": (e) => selectClone(2, e),
+    ">Digit4": (e) => selectClone(3, e),
+    ">Digit5": (e) => selectClone(4, e),
+    ">Digit6": (e) => selectClone(5, e),
+    ">Digit7": (e) => selectClone(6, e),
+    ">Digit8": (e) => selectClone(7, e),
+    ">Digit9": (e) => selectClone(8, e),
+    "^>Digit1": (e) => selectClone(0, e),
+    "^>Digit2": (e) => selectClone(1, e),
+    "^>Digit3": (e) => selectClone(2, e),
+    "^>Digit4": (e) => selectClone(3, e),
+    "^>Digit5": (e) => selectClone(4, e),
+    "^>Digit6": (e) => selectClone(5, e),
+    "^>Digit7": (e) => selectClone(6, e),
+    "^>Digit8": (e) => selectClone(7, e),
+    "^>Digit9": (e) => selectClone(8, e),
 };
 setTimeout(() => {
     document.body.onkeydown = e => {
