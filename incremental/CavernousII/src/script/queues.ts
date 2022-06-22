@@ -203,6 +203,14 @@ class QueueAction {
 					this.currentAction.tick(0, this.currentClone!);
 					this.complete();
 				}
+			} else if (this.action == "I" && this.currentAction!.location.type.canWorkTogether) {
+				clones.forEach((c, i) => {
+					const action = zones[currentZone].queues[i].getNextAction();
+					if (!action || action.done == ActionStatus.NotStarted) return;
+					if (c.x == targetX && c.y == targetY && action.action == "I"){
+						action.complete();
+					}
+				});
 			} else {
 				this.complete();
 			}
