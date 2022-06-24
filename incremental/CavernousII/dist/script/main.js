@@ -563,6 +563,16 @@ function runActions(time) {
             gameStatus.paused = true;
             return time;
         }
+        // Pause ASAP.
+        if (actions.some(a => a.actionID == ":")) {
+            if (settings.running)
+                toggleRunning();
+            actions.forEach(a => {
+                if (a.action == ":")
+                    a.complete();
+            });
+            return time;
+        }
         if (actions.some(a => a.done == ActionStatus.NotStarted)) {
             actions.forEach(a => a.start());
             continue;

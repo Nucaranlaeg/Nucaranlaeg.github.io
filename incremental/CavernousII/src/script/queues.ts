@@ -123,10 +123,6 @@ class QueueAction {
 							this.currentClone.noSync();
 							this.complete();
 							break;
-						case ":":
-							if (settings.running) toggleRunning();
-							this.complete();
-							break;
 						case "<":
 							this.complete();
 							break;

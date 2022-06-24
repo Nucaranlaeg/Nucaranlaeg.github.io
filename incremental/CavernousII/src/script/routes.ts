@@ -272,7 +272,7 @@ class Route {
 		}, 0) + this.goldVaporized[0] * GOLD_VALUE * manaMult - this.goldVaporized[1];
 		document.querySelector<HTMLElement>("#route-best-time")!.innerText = writeNumber(manaTotal - est, 1);
 
-		document.querySelector<HTMLElement>("#route-best-mana-left")!.innerText = est.toFixed(2);
+		document.querySelector<HTMLElement>("#route-best-mana-left")!.innerText = est > 1e8 ? (est - 1e9).toFixed(2) : est.toFixed(2);
 		document.querySelector<HTMLElement>("#route-best-unminable")!.hidden = est >= 0;
 		document.querySelector<HTMLElement>("#route-best-minable")!.hidden = est < 0;
 		if (est > 0) {
