@@ -40,9 +40,16 @@ class ZoneRoute {
             })
                 .filter(s => s.count > 0);
             this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
+            this.id = zoneRouteCount++;
             return;
         }
         Object.assign(this, z);
+        if (!this.id) {
+            this.id = zoneRouteCount++;
+        }
+        else {
+            zoneRouteCount = Math.max(zoneRouteCount, this.id + 1);
+        }
     }
     isBetter(zoneRoute, zoneMana = 0.1) {
         return (this.mana >= zoneRoute.mana - 0.1 &&
@@ -106,13 +113,13 @@ class ZoneRoute {
         return ar.map((r) => new ZoneRoute(r));
     }
 }
-function findUsedZoneRoutes(breakCache = false) {
+function findUsedZoneRoutes() {
     let usedZoneRoutes = [];
     routes.forEach(route => {
         if (route.zone == 0 || route.realm != currentRealm)
             return;
         let used;
-        if (!breakCache && route.usedRoutes && route.usedRoutes.every((r, i) => zones[i].routes.some(route => r == route))) {
+        if (route.usedRoutes && route.usedRoutes.every((r, i) => zones[i].routes.some(route => r == route))) {
             used = route.usedRoutes;
         }
         else {
@@ -135,7 +142,7 @@ function findUsedZoneRoutes(breakCache = false) {
     return usedZoneRoutes;
 }
 function clearUnusedZoneRoutes(zone = null) {
-    let usedZoneRoutes = findUsedZoneRoutes(true);
+    let usedZoneRoutes = findUsedZoneRoutes();
     zones.forEach(z => {
         if (zone !== null && zone != z.index)
             return;
@@ -145,4 +152,5 @@ function clearUnusedZoneRoutes(zone = null) {
         z.display();
     });
 }
+let zoneRouteCount = 0;
 //# sourceMappingURL=zone_routes.js.map

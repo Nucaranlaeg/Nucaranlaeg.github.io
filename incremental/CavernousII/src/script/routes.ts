@@ -56,10 +56,19 @@ class Route {
 			this.allDead = false;
 			this.invalidateCost = false;
 			this.estimateRefineManaLeft();
+			const usedRoutes = zones.slice(0, this.zone).map(z => z.lastRoute ? z.routes.find(r => r.isSame(z.lastRoute!)) : null);
+			if (usedRoutes.every(r => r)) this.usedRoutes = usedRoutes as ZoneRoute[];
 
 			return;
 		}
 		Object.assign(this, base);
+		if (this.usedRoutes && this.usedRoutes.length && typeof(this.usedRoutes[0]) == "number"){
+			// Populate the usedRoutes
+			const usedRoutes = (this.usedRoutes as any as number[]).flatMap(id =>
+				zones.map(z => z.routes.find(r => r.id == id)).filter(r => r)
+			);
+			if (usedRoutes.every(r => r)) this.usedRoutes = usedRoutes as ZoneRoute[];
+		}
 	}
 
 	set cachedEstimate(value: number){
@@ -96,11 +105,14 @@ class Route {
 		}
 		let success = true;
 		if (this.zone > 0){
-			if (this.invalidateCost) this.usedRoutes = null;
-			let stime = Date.now();
-			let routes = this.pickRoute(this.zone - 1, this.require, this.cloneHealth);
-			markRoutesChanged();
-			this.usedRoutes = routes;
+			let routes;
+			if (this.usedRoutes && this.usedRoutes.every((r, i) => zones[i].routes.some(zr => zr.id == r.id))){
+				routes = this.usedRoutes;
+			} else {
+				routes = this.pickRoute(this.zone - 1, this.require, this.cloneHealth);
+				markRoutesChanged();
+				this.usedRoutes = routes;
+			}
 			if (routes !== null){
 				for (let i = 0; i < routes.length; i++){
 					routes[i].loadRoute(zones[i], false);

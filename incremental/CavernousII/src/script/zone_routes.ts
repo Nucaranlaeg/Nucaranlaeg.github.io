@@ -8,6 +8,7 @@ class ZoneRoute {
 	require!: simpleStuffList;
 	actionCount!: number;
 	noValidPrior: boolean = false;
+	id!: number;
 
 	constructor(z: Zone | PropertiesOf<ZoneRoute>) {
 		if (z instanceof Zone) {
@@ -49,10 +50,16 @@ class ZoneRoute {
 				})
 				.filter(s => s.count > 0);
 			this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
+			this.id = zoneRouteCount++;
 			return;
 		}
 
 		Object.assign(this, z);
+		if (!this.id){
+			this.id = zoneRouteCount++;
+		} else {
+			zoneRouteCount = Math.max(zoneRouteCount, this.id + 1);
+		}
 	}
 
 	isBetter(zoneRoute: ZoneRoute, zoneMana = 0.1) {
@@ -127,12 +134,12 @@ class ZoneRoute {
 	}
 }
 
-function findUsedZoneRoutes(breakCache = false) {
+function findUsedZoneRoutes() {
 	let usedZoneRoutes: ZoneRoute[] = [];
 	routes.forEach(route => {
 		if (route.zone == 0 || route.realm != currentRealm) return;
 		let used;
-		if (!breakCache && route.usedRoutes && route.usedRoutes.every((r: ZoneRoute, i: number) => zones[i].routes.some(route => r == route))) {
+		if (route.usedRoutes && route.usedRoutes.every((r: ZoneRoute, i: number) => zones[i].routes.some(route => r == route))) {
 			used = route.usedRoutes;
 		} else {
 			used = route.pickRoute(route.zone - 1, route.require, route.cloneHealth);
@@ -154,7 +161,7 @@ function findUsedZoneRoutes(breakCache = false) {
 }
 
 function clearUnusedZoneRoutes(zone: number | null = null) {
-	let usedZoneRoutes = findUsedZoneRoutes(true);
+	let usedZoneRoutes = findUsedZoneRoutes();
 	zones.forEach(z => {
 		if (zone !== null && zone != z.index) return;
 		let currentRoute = (z.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
@@ -163,3 +170,5 @@ function clearUnusedZoneRoutes(zone: number | null = null) {
 		z.display();
 	});
 }
+
+let zoneRouteCount = 0;

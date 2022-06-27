@@ -308,8 +308,9 @@ let save = async function save() {
     };
     const messageData = messages.map(m => [m.name, m.displayed]);
     const savedRoutes = JSON.parse(JSON.stringify(routes, (key, value) => {
-        if (key == "usedRoutes")
-            return undefined;
+        if (key == "usedRoutes") {
+            return value ? value.map((r) => r.id) : undefined;
+        }
         return value;
     }));
     const runeData = runes.map(r => {
