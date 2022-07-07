@@ -658,8 +658,8 @@ type anyActionName = `${ACTION}`
 type anyAction = Action<anyActionName>;
 const actions: anyAction[] = [
 	new Action("Walk", 100, [["Speed", 1]], completeMove),
-	new Action("Wait", 100, [], () => {}),
-	new Action("Long Wait", () => settings.longWait, [], () => {}),
+	new Action("Wait", 100, [["Speed", 1]], () => {}),
+	new Action("Long Wait", () => settings.longWait, [["Speed", 1]], () => {}),
 	new Action("Mine", 1000, [["Mining", 1], ["Speed", 0.2]], completeMine),
 	new Action("Mine Travertine", 10000, [["Mining", 1], ["Speed", 0.2]], completeMine),
 	new Action("Mine Granite", 350000, [["Mining", 1], ["Speed", 0.2]], completeMine),
