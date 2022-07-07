@@ -196,6 +196,8 @@ class Route {
         return times;
     }
     static updateBestRoute(location, completed = false) {
+        if (location.baseType.name !== "Mana-infused Rock")
+            return;
         let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
         const prev = Route.getBestRoute(location.x, location.y, currentZone);
         if (cur === undefined) {
@@ -234,8 +236,12 @@ class Route {
             if (!route.cloneArriveTimes) {
                 route.cloneArriveTimes = [0];
             }
+            // Some routes saved to things which aren't mana rocks.
+            if (zones[route.zone].getMapLocation(route.x, route.y, true)?.baseType.name !== "Mana-infused Rock") {
+                route.discard = true;
+            }
         });
-        return ar;
+        return ar.filter((route) => !route.discard);
     }
     static fromJSON(ar) {
         ar = this.migrate(ar);
