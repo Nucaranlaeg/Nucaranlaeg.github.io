@@ -438,9 +438,10 @@ class ActionQueue extends Array<QueueAction> {
 		const nextAction = this.find(a => a.done != ActionStatus.Complete) || null;
 		if (nextAction === null){
 			const index = this.findIndex(a => a.actionID == "<");
-			if (index > 0 && index < this.length - 1){
+			if (index >= 0 && index < this.length - 1){
 				for (let i = index; i < this.length; i++){
 					this[i].done = ActionStatus.NotStarted;
+					this[i].drawProgress();
 				}
 				clones[this.index].repeated = true;
 				return this.getNextAction();
