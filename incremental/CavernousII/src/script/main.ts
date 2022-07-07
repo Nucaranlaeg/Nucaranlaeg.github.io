@@ -582,7 +582,11 @@ setInterval(function mainLoop() {
 	queueTimeNode = queueTimeNode || document.querySelector("#time-spent");
 	queueTimeNode.innerText = writeNumber(queueTime / 1000, 1);
 	zoneTimeNode = zoneTimeNode || document.querySelector("#time-spent-zone");
-	zoneTimeNode.innerText = writeNumber((queueTime - (zones[currentZone].zoneStartTime || 0)) / 1000, 1);
+	if (currentZone == displayZone){
+		zoneTimeNode.innerText = writeNumber((queueTime - (zones[currentZone].zoneStartTime || 0)) / 1000, 1);
+	} else {
+		zoneTimeNode.innerText = writeNumber(Math.max(0, (zones[displayZone + 1]?.zoneStartTime || 0) - (zones[displayZone].zoneStartTime || 0)) / 1000, 1);
+	}
 	queueActionNode = queueActionNode || document.querySelector("#actions-spent");
 	queueActionNode.innerText = `${writeNumber(loopCompletions, 0)} (x${writeNumber(1 + loopCompletions / 40, 3)})`;
 	redrawTimeNode();

@@ -20,7 +20,7 @@ class Zone {
 	index: number = -1;
 	lastRoute: ZoneRoute | null;
 	startMana: any;
-	zoneStartTime: number | null;
+	zoneStartTime: number;
 	manaDrain: number = 0;
 
 	public constructor(name: string, map: string[], goalReward: (() => void) | null = null) {
@@ -39,8 +39,8 @@ class Zone {
 		this.node = null;
 		this.cacheManaGain = [0];
 		this.startStuff = [];
-		this.lastRoute = null
-		this.zoneStartTime = null
+		this.lastRoute = null;
+		this.zoneStartTime = -1;
 
 		while (this.mapLocations.length < map.length) {
 			this.mapLocations.push([]);
@@ -108,6 +108,7 @@ class Zone {
 				l.reset();
 			});
 		});
+		this.zoneStartTime = -1;
 		this.manaDrain = 0;
 	}
 
@@ -276,6 +277,12 @@ class Zone {
 			mapStain = [];
 			drawMap();
 			redrawQueues();
+			zoneTimeNode = zoneTimeNode || document.querySelector("#time-spent-zone");
+			if (this.zoneStartTime == -1){
+				zoneTimeNode.innerText = "0";
+			} else {
+				zoneTimeNode.innerText = writeNumber(Math.max(0, (zones[this.index + 1]?.zoneStartTime + 1 || queueTime) - 1 - (this.zoneStartTime  || 0)) / 1000, 1);
+			}
 		};
 		if (this.routesChanged) {
 			let parent = this.node.querySelector(".routes") as HTMLElement;

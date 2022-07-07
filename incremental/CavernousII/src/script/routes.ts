@@ -98,7 +98,7 @@ class Route {
 		return null;
 	}
 
-	loadRoute(turnOffAuto = false){
+	loadRoute(turnOffAuto = false, forceLastZoneLoad = false){
 		if (turnOffAuto){
 			if (settings.grindStats) toggleGrindStats();
 			if (settings.grindMana) toggleGrindMana();
@@ -123,18 +123,19 @@ class Route {
 				this.loadingFailed = true;
 			}
 		}
-		if (!success) return false;
-		for (let i = 0; i < zones[this.zone].queues.length; i++){
-			if (i == 0 || this.route.length == 1) {
-				zones[this.zone].queues[i].fromString(this.route[0]);
-			} else if (this.route.length == 2) {
-				zones[this.zone].queues[i].fromString(this.route[1]);
-			} else {
-				zones[this.zone].queues[i].fromString(this.route[i] || this.route[this.route.length - 1] || "");
+		if (success || forceLastZoneLoad){
+			for (let i = 0; i < zones[this.zone].queues.length; i++){
+				if (i == 0 || this.route.length == 1) {
+					zones[this.zone].queues[i].fromString(this.route[0]);
+				} else if (this.route.length == 2) {
+					zones[this.zone].queues[i].fromString(this.route[1]);
+				} else {
+					zones[this.zone].queues[i].fromString(this.route[i] || this.route[this.route.length - 1] || "");
+				}
 			}
+			redrawQueues();
 		}
-		redrawQueues();
-		return true;
+		return success;
 	}
 
 	updateRoute() {
@@ -319,7 +320,7 @@ function loadRoute(){
 	let x = +document.querySelector<HTMLInputElement>("#x-loc")!.value;
 	let y = +document.querySelector<HTMLInputElement>("#y-loc")!.value;
 	let bestRoute = getBestRoute(x, y, displayZone);
-	if (bestRoute) bestRoute.loadRoute();
+	if (bestRoute) bestRoute.loadRoute(false, true);
 	(<HTMLInputElement>document.activeElement)?.blur();
 }
 

@@ -17,8 +17,8 @@ class GrindRoute {
             changeRealms(this.realm);
         this.route.forEach((q, i) => {
             zones[i].queues.map(e => e.clear());
-            for (let j = 0; j < q.length; j++) {
-                zones[i].queues[j].fromString(q[j]);
+            for (let j = 0; j < zones[i].queues.length; j++) {
+                zones[i].queues[j].fromString(q[j] || q[q.length - 1]);
             }
         });
         redrawQueues();
