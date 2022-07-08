@@ -79,6 +79,14 @@ class Route {
 		return this._cachedEstimate + getStat("Mana").base;
 	}
 
+	isSame(route: Route | undefined){
+		if (!route) return false;
+		return (
+			JSON.stringify(route.route) == JSON.stringify(this.route) &&
+			JSON.stringify(route.usedRoutes?.map(r => r.id)) == JSON.stringify(this.usedRoutes?.map(r => r.id))
+		);
+	}
+
 	pickRoute(zone:number, actualRequirements: simpleStuffList, health = clones.map(c => 0), actionCount = this.actionCount): ZoneRoute[] | null {
 		let routeOptions = zones[zone].sumRoute(actualRequirements, health, actionCount);
 		if (zone == 0){
@@ -221,7 +229,7 @@ class Route {
 		} else {
 			cur.updateRoute();
 		}
-		if (prev == cur && !completed) return cur;
+		if (cur == prev || cur.isSame(prev) && !completed) return;
 		if (prev) {
 			let curEff = cur.estimateRefineManaLeft(true, false, completed);
 			let prevEff = prev.estimateRefineManaLeft();
@@ -233,7 +241,7 @@ class Route {
 		routes.push(cur);
 		routes = routes.filter((r, i) => routes.findIndex(R => R.x == r.x && R.y == r.y && R.zone == r.zone && R.realm == r.realm) == i).map(r => new Route(r));
 		markRoutesChanged();
-		return cur;
+		return;
 	}
 
 	static getBestRoute(x: number, y: number, z: number) {

@@ -62,6 +62,12 @@ class Route {
     get cachedEstimate() {
         return this._cachedEstimate + getStat("Mana").base;
     }
+    isSame(route) {
+        if (!route)
+            return false;
+        return (JSON.stringify(route.route) == JSON.stringify(this.route) &&
+            JSON.stringify(route.usedRoutes?.map(r => r.id)) == JSON.stringify(this.usedRoutes?.map(r => r.id)));
+    }
     pickRoute(zone, actualRequirements, health = clones.map(c => 0), actionCount = this.actionCount) {
         let routeOptions = zones[zone].sumRoute(actualRequirements, health, actionCount);
         if (zone == 0) {
@@ -207,7 +213,7 @@ class Route {
         else {
             cur.updateRoute();
         }
-        if (prev == cur && !completed)
+        if (cur.isSame(prev) && !completed)
             return cur;
         if (prev) {
             let curEff = cur.estimateRefineManaLeft(true, false, completed);

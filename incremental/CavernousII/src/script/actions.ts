@@ -227,7 +227,6 @@ function longZoneCompletionMult(x: number, y: number, z: number) {
 }
 
 function canMineMana(location: MapLocation) {
-	Route.updateBestRoute(location);
 	if (location.completions) return CanStartReturnCode.Never;
 	return CanStartReturnCode.Now;
 }
