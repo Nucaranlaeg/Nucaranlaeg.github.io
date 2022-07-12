@@ -204,7 +204,7 @@ class Route {
             return;
         const prev = Route.getBestRoute(location.x, location.y, currentZone);
         let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
-        if (prev && cur && !completed)
+        if (prev && cur && !completed && !prev.invalidateCost)
             return;
         if (cur === undefined) {
             cur = new Route(location);
@@ -219,7 +219,7 @@ class Route {
         else {
             cur.updateRoute();
         }
-        if (cur == prev || (cur.isSame(prev) && !completed))
+        if ((cur == prev || (cur.isSame(prev) && !completed)) && !prev?.invalidateCost)
             return;
         if (prev) {
             let curEff = cur.estimateRefineManaLeft(true, false, completed);

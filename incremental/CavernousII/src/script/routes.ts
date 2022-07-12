@@ -221,7 +221,7 @@ class Route {
 		if (location.baseType.name !== "Mana-infused Rock") return;
 		const prev = Route.getBestRoute(location.x, location.y, currentZone);
 		let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
-		if (prev && cur && !completed) return;
+		if (prev && cur && !completed && !prev.invalidateCost) return;
 		if (cur === undefined){
 			cur = new Route(location);
 			if (cur.cloneArriveTimes.length == 0) return;
@@ -233,7 +233,7 @@ class Route {
 		} else {
 			cur.updateRoute();
 		}
-		if (cur == prev || (cur.isSame(prev) && !completed)) return;
+		if ((cur == prev || (cur.isSame(prev) && !completed)) && !prev?.invalidateCost) return;
 		if (prev) {
 			let curEff = cur.estimateRefineManaLeft(true, false, completed);
 			let prevEff = prev.estimateRefineManaLeft();
