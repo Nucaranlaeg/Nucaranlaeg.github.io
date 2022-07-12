@@ -57,10 +57,10 @@ class Route {
         }
     }
     set cachedEstimate(value) {
-        this._cachedEstimate = value - getStat("Mana").base;
+        this._cachedEstimate = value - getBaseMana(this.zone, this.realm);
     }
     get cachedEstimate() {
-        return this._cachedEstimate + getStat("Mana").base;
+        return this._cachedEstimate + getBaseMana(this.zone, this.realm);
     }
     isSame(route) {
         if (!route)
@@ -177,9 +177,7 @@ class Route {
             return !ignoreInvalidate && this.invalidateCost ? this.cachedEstimate + 1e9 : this.cachedEstimate;
         this.needsNewEstimate = false;
         const manaMult = getRealmMult("Verdant Realm") || 1;
-        const manaTotal = 5 + zones.reduce((a, z, i) => {
-            return i > this.zone ? a : a + z.cacheManaGain[this.realm];
-        }, 0) + (current ? this.goldVaporized[0] * GOLD_VALUE * manaMult : this.goldVaporized[1]);
+        const manaTotal = getBaseMana(this.zone, this.realm) + (current ? this.goldVaporized[0] * GOLD_VALUE * manaMult : this.goldVaporized[1]);
         const totalRockTime = this.cloneArriveTimes.reduce((a, c) => a + (manaTotal - (c / 1000)), 0);
         const rockCost = this.getRefineCost(completed ? 1 : 0);
         const magic = getStat("Magic").base;
@@ -204,17 +202,25 @@ class Route {
     static updateBestRoute(location, completed = false) {
         if (location.baseType.name !== "Mana-infused Rock")
             return;
-        let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
         const prev = Route.getBestRoute(location.x, location.y, currentZone);
+        let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
+        if (prev && cur && !completed)
+            return;
         if (cur === undefined) {
             cur = new Route(location);
+            if (cur.cloneArriveTimes.length == 0)
+                return;
             currentRoutes.push(cur);
+            if (prev) {
+                prev.needsNewEstimate = true;
+                prev.estimateRefineManaLeft();
+            }
         }
         else {
             cur.updateRoute();
         }
-        if (cur.isSame(prev) && !completed)
-            return cur;
+        if (cur == prev || (cur.isSame(prev) && !completed))
+            return;
         if (prev) {
             let curEff = cur.estimateRefineManaLeft(true, false, completed);
             let prevEff = prev.estimateRefineManaLeft();
@@ -226,7 +232,7 @@ class Route {
         routes.push(cur);
         routes = routes.filter((r, i) => routes.findIndex(R => R.x == r.x && R.y == r.y && R.zone == r.zone && R.realm == r.realm) == i).map(r => new Route(r));
         markRoutesChanged();
-        return cur;
+        return;
     }
     static getBestRoute(x, y, z) {
         return routes.find(r => r.x == x && r.y == y && r.zone == z && r.realm == currentRealm);
@@ -274,9 +280,7 @@ class Route {
         document.querySelector("#route-not-visited").hidden = true;
         let est = this.estimateRefineManaLeft();
         const manaMult = getRealmMult("Verdant Realm") || 1;
-        let manaTotal = 5 + zones.reduce((a, z, i) => {
-            return i > this.zone ? a : a + z.cacheManaGain[this.realm];
-        }, 0) + this.goldVaporized[0] * GOLD_VALUE * manaMult - this.goldVaporized[1];
+        let manaTotal = getBaseMana(this.zone, this.realm) + this.goldVaporized[0] * GOLD_VALUE * manaMult - this.goldVaporized[1];
         document.querySelector("#route-best-time").innerText = writeNumber(manaTotal - est, 1);
         document.querySelector("#route-best-mana-left").innerText = est > 1e8 ? (est - 1e9).toFixed(2) : est.toFixed(2);
         document.querySelector("#route-best-unminable").hidden = est >= 0;

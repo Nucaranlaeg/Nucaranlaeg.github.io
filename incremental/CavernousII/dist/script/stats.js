@@ -204,4 +204,9 @@ const stats = [
 function getStat(name) {
     return stats.find(a => a.name === name);
 }
+function getBaseMana(zone = currentZone, realm = currentRealm) {
+    return 5 + zones.reduce((a, z, i) => {
+        return i > zone ? a : a + z.cacheManaGain[realm];
+    }, 0);
+}
 //# sourceMappingURL=stats.js.map

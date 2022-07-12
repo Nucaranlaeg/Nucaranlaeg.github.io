@@ -499,6 +499,16 @@ setInterval(function mainLoop() {
     if (settings.running) {
         if (mana.current == 0 || clones.every(c => c.damage === Infinity)) {
             queuesNode.classList.add("out-of-mana");
+            // Attempt to update any mana rock currently being mined
+            clones.forEach(c => {
+                let cloneLoc = zones[currentZone].getMapLocation(c.x, c.y);
+                if (cloneLoc?.baseType.name == "Mana-infused Rock") {
+                    let action = cloneLoc.getPresentAction();
+                    if (action && action.startingDuration > action.remainingDuration) {
+                        Route.updateBestRoute(cloneLoc);
+                    }
+                }
+            });
             getMessage("Out of Mana").display();
             if (settings.autoRestart == AutoRestart.RestartAlways || (settings.autoRestart == AutoRestart.RestartDone && clones.every(c => c.repeated))) {
                 resetLoop();

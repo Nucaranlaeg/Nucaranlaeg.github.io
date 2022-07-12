@@ -228,6 +228,13 @@ const stats:Stat<anyStatName>[] = [
 	new Stat("Defense", "", "How well you avoid taking damage. (Shields increase all clones' stats)", 0, false),
 	new Stat("Health", "♥", "How many hits you can take until you're nothing more than meat. (Armour increases all clones' stats)", 10, false)
 ];
+
 function getStat<nameType extends anyStatName>(name: nameType): Stat<nameType> {
 	return stats.find(a => a.name === name) as Stat<nameType>;
+}
+
+function getBaseMana(zone: number = currentZone, realm: number = currentRealm): number{
+	return 5 + zones.reduce((a, z, i) => {
+		return i > zone ? a : a + z.cacheManaGain[realm]
+	}, 0)
 }
