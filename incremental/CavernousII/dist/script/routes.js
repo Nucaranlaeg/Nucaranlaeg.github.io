@@ -7,6 +7,7 @@ class Route {
         this.goldVaporized = [0, 0];
         this.loadingFailed = false;
         this.manaDrain = 0;
+        this.drainLoss = 0;
         this.needsNewEstimate = true;
         this.usedRoutes = null;
         if (base instanceof MapLocation) {
@@ -40,6 +41,7 @@ class Route {
                 };
             }).filter(s => s.count > 0);
             this.cloneArriveTimes = clones.filter(c => c.x == this.x && c.y == this.y).map(c => queueTime);
+            this.drainLoss = totalDrain;
             this.allDead = false;
             this.invalidateCost = false;
             this.estimateRefineManaLeft();
@@ -134,6 +136,7 @@ class Route {
     }
     updateRoute() {
         this.manaDrain = zones[currentZone].manaDrain;
+        this.drainLoss = totalDrain;
         let route = zones[currentZone].queues.map(r => queueToString(r));
         route = route.filter(e => e.length);
         if (route.every((e, i, a) => e == a[0])) {
@@ -184,6 +187,7 @@ class Route {
         const finalMagic = magic + (totalRockTime + this.goldVaporized[0]) / 10;
         let estimate = totalRockTime - rockCost / (((magic + finalMagic) / 2 + 100) / 100);
         estimate /= this.cloneArriveTimes.length;
+        estimate -= this.drainLoss;
         this.cachedEstimate = estimate;
         return !ignoreInvalidate && this.invalidateCost ? estimate + 1e9 : estimate;
     }

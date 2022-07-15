@@ -378,6 +378,7 @@ class Zone {
             if (!loopActions["Barrier Drain"])
                 loopActions["Barrier Drain"] = Array(zones.length).fill(0);
             loopActions["Barrier Drain"][this.index] += drainValue * clones.length;
+            totalDrain += drainValue / 1000;
         }
     }
 }

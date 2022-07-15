@@ -76,6 +76,7 @@ function resetLoop(noLoad = false, saveGame = true) {
     });
     clones.forEach(c => c.reset());
     queueTime = 0;
+    totalDrain = 0;
     loopCompletions = 0;
     creatures.forEach(c => {
         c.attack = c.creature.attack;
@@ -198,19 +199,22 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
     for (let i = 0; i < loopStatStart.length; i++) {
         if (!stats[i].learnable)
             continue;
-        if (stats[i].current == loopStatStart[i])
+        if (logStats === null && stats[i].current == loopStatStart[i])
+            continue;
+        if (logStats && logStats[i].current == 0)
             continue;
         const node = statLogEntryTemplate.cloneNode(true);
         node.querySelector(".name").innerHTML = stats[i].name;
         if (logStats === null) {
             node.querySelector(".current-value").innerHTML = writeNumber(stats[i].current - loopStatStart[i], 3);
             node.querySelector(".base-value").innerHTML = writeNumber(stats[i].base - loopStatStart[i], 3);
+            totalStats += stats[i].base - loopStatStart[i];
         }
         else {
             node.querySelector(".current-value").innerHTML = writeNumber(logStats[i].current, 3);
             node.querySelector(".base-value").innerHTML = writeNumber(logStats[i].base, 3);
+            totalStats += logStats[i].base;
         }
-        totalStats += stats[i].base - loopStatStart[i];
         loopStatNode.append(node);
     }
     totalStatNode.querySelector(".base-value").innerHTML = writeNumber(totalStats, 3);
@@ -478,6 +482,7 @@ function displaySaveClick(event) {
 let lastAction = Date.now();
 let timeBanked = 0;
 let queueTime = 0;
+let totalDrain = 0;
 let queuesNode;
 let queueTimeNode;
 let zoneTimeNode;

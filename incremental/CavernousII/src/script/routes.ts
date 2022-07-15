@@ -10,6 +10,7 @@ class Route {
 	invalidateCost!: boolean;
 	loadingFailed: boolean = false;
 	manaDrain: number = 0;
+	drainLoss: number = 0;
 	needsNewEstimate: boolean = true;
 	realm!: number;
 	require: any;
@@ -52,6 +53,7 @@ class Route {
 			}).filter(s => s.count > 0);
 
 			this.cloneArriveTimes = clones.filter(c => c.x == this.x && c.y == this.y).map(c => queueTime);
+			this.drainLoss = totalDrain;
 
 			this.allDead = false;
 			this.invalidateCost = false;
@@ -148,6 +150,7 @@ class Route {
 
 	updateRoute() {
 		this.manaDrain = zones[currentZone].manaDrain;
+		this.drainLoss = totalDrain;
 		let route = zones[currentZone].queues.map(r => queueToString(r));
 		route = route.filter(e => e.length);
 
@@ -200,6 +203,7 @@ class Route {
 
 		let estimate = totalRockTime - rockCost / (((magic + finalMagic) / 2 + 100) / 100);
 		estimate /= this.cloneArriveTimes.length;
+		estimate -= this.drainLoss;
 		this.cachedEstimate = estimate;
 
 		return !ignoreInvalidate && this.invalidateCost ? estimate + 1e9 : estimate;

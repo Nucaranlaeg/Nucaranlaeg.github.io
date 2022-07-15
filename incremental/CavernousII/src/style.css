@@ -653,7 +653,7 @@ h4#location-name {
 	width: 250px;
 	background: #99bbbb;
 	border: 1px solid #00000033;
-	z-index: 5;
+	z-index: 50;
 	pointer-events: none;
 	padding: 2px;
 	color: #000000;
