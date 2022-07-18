@@ -553,6 +553,10 @@ setInterval(function mainLoop() {
 					if (action && action.startingDuration > action.remainingDuration){
 						Route.updateBestRoute(cloneLoc);
 					}
+					const route = getBestRoute(c.x, c.y, currentZone);
+					if (route){
+						route.hasAttempted = true;
+					}
 				}
 			});
 			getMessage("Out of Mana").display();

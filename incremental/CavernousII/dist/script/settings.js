@@ -66,6 +66,7 @@ function toggleGrindMana(event) {
         Route.invalidateRouteCosts();
         return;
     }
+    Route.resetHasAttempted();
     settings.grindMana = !settings.grindMana;
     document.querySelector("#grind-mana-toggle").innerHTML = settings.grindMana ? "Grinding mana rocks" : "Not grinding mana rocks";
     document.querySelector("#grind-mana-toggle").closest(".option").classList.toggle("option-highlighted", settings.grindMana);

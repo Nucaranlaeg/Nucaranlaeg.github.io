@@ -4,10 +4,11 @@ class Route {
     constructor(base) {
         this.actionCount = 0;
         this._cachedEstimate = 0;
+        this.drainLoss = 0;
         this.goldVaporized = [0, 0];
+        this.hasAttempted = false;
         this.loadingFailed = false;
         this.manaDrain = 0;
-        this.drainLoss = 0;
         this.needsNewEstimate = true;
         this.usedRoutes = null;
         if (base instanceof MapLocation) {
@@ -223,6 +224,11 @@ class Route {
         else {
             cur.updateRoute();
         }
+        if (completed) {
+            cur.hasAttempted = false;
+            if (prev)
+                prev.hasAttempted = false;
+        }
         if ((cur == prev || (cur.isSame(prev) && !completed)) && !prev?.invalidateCost)
             return;
         if (prev) {
@@ -269,7 +275,13 @@ class Route {
                 return null;
             return [r.estimateRefineManaLeft() + (+r.loadingFailed * -1e8), r];
         }).filter((r) => r !== null)
-            .sort((a, b) => b[0] - a[0]);
+            .sort((a, b) => {
+            if (a[1].hasAttempted && !b[1].hasAttempted)
+                return 1;
+            if (!a[1].hasAttempted && b[1].hasAttempted)
+                return -1;
+            return b[0] - a[0];
+        });
         for (let i = 0; i < effs.length; i++) {
             if (effs[i][1].loadRoute())
                 return;
@@ -277,6 +289,9 @@ class Route {
     }
     static invalidateRouteCosts() {
         routes.filter(r => r.realm == currentRealm).forEach(r => r.invalidateCost = true);
+    }
+    static resetHasAttempted() {
+        routes.filter(r => r.realm == currentRealm).forEach(r => r.hasAttempted = false);
     }
     showOnLocationUI() {
         document.querySelector("#location-route").hidden = false;
