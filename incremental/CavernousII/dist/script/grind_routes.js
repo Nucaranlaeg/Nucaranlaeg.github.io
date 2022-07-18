@@ -76,7 +76,7 @@ class GrindRoute {
         if (!grindRoutes.length)
             return;
         let bestRoute = grindRoutes
-            .filter(r => r.projectedGain)
+            .filter(r => r.projectedGain > settings.minStatGain)
             .sort((a, b) => b.projectedGain - a.projectedGain)[0];
         if (bestRoute) {
             bestRoute.loadRoute();

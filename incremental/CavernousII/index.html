@@ -239,7 +239,7 @@
 			<div class="version" title="By Nucaranlaeg">
 				<a href="https://paypal.me/SamBenner" target="_blank">Paypal</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.5.5</span><br />
+				Version <span id="version">2.5.6</span><br />
 				©2021-2022
 			</div>
 		</div>
@@ -470,7 +470,15 @@
 					Determines how long a long wait action (,) is.
 				</div>
 			</div>
+			<div class="option block enter-value">
+				<span class="label" for="min-stat-gain">Minimum stat gain for grinding</span>
+				<input id="min-stat-gain" onblur="setMinimumStatGain(this)" />
+				<div class="description big-description">
+					When grinding stats (S), pause when expected stat gain is less than this number.
+				</div>
+			</div>
 		</div>
+	</div>
 	</div>
 	<div id="loop-log-box" onclick="hideLoopLog()" hidden>
 		<div id="loop-log-wrapper">

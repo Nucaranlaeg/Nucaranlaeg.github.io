@@ -13,6 +13,7 @@ interface settings {
 	maxTotalTick: number;
 	statGrindPerSec: boolean;
 	longWait: number;
+	minStatGain: number;
 	pauseOnPortal: boolean;
 	debug_statIncreaseDivisor?: number;
 	debug_verticalBlocksJustify?: string;
@@ -35,6 +36,7 @@ const settings: settings = {
 	maxTotalTick: 10000,
 	statGrindPerSec: false,
 	longWait: 5000,
+	minStatGain: 0,
 	pauseOnPortal: false,
 };
 
@@ -164,6 +166,14 @@ function setLongWaitTime(element: HTMLInputElement) {
 	element.value = settings.longWait.toString();
 }
 
+function setMinimumStatGain(element: HTMLInputElement) {
+	let value = +element.value;
+	if (!isNaN(value)){
+		settings.minStatGain = Math.max(0, value);
+	}
+	element.value = settings.minStatGain.toString();
+}
+
 function loadSettings(savedSettings: settings) {
 	setSetting(toggleBankedTime, savedSettings.usingBankedTime);
 	setSetting(toggleRunning, !!savedSettings.running);
@@ -177,7 +187,9 @@ function loadSettings(savedSettings: settings) {
 	const maxTimeInput = <HTMLInputElement>document.querySelector("#max-time");
 	if (maxTimeInput) setMaxTickTime(maxTimeInput);
 	const longWaitInput = <HTMLInputElement>document.querySelector("#long-wait");
-	if (longWaitInput) setMaxTickTime(longWaitInput);
+	if (longWaitInput) setLongWaitTime(longWaitInput);
+	const minStatGainInput = <HTMLInputElement>document.querySelector("#min-stat-gain");
+	if (minStatGainInput) setMinimumStatGain(minStatGainInput);
 
 	Object.assign(settings, savedSettings, settings);
 }

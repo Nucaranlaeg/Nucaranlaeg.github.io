@@ -58,8 +58,12 @@ function resetLoop(noLoad = false, saveGame = true) {
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
 	if (queueTime > 50000) getMessage("Looper's Log: Supplemental").display();
 	storeLoopLog();
+	if (mana.current > 0){
+		stats.forEach((s, i) => {
+			GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
+		});
+	}
 	stats.forEach((s, i) => {
-		GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 		s.reset();
 		s.update();
 	});
@@ -558,6 +562,10 @@ setInterval(function mainLoop() {
 						route.hasAttempted = true;
 					}
 				}
+			});
+			// Update stat routes
+			stats.forEach((s, i) => {
+				GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 			});
 			getMessage("Out of Mana").display();
 			if (settings.autoRestart == AutoRestart.RestartAlways || (settings.autoRestart == AutoRestart.RestartDone && clones.every(c => c.repeated))){

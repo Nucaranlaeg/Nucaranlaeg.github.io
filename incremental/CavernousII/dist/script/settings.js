@@ -15,6 +15,7 @@ const settings = {
     maxTotalTick: 10000,
     statGrindPerSec: false,
     longWait: 5000,
+    minStatGain: 0,
     pauseOnPortal: false,
 };
 function setSetting(toggler, value, ...args) {
@@ -129,6 +130,13 @@ function setLongWaitTime(element) {
     }
     element.value = settings.longWait.toString();
 }
+function setMinimumStatGain(element) {
+    let value = +element.value;
+    if (!isNaN(value)) {
+        settings.minStatGain = Math.max(0, value);
+    }
+    element.value = settings.minStatGain.toString();
+}
 function loadSettings(savedSettings) {
     setSetting(toggleBankedTime, savedSettings.usingBankedTime);
     setSetting(toggleRunning, !!savedSettings.running);
@@ -146,7 +154,10 @@ function loadSettings(savedSettings) {
         setMaxTickTime(maxTimeInput);
     const longWaitInput = document.querySelector("#long-wait");
     if (longWaitInput)
-        setMaxTickTime(longWaitInput);
+        setLongWaitTime(longWaitInput);
+    const minStatGainInput = document.querySelector("#min-stat-gain");
+    if (minStatGainInput)
+        setMinimumStatGain(minStatGainInput);
     Object.assign(settings, savedSettings, settings);
 }
 const configBox = document.querySelector("#config-box") ??
