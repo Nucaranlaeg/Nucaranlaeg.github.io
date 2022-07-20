@@ -25,6 +25,7 @@ class ActionInstance {
     }
     tick(time, clone) {
         this.remainingDuration = Math.max(0, this.remainingDuration + this.appliedWither - this.location.wither);
+        this.appliedWither = this.location.wither;
         const skillDiv = this.action.getSkillDiv();
         let usedTime = Math.min(time / skillDiv, this.remainingDuration);
         this.action.tick(usedTime, this.location, usedTime * skillDiv, clone);
