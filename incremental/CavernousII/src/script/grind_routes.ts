@@ -75,7 +75,7 @@ class GrindRoute {
 
 	static fromJSON(ar:PropertiesOf<GrindRoute>[]) {
 		ar = this.migrate(ar);
-		return ar.map(r => new GrindRoute(r));
+		return ar.map(r => new GrindRoute(r)).filter(r => getStat(r.statName).learnable);
 	}
 
 	static deleteRoute(stat: string){

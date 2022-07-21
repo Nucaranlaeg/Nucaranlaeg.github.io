@@ -61,6 +61,8 @@ function resetLoop(noLoad = false, saveGame = true) {
     storeLoopLog();
     if (mana.current > 0) {
         stats.forEach((s, i) => {
+            if (!s.learnable)
+                return;
             GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
         });
     }
