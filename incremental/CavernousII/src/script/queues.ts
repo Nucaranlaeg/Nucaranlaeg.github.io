@@ -400,7 +400,7 @@ class ActionQueue extends Array<QueueAction> {
 		}
 
 		let done = this.cursor == null ? false // last action, don't skip
-		         : this.cursor >= 0 ? this[this.cursor].done // middle action, skip if prior is done
+		         : this.cursor >= 0 ? this[this.cursor + 1].done // middle action, skip if next is started
 		         : this[0].started; // first action, skip if next is started
 
 		let newAction = actionID[0] == "P" ? new QueuePathfindAction(actionID, this, Boolean(done))
