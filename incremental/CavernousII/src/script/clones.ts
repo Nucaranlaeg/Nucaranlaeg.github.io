@@ -92,6 +92,9 @@ class Clone {
 		if (lastEntry){
 			document.querySelector(".clone-info .action-name")!.innerHTML = lastEntry.type;
 			document.querySelector(".clone-info .action-progress")!.innerHTML = writeNumber(this.remainingTime / 1000, 2);
+		} else {
+			document.querySelector(".clone-info .action-name")!.innerHTML = "";
+			document.querySelector(".clone-info .action-progress")!.innerHTML = "0";
 		}
 	}
 

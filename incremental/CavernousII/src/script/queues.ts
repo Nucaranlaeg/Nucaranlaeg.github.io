@@ -533,6 +533,7 @@ function selectClone(target: HTMLElement | number, event: MouseEvent) {
 	} else {
 		zones[displayZone].queues.forEach((q, i) => q.selected = i == index);
 	}
+	clones[zones[currentZone].queues.findIndex(q => q.selected)].writeStats();
 }
 
 function getActionValue(action:string){

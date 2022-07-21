@@ -538,6 +538,7 @@ function selectClone(target, event) {
     else {
         zones[displayZone].queues.forEach((q, i) => q.selected = i == index);
     }
+    clones[zones[currentZone].queues.findIndex(q => q.selected)].writeStats();
 }
 function getActionValue(action) {
     return +(action.match(/\d+/)?.[0] || 0);
