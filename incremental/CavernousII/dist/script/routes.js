@@ -10,6 +10,7 @@ class Route {
         this.loadingFailed = false;
         this.manaDrain = 0;
         this.needsNewEstimate = true;
+        this.noGrind = false;
         this.usedRoutes = null;
         if (base instanceof MapLocation) {
             this.x = base.x;
@@ -271,7 +272,7 @@ class Route {
     }
     static loadBestRoute() {
         let effs = routes.map(r => {
-            if (r.realm != currentRealm || r.allDead)
+            if (r.realm != currentRealm || r.allDead || r.noGrind)
                 return null;
             return [r.estimateRefineManaLeft() + (+r.loadingFailed * -1e8), r];
         }).filter((r) => r !== null)
@@ -316,10 +317,31 @@ class Route {
         document.querySelector("#failed-route").style.display = this.loadingFailed ? "block" : "none";
         document.querySelector("#dead-route").style.display = this.allDead ? "block" : "none";
         document.querySelector("#delete-route-button").onclick = this.deleteRoute.bind(this);
+        const noGrindButton = document.querySelector("#nogrind-button");
+        noGrindButton.onclick = this.setNoGrind.bind(this, noGrindButton);
+        if (this.noGrind) {
+            noGrindButton.classList.add("dontgrind");
+            noGrindButton.innerHTML = "Not grinding";
+        }
+        else {
+            noGrindButton.classList.remove("dontgrind");
+            noGrindButton.innerHTML = "Grinding";
+        }
     }
     deleteRoute() {
         routes = routes.filter(r => r != this);
         showFinalLocation();
+    }
+    setNoGrind(noGrindButton) {
+        this.noGrind = !this.noGrind;
+        if (this.noGrind) {
+            noGrindButton.classList.add("dontgrind");
+            noGrindButton.innerHTML = "Not grinding";
+        }
+        else {
+            noGrindButton.classList.remove("dontgrind");
+            noGrindButton.innerHTML = "Grinding";
+        }
     }
 }
 function getBestRoute(x, y, z) {
@@ -352,6 +374,11 @@ function updateGrindStats() {
         .map((r, realm_i) => zones
         .filter(z => z.mapLocations.flat().length)
         .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == realm_i && t.invalidateCost && !t.allDead).length));
+    let skippedCounts = realms
+        .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
+        .map((r, realm_i) => zones
+        .filter(z => z.mapLocations.flat().length)
+        .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == realm_i && t.noGrind).length));
     const header = document.querySelector("#grind-stats-header");
     const body = document.querySelector("#grind-stats");
     const footer = document.querySelector("#grind-stats-footer");
@@ -405,6 +432,9 @@ function updateGrindStats() {
             }
             if (revisitCounts[j][i]) {
                 cellNode.classList.add("revisit");
+            }
+            if (skippedCounts[j][i]) {
+                cellNode.classList.add("skipped");
             }
             rowNode.appendChild(cellNode);
         }

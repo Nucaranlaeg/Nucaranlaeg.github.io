@@ -131,6 +131,10 @@ td.revisit {
 	font-weight: bold;
 }
 
+td.skipped {
+	font-style: italic;
+}
+
 .action {
 	line-height: 20px;
 	min-width: 16px;
@@ -771,6 +775,16 @@ h4#location-name {
 #delete-route-button {
 	background-color: #ff000033;
 	border-color: #ff000033;
+}
+
+#nogrind-button {
+	background-color: #33cc3333;
+	border-color: #33cc3333;
+}
+
+#nogrind-button.dontgrind {
+	background-color: #cc333333;
+	border-color: #cc333333;
 }
 
 .delete-route {
