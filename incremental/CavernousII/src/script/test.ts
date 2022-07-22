@@ -75,7 +75,7 @@ const tests: {
 			assertEqual(null, queue.getNextAction());
 			queue.addAction("I");
 			assertEqual("I", queue.getNextAction());
-			queue.cursor = 2;
+			queue.cursor = 1;
 			queue.addAction("D");
 			assertEqual("I", queue.getNextAction());
 		},
@@ -184,7 +184,7 @@ const tests: {
 			clones = Array(5).fill(0).map((x, i) => new Clone(i));
 			zones[0].queues.forEach(q => q.fromString("RRRRRDDDD"));
 			resetLoop();
-			getStat("Mana").current = 3;
+			getStat("Mana").current = 3.33;
 			settings.autoRestart = AutoRestart.WaitAll;
 			settings.running = true;
 			settings.usingBankedTime = true;

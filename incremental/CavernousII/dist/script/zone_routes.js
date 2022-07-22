@@ -2,6 +2,7 @@
 class ZoneRoute {
     constructor(z) {
         this.noValidPrior = false;
+        this.isLocked = false;
         if (z instanceof Zone) {
             let route = zones[currentZone].queues.map(r => queueToString(r));
             route = route.filter(e => e.length);
@@ -147,7 +148,10 @@ function clearUnusedZoneRoutes(zone = null) {
         if (zone !== null && zone != z.index)
             return;
         let currentRoute = (z.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
-        z.routes = z.routes.filter(r => usedZoneRoutes.includes(r) || ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute) || r.realm != currentRealm);
+        z.routes = z.routes.filter(r => usedZoneRoutes.includes(r)
+            || ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute)
+            || r.realm != currentRealm
+            || r.isLocked);
         z.routesChanged = true;
         z.display();
     });

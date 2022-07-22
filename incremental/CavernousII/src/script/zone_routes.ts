@@ -8,6 +8,7 @@ class ZoneRoute {
 	require!: simpleStuffList;
 	actionCount!: number;
 	noValidPrior: boolean = false;
+	isLocked: boolean = false;
 	id!: number;
 
 	constructor(z: Zone | PropertiesOf<ZoneRoute>) {
@@ -165,7 +166,12 @@ function clearUnusedZoneRoutes(zone: number | null = null) {
 	zones.forEach(z => {
 		if (zone !== null && zone != z.index) return;
 		let currentRoute = (z.queues + "").replace(/(^|,)(.*?),\2(,|$)/, "$1");
-		z.routes = z.routes.filter(r => usedZoneRoutes.includes(r) || ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute) || r.realm != currentRealm);
+		z.routes = z.routes.filter(r =>
+			usedZoneRoutes.includes(r)
+			|| ((r.route + "").replace(/(^|,)(.*?),\2(,|$)/, "$1") == currentRoute)
+			|| r.realm != currentRealm
+			|| r.isLocked
+		);
 		z.routesChanged = true;
 		z.display();
 	});

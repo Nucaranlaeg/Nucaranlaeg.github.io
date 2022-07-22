@@ -133,7 +133,7 @@ class Zone {
             else if (!this.routes.some(r => r.realm == currentRealm && r.isBetter(this.lastRoute, this.manaGain))) {
                 this.routesChanged = true;
                 for (let i = 0; i < this.routes.length; i++) {
-                    if (this.routes[i].realm != currentRealm)
+                    if (this.routes[i].realm != currentRealm || this.routes[i].isLocked)
                         continue;
                     if (this.lastRoute.isBetter(this.routes[i], this.manaGain)) {
                         this.routes.splice(i, 1);
@@ -279,7 +279,7 @@ class Zone {
                 parent.removeChild(parent.lastChild);
             }
             let head = document.createElement("h4");
-            head.innerHTML = "Routes (click to load, ctrl-click here to clear unused routes):";
+            head.innerHTML = "Routes (click to load, ctrl-click here to clear unused routes):<br>Shift-click a route to prevent deletion.";
             head.onclick = this.clearRoutes.bind(this);
             parent.appendChild(head);
             let routeTemplate = document.querySelector("#zone-route-template");
@@ -296,13 +296,31 @@ class Zone {
                     routeNode.querySelector(".actions").innerHTML = this.routes[i].actionCount.toString() + "&nbsp;";
                 routeNode.querySelector(".mana").innerHTML = this.routes[i].mana.toFixed(2);
                 displayStuff(routeNode, this.routes[i]);
-                routeNode.onclick = () => {
+                routeNode.onclick = (e) => {
+                    if (e.shiftKey) {
+                        if (this.routes[i].isLocked) {
+                            this.routes[i].isLocked = false;
+                            routeNode.querySelector(".delete-route-inner").innerHTML = "x";
+                            routeNode.querySelector(".delete-route-inner").onclick = this.deleteRoute.bind(this, i);
+                        }
+                        else {
+                            this.routes[i].isLocked = true;
+                            routeNode.querySelector(".delete-route-inner").innerHTML = "";
+                            routeNode.querySelector(".delete-route-inner").onclick = () => { };
+                        }
+                        return;
+                    }
                     this.routes[i].loadRoute(this);
                     parent.querySelectorAll("div.active").forEach(node => node.classList.remove("active"));
                     routeNode.classList.add("active");
                 };
                 routeNode.title = "";
-                routeNode.querySelector(".delete-route-inner").onclick = this.deleteRoute.bind(this, i);
+                if (this.routes[i].isLocked) {
+                    routeNode.querySelector(".delete-route-inner").innerHTML = "";
+                }
+                else {
+                    routeNode.querySelector(".delete-route-inner").onclick = this.deleteRoute.bind(this, i);
+                }
                 if (!usedRoutes.includes(this.routes[i])) {
                     routeNode.classList.add("unused");
                     routeNode.title += "This route is not used for any saved route. ";
