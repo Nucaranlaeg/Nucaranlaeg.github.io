@@ -178,6 +178,12 @@ class Clone {
 			if (clones.length == 4) getMessage("Third Clone").display();
 			if (clones.length == 5) getMessage("Fourth Clone").display();
 		}
+		zones.forEach(z => {
+			while (z.queues.length < clones.length) {
+				let q = new ActionQueue(z.queues.length);
+				z.queues.push(q);
+			}
+		})
 	}
 }
 

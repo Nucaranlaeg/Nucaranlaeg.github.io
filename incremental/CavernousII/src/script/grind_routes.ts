@@ -17,6 +17,8 @@ class GrindRoute {
 		this.totalStatGain = totalStatGain;
 		this.totalTime = queueTime;
 		this.projectedGain = GrindRoute.calculateProjectedGain(this.statName, this.totalStatGain);
+		// Don't save routes for stats which aren't learnable.
+		if (!getStat(x).learnable) this.projectedGain = -Infinity;
 
 		this.realm = currentRealm;
 		this.route = zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q);

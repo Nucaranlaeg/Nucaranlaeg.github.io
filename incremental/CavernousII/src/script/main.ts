@@ -566,6 +566,7 @@ setInterval(function mainLoop() {
 			});
 			// Update stat routes
 			stats.forEach((s, i) => {
+				if (!s.learnable) return;
 				GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 			});
 			getMessage("Out of Mana").display();
