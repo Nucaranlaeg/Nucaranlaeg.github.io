@@ -58,13 +58,13 @@ function resetLoop(noLoad = false, saveGame = true) {
         getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
     if (queueTime > 50000)
         getMessage("Looper's Log: Supplemental").display();
-    storeLoopLog();
     if (mana.current > 0) {
         stats.forEach((s, i) => {
             if (!s.learnable)
                 return;
             GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
         });
+        storeLoopLog();
     }
     stats.forEach((s, i) => {
         s.reset();
@@ -129,6 +129,7 @@ const loopGoldValueNode = document.querySelector("#loop-gold-value");
 let displayedOldLog = false;
 let loopZoneDisplayed = -1;
 const loopZoneTemplate = document.querySelector("#loop-zone-template");
+const loadLoopNode = document.querySelector("#load-loop-log");
 function storeLoopLog() {
     if (!Object.keys(loopActions).length) {
         loopStatStart = stats.map(s => s.base);
@@ -140,6 +141,7 @@ function storeLoopLog() {
             return { current: stats[i].current - loopStatStart[i], base: stats[i].base - loopStatStart[i] };
         }),
         kept: false,
+        queues: getLongExport(false),
     };
     loopActions = {};
     loopStatStart = stats.map(s => s.base);
@@ -151,7 +153,7 @@ function storeLoopLog() {
     }
     loopGoldVaporized = [0, 0];
 }
-function displayLoopLog(logActions = loopActions, logStats = null) {
+function displayLoopLog(logActions = loopActions, logStats = null, logQueues = "") {
     loopLogBox.hidden = false;
     loopLogVisible = true;
     const loopActionNode = loopLogBox.querySelector("#loop-actions");
@@ -240,6 +242,7 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
         displayedOldLog = false;
         displayLoopLog();
         e.stopPropagation();
+        // Visually select the clicked-upon log
     };
     loopPrevNode.append(node);
     for (let i = previousLoopLogs.length - 1; i >= 0; i--) {
@@ -252,7 +255,7 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
         node.querySelector(".value").innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
         node.onclick = e => {
             displayedOldLog = true;
-            displayLoopLog(log.actions, log.stats);
+            displayLoopLog(log.actions, log.stats, log.queues);
             e.stopPropagation();
         };
         loopPrevNode.append(node);
@@ -265,12 +268,19 @@ function displayLoopLog(logActions = loopActions, logStats = null) {
         const changeLogZone = ((z) => (e) => {
             e.stopPropagation();
             loopZoneDisplayed = z;
-            displayLoopLog(logActions, logStats);
+            displayLoopLog(logActions, logStats, logQueues);
         })(i);
         zoneNode.onmousedown = changeLogZone;
         zoneNode.onmouseup = changeLogZone;
         loopZoneNode.append(zoneNode);
     }
+    loadLoopNode.style.display = displayedOldLog ? "inline-block" : "none";
+    loadLoopNode.onclick = e => {
+        if (logQueues.length == 0)
+            return;
+        longImportQueues(logQueues);
+        resetLoop();
+    };
 }
 function hideLoopLog() {
     loopLogBox.hidden = true;
@@ -530,6 +540,7 @@ setInterval(function mainLoop() {
                     return;
                 GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
             });
+            storeLoopLog();
             getMessage("Out of Mana").display();
             if (settings.autoRestart == AutoRestart.RestartAlways || (settings.autoRestart == AutoRestart.RestartDone && clones.every(c => c.repeated))) {
                 resetLoop();
@@ -683,6 +694,9 @@ const keyFunctions = {
     },
     "Backspace": () => {
         addActionToQueue("B");
+    },
+    "Delete": () => {
+        addActionToQueue("b");
     },
     "^Backspace": () => {
         clearQueues();

@@ -387,6 +387,10 @@ class ActionQueue extends Array<QueueAction> {
 	}
 
 	addAction(actionID: string) {
+		if (actionID == "b" && this.cursor !== null) {
+			actionID = "B";
+			this.cursor++;
+		}
 		if (actionID == "B") {
 			return this.removeAction();
 		}
@@ -682,9 +686,12 @@ function exportQueues() {
 	navigator.clipboard.writeText(JSON.stringify(exportString));
 }
 
+function getLongExport(all = true){
+	return JSON.stringify(zones.map(z => z.node && (all || currentZone >= z.index) ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q));
+}
+
 function longExportQueues() {
-	let exportString = zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q);
-	navigator.clipboard.writeText(JSON.stringify(exportString));
+	navigator.clipboard.writeText(getLongExport());
 }
 
 function importQueues() {

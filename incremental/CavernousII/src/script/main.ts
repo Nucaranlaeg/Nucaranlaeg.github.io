@@ -57,12 +57,12 @@ function resetLoop(noLoad = false, saveGame = true) {
 	if (mana.base == 7.4) getMessage("Buy More Time").display();
 	if (routes.length == 3) getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
 	if (queueTime > 50000) getMessage("Looper's Log: Supplemental").display();
-	storeLoopLog();
 	if (mana.current > 0){
 		stats.forEach((s, i) => {
 			if (!s.learnable) return;
 			GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 		});
+		storeLoopLog();
 	}
 	stats.forEach((s, i) => {
 		s.reset();
@@ -114,6 +114,7 @@ let previousLoopLogs: {
 	actions: { [key in string]: number[] };
 	stats: {current: number, base: number}[];
 	kept: boolean;
+	queues: string;
 }[] = [];
 let loopGoldVaporized: [number, number] = [0, 0];
 let loopLogVisible = false;
@@ -131,6 +132,7 @@ const loopGoldValueNode = document.querySelector("#loop-gold-value") as HTMLElem
 let displayedOldLog = false;
 let loopZoneDisplayed = -1;
 const loopZoneTemplate = document.querySelector("#loop-zone-template") as HTMLElement;
+const loadLoopNode = document.querySelector("#load-loop-log") as HTMLElement;
 
 function storeLoopLog(){
 	if (!Object.keys(loopActions).length){
@@ -143,6 +145,7 @@ function storeLoopLog(){
 			return {current: stats[i].current - loopStatStart[i], base: stats[i].base - loopStatStart[i]};
 		}),
 		kept: false,
+		queues: getLongExport(false),
 	};
 	loopActions = {};
 	loopStatStart = stats.map(s => s.base);
@@ -155,7 +158,7 @@ function storeLoopLog(){
 	loopGoldVaporized = [0, 0];
 }
 
-function displayLoopLog(logActions = loopActions, logStats: {current: number, base: number}[] | null = null) {
+function displayLoopLog(logActions = loopActions, logStats: {current: number, base: number}[] | null = null, logQueues: string = "") {
 	loopLogBox.hidden = false;
 	loopLogVisible = true;
 	const loopActionNode = loopLogBox.querySelector("#loop-actions") as HTMLElement;
@@ -236,6 +239,7 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 		displayedOldLog = false;
 		displayLoopLog();
 		e.stopPropagation();
+		// Visually select the clicked-upon log
 	}
 	loopPrevNode.append(node);
 	for (let i = previousLoopLogs.length - 1; i >= 0; i--){
@@ -247,7 +251,7 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 		node.querySelector(".value")!.innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
 		node.onclick = e => {
 			displayedOldLog = true;
-			displayLoopLog(log.actions, log.stats);
+			displayLoopLog(log.actions, log.stats, log.queues);
 			e.stopPropagation();
 		}
 		loopPrevNode.append(node);
@@ -259,11 +263,17 @@ function displayLoopLog(logActions = loopActions, logStats: {current: number, ba
 		const changeLogZone = ((z) => (e: MouseEvent) => {
 			e.stopPropagation();
 			loopZoneDisplayed = z;
-			displayLoopLog(logActions, logStats);
+			displayLoopLog(logActions, logStats, logQueues);
 		})(i);
 		zoneNode.onmousedown = changeLogZone;
 		zoneNode.onmouseup = changeLogZone;
 		loopZoneNode.append(zoneNode);
+	}
+	loadLoopNode.style.display = displayedOldLog ? "inline-block" : "none";
+	loadLoopNode.onclick = e => {
+		if (logQueues.length == 0) return;
+		longImportQueues(logQueues);
+		resetLoop();
 	}
 }
 
@@ -569,6 +579,7 @@ setInterval(function mainLoop() {
 				if (!s.learnable) return;
 				GrindRoute.updateBestRoute(s.name, s.current - loopStatStart[i]);
 			});
+			storeLoopLog();
 			getMessage("Out of Mana").display();
 			if (settings.autoRestart == AutoRestart.RestartAlways || (settings.autoRestart == AutoRestart.RestartDone && clones.every(c => c.repeated))){
 				resetLoop();
@@ -721,6 +732,9 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	},
 	"Backspace": () => {
 		addActionToQueue("B");
+	},
+	"Delete": () => {
+		addActionToQueue("b");
 	},
 	"^Backspace": () => {
 		clearQueues();

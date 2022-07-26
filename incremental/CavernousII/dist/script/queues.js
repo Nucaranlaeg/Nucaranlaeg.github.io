@@ -389,6 +389,10 @@ class ActionQueue extends Array {
         return ar;
     }
     addAction(actionID) {
+        if (actionID == "b" && this.cursor !== null) {
+            actionID = "B";
+            this.cursor++;
+        }
         if (actionID == "B") {
             return this.removeAction();
         }
@@ -677,9 +681,11 @@ function exportQueues() {
     let exportString = zones[displayZone].queues.map(queue => queueToString(queue));
     navigator.clipboard.writeText(JSON.stringify(exportString));
 }
+function getLongExport(all = true) {
+    return JSON.stringify(zones.map(z => z.node && (all || currentZone >= z.index) ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q));
+}
 function longExportQueues() {
-    let exportString = zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q);
-    navigator.clipboard.writeText(JSON.stringify(exportString));
+    navigator.clipboard.writeText(getLongExport());
 }
 function importQueues() {
     let queueString = prompt("Input your queues");

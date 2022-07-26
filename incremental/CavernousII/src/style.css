@@ -1349,6 +1349,15 @@ td:hover:after {
 	background-color: #279427;
 }
 
+#load-loop-log {
+	display: inline-block;
+	border: 1px solid black;
+	height: 25px;
+	line-height: 25px;
+	padding: 0 5px;
+	cursor: pointer;
+}
+
 #loop-stats,
 #loop-actions,
 #loop-prev {
