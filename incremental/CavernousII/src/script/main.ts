@@ -925,6 +925,9 @@ const keyFunctions:{[key:string]:(event:KeyboardEvent)=>void} = {
 	"Comma": () => {
 		addActionToQueue(",");
 	},
+	">Comma": () => {
+		addActionToQueue("<");
+	},
 	">Semicolon": () => {
 		addActionToQueue(":");
 	},
@@ -960,6 +963,7 @@ setTimeout(() => {
 	document.body.onkeydown = e => {
 		if (!document.querySelector("input:focus")) {
 			const key = `${e.ctrlKey || e.metaKey ? "^" : ""}${e.shiftKey ? ">" : ""}${e.code}`;
+			console.log(key);
 			if (keyFunctions[key]) {
 				e.preventDefault();
 				keyFunctions[key](e);
