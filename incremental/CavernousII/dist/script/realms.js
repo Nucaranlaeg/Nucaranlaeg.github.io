@@ -15,6 +15,7 @@ class Realm {
         this.multPerRock = multPerRock;
         this.node = null;
         this.maxMult = maxMult;
+        this.index = realms.length;
         setTimeout(() => {
             this.index = realms.findIndex(r => r == this);
         });
@@ -124,31 +125,34 @@ const verdantMapping = {
 function convertMapToVerdant(map, zoneNumber) {
     return map.map(row => [...row].map(cell => zoneNumber > 6 ? "█" : (zoneNumber == 6 && cell == "Θ" ? "♠" : verdantMapping[cell] || cell)).join(""));
 }
-const realms = [
-    // Default realm, no special effects.
-    new Realm("Core Realm", "Where you started.  Hopefully, how you'll leave this cave complex.", () => clones.length, () => Clone.addNewClone()),
-    // Double mana cost on everything.
-    // All stuff costs except for making bars and vaporizing gold is doubled.
-    new Realm("Long Realm", "A realm where everything takes thrice as long and costs twice as much (except bars and vaporizing gold).  It will help you slow down how quickly mana rocks become harder to mine.", () => (getRune("Duplication").upgradeCount || 0) + 3, () => {
-        getRune("Duplication").upgradeCount++;
-        getRune("Duplication").updateDescription();
-        getMessage("Upgraded Duplication Rune").display(true);
-    }),
-    // All rock-type locations become mushroom-type locations.
-    // Mushroom growth rate is doubled.
-    new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion).", () => (getRune("Wither").upgradeCount || 0) > 2 ? Infinity : (getRune("Wither").upgradeCount || 0) + 3, () => {
-        if (getRune("Wither").upgradeCount++ >= 1) {
-            getMessage("Reupgraded Wither Rune").display();
-        }
-        getRune("Wither").updateDescription();
-        getMessage("Upgraded Wither Rune").display();
-    }, getVerdantMultDesc, 0.0005, 2),
-    // Clones cannot help each other at all.
-    new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.1 points later per mana rock completion and you'll gain base 0.1% faster).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
-        getRealm("Compounding Realm").machineCompletions++;
-        getMessage("Time Barriers").display();
-    }, getCompoundingMultDesc, 0.1)
-];
+const realms = [];
+realms.push(
+// Default realm, no special effects.
+new Realm("Core Realm", "Where you started.  Hopefully, how you'll leave this cave complex.", () => clones.length, () => Clone.addNewClone()));
+realms.push(
+// Double mana cost on everything.
+// All stuff costs except for making bars and vaporizing gold is doubled.
+new Realm("Long Realm", "A realm where everything takes thrice as long and costs twice as much (except bars and vaporizing gold).  It will help you slow down how quickly mana rocks become harder to mine.", () => (getRune("Duplication").upgradeCount || 0) + 3, () => {
+    getRune("Duplication").upgradeCount++;
+    getRune("Duplication").updateDescription();
+    getMessage("Upgraded Duplication Rune").display(true);
+}));
+realms.push(
+// All rock-type locations become mushroom-type locations.
+// Mushroom growth rate is doubled.
+new Realm("Verdant Realm", "A realm where mushrooms have overgrown everything, and they grow five times as fast.  You'll learn how to get mana from gold more efficiently (0.05% per mana rock completion).", () => (getRune("Wither").upgradeCount || 0) > 2 ? Infinity : (getRune("Wither").upgradeCount || 0) + 3, () => {
+    if (getRune("Wither").upgradeCount++ >= 1) {
+        getMessage("Reupgraded Wither Rune").display();
+    }
+    getRune("Wither").updateDescription();
+    getMessage("Upgraded Wither Rune").display();
+}, getVerdantMultDesc, 0.0005, 2));
+realms.push(
+// Clones cannot help each other at all.
+new Realm("Compounding Realm", "A realm where things get harder the more you do.  Each movement action completed (including walking - and pathfinding doesn't save you on that) increases the amount of time each subsequent task will take by 2.5%.  You'll get better at learning from repeated tasks (stat slowdown will start 0.1 points later per mana rock completion and you'll gain base 0.1% faster).", () => getRealm("Compounding Realm").machineCompletions + 2, () => {
+    getRealm("Compounding Realm").machineCompletions++;
+    getMessage("Time Barriers").display();
+}, getCompoundingMultDesc, 0.1));
 function getRealm(name) {
     let realm = realms.find(a => a.name == name);
     if (realm === undefined)

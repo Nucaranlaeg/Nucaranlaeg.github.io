@@ -32,6 +32,7 @@ class Realm {
 		this.multPerRock = multPerRock;
 		this.node = null;
 		this.maxMult = maxMult;
+		this.index = realms.length;
 		setTimeout(() => {
 			this.index = realms.findIndex(r => r == this);
 		});
@@ -148,15 +149,17 @@ function convertMapToVerdant(map:Zone["map"], zoneNumber: number): string[] {
 	return map.map(row => [...row].map(cell => zoneNumber > 6 ? "█" : (zoneNumber == 6 && cell == "Θ" ? "♠" : verdantMapping[cell] || cell)).join(""));
 }
 
-const realms:Realm[] = [
+const realms:Realm[] = [];
+realms.push(
 	// Default realm, no special effects.
 	new Realm(
 		"Core Realm",
 		"Where you started.  Hopefully, how you'll leave this cave complex.",
 		() => clones.length,
 		() => Clone.addNewClone()
-	),
+	));
 
+realms.push(
 	// Double mana cost on everything.
 	// All stuff costs except for making bars and vaporizing gold is doubled.
 	new Realm(
@@ -168,8 +171,9 @@ const realms:Realm[] = [
 			getRune("Duplication").updateDescription();
 			getMessage("Upgraded Duplication Rune").display(true);
 		}
-	),
+	));
 
+realms.push(
 	// All rock-type locations become mushroom-type locations.
 	// Mushroom growth rate is doubled.
 	new Realm(
@@ -186,8 +190,9 @@ const realms:Realm[] = [
 		getVerdantMultDesc,
 		0.0005,
 		2,
-	),
+	));
 
+realms.push(
 	// Clones cannot help each other at all.
 	new Realm(
 		"Compounding Realm",
@@ -199,8 +204,7 @@ const realms:Realm[] = [
 		},
 		getCompoundingMultDesc,
 		0.1
-	)
-];
+	));
 
 function getRealm(name:string) {
 	let realm = realms.find(a => a.name == name)
