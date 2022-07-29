@@ -241,7 +241,7 @@
 			<div class="version" title="By Nucaranlaeg">
 				<a href="https://paypal.me/SamBenner" target="_blank">Paypal</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.7.1</span><br />
+				Version <span id="version">2.7.2</span><br />
 				©2021-2022
 			</div>
 		</div>
@@ -291,7 +291,7 @@
 				<div id="location-description"></div>
 				<div id="location-next"></div>
 				<div id="location-water"></div>
-				<button id="pathfind-button" onclick="keyFunctions.KeyF()">Pathfind Here (F)</button>
+				<button id="pathfind-button" onclick="adjustableKeybindings.KeyF()">Pathfind Here (F)</button>
 				<div id="location-route">
 					<button id="route-button" class="button" onclick="loadRoute(true)">
 						Load best route to this rock
@@ -346,53 +346,53 @@
 					</div>
 				</div>
 				<div class="block-row hidden-action">
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit1()">
+					<div class="small-option block clickable hidden-action" onclick="fixedKeybindings.Digit1()">
 						<span id="add-action-weaken">W</span>
 						<div class="description">Weaken Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit2()">
+					<div class="small-option block clickable hidden-action" onclick="fixedKeybindings.Digit2()">
 						<span id="add-action-wither">H</span>
 						<div class="description">Wither Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit3()">
+					<div class="small-option block clickable hidden-action" onclick="fixedKeybindings.Digit3()">
 						<span id="add-action-duplication">D</span>
 						<div class="description">Duplication Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit4()">
+					<div class="small-option block clickable hidden-action" onclick="fixedKeybindings.Digit4()">
 						<span id="add-action-teleport-to">T</span>
 						<div class="description">Teleport To Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit5()">
+					<div class="small-option block clickable hidden-action" onclick="fixedKeybindings.Digit5()">
 						<span id="add-action-teleport-from">F</span>
 						<div class="description">Teleport From Rune</div>
 					</div>
-					<div class="small-option block clickable hidden-action" onclick="keyFunctions.Digit6()">
+					<div class="small-option block clickable hidden-action" onclick="fixedKeybindings.Digit6()">
 						<span id="add-action-pump">P</span>
 						<div class="description">Pump Rune</div>
 					</div>
 				</div>
 				<div class="block-row">
-					<div class="small-option block clickable" onclick="keyFunctions['Period']()">
+					<div class="small-option block clickable" onclick="adjustableKeybindings['Period']()">
 						<span id="add-action-wait">.</span>
 						<div class="description">Wait 100ms</div>
 					</div>
-					<div class="small-option block clickable" onclick="keyFunctions['Comma']()">
+					<div class="small-option block clickable" onclick="adjustableKeybindings['Comma']()">
 						<span id="add-action-long-wait">,</span>
 						<div class="description">Long wait (default 5000ms; see settings)</div>
 					</div>
-					<div class="small-option block clickable" onclick="keyFunctions['>Semicolon']()">
+					<div class="small-option block clickable" onclick="adjustableKeybindings['>Semicolon']()">
 						<span id="add-action-pause">:</span>
 						<div class="description">Pause at this action</div>
 					</div>
-					<div class="small-option block clickable" onclick="keyFunctions['^KeyA']()">
+					<div class="small-option block clickable" onclick="fixedKeybindings['^KeyA']()">
 						<span id="select-all">All</span>
 						<div class="description">Select all</div>
 					</div>
-					<div class="small-option block clickable" onclick="keyFunctions.Backspace()">
+					<div class="small-option block clickable" onclick="fixedKeybindings.Backspace()">
 						<span id="delete-action">&lt;=</span>
 						<div class="description">Erase</div>
 					</div>
-					<div class="small-option block clickable" onclick="keyFunctions['^Backspace']()">
+					<div class="small-option block clickable" onclick="fixedKeybindings['^Backspace']()">
 						<span id="delete-all-actions">X</span>
 						<div class="description">Clear</div>
 					</div>
