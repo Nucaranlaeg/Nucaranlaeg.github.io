@@ -205,5 +205,5 @@ const realms:Realm[] = [
 function getRealm(name:string) {
 	let realm = realms.find(a => a.name == name)
 	if (realm === undefined) throw new Error(`No realm with name "${name}" found`);
-	return realm
+	return realm;
 }

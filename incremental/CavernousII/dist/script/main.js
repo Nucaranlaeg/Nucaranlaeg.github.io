@@ -324,6 +324,8 @@ let gameStatus = { paused: false };
 const fps = 60;
 let shouldReset = false;
 setInterval(function mainLoop() {
+    if (zones[0].index === -1 || realms[0].index === -1)
+        return;
     if (shouldReset) {
         resetLoop();
     }
