@@ -534,3 +534,5 @@ function applyCustomStyling() {
 		(document.querySelector(".vertical-blocks") as HTMLElement).style.justifyContent = settings.debug_verticalBlocksJustify;
 	}
 }
+
+setTimeout(load, 10);
