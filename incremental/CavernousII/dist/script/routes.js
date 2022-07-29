@@ -358,27 +358,27 @@ function loadRoute() {
 function updateGrindStats() {
     let rockCounts = realms
         .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
-        .map((r, realm_i) => zones
+        .map(r => zones
         .filter(z => z.mapLocations.flat().length)
         .map((z, zone_i) => routes
-        .filter(t => t.zone == zone_i && t.realm == realm_i)
+        .filter(t => t.zone == zone_i && t.realm == r.index)
         .reduce((a, t) => a + (t.allDead ? 0.000005 : t.loadingFailed ? 0.005 : t.estimateRefineTimes()), 0)));
     let reachedCounts = realms
         .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
-        .map((r, realm_i) => zones
+        .map(r => zones
         .filter(z => z.mapLocations.flat().length)
         .map((z, zone_i) => z.mapLocations.flat().filter(l => l.type.name == "Mana-infused Rock").length !=
-        routes.filter(t => t.zone == zone_i && t.realm == realm_i).length));
+        routes.filter(t => t.zone == zone_i && t.realm == r.index).length));
     let revisitCounts = realms
         .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
-        .map((r, realm_i) => zones
+        .map(r => zones
         .filter(z => z.mapLocations.flat().length)
-        .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == realm_i && t.invalidateCost && !t.allDead).length));
+        .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == r.index && t.invalidateCost && !t.allDead).length));
     let skippedCounts = realms
         .filter(r => (!r.locked && !r.completed) || r.name == "Core Realm")
-        .map((r, realm_i) => zones
+        .map(r => zones
         .filter(z => z.mapLocations.flat().length)
-        .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == realm_i && t.noGrind).length));
+        .map((z, zone_i) => routes.filter(t => t.zone == zone_i && t.realm == r.index && t.noGrind).length));
     const header = document.querySelector("#grind-stats-header");
     const body = document.querySelector("#grind-stats");
     const footer = document.querySelector("#grind-stats-footer");
@@ -400,14 +400,19 @@ function updateGrindStats() {
     while (body.firstChild) {
         body.removeChild(body.lastChild);
     }
-    for (let i = 0; i < rockCounts.length; i++) {
+    let completedRealms = 0;
+    for (let i = 0; i < rockCounts.length + completedRealms; i++) {
+        if (realms[i].completed) {
+            completedRealms++;
+            continue;
+        }
         let headerNode = cellTemplate.cloneNode(true);
         headerNode.removeAttribute("id");
         headerNode.innerHTML = realms[i].name.replace(/ Realm/, "");
         header.appendChild(headerNode);
         let footerNode = cellTemplate.cloneNode(true);
         footerNode.removeAttribute("id");
-        footerNode.innerHTML = rockCounts[i].reduce((a, c) => a + Math.floor(c)).toString();
+        footerNode.innerHTML = rockCounts[i - completedRealms].reduce((a, c) => a + Math.floor(c)).toString();
         footer.appendChild(footerNode);
     }
     for (let i = 0; i < rockCounts[0].length; i++) {
