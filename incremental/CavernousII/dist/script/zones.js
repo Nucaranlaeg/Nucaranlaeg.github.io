@@ -3,7 +3,7 @@ let currentZone = 0;
 let displayZone = 0;
 class Zone {
     constructor(name, map, goalReward = null) {
-        this.index = -1;
+        this.index = 0;
         this.manaDrain = 0;
         this.name = name;
         this.originalMap = map;
@@ -152,6 +152,7 @@ class Zone {
             });
         }
         this.display();
+        currentLoopLog.moveZone();
     }
     sumRoute(require, startDamage, actionCount) {
         let routeOptions = this.routes
@@ -393,9 +394,7 @@ class Zone {
         if (this.manaDrain) {
             let drainValue = time * this.manaDrain * getStat("Chronomancy").value;
             getStat("Mana").spendMana(drainValue / 1000);
-            if (!loopActions["Barrier Drain"])
-                loopActions["Barrier Drain"] = Array(zones.length).fill(0);
-            loopActions["Barrier Drain"][this.index] += drainValue * clones.length;
+            currentLoopLog.addActionTime("Barrier Drain", this.index, drainValue * clones.length);
             totalDrain += drainValue / 1000;
         }
     }

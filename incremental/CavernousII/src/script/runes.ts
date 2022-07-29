@@ -2,8 +2,7 @@ class Rune<runeName extends anyRuneName = anyRuneName> {
 	name: runeName;
 	icon: string;
 	isInscribable: {
-		(spend?: boolean): boolean | number;
-		itemCount?: number;
+		(): boolean | number;
 	};
 	manaCost: number;
 	description: () => string;
@@ -18,8 +17,7 @@ class Rune<runeName extends anyRuneName = anyRuneName> {
 		name: runeName,
 		icon: string,
 		isInscribable: {
-			(spend?: boolean): boolean | number;
-			itemCount?: number;
+			(): boolean | number;
 		},
 		manaCost: number,
 		description: () => string,
@@ -77,16 +75,13 @@ class Rune<runeName extends anyRuneName = anyRuneName> {
 		let location = getMapLocation(x, y, true);
 		if (location === null) throw new Error("Can't create rune at location");
 		if (location.baseType.name == "Mana Spring" || location.baseType.name == "Mana-infused Rock") return true;
-		if (this.isInscribable() == CanStartReturnCode.Now) {
-			this.isInscribable(true);
-		} else {
+		if (this.isInscribable() != CanStartReturnCode.Now) {
 			return false;
 		}
 
 		location.setTemporaryPresent(this);
 		setMined(x, y, this.icon);
 		if (this.createEvent) this.createEvent(location);
-		getStat("Runic Lore").gainSkill(this.isInscribable.itemCount || 0);
 		return true;
 	}
 
@@ -119,7 +114,7 @@ function updateRunes() {
 
 function createChargableRune(location: MapLocation) {
 	let action = location.getPresentAction();
-	action?.start();
+	action?.start(clones[0]);
 }
 
 function weakenCreatures(location: MapLocation) {

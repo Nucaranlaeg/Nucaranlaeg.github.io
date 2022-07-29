@@ -1,14 +1,14 @@
 class LocationType<locationTypeName extends string = string> {
-	name: locationTypeName;
-	symbol: string;
+	canWorkTogether: boolean;
 	description: string;
 	enterAction: anyAction | null;
-	presentAction: anyAction | null;
-	nextCost: ((this: LocationType, completions: number, priorCompletions: number, zone: Zone, x: number, y: number) => string) | null;
 	enterCount: number;
 	extraReset: this["reset"] | null = null;
-	canWorkTogether: boolean;
+	name: locationTypeName;
+	nextCost: ((this: LocationType, completions: number, priorCompletions: number, zone: Zone, x: number, y: number) => string) | null;
+	presentAction: anyAction | null;
 	startWater: number;
+	symbol: string;
 
 	constructor(
 		name: locationTypeName,

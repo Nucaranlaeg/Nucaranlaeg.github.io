@@ -140,11 +140,9 @@ class Clone {
 	}
 
 	addToTimeline(action: { name: string }, time = 0) {
-		if (action.name == "None") return;
 		if (action === null || time < 1 || isNaN(time)) return;
 		// Loop log
-		if (!loopActions[action.name]) loopActions[action.name] = Array(zones.length).fill(0);
-		loopActions[action.name][currentZone] += time;
+		currentLoopLog.addActionTime(action.name, currentZone, time);
 
 		// Timeline
 		if (!settings.timeline) return;

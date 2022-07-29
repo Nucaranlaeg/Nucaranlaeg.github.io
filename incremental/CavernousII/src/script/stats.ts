@@ -1,3 +1,5 @@
+const MANA_START = 5;
+
 class Stat<statName extends anyStatName> {
 	name: statName;
 	icon: string;
@@ -115,7 +117,7 @@ class Stat<statName extends anyStatName> {
 				let step = this.base;
 				while (true) {
 					const val = (v + 1) ** ((0.9 * scalingStart ** 0.05) / this.base ** 0.05) - (this.base + 1);
-					if (Math.abs(val) < 0.1) {
+					if (Math.abs(val) < 0.1 || isNaN(val)) {
 						break;
 					}
 					if (step < 0.1) {
@@ -178,7 +180,7 @@ class Stat<statName extends anyStatName> {
 
 	reset(): void {
 		if (this.name === "Mana") {
-			this.base = 5;
+			this.base = MANA_START;
 		}
 		if (this.current === this.base && this.bonus === 0) {
 			return;
@@ -214,7 +216,7 @@ class Stat<statName extends anyStatName> {
 type anyStatName = "Mana" | "Mining" | "Woodcutting" | "Magic" | "Speed" | "Smithing" | "Runic Lore" | "Combat" | "Gemcraft" | "Chronomancy" | "Attack" | "Defense" | "Health";
 
 const stats:Stat<anyStatName>[] = [
-	new Stat("Mana", "", "How long you can resist being pulled back to your cave.  Also increases the maximum speed the game runs at.", 5, false),
+	new Stat("Mana", "", "How long you can resist being pulled back to your cave.  Also increases the maximum speed the game runs at.", MANA_START, false),
 	new Stat("Mining", "⛏", "Your skill at mining, reducing the time it takes to do mining-type tasks."),
 	new Stat("Woodcutting", "", "How good you are at chopping down mushrooms of various kinds."),
 	new Stat("Magic", "★", "Your understanding of arcane mysteries."),
@@ -234,7 +236,7 @@ function getStat<nameType extends anyStatName>(name: nameType): Stat<nameType> {
 }
 
 function getBaseMana(zone: number = currentZone, realm: number = currentRealm): number{
-	return 5 + zones.reduce((a, z, i) => {
+	return MANA_START + zones.reduce((a, z, i) => {
 		return i > zone ? a : a + z.cacheManaGain[realm]
 	}, 0)
 }

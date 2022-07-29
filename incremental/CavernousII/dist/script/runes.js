@@ -51,17 +51,13 @@ class Rune {
             throw new Error("Can't create rune at location");
         if (location.baseType.name == "Mana Spring" || location.baseType.name == "Mana-infused Rock")
             return true;
-        if (this.isInscribable() == CanStartReturnCode.Now) {
-            this.isInscribable(true);
-        }
-        else {
+        if (this.isInscribable() != CanStartReturnCode.Now) {
             return false;
         }
         location.setTemporaryPresent(this);
         setMined(x, y, this.icon);
         if (this.createEvent)
             this.createEvent(location);
-        getStat("Runic Lore").gainSkill(this.isInscribable.itemCount || 0);
         return true;
     }
     unlock() {
@@ -92,7 +88,7 @@ function updateRunes() {
 }
 function createChargableRune(location) {
     let action = location.getPresentAction();
-    action?.start();
+    action?.start(clones[0]);
 }
 function weakenCreatures(location) {
     let x = location.x;

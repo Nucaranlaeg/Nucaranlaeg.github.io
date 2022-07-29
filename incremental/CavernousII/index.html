@@ -25,6 +25,7 @@
 	<script type="text/javascript" defer src="dist/script/highlights.js"></script>
 	<script type="text/javascript" defer src="dist/script/runes.js"></script>
 	<script type="text/javascript" defer src="dist/script/clones.js"></script>
+	<script type="text/javascript" defer src="dist/script/loop_log.js"></script>
 	<script type="text/javascript" defer src="dist/script/messages.js"></script>
 
 	<script type="text/javascript" defer src="dist/script/main.js"></script>
@@ -178,7 +179,7 @@
 						Arrow keys to move<br />
 						Space to act at your location<br />
 						Backspace removes a command<br />
-						1-5 to inscribe a rune<br />
+						1-6 to inscribe a rune<br />
 						Ctrl-backspace clears the whole queue<br />
 						Tab selects the next clone<br />
 						Ctrl-Left/Right to move within a queue<br />
@@ -190,7 +191,6 @@
 						, to wait for longer<br />
 						: or ; to insert a breakpoint which pauses the game<br />
 						Home/End moves the cursor to the start/end of selected clones<br />
-						&lt; to repeat all following actions<br />
 					</div>
 				</div>
 				<div onclick="displaySaveClick(event)">
@@ -233,7 +233,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="option block clickable" onclick="displayLoopLog()">
+				<div class="option block clickable" onclick="currentLoopLog.display()">
 					<span class="name">View loop log</span>
 					<div class="description">Might be laggy if it's open while running.</div>
 				</div>
@@ -241,7 +241,7 @@
 			<div class="version" title="By Nucaranlaeg">
 				<a href="https://paypal.me/SamBenner" target="_blank">Paypal</a>
 				<a href="https://discord.gg/EXAHXBr" target="_blank">Discord</a><br />
-				Version <span id="version">2.6.1</span><br />
+				Version <span id="version">2.7.0</span><br />
 				©2021-2022
 			</div>
 		</div>

@@ -1,5 +1,4 @@
 let actionBarWidth: number = 0;
-let currentClone: Clone;
 
 class QueueAction {
 	actionID: string;
@@ -187,7 +186,7 @@ class QueueAction {
 					const cloneY = c.y + +(action.action == "D") - +(action.action == "U");
 					if (cloneX == targetX && cloneY == targetY){
 						action.currentAction = new ActionInstance(Object.create(getAction("Walk")), location!, true);
-						action.currentAction.start(this.currentClone);
+						action.currentAction.start(c);
 						actions.push(action.currentAction);
 					}
 				});
@@ -216,11 +215,13 @@ class QueueAction {
 
 	complete() {
 		this.done = this.actionID == "T" ? ActionStatus.NotStarted : ActionStatus.Complete;
+		if (this.done == ActionStatus.Complete) currentLoopLog.addQueueAction(this.currentClone!.id, this.actionID);
 		this.drawProgress();
 	}
 
 	setWaiting() {
 		this.done = this.actionID == "T" ? ActionStatus.Complete : ActionStatus.Waiting;
+		if (this.done == ActionStatus.Complete) currentLoopLog.addQueueAction(this.currentClone!.id, this.actionID);
 		this.drawProgress();
 	}
 
@@ -270,6 +271,7 @@ class QueuePathfindAction extends QueueAction {
 		// Prevent pathing to the same spot.
 		if (getDistance(originX, this.targetX, originY, this.targetY) == 0){
 			this.done = ActionStatus.Complete;
+			currentLoopLog.addQueueAction(this.currentClone.id, this.actionID);
 			this.drawProgress();
 			return null;
 		}
@@ -716,14 +718,23 @@ function importQueues() {
 	}
 }
 
-function longImportQueues(queueString: string | null) {
+function longImportQueues(queueString: string | string[][] | null) {
+	console.log(queueString)
 	if (!queueString){
 		queueString = prompt("Input your queues");
 		if (!queueString) return;
 	}
 	let tempQueues = JSON.stringify(zones.map(z => z.node ? z.queues.map(queue => queueToString(queue)) : "").filter(q => q));
 	try {
-		let newQueues = JSON.parse(queueString);
+		let newQueues;
+		if (typeof(queueString) == "string"){
+			newQueues = JSON.parse(queueString);
+		} else {
+			newQueues = [];
+			for (let i = 0; i < queueString[0].length; i++){
+				newQueues.push(queueString.map(q => q[i]));
+			}
+		}
 		if (newQueues.length > zones.length || newQueues.some((q: any) => q.length > clones.length)) {
 			alert("Could not import queues - too many queues.")
 			return;

@@ -29,7 +29,7 @@ class Route {
 			this.realm = currentRealm;
 			this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
 			this.manaDrain = zones[currentZone].manaDrain;
-			this.goldVaporized = loopGoldVaporized;
+			this.goldVaporized = [currentLoopLog.goldVaporizedCount, currentLoopLog.goldVaporizedMana];
 			let route = zones[currentZone].queues.map(r => queueToString(r));
 			route = route.filter(e => e.length);
 
