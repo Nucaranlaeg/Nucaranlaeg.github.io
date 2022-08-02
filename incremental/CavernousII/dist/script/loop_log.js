@@ -44,6 +44,9 @@ class LoopLog {
             GrindRoute.updateBestRoute(s.name, this.stats[i].current);
         });
         this.current = false;
+        // Don't save 0 length logs.
+        if (Object.values(this.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) < 10)
+            return;
         previousLoopLogs.push(this);
         currentLoopLog = new LoopLog();
         const ephemeralLogCount = previousLoopLogs.filter(l => !l.kept).length;
