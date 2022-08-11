@@ -535,4 +535,4 @@ function applyCustomStyling() {
 	}
 }
 
-setTimeout(load, 10);
+setTimeout(load, 15);

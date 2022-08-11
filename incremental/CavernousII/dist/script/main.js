@@ -492,5 +492,5 @@ function applyCustomStyling() {
         document.querySelector(".vertical-blocks").style.justifyContent = settings.debug_verticalBlocksJustify;
     }
 }
-setTimeout(load, 10);
+setTimeout(load, 15);
 //# sourceMappingURL=main.js.map

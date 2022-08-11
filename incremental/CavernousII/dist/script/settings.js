@@ -367,6 +367,5 @@ setTimeout(() => {
             }
         }
     };
-    load();
 }, 10);
 //# sourceMappingURL=settings.js.map

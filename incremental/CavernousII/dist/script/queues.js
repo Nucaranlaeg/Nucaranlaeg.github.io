@@ -6,6 +6,7 @@ class QueueAction {
         this.currentAction = null;
         this.done = ActionStatus.NotStarted;
         this.domNode = null;
+        this.lastAttemptFailed = false;
         this.lastProgress = 0;
         this.isProgressQueued = false;
         this.actionID = actionID;
@@ -91,6 +92,7 @@ class QueueAction {
                 const action = this.action == "I" ? location?.getPresentAction() : location?.getEnterAction();
                 if (!action) {
                     this.done = ActionStatus.Complete;
+                    this.lastAttemptFailed = true;
                     return;
                 }
                 this.currentAction = action;
@@ -238,6 +240,7 @@ class QueueAction {
     }
     reset() {
         this.done = ActionStatus.NotStarted;
+        this.lastAttemptFailed = false;
         this.lastProgress = 0;
         this.currentClone = null;
         this.currentAction = null;
@@ -449,8 +452,10 @@ class ActionQueue extends Array {
         if (nextAction === null) {
             const index = this.findIndex(a => a.actionID == "<");
             if (index >= 0 && index < this.length - 1) {
+                if (this.every((a, i) => a.lastAttemptFailed || i <= index))
+                    return null;
                 for (let i = index; i < this.length; i++) {
-                    this[i].done = ActionStatus.NotStarted;
+                    this[i].reset();
                     this[i].drawProgress();
                 }
                 clones[this.index].repeated = true;
