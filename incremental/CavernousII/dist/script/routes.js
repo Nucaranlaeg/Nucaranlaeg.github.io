@@ -8,6 +8,7 @@ class Route {
         this.goldVaporized = [0, 0];
         this.hasAttempted = false;
         this.loadingFailed = false;
+        this.log = null;
         this.manaDrain = 0;
         this.needsNewEstimate = true;
         this.noGrind = false;
@@ -19,7 +20,8 @@ class Route {
             this.realm = currentRealm;
             this.actionCount = realms[this.realm].name == "Compounding Realm" ? loopCompletions : 0;
             this.manaDrain = zones[currentZone].manaDrain;
-            this.goldVaporized = [currentLoopLog.goldVaporizedCount, currentLoopLog.goldVaporizedMana];
+            this.log = currentLoopLog;
+            this.goldVaporized = [this.log.goldVaporizedCount, this.log.goldVaporizedMana];
             let route = zones[currentZone].queues.map(r => queueToString(r));
             route = route.filter(e => e.length);
             if (route.every((e, i, a) => e == a[0])) {
@@ -141,6 +143,10 @@ class Route {
         this.drainLoss = totalDrain;
         let route = zones[currentZone].queues.map(r => queueToString(r));
         route = route.filter(e => e.length);
+        if (this.log.goldVaporizedCount > this.goldVaporized[0]) {
+            this.needsNewEstimate = true;
+            this.goldVaporized = [this.log.goldVaporizedCount, this.log.goldVaporizedMana];
+        }
         if (route.every((e, i, a) => e == a[0])) {
             route = [route[0]];
         }
@@ -162,9 +168,9 @@ class Route {
         }).filter(s => s.count > 0);
         const arrivedClones = clones.filter(c => c.x == this.x && c.y == this.y).length;
         while (arrivedClones > this.cloneArriveTimes.length) {
+            this.needsNewEstimate = true;
             this.cloneArriveTimes.push(queueTime);
         }
-        this.needsNewEstimate = true;
     }
     getRefineCost(relativeLevel = 0) {
         let loc = getMapLocation(this.x, this.y, true, this.zone);
@@ -210,8 +216,6 @@ class Route {
             return;
         const prev = Route.getBestRoute(location.x, location.y, currentZone);
         let cur = currentRoutes.find(r => r.x == location.x && r.y == location.y && r.zone == currentZone);
-        if (prev && cur && !completed && !prev.invalidateCost)
-            return;
         if (cur === undefined) {
             cur = new Route(location);
             if (cur.cloneArriveTimes.length == 0)
@@ -225,13 +229,16 @@ class Route {
         else {
             cur.updateRoute();
         }
+        if (prev && cur && !completed && !prev.invalidateCost && !cur.needsNewEstimate)
+            return;
         if (completed) {
             cur.hasAttempted = false;
             if (prev)
                 prev.hasAttempted = false;
         }
-        if ((cur == prev || (cur.isSame(prev) && !completed)) && !prev?.invalidateCost)
+        if ((cur == prev || (cur.isSame(prev) && !completed)) && !prev?.invalidateCost && !cur.needsNewEstimate)
             return;
+        cur.needsNewEstimate = true;
         if (prev) {
             let curEff = cur.estimateRefineManaLeft(true, false, completed);
             let prevEff = prev.estimateRefineManaLeft();

@@ -133,7 +133,7 @@ interface saveGame {
 	};
 	messageData: [typeof messages[number]["name"], boolean][];
 	settings: settings;
-	routes: Exclude<Route, "usedRoutes">[];
+	routes: Exclude<Route, ["log", "usedRoutes"]>[];
 	savedRoutes?: string;
 	grindRoutes: GrindRoute[];
 	runeData: {
@@ -182,6 +182,9 @@ let save = async function save() {
 	const messageData = messages.map(m => [m.name, m.displayed] as [typeof m["name"], boolean]);
 	const savedRoutes = JSON.parse(
 		JSON.stringify(routes, (key, value) => {
+			if (key == "log"){
+				return undefined;
+			}
 			if (key == "usedRoutes"){
 				return value ? value.map((r: any) => r.id) : undefined;
 			}

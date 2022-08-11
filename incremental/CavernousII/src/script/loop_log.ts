@@ -44,6 +44,8 @@ class LoopLog {
 	}
 
 	finalize(){
+		// Don't save 0 length logs.
+		if (Object.values(this.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) < 10) return;
 		stats.forEach((s, i) => {
 			this.stats[i].current = s.current - this.stats[i].current;
 			this.stats[i].base = s.base - this.stats[i].base;
@@ -51,8 +53,6 @@ class LoopLog {
 		});
 		this.current = false;
 		currentLoopLog = new LoopLog();
-		// Don't save 0 length logs.
-		if (Object.values(this.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) < 10) return;
 		previousLoopLogs.push(this);
 		const ephemeralLogCount = previousLoopLogs.filter(l => !l.kept).length;
 		if (ephemeralLogCount > MAX_EPHEMERAL_LOGS){
