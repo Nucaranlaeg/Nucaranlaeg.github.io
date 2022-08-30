@@ -256,12 +256,12 @@ function simpleRequire(requirement, doubleExcempt = false) {
 }
 function canMakeEquip(requirement, equipType) {
     function canDo() {
-        const haveStuff = simpleRequire(requirement)();
-        if (haveStuff == CanStartReturnCode.NotNow)
-            return CanStartReturnCode.NotNow;
         const itemCount = stuff.reduce((a, c) => a + (c.name.includes(equipType) ? c.count : 0), 0);
         if (itemCount >= clones.length)
             return CanStartReturnCode.Never;
+        const haveStuff = simpleRequire(requirement)();
+        if (haveStuff == CanStartReturnCode.NotNow)
+            return CanStartReturnCode.NotNow;
         return CanStartReturnCode.Now;
     }
     return canDo;

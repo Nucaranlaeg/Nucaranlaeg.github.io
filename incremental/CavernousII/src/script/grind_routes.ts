@@ -48,7 +48,7 @@ class GrindRoute {
 	}
 
 	static updateBestRoute(stat: anyStatName, totalStatGain: number) {
-		if (stat == 'Mana' || !totalStatGain) return;
+		if (!getStat(stat).learnable || !totalStatGain) return;
 		let prev = GrindRoute.getBestRoute(stat);
 		if (settings.statGrindPerSec){
 			// Replace stat grind routes if they're better in gain per second
@@ -88,7 +88,7 @@ class GrindRoute {
 	static loadBestRoute(){
 		if (!grindRoutes.length) return;
 		let bestRoute = grindRoutes
-			.filter(r => r.projectedGain > settings.minStatGain)
+		.filter(r => r.projectedGain > settings.minStatGain && getStat(r.statName).learnable)
 			.sort((a, b) => b.projectedGain - a.projectedGain)[0];
 		if (bestRoute){
 			bestRoute.loadRoute();
