@@ -465,7 +465,15 @@ function runActions(time) {
         if (nextTickTime < 0.01)
             nextTickTime = 0.01;
         actions.forEach(a => a.tick(nextTickTime));
-        nullActions.forEach(a => clones[a].addToTimeline({ name: clones[a].damage === Infinity ? "Dead" : "None" }, nextTickTime));
+        nullActions.forEach(a => {
+            if (clones[a].damage === Infinity) {
+                clones[a].addToTimeline({ name: "Dead" }, nextTickTime);
+            }
+            else {
+                clones[a].addToTimeline({ name: "None" }, nextTickTime);
+                getStat("Speed").gainSkill(nextTickTime / 1000);
+            }
+        });
         waitActions.forEach(a => {
             a.currentClone.addToTimeline({ name: "Wait" }, nextTickTime);
             getStat("Speed").gainSkill(nextTickTime / 1000);
