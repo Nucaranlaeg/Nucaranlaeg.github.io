@@ -35,7 +35,8 @@ class MapLocation {
         return this.baseType;
     }
     getEnterAction() {
-        if (this.activeEnter?.remainingDuration == 0)
+        // Check for a starting duration to ensure it's been started at least once.
+        if (this.activeEnter?.remainingDuration == 0 && this.activeEnter.startingDuration > 0)
             this.activeEnter = null;
         const action = this.type.getEnterAction(this.entered);
         if (action == null)

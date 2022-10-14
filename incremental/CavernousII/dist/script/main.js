@@ -503,5 +503,6 @@ function applyCustomStyling() {
         document.querySelector(".vertical-blocks").style.justifyContent = settings.debug_verticalBlocksJustify;
     }
 }
-setTimeout(load, 15);
+// Calling load directly prevents tests from stopping loading.
+setTimeout(() => load(), 15);
 //# sourceMappingURL=main.js.map

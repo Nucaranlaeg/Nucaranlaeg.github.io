@@ -48,7 +48,8 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 	}
 
 	getEnterAction() : ActionInstance | null {
-		if (this.activeEnter?.remainingDuration == 0) this.activeEnter = null;
+		// Check for a starting duration to ensure it's been started at least once.
+		if (this.activeEnter?.remainingDuration == 0 && this.activeEnter.startingDuration > 0) this.activeEnter = null;
 		const action = this.type.getEnterAction(this.entered);
 		if (action == null) return null;
 		if (this.type.canWorkTogether && action.name != "Walk"){

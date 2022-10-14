@@ -545,4 +545,5 @@ function applyCustomStyling() {
 	}
 }
 
-setTimeout(load, 15);
+// Calling load directly prevents tests from stopping loading.
+setTimeout(() => load(), 15);
