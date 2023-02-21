@@ -449,6 +449,9 @@ function runActions(time) {
             continue;
         }
         if (actions.length == 0) {
+            if (waitActions.length > 0) {
+                waitActions.forEach(a => a.start());
+            }
             gameStatus.paused = true;
             return time;
         }
@@ -457,7 +460,7 @@ function runActions(time) {
             // If it's started and has nothing left, it's tried to start an action with no duration - like starting a Wither activation when it's complete.
             actions.forEach(a => {
                 if (a.currentAction?.expectedLeft === 0 && a.actionID == "T")
-                    a.done = 3;
+                    a.done = ActionStatus.Complete;
             });
             continue;
         }

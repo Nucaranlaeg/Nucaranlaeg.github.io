@@ -214,7 +214,6 @@ const tests = [
             zones[0].queues.forEach(q => q.fromString("RRR"));
             resetLoop();
             setMined(2, 0, "~");
-            console.log("SET LAVA");
             getStat("Mana").current = 10;
             getStuff("Iron Bridge").count = 2;
             settings.autoRestart = AutoRestart.WaitAll;
