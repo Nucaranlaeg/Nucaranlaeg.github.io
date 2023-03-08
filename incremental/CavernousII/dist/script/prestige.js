@@ -37,3 +37,8 @@ function SoftCap()
 {
   
 }
+
+
+
+
+//# sourceMappingURL=prestige.js.map
