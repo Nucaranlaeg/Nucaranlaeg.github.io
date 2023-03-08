@@ -2,7 +2,7 @@
 let prestigePoints = 0;
 class Prestige {
   constructor () {
-    this.GameCompelte = 0;
+    this.GameComplete = 0;
     this.Points = 0;
     this.BonusClones = 0;
     this.FasterStats = 0;
