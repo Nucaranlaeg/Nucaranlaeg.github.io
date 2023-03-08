@@ -306,6 +306,9 @@ function importGame() {
     }
     window.location.reload();
 }
+function prestigeGame() {
+    
+}
 function displaySaveClick(event) {
     let el = event.target.closest(".clickable");
     if (!el)
