@@ -36,6 +36,95 @@ function redrawTimeNode() {
     timeBankNode.innerText = writeTime(timeBanked / 1000);
 }
 window.ondrop = e => e.preventDefault();
+
+/** *************************************Super Prestiges ********************************************/
+var GameComplete = 0;
+class PrestigePoints {
+  constructor(value) {
+    this.value = value;
+  } 
+}
+
+var prestigepoints = 0;
+ 
+class Prestige {
+  constructor(name, level, nextcost, total) {
+    this.name = name;
+    this.level = level;
+    this.nextcost = nextcost;
+    this.total = total;
+  }
+}
+
+/*
+class Prestige {
+  constructor() {
+    this.GameComplete = 0;
+    this.Points = 0;
+    this.BonusClones = 0;
+    this.FasterStats = 0;
+    this.ManaScaling = 0;
+    this.BonusResc = 0;
+    this.BetterEquip = 0;
+    this.SoftCap = 0;
+    this.BonusZones = 0;
+  }
+}
+*/
+
+var prestige = [
+    new Prestige("BonusClones", 0);
+    new Prestige("FasterStats", 0);
+    new Prestige("ManaScaling", 0);
+    new Prestige("BonusResc", 0);
+    new Prestige("BetterEquip", 0);
+    new Prestige("SoftCap", 0);
+    new Prestige("BonusZones", 0);
+  }
+}
+
+
+
+function prestigeGame() { /* Dangerous, should fix */
+    if(GameComplete == 1)
+    {
+        exportGame();
+        localStorage.removeItem(saveName);
+        load();
+        prestigepoints += 90;
+        GameComplete = 0;
+        save();
+    }
+}
+
+
+function BonusClones()
+{
+  
+}
+function FasterStats()
+{
+  
+}
+function ManaScaling()
+{
+  
+}
+function BonusResc()
+{
+  
+}
+function BetterEquip()
+{
+  
+}
+function SoftCap()
+{
+  
+}
+
+
+
 /** ****************************************** Prestiges ********************************************/
 let resetting = false;
 function resetLoop(noLoad = false, saveGame = true) {
@@ -306,56 +395,6 @@ function importGame() {
     }
     window.location.reload();
 }
-function prestigeGame() { /* Dangerous, should fix */
-    if(Prestige.GameComplete == 1)
-    {
-        exportGame();
-        localStorage.removeItem(saveName);
-        load();
-        Prestige.Points += 90;
-        Prestige.GameComplete = 0;
-        save();
-    }
-}
-
-class Prestige {
-  constructor() {
-    this.GameComplete = 0;
-    this.Points = 0;
-    this.BonusClones = 0;
-    this.FasterStats = 0;
-    this.ManaScaling = 0;
-    this.BonusResc = 0;
-    this.BetterEquip = 0;
-    this.SoftCap = 0;
-    this.BonusZones = 0;
-  }
-}
-function BonusClones()
-{
-  
-}
-function FasterStats()
-{
-  
-}
-function ManaScaling()
-{
-  
-}
-function BonusResc()
-{
-  
-}
-function BetterEquip()
-{
-  
-}
-function SoftCap()
-{
-  
-}
-
 function displaySaveClick(event) {
     let el = event.target.closest(".clickable");
     if (!el)
