@@ -127,7 +127,7 @@ function convertMapToVerdant(map, zoneNumber) {
 }
 const realms = [];
 realms.push(
-// Default realm, no special effects.
+// Default realm, no special effects. /* Prestige have clones.length remove prestige bonus clones from cost */
 new Realm("Core Realm", "Where you started.  Hopefully, how you'll leave this cave complex.", () => clones.length, () => Clone.addNewClone()));
 realms.push(
 // Double mana cost on everything.
