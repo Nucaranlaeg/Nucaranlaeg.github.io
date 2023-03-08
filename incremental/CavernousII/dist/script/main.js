@@ -306,8 +306,16 @@ function importGame() {
     }
     window.location.reload();
 }
-function prestigeGame() {
-    
+function prestigeGame() { /* Dangerous, should fix */
+    if(Prestige.GameComplete == 1)
+    {
+        exportGame();
+        localStorage.removeItem(saveName);
+        load();
+        Prestige.Points += 90;
+        Prestige.GameComplete = 0;
+        save()
+    }
 }
 function displaySaveClick(event) {
     let el = event.target.closest(".clickable");
