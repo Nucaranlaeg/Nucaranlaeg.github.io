@@ -68,7 +68,7 @@ class Stuff {
         }
     }
 }
-function calcCombatStats() {
+function calcCombatStats() { /* Prestige, place to add stat increases */
     let attack = [];
     attack.push(...Array(getStuff("+1 Sword").count).fill(4));
     attack.push(...Array(getStuff("Steel Sword").count).fill(2));
@@ -89,11 +89,11 @@ function calcCombatStats() {
     getStat("Health").setStat(health);
     clones.forEach(c => c.styleDamage());
 }
-function getStatBonus(name, mult) {
+function getStatBonus(name, mult) { /* Prestige, place to add stat increases */
     let stat = getStat(name);
     return (oldAmount, amount) => stat.getBonus((Math.floor(amount + 0.01) - Math.floor(oldAmount + 0.01)) * mult);
 }
-const stuff = [
+const stuff = [ /* Prestige, place to add stat increases */
     new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
     new Stuff("Salt", "⌂", "A pile of salt.  You're not hungry, so what's this good for?", "#ffffff", 0),
     new Stuff("Iron Ore", "•", "A chunck of iron ore.  Not useful in its current form.", "#777777", 0),
@@ -158,7 +158,7 @@ function displayStuff(node, route) {
             stuffNode.innerHTML = "";
     }
 }
-function getEquipHealth(stuff) {
+function getEquipHealth(stuff) { /* Prestige, place to add stat increases */
     const equipmentHealth = {
         "Iron Armour": 5,
         "Steel Armour": 15,
