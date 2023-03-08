@@ -143,7 +143,7 @@ function completeMine(loc) {
 }
 function getDuplicationAmount(loc) {
     let x = loc.x, y = loc.y;
-    let amount = 1;
+    let amount = 1; /* Prestige, add multiplier for point spend */
     const zone = zones[currentZone];
     x += zone.xOffset;
     y += zone.yOffset;
@@ -206,11 +206,11 @@ function canMineMana(location) {
         return CanStartReturnCode.Never;
     return CanStartReturnCode.Now;
 }
-function mineManaRockCost(location, clone = null, realm = null, completionOveride) {
+function mineManaRockCost(location, clone = null, realm = null, completionOveride) { /* Prestige, add mana rock reducer for point spend */
     return location.completions && !completionOveride
         ? 0
         : Math.pow(1 + (0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(location.x, location.y, location.zone.index), completionOveride ?? location.priorCompletions);
-}
+} 
 function mineGemCost(location) {
     return (location.completions + 1) ** 1.4;
 }
@@ -320,7 +320,7 @@ function spreadDamage(damage, clone) {
         c.takeDamage(damage / targetClones.length);
     });
 }
-let combatTools = [
+let combatTools = [ /* Prestige place to increase tool stats */
     [getStuff("Iron Axe"), 0.01, getStat("Woodcutting")],
     [getStuff("Iron Pick"), 0.01, getStat("Mining")],
     [getStuff("Iron Hammer"), 0.01, getStat("Smithing")]
@@ -496,7 +496,7 @@ function predictWither(location) {
         return 0;
     return Math.max(...adjacentPlants.map(loc => loc.type.getEnterAction(loc.entered).getProjectedDuration(loc, loc.wither))) / 2000 + 0.1;
 }
-function activatePortal() {
+function activatePortal() { /* Prestige copy this for pockets? */
     breakActions = true;
     moveToZone(currentZone + 1);
     if (settings.pauseOnPortal && settings.running)
@@ -528,7 +528,7 @@ function barrierDuration() {
     }
     return 1;
 }
-function completeGame() {
+function completeGame() { /* Prestige add flag to allow gaining prestige, prestige points gain (once) and change message */
     getMessage("You Win!").display(true);
 }
 var ACTION;
