@@ -43,7 +43,7 @@ function resetLoop(noLoad = false, saveGame = true) {
         return;
     shouldReset = false;
     resetting = true;
-    const mana = getStat("Mana");
+    const mana = getStat("Mana"); /* Prestige These messages could be removed after first game completion */
     if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm"))
         setSetting(toggleAutoRestart, 3);
     else
