@@ -41,7 +41,7 @@ class Stat {
         if (!this.learnable) {
             return;
         }
-        const scalingStart = 99 + getRealmMult("Compounding Realm");
+        const scalingStart = 99 + getRealmMult("Compounding Realm"); /* Prestige place to add Scaling Stat bonus */
         const val = (this.current + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);
         if (val < 0) {
             return;
