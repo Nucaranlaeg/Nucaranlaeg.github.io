@@ -73,15 +73,15 @@ class Prestige {
 */
 
 var prestige = [
-    new Prestige("BonusClones", 0);
-    new Prestige("FasterStats", 0);
-    new Prestige("ManaScaling", 0);
-    new Prestige("BonusResc", 0);
-    new Prestige("BetterEquip", 0);
-    new Prestige("SoftCap", 0);
-    new Prestige("BonusZones", 0);
-  }
-}
+    new Prestige("BonusClones", 0),
+    new Prestige("FasterStats", 0),
+    new Prestige("ManaScaling", 0),
+    new Prestige("BonusResc", 0),
+    new Prestige("BetterEquip", 0),
+    new Prestige("SoftCap", 0),
+    new Prestige("BonusZones", 0),
+  ];
+
 
 
 
