@@ -143,7 +143,7 @@ function completeMine(loc) {
 }
 function getDuplicationAmount(loc) {
     let x = loc.x, y = loc.y;
-    let amount = 1; /* Prestige, add multiplier for point spend */
+    let amount = 1 + 0.1*prestige[3].level; /* Prestige, add multiplier for point spend */
     const zone = zones[currentZone];
     x += zone.xOffset;
     y += zone.yOffset;
@@ -158,7 +158,7 @@ function getDuplicationAmount(loc) {
         [x - 1, y - 1]
     ];
     rune_locs.forEach(([X, Y]) => {
-        amount += +(zone.map[Y][X] == "d") * (getRune("Duplication").upgradeCount * 0.25 + 1);
+        amount += +(zone.map[Y][X] == "d") * (getRune("Duplication").upgradeCount * 0.25 + 1 + 0.1*prestige[3].level);
     });
     return amount;
 }
@@ -209,7 +209,7 @@ function canMineMana(location) {
 function mineManaRockCost(location, clone = null, realm = null, completionOveride) { /* Prestige, add mana rock reducer for point spend */
     return location.completions && !completionOveride
         ? 0
-        : Math.pow(1 + (0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(location.x, location.y, location.zone.index), completionOveride ?? location.priorCompletions);
+        : Math.pow(1 + (0.1 + 0.05 * (location.zone.index + (realm == null ? currentRealm : realm))) * longZoneCompletionMult(location.x, location.y, location.zone.index) * (0.90 ** (prestige[3].level ** 0.75)), completionOveride ?? location.priorCompletions);
 } 
 function mineGemCost(location) {
     return (location.completions + 1) ** 1.4;
@@ -321,9 +321,9 @@ function spreadDamage(damage, clone) {
     });
 }
 let combatTools = [ /* Prestige place to increase tool stats */
-    [getStuff("Iron Axe"), 0.01, getStat("Woodcutting")],
-    [getStuff("Iron Pick"), 0.01, getStat("Mining")],
-    [getStuff("Iron Hammer"), 0.01, getStat("Smithing")]
+    [getStuff("Iron Axe"), 0.01*(1+0.1*prestige[4].level), getStat("Woodcutting")],
+    [getStuff("Iron Pick"), 0.01*(1+0.1*prestige[4].level), getStat("Mining")],
+    [getStuff("Iron Hammer"), 0.01*(1+0.1*prestige[4].level), getStat("Smithing")]
 ];
 function combatDuration() {
     let duration = 1;
@@ -530,6 +530,7 @@ function barrierDuration() {
 }
 function completeGame() { /* Prestige add flag to allow gaining prestige, prestige points gain (once) and change message */
     getMessage("You Win!").display(true);
+    GameComplete = 1;
 }
 var ACTION;
 (function (ACTION) {
