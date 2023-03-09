@@ -46,6 +46,7 @@ class PrestigePoints {
 }
 
 var prestigepoints = 0;
+var prestigecount = 0;
  
 class Prestige {
   constructor(name, level, nextcost, total) {
@@ -82,10 +83,66 @@ var prestige = [
     new Prestige("BonusZones", 0),
   ];
 
-
-
-
 function prestigeGame() { /* Dangerous, should fix */
+    if(GameComplete == 1)
+    {
+        exportGame();
+        GameComplete = 0;
+        prestigepoints += 90;
+        prestigecount += 1;
+        prestige[0].level+=1;
+        prestige[1].level+=1;
+        prestige[2].level+=1;
+        prestige[3].level+=1;
+        prestige[4].level+=1;
+        prestige[5].level+=1;
+        prestige[6].level+=1;
+        resetprogress();
+    }
+}
+
+function resetprogress() {
+    /*sets clones to 0*/
+    clones = []; 
+    /*Resets Zones, maybe change so map doesn't reset?*/
+    zones.forEach(z => {
+        z.queues = ActionQueue.fromJSON([]);
+        z.mapLocations = [];
+        while (z.mapLocations.length < z.map.length) {
+            z.mapLocations.push([]);
+            }
+        z.routes = [];
+        if (z.node != null) {z.node.parentNode.removeChild(z.node)};
+        z.node = null;
+        z.goalComplete = false;
+        });
+    /*sets stats to 0*/
+    stats.forEach(s => {
+        s.base = 0;
+        });
+    /*resets runes*/
+    runes.forEach(r => {
+        r.locked = true;
+        r.node = null;
+        });
+    /*clear route*/
+    routes = [];
+    grindRoutes = [];
+    /*sets mana to base*/
+    getStat("Mana").base = 5;
+    /*resets camera*/
+    currentZone = 0;
+    currentRealm = 0;
+    /*Initialize*/
+    Clone.addNewClone();
+    for(let i=0; i<prestige[0].level; ++i)
+        {Clone.addNewClone();}
+    resetLoop();
+    save();
+    window.location.reload();
+    
+}
+/*function prestigeGame() { -- Dangerous, should fix
     if(GameComplete == 1)
     {
         exportGame();
@@ -95,9 +152,9 @@ function prestigeGame() { /* Dangerous, should fix */
         GameComplete = 0;
         save();
     }
-}
+}*/
 
-
+/*
 function BonusClones()
 {
   
@@ -122,7 +179,7 @@ function SoftCap()
 {
   
 }
-
+*/
 
 
 /** ****************************************** Prestiges ********************************************/
@@ -133,19 +190,19 @@ function resetLoop(noLoad = false, saveGame = true) {
     shouldReset = false;
     resetting = true;
     const mana = getStat("Mana"); /* Prestige These messages could be removed after first game completion */
-    if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm"))
+    if (getMessage("Time Travel").display(zones[0].manaGain == 0 && realms[currentRealm].name == "Core Realm" && prestigecount == 0))
         setSetting(toggleAutoRestart, 3);
     else
         getMessage("Persisted Programming").display();
-    if (mana.base == 5.5)
+    if (mana.base == 5.5 && prestigecount == 0)
         getMessage("The Looping of Looping Loops").display() && setSetting(toggleAutoRestart, 1);
-    if (mana.base == 6)
+    if (mana.base == 6 && prestigecount == 0)
         getMessage("Strip Mining").display();
-    if (mana.base == 7.4)
+    if (mana.base == 7.4 && prestigecount == 0)
         getMessage("Buy More Time").display();
-    if (routes.length == 3)
+    if (routes.length == 3 && prestigecount == 0)
         getMessage("All the known ways").display() && setSetting(toggleGrindMana, true);
-    if (queueTime > 50000)
+    if (queueTime > 50000 && prestigecount == 0)
         getMessage("Looper's Log: Supplemental").display();
     if (mana.current > 0) {
         currentLoopLog.finalize();
@@ -253,6 +310,25 @@ let save = async function save() {
             completed: r.completed,
         };
     });
+    /* prestige data */
+    const prestigeData = {
+        name1: "prestigepoints",
+        value1: prestigepoints,
+        name2: "prestigecount",
+        value2: prestigecount,
+        name3: "GameComplete",
+        value3: GameComplete
+    };
+    const prestigeArray ={
+        value0: prestige[0].level,
+        value1: prestige[1].level,
+        value2: prestige[2].level,
+        value3: prestige[3].level,
+        value4: prestige[4].level,
+        value5: prestige[5].level,
+        value6: prestige[6].level
+    };
+    
     let saveGame = {
         version: version,
         playerStats: playerStats,
@@ -267,6 +343,8 @@ let save = async function save() {
         runeData: runeData,
         machines: machines,
         realmData: realmData,
+        prestigeData: prestigeData,
+        prestigeArray: prestigeArray
     };
     let saveString = JSON.stringify(saveGame);
     // Typescript can't find LZString, and I don't care.
@@ -353,6 +431,19 @@ function load() {
     for (let i = 0; i < realms.length; i++) {
         getRealmComplete(realms[i]);
     }
+    
+    /* load prestige stuff - needs to be beautified*/
+    prestigepoints = saveGame.prestigeData.value1;
+    prestigecount = saveGame.prestigeData.value2;
+    GameComplete = saveGame.prestigeData.value3;
+    prestige[0].level = saveGame.prestigeArray.value0;
+    prestige[1].level = saveGame.prestigeArray.value1;
+    prestige[2].level = saveGame.prestigeArray.value2;
+    prestige[3].level = saveGame.prestigeArray.value3;
+    prestige[4].level = saveGame.prestigeArray.value4;
+    prestige[5].level = saveGame.prestigeArray.value5;
+    prestige[6].level = saveGame.prestigeArray.value6;   
+    
     loadSettings(saveGame.settings);
     zones[0].queues[0].selected = true;
     queuesNode = queuesNode || document.querySelector("#queues");
