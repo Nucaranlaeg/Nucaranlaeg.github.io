@@ -434,9 +434,11 @@ function load() {
     
     /* load prestige stuff - needs to be beautified*/
     if(saveGame.prestigeData === null)
+    {
         prestigepoints = 0;
         prestigecount = 0;
-        GameComplete = 0;        
+        GameComplete = 0;
+    }
     else
     {
         prestigepoints = saveGame.prestigeData.value1;
