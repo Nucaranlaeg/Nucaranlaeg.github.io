@@ -37,7 +37,7 @@ class Stuff {
                 "Iron Hammer": "Smithing",
                 // @ts-ignore
             }[this.name]);
-            const combatValue = Math.pow(stat.value, 0.01 * this.count);
+            const combatValue = Math.pow(stat.value, 0.01 * this.count * (1+0.1*prestige[4].level));
             if (this.node)
                 this.node.querySelector(".description").innerHTML = this.description.replace("{}", writeNumber(combatValue * 100, 1));
         }
@@ -75,14 +75,14 @@ function calcCombatStats() { /* Prestige, place to add stat increases */
     attack.push(...Array(getStuff("Iron Sword").count).fill(1));
     attack = attack.slice(0, clones.length).reduce((a, c) => a + c, 0);
     let defense = [];
-    defense.push(...Array(getStuff("+1 Shield").count).fill(4));
-    defense.push(...Array(getStuff("Steel Shield").count).fill(2));
-    defense.push(...Array(getStuff("Iron Shield").count).fill(1));
+    defense.push(...Array(getStuff("+1 Shield").count).fill(4*(1+0.1*prestige[4].level)));
+    defense.push(...Array(getStuff("Steel Shield").count).fill(2*(1+0.1*prestige[4].level)));
+    defense.push(...Array(getStuff("Iron Shield").count).fill(1*(1+0.1*prestige[4].level)));
     defense = defense.slice(0, clones.length).reduce((a, c) => a + c, 0);
     let health = [];
-    health.push(...Array(getStuff("+1 Armour").count).fill(25));
-    health.push(...Array(getStuff("Steel Armour").count).fill(15));
-    health.push(...Array(getStuff("Iron Armour").count).fill(5));
+    health.push(...Array(getStuff("+1 Armour").count).fill(25*(1+0.1*prestige[4].level)));
+    health.push(...Array(getStuff("Steel Armour").count).fill(15*(1+0.1*prestige[4].level)));
+    health.push(...Array(getStuff("Iron Armour").count).fill(5*(1+0.1*prestige[4].level)));
     health = health.slice(0, clones.length).reduce((a, c) => a + c, 0);
     getStat("Attack").setStat(attack);
     getStat("Defense").setStat(defense);
@@ -160,9 +160,9 @@ function displayStuff(node, route) {
 }
 function getEquipHealth(stuff) { /* Prestige, place to add stat increases */
     const equipmentHealth = {
-        "Iron Armour": 5,
-        "Steel Armour": 15,
-        "+1 Armour": 25,
+        "Iron Armour": 5*(1+0.1*prestige[4].level),
+        "Steel Armour": 15*(1+0.1*prestige[4].level),
+        "+1 Armour": 25*(1+0.1*prestige[4].level),
     };
     return stuff.reduce((a, s) => a + (equipmentHealth[s.name] || 0) * s.count, 0);
 }
