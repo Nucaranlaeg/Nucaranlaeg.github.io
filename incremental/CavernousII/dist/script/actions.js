@@ -120,8 +120,8 @@ class Action {
     }
     getSkillDiv() {
         if (this.name == "Wait" || this.name == "Long Wait")
-            return 1;
-        let mult = 1;
+            return 1*(1+.1*prestige[1].level);
+        let mult = 1*(1+.1*prestige[1].level);
         for (let i = 0; i < this.stats.length; i++) {
             mult *= Math.pow(this.stats[i][0].value, this.stats[i][1]);
         }
