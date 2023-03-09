@@ -433,17 +433,34 @@ function load() {
     }
     
     /* load prestige stuff - needs to be beautified*/
-    prestigepoints = saveGame.prestigeData.value1;
-    prestigecount = saveGame.prestigeData.value2;
-    GameComplete = saveGame.prestigeData.value3;
-    prestige[0].level = saveGame.prestigeArray.value0;
-    prestige[1].level = saveGame.prestigeArray.value1;
-    prestige[2].level = saveGame.prestigeArray.value2;
-    prestige[3].level = saveGame.prestigeArray.value3;
-    prestige[4].level = saveGame.prestigeArray.value4;
-    prestige[5].level = saveGame.prestigeArray.value5;
-    prestige[6].level = saveGame.prestigeArray.value6;   
-    
+    if(saveGame.prestigeData === null)
+        prestigepoints = 0;
+        prestigecount = 0;
+        GameComplete = 0;        
+    else
+    {
+        prestigepoints = saveGame.prestigeData.value1;
+        prestigecount = saveGame.prestigeData.value2;
+        GameComplete = saveGame.prestigeData.value3;
+    }
+    if(saveGame.prestigeArray === null)
+        prestige[0].level = 0;
+        prestige[1].level = 0;
+        prestige[2].level = 0;
+        prestige[3].level = 0;
+        prestige[4].level = 0;
+        prestige[5].level = 0;
+        prestige[6].level = 0;       
+    else
+    {
+        prestige[0].level = saveGame.prestigeArray.value0;
+        prestige[1].level = saveGame.prestigeArray.value1;
+        prestige[2].level = saveGame.prestigeArray.value2;
+        prestige[3].level = saveGame.prestigeArray.value3;
+        prestige[4].level = saveGame.prestigeArray.value4;
+        prestige[5].level = saveGame.prestigeArray.value5;
+        prestige[6].level = saveGame.prestigeArray.value6;   
+    }
     loadSettings(saveGame.settings);
     zones[0].queues[0].selected = true;
     queuesNode = queuesNode || document.querySelector("#queues");
@@ -506,6 +523,7 @@ let loopCompletions = 0;
 let gameStatus = { paused: false };
 const fps = 60;
 let shouldReset = false;
+if(prestigecount=1){GameComplete=1};
 setInterval(function mainLoop() {
     if (zones[0].index === -1 || realms[0].index === -1)
         return;
