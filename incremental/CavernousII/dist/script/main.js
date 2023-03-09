@@ -446,13 +446,15 @@ function load() {
         GameComplete = saveGame.prestigeData.value3;
     }
     if(saveGame.prestigeArray === null)
+    {
         prestige[0].level = 0;
         prestige[1].level = 0;
         prestige[2].level = 0;
         prestige[3].level = 0;
         prestige[4].level = 0;
         prestige[5].level = 0;
-        prestige[6].level = 0;       
+        prestige[6].level = 0;  
+    }
     else
     {
         prestige[0].level = saveGame.prestigeArray.value0;
