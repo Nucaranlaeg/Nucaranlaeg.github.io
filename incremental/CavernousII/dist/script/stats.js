@@ -41,7 +41,7 @@ class Stat {
         if (!this.learnable) {
             return;
         }
-        const scalingStart = 99 + getRealmMult("Compounding Realm"); /* Prestige place to add Scaling Stat bonus */
+        const scalingStart = 99 + getRealmMult("Compounding Realm")*(1+prestige[5].level)+prestige[5].level*20; /* Prestige place to add Scaling Stat bonus */
         const val = (this.current + 1) ** (0.9 * (this.base > scalingStart ? scalingStart / this.base : 1) ** 0.05) - (this.base + 1);
         if (val < 0) {
             return;
@@ -50,7 +50,7 @@ class Stat {
         if (prevVal < 0) {
             prevVal = 0;
         }
-        const increase = (val - prevVal) / this.statIncreaseDivisor * (0.99 + getRealmMult("Compounding Realm") / 100);
+        const increase = (val - prevVal) / this.statIncreaseDivisor * (0.99 + getRealmMult("Compounding Realm")*(1+prestige[5].level) / 100 + prestige[5].level*20/100);
         this.base += increase;
     }
     setStat(amount) {
