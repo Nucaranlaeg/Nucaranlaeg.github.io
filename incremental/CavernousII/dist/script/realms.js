@@ -128,7 +128,7 @@ function convertMapToVerdant(map, zoneNumber) {
 const realms = [];
 realms.push(
 // Default realm, no special effects. /* Prestige have clones.length remove prestige bonus clones from cost */
-new Realm("Core Realm", "Where you started.  Hopefully, how you'll leave this cave complex.", () => clones.length, () => Clone.addNewClone()));
+new Realm("Core Realm", "Where you started.  Hopefully, how you'll leave this cave complex.", () => clones.length - prestige[0].level, () => Clone.addNewClone()));
 realms.push(
 // Double mana cost on everything.
 // All stuff costs except for making bars and vaporizing gold is doubled.
