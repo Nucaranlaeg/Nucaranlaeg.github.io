@@ -283,6 +283,11 @@ svg {
 
 #timelines {
 	margin-top: 10px;
+	contain: style size layout;
+}
+
+.timeline {
+	contain: style size layout;
 }
 
 .timeline:not(#loop-actions) {
@@ -604,6 +609,7 @@ h4#location-name {
 	padding: 2px 0 0px;
 	display: flex;
 	flex-direction: column;
+	contain: style size layout;
 }
 
 #map-legend {
