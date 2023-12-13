@@ -79,6 +79,7 @@ class ZoneRoute {
 			this.realm == zoneRoute.realm &&
 			this.route.length == zoneRoute.route.length &&
 			this.route.every((r, i) => r == zoneRoute.route[i]) &&
+			this.require.length === zoneRoute.require.length &&
 			// ts is really bad at arrays which hold multiple incompatible types.
 			Object.entries(this.require).every(([key, value]: any[]) => zoneRoute.require[key].name == value.name && zoneRoute.require[key].count == value.count)
 		);
