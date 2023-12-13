@@ -16,6 +16,7 @@ class Clone {
 	repeated: boolean = false;
 	timeLines: timeLine[] = [];
 	timeLineElements: HTMLElement[] = [];
+	currentTimelineEntry: timeLineEntry | null = null;
 	el: HTMLElement | null = null;
 	repeatsThisTick: number = 0;
 	noActionsAvailable: boolean = false;
@@ -41,6 +42,7 @@ class Clone {
 		this.notSyncing = false;
 		this.inCombat = false;
 		this.repeated = false;
+		this.currentTimelineEntry = null;
 	}
 
 	reset() {
@@ -88,7 +90,7 @@ class Clone {
 
 	writeStats() {
 		document.querySelector(".clone-info .health-amount")!.innerHTML = writeNumber(Math.max(getStat("Health").current - this.damage, 0), this.damage ? 2 : 0);
-		const lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
+		const lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1] || this.currentTimelineEntry;
 		if (lastEntry){
 			document.querySelector(".clone-info .action-name")!.innerHTML = lastEntry.type;
 			document.querySelector(".clone-info .action-progress")!.innerHTML = writeNumber(this.remainingTime / 1000, 2);
@@ -145,24 +147,28 @@ class Clone {
 		currentLoopLog.addActionTime(action.name, currentZone, time);
 
 		// Timeline
-		if (!settings.timeline) return;
-		const lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
+		const lastEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1] || this.currentTimelineEntry;
 		if (lastEntry?.type == action.name) {
 			lastEntry.time += time;
 			lastEntry.el.dataset.time = Math.round(lastEntry.time).toString();
 			lastEntry.el.style.flexGrow = lastEntry.time.toString();
 		} else {
-			const entryElement = document.createElement("div");
-			entryElement.dataset.name = action.name;
-			entryElement.dataset.time = Math.round(time).toString();
-			entryElement.style.flexGrow = time.toString();
-			entryElement.classList.add(action.name.replace(/ /g, "-"));
-			if (currentZone > 0 && this.timeLines[currentZone].length == 0 && action.name == "No action"){
-				this.timeLineElements[currentZone - 1].append(entryElement);
-				this.timeLines[currentZone - 1].push({ type: action.name, time, el: entryElement });
+			if (settings.timeline){
+				const entryElement = document.createElement("div");
+				entryElement.dataset.name = action.name;
+				entryElement.dataset.time = Math.round(time).toString();
+				entryElement.style.flexGrow = time.toString();
+				entryElement.classList.add(action.name.replace(/ /g, "-"));
+				if (currentZone > 0 && this.timeLines[currentZone].length == 0 && action.name == "No action"){
+					this.timeLineElements[currentZone - 1].append(entryElement);
+					this.timeLines[currentZone - 1].push({ type: action.name, time, el: entryElement });
+				} else {
+					this.timeLineElements[currentZone].append(entryElement);
+					this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+				}
+				this.currentTimelineEntry = this.timeLines[currentZone][this.timeLines[currentZone].length - 1];
 			} else {
-				this.timeLineElements[currentZone].append(entryElement);
-				this.timeLines[currentZone].push({ type: action.name, time, el: entryElement });
+				this.currentTimelineEntry = { type: action.name, time, el: document.createElement("div") };
 			}
 		}
 	}
