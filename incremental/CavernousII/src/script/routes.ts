@@ -56,7 +56,8 @@ class Route {
 				}
 			}).filter(s => s.count > 0);
 
-			this.cloneArriveTimes = clones.filter(c => c.x == this.x && c.y == this.y).map(c => queueTime);
+			this.cloneArriveTimes = clones.filter(c => c.x == this.x && c.y == this.y && zones[this.zone].queues[c.id].getNextAction()?.action === "I")
+			    .map(c => queueTime);
 			this.drainLoss = totalDrain;
 
 			this.allDead = false;
@@ -181,7 +182,7 @@ class Route {
 			}
 		}).filter(s => s.count > 0);
 
-		const arrivedClones = clones.filter(c => c.x == this.x && c.y == this.y).length;
+		const arrivedClones = clones.filter(c => c.x == this.x && c.y == this.y && zones[this.zone].queues[c.id].getNextAction()?.action === "I").length;
 		while (arrivedClones > this.cloneArriveTimes.length){
 			this.needsNewEstimate = true;
 			this.cloneArriveTimes.push(queueTime);
