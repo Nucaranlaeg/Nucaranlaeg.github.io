@@ -60,6 +60,9 @@ function resetLoop(noLoad = false, saveGame = true) {
 	if (mana.current > 0){
 		currentLoopLog.finalize();
 	}
+	stuff.forEach(s => {
+		s.count = 0;
+	});
 	stats.forEach((s, i) => {
 		s.reset();
 		s.update();
