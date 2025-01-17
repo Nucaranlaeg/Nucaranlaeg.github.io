@@ -155,7 +155,6 @@ class Route {
 
 	updateRoute() {
 		this.manaDrain = zones[currentZone].manaDrain;
-		this.drainLoss = totalDrain;
 		let route = zones[currentZone].queues.map(r => queueToString(r));
 		route = route.filter(e => e.length);
 		if (this.log!.goldVaporizedCount > this.goldVaporized[0]){
@@ -192,7 +191,7 @@ class Route {
 	getRefineCost(relativeLevel = 0) {
 		let loc = getMapLocation(this.x, this.y, true, this.zone);
 		if (!loc) return Infinity;
-		let mul = getAction("Collect Mana").getBaseDuration(this.realm) * (1 + this.manaDrain);
+		let mul = getAction("Collect Mana").getBaseDuration(this.realm);
 		if (realms[this.realm].name == "Compounding Realm") {
 			mul /= 1 + loopCompletions / 40;
 			mul *= 1 + this.actionCount / 40;
@@ -205,14 +204,22 @@ class Route {
 		this.needsNewEstimate = false;
 		const manaMult = getRealmMult("Verdant Realm") || 1;
 		const manaTotal = getBaseMana(this.zone, this.realm) + (current ? this.goldVaporized[0] * GOLD_VALUE * manaMult : this.goldVaporized[1]);
-		const totalRockTime = this.cloneArriveTimes.reduce((a, c) => a + (manaTotal - (c / 1000)), 0);
+		const totalRockTime = this.cloneArriveTimes.reduce((a, c) => a + (manaTotal - (c / 1000)), 0) / (1 + this.manaDrain);
 		const rockCost = this.getRefineCost(completed ? 1 : 0);
 		const magic = getStat("Magic").base;
 		const finalMagic = magic + (totalRockTime + this.goldVaporized[0]) / 10;
 
 		let estimate = totalRockTime - rockCost / (((magic + finalMagic) / 2 + 100) / 100);
 		estimate /= this.cloneArriveTimes.length;
+
+		// Remove drain loss from time prior to the first clone arriving
 		estimate -= this.drainLoss;
+
+		// Remove drain loss from time prior to other clones arriving
+		const firstCloneArrival = Math.min(...this.cloneArriveTimes);
+		const preArrivalTime = this.cloneArriveTimes.reduce((a, c) => a + (c - firstCloneArrival), 0);
+		estimate -= preArrivalTime / this.cloneArriveTimes.length * this.manaDrain;
+
 		this.cachedEstimate = estimate;
 
 		return !ignoreInvalidate && this.invalidateCost ? estimate + 1e9 : estimate;
