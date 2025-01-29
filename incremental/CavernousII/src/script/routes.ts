@@ -229,9 +229,9 @@ class Route {
 		let estimate = totalRockTime - rockCost;
 		estimate /= this.cloneArriveTimes.length;
 
-		// Divide excess by drain multiplier because the difference is not symmetric
+		// Multiply excess by drain multiplier because the difference is not symmetric
 		const drainMult = (1 + this.manaDrain * this.chronoMult);
-		if (estimate > 0) estimate /= drainMult;
+		if (estimate > 0) estimate *= drainMult;
 
 		this.cachedEstimate = estimate;
 
@@ -242,13 +242,16 @@ class Route {
 		let times = 0;
 		let currentLeft = this.estimateRefineManaLeft(false, true);
 		let currentCost = this.getRefineCost(times);
-		const totalRockTime = this.getTotalRockTime();
+		const manaTotal = getBaseMana(this.zone, this.realm) + this.goldVaporized[1];
+		const totalRockTime = this.cloneArriveTimes.reduce((a, c) => a + (manaTotal - (c / 1000)), 0) / (1 + this.manaDrain / this.chronoMult);
 		const magic = getStat("Magic").base + this.goldVaporized[0] / 10;
 		const finalMagic = magic + totalRockTime / 10;
 		const magicMod = 1 + ((magic + finalMagic) / 200);
-		while (currentLeft + 0.1 * times * (this.zone + 1) > (this.getRefineCost(times) - currentCost) * (1 + this.manaDrain * this.chronoMult / this.cloneArriveTimes.length / magicMod)) {
-			times++;
-		}
+		while (
+			currentLeft + 0.1 * times * (this.zone + 1)
+			>
+			(this.getRefineCost(times) - currentCost) * (1 + this.manaDrain / this.chronoMult) / this.cloneArriveTimes.length / magicMod)
+			{times++}
 		return times;
 	}
 

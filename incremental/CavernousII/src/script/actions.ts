@@ -592,6 +592,7 @@ function barrierDuration(){
 
 function completeGame(){
 	getMessage("You Win!").display(true);
+	getRealm("Verdant Realm").maxMult = Infinity;
 }
 
 enum ACTION {
