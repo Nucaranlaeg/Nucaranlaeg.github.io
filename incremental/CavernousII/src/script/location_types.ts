@@ -149,3 +149,10 @@ const locationTypes = [
 	new LocationType("Exit", "!", "A door.  Opening to the outside world", "Exit", null, null),
 	new LocationType("Not a location", "", "", null, null),
 ];
+
+if ((new URL(document.location.href).searchParams).get("save") === "separate") {
+	locationTypes.forEach((locationType) => {
+		locationType.canWorkTogether = false;
+	});
+	console.log("Location types set to not work together.");
+}
