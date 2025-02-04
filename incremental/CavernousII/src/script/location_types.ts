@@ -89,7 +89,7 @@ const locationTypes = [
 	new LocationType("Limestone", "#", "A whole bunch of relatively soft rock.", "Mine", null, null),
 	new LocationType("Travertine", "«", "A whole bunch of rock, but much harder than usual.", "Mine Travertine", null, null),
 	new LocationType("Granite", "╖", "This stone just doesn't want to budge.", "Mine Granite", null, null),
-	new LocationType("Basalt", "╣", "You've hit a wall.", "Mine Basalt", null, null),
+	new LocationType("Basalt", "╣", "{'0':'You''ve hit a wall.','3':'The wall hits back.'}", "Mine Basalt", null, null),
 	new LocationType("Chert", "■", "You'd think it was the hard rock all around it, but it's a different colour.", "Mine Chert", null, null),
 	new LocationType("Gold ore", "+", "Rocks with veins of gold ore.", "Mine Gold", null, null),
 	new LocationType("Iron ore", "%", "Rocks with veins of iron ore.", "Mine Iron", null, null),
@@ -152,6 +152,7 @@ const locationTypes = [
 
 if ((new URL(document.location.href).searchParams).get("save") === "separate") {
 	locationTypes.forEach((locationType) => {
+		if (locationType.name === "Portal") return;
 		locationType.canWorkTogether = false;
 	});
 	console.log("Location types set to not work together.");

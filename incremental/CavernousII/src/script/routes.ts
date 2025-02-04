@@ -59,6 +59,9 @@ class Route {
 
 			this.cloneArriveTimes = clones.filter(c => c.x == this.x && c.y == this.y && zones[this.zone].queues[c.id].getNextAction()?.action === "I")
 			    .map(c => queueTime);
+			if (saveName === "saveGameII_separate") {
+				this.cloneArriveTimes = [Math.min(...this.cloneArriveTimes)];
+			}
 			this.drainLoss = totalDrain;
 			this.chronoMult = getStat("Chronomancy").value;
 
@@ -184,7 +187,7 @@ class Route {
 		}).filter(s => s.count > 0);
 
 		const arrivedClones = clones.filter(c => c.x == this.x && c.y == this.y && zones[this.zone].queues[c.id].getNextAction()?.action === "I").length;
-		while (arrivedClones > this.cloneArriveTimes.length){
+		while (arrivedClones > this.cloneArriveTimes.length && saveName !== "saveGameII_separate"){
 			this.needsNewEstimate = true;
 			this.cloneArriveTimes.push(queueTime);
 		}
