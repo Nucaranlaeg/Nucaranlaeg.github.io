@@ -80,9 +80,11 @@ class LoopLog {
 		}
 		let actions = Object.entries(this.actions);
 		if (zone == -1){
-			actions = actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
+			actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
 		} else {
-			actions = actions.sort((a, b) => b[1][zone] - a[1][zone]);
+			actions.sort((a, b) => {
+				return (b[1][zone]??0) - (a[1][zone]??0);
+			});
 		}
 		const totalActionNode = logEntryTemplate.cloneNode(true) as HTMLElement;
 		totalActionNode.querySelector(".name")!.innerHTML = "Total clone-seconds";
@@ -92,7 +94,7 @@ class LoopLog {
 
 		for (let i = 0; i < actions.length; i++) {
 			const actionValue = (zone == -1 ? actions[i][1].reduce((acc, cur) => acc + cur, 0) : actions[i][1][zone]) / 1000;
-			if (actionValue === 0) continue;
+			if (actionValue === 0 || !actionValue) continue;
 			const node = logEntryTemplate.cloneNode(true) as HTMLElement;
 			node.classList.add(actions[i][0].replace(/ /g, "-"));
 			node.querySelector(".name")!.innerHTML = actions[i][0];
