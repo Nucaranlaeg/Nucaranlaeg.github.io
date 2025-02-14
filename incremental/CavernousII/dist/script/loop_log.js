@@ -22,6 +22,14 @@ class LoopLog {
         this.queues[clone][this.queues[clone].length - 1] += actionId;
     }
     moveZone() {
+        if (this.queues.length) {
+            zones[this.queues[0].length - 1].queues.forEach((q, i) => {
+                const action = q.getNextAction();
+                if (action) {
+                    this.addQueueAction(i, action.actionID);
+                }
+            });
+        }
         this.queues.forEach(q => q.push(""));
     }
     addActionTime(name, zone, time) {
