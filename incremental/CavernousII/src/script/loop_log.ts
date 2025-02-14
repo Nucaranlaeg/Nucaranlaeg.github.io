@@ -1,13 +1,14 @@
-// BUGS
-
 class LoopLog {
 	actions: { [key in string]: number[] } = {};
-	current: boolean = true;
-	goldVaporizedCount: number = 0;
-	goldVaporizedMana: number = 0;
-	kept: boolean = false;
+	current = true;
+	goldVaporizedCount = 0;
+	goldVaporizedMana = 0;
+	kept = false;
 	stats: {current: number, base: number}[];
 	queues: string[][] = [];
+	manaMined = false;
+	node: HTMLElement | null = null;
+	zoneNames: string[] = ["z1"];
 	constructor(){
 		this.stats = stats.map(s => {
 			return {
@@ -24,7 +25,7 @@ class LoopLog {
 		this.queues[clone][this.queues[clone].length - 1] += actionId;
 	}
 
-	moveZone(){
+	moveZone(zoneName: string){
 		if (this.queues.length){
 			zones[this.queues[0].length - 1].queues.forEach((q, i) => {
 				const action = q.getNextAction();
@@ -34,6 +35,8 @@ class LoopLog {
 			});
 		}
 		this.queues.forEach(q => q.push(""));
+		if (zoneName === "Zone 1" || zoneName === "z1") return;
+		this.zoneNames.push(zoneName);
 	}
 
 	addActionTime(name: string, zone: number, time: number){
@@ -62,17 +65,18 @@ class LoopLog {
 		this.current = false;
 		currentLoopLog = new LoopLog();
 		previousLoopLogs.push(this);
+		previousLoopLogs.forEach(log => log.node = null);
 		const ephemeralLogCount = previousLoopLogs.filter(l => !l.kept).length;
 		if (ephemeralLogCount > MAX_EPHEMERAL_LOGS){
 			let filtered = false;
 			previousLoopLogs = previousLoopLogs.filter(l => filtered || l.kept || ((filtered = true) && false));
 		}
-		if (displayedLog == this){
-			currentLoopLog.display();
+		if (displayedLog === this){
+			this.display();
 		}
 	}
 
-	display(zone: number = -1){
+	display(zone = -1){
 		loopLogBox.hidden = false;
 		displayedLog = this;
 		this.displayActions(zone);
@@ -87,28 +91,28 @@ class LoopLog {
 			loopActionNode.removeChild(loopActionNode.lastChild);
 		}
 		let actions = Object.entries(this.actions);
-		if (zone == -1){
-			actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
+		if (zone === -1){
+			actions = actions.sort((a, b) => b[1].reduce((acc, cur) => acc + cur, 0) - a[1].reduce((acc, cur) => acc + cur, 0));
 		} else {
-			actions.sort((a, b) => {
-				return (b[1][zone]??0) - (a[1][zone]??0);
-			});
+			actions = actions.sort((a, b) => (b[1][zone] || 0) - (a[1][zone] || 0));
 		}
 		const totalActionNode = logEntryTemplate.cloneNode(true) as HTMLElement;
 		totalActionNode.querySelector(".name")!.innerHTML = "Total clone-seconds";
-		totalActionNode.querySelector(".value")!.innerHTML = writeNumber(actions.reduce((a, c) => a + c[1].reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1);
+		totalActionNode.querySelector(".value")!.innerHTML = writeNumber(actions.filter(a => !["Frost", "Barrier Drain"].includes(a[0]))
+		                                                                        .reduce((a, c) => a + c[1]
+		                                                                            .reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1);
 		totalActionNode.style.fontWeight = "bold";
 		loopActionNode.append(totalActionNode);
 
 		for (let i = 0; i < actions.length; i++) {
-			const actionValue = (zone == -1 ? actions[i][1].reduce((acc, cur) => acc + cur, 0) : actions[i][1][zone]) / 1000;
-			if (actionValue === 0 || !actionValue) continue;
+			const actionValue = (zone === -1 ? actions[i][1].reduce((acc, cur) => acc + cur, 0) : actions[i][1][zone]) / 1000;
+			if (actionValue === 0 || isNaN(actionValue)) continue;
 			const node = logEntryTemplate.cloneNode(true) as HTMLElement;
 			node.classList.add(actions[i][0].replace(/ /g, "-"));
 			node.querySelector(".name")!.innerHTML = actions[i][0];
 			node.querySelector(".value")!.innerHTML = writeNumber(actionValue, 1);
-			node.querySelector(".description")!.innerHTML = `Relevant stats:<br>${getAction(<anyActionName>actions[i][0])?.stats.map(s => `${s[0].name}: ${s[1]}`).join("<br>") || ""}`;
 			loopActionNode.append(node);
+			node.querySelector(".description")!.innerHTML = `Relevant stats:<br>${getAction(actions[i][0] as anyActionName)?.stats.map(s => `${s[0].name}: ${s[1]}`).join("<br>") || ""}`;
 			node.style.color = setRGBContrast(window.getComputedStyle(node).backgroundColor);
 		}
 
@@ -132,8 +136,9 @@ class LoopLog {
 		let totalStats = 0;
 		for (let i = 0; i < this.stats.length; i++) {
 			if (!stats[i].learnable ||
-				(this.stats[i].current == 0 && this !== currentLoopLog) ||
-				this.stats[i].current == stats[i].current){
+				(this.stats[i].current === 0 && this !== currentLoopLog) ||
+				this.stats[i].current === stats[i].current ||
+				Object.keys(this.actions).length === 0){
 					continue;
 			}
 			const node = statLogEntryTemplate.cloneNode(true) as HTMLElement;
@@ -165,12 +170,12 @@ class LoopLog {
 		while (loopZoneNode.lastChild) {
 			loopZoneNode.removeChild(loopZoneNode.lastChild);
 		}
-		let zoneCount = this.queues[0]?.length || 0;
+		const zoneCount = this.queues[0]?.length || 0;
 
 		for (let i = -1; i < zoneCount; i++){
 			const zoneNode = loopZoneTemplate.cloneNode(true) as HTMLElement;
-			zoneNode.innerHTML = i < 0 ? "All" : `z${i + 1}`;
-			if (i == zone) zoneNode.classList.add("active");
+			zoneNode.innerHTML = i < 0 ? "All" : this.zoneNames[i];
+			if (i === zone) zoneNode.classList.add("active");
 			const changeLogZone = ((z) => (e: MouseEvent) => {
 				e.stopPropagation();
 				this.display(z);
@@ -205,28 +210,39 @@ function displayLogs(){
 		loopPrevNode.removeChild(loopPrevNode.lastChild);
 	}
 
-	const node = previousLogTemplate.cloneNode(true) as HTMLElement;
-	node.querySelector(".pin")!.classList.add("disabled");
-	node.querySelector(".name")!.innerHTML = "Current";
-	node.querySelector(".value")!.innerHTML = writeNumber(Object.values(currentLoopLog.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
-	node.onclick = e => {
-		currentLoopLog.display();
-		e.stopPropagation();
-		// Visually select the clicked-upon log
-	}
-	loopPrevNode.append(node);
-	for (let i = previousLoopLogs.length - 1; i >= 0; i--){
-		let log = previousLoopLogs[i];
-		const node = previousLogTemplate.cloneNode(true) as HTMLElement;
-		if (log.kept) node.querySelector(".pin")!.classList.add("pinned");
-		(node.querySelector(".pin")! as HTMLElement).onmousedown = () => log.kept = !log.kept;
-		node.querySelector(".name")!.innerHTML = "Previous";
-		node.querySelector(".value")!.innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
-		node.onclick = e => {
-			log.display();
+	if (currentLoopLog.node){
+		currentLoopLog.node.querySelector(".value")!.innerHTML = writeNumber(Object.values(currentLoopLog.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
+	} else {
+		currentLoopLog.node = previousLogTemplate.cloneNode(true) as HTMLElement;
+		currentLoopLog.node.querySelector(".pin")!.classList.add("disabled");
+		currentLoopLog.node.querySelector(".name")!.innerHTML = "Current";
+		currentLoopLog.node.querySelector(".value")!.innerHTML = writeNumber(Object.values(currentLoopLog.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
+		currentLoopLog.node.onclick = e => {
+			previousLoopLogs.forEach(log => log.node?.classList.remove("selected"));
+			currentLoopLog.display();
 			e.stopPropagation();
 		}
-		loopPrevNode.append(node);
+		if (displayedLog === currentLoopLog) currentLoopLog.node.classList.add("selected");
+	}
+	loopPrevNode.append(currentLoopLog.node);
+	for (let i = previousLoopLogs.length - 1; i >= 0; i--){
+		const log = previousLoopLogs[i];
+		if (!log.node){
+			log.node = previousLogTemplate.cloneNode(true) as HTMLElement;
+			if (log.manaMined) log.node.classList.add("mana-mined");
+			if (log.kept) log.node.querySelector(".pin")!.classList.add("pinned");
+			(log.node.querySelector(".pin")! as HTMLElement).onmousedown = () => log.kept = !log.kept;
+			log.node.querySelector(".name")!.innerHTML = "Previous";
+			log.node.querySelector(".value")!.innerHTML = writeNumber(Object.values(log.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) / 1000, 1) + " cs";
+			log.node.onclick = e => {
+				previousLoopLogs.forEach(prevLog => prevLog.node?.classList.remove("selected"));
+				currentLoopLog.node?.classList.remove("selected")
+				log.display();
+				e.stopPropagation();
+			}
+		}
+		if (displayedLog === log) log.node.classList.add("selected");
+		loopPrevNode.append(log.node);
 	}
 }
 

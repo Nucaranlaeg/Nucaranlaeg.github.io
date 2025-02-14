@@ -152,7 +152,7 @@ class Zone {
             });
         }
         this.display();
-        currentLoopLog.moveZone();
+        currentLoopLog.moveZone(`z${this.index + 1}`);
     }
     sumRoute(require, startDamage, actionCount) {
         let routeOptions = this.routes
