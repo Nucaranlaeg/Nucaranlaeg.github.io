@@ -592,9 +592,11 @@ function barrierDuration(){
 
 function completeGame(){
 	getMessage("You Win!").display(true);
-	getRealm("Verdant Realm").maxMult = Infinity;
-	getRealm("Verdant Realm").completed = false;
-	getRealm("Verdant Realm").display();
+	// Reunlock VR
+	const vr = getRealm("Verdant Realm");
+	vr.maxMult = 1e308;
+	vr.completed = false;
+	vr.display();
 }
 
 enum ACTION {

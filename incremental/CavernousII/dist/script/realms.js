@@ -27,6 +27,7 @@ class Realm {
     complete() {
         this.completed = true;
         this.node?.parentNode?.removeChild(this.node);
+        this.node = null;
         routes = routes.filter(r => r.realm !== this.index);
         zones.forEach(z => z.routes = z.routes.filter(r => r.realm !== this.index));
         grindRoutes = grindRoutes.filter(r => r.realm !== this.index);
@@ -123,7 +124,8 @@ const verdantMapping = {
     "■": "δ", // Chert -> Springshroom (you can't get here, but still...)
 };
 function convertMapToVerdant(map, zoneNumber) {
-    return map.map(row => [...row].map(cell => zoneNumber > 6 ? "█" : (zoneNumber == 6 && cell == "Θ" ? "♠" : verdantMapping[cell] || cell)).join(""));
+    const notReUnlocked = getRealm("Verdant Realm").maxMult === 2;
+    return map.map(row => [...row].map(cell => zoneNumber > 6 && notReUnlocked ? "█" : (zoneNumber == 6 && cell == "Θ" && notReUnlocked ? "♠" : verdantMapping[cell] || cell)).join(""));
 }
 const realms = [];
 realms.push(
