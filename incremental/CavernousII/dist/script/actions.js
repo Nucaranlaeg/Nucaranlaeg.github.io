@@ -529,7 +529,7 @@ function barrierDuration() {
     return 1;
 }
 function completeGame() {
-    getMessage("You Win!").display(true);
+    getMessage("You Win!").display();
     // Reunlock VR
     const vr = getRealm("Verdant Realm");
     vr.maxMult = 1e308;
