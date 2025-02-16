@@ -105,7 +105,7 @@ function getCompoundingMultDesc() {
 function getRealmComplete(realm) {
     if (realm.name == "Verdant Realm") {
         const wither = getRune("Wither");
-        if ((getRealmMult(realm.name, true) == realm.maxMult && wither.upgradeCount >= 3) || realm.completed) {
+        if ((getRealmMult(realm.name, true) === realm.maxMult && wither.upgradeCount >= 3) || realm.completed) {
             realm.complete();
             getMessage("Complete Verdant").display();
             wither.upgradeCount = 3;
