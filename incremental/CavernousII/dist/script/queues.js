@@ -153,11 +153,11 @@ class QueueAction {
         }
     }
     tick(time) {
-        if (!this.currentAction)
-            throw new Error("Attempted to run uninitialized action");
         if (this.done != ActionStatus.Started) {
             return;
         }
+        if (!this.currentAction)
+            throw new Error("Attempted to run uninitialized action");
         if (this.currentAction.remainingDuration == 0) {
             if ("LURD".includes(this.action) || this.actionID == "T" || this.currentAction.action.name == "Teleport") {
                 // Someone else completed this action; this should have already been taken care of.
@@ -227,6 +227,8 @@ class QueueAction {
         this.drawProgress();
     }
     complete() {
+        if (this.currentAction?.remainingDuration === 0)
+            this.currentAction = null;
         this.done = this.actionID == "T" ? ActionStatus.NotStarted : ActionStatus.Complete;
         if (this.done == ActionStatus.Complete)
             currentLoopLog.addQueueAction(this.currentClone.id, this.actionID);
@@ -720,7 +722,6 @@ function importQueues() {
     }
 }
 function longImportQueues(queueString) {
-    console.log(queueString);
     if (!queueString) {
         queueString = prompt("Input your queues");
         if (!queueString)
