@@ -106,9 +106,9 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 			// [tile, loc] is actually [mapChar, MapLocation] but ts doesn't provide a way to typehint that.  Or it's just bad at complex types.
 			zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]: any) => {
 				if (!loc || !loc.water) return;
-				const prev_level = Math.floor(loc.water * 10);
+				const prevLevel = Math.min(Math.floor(loc.water * 10), MAX_WATER);
 				loc.water = Math.max(0, loc.water - (pumpAmount / 4));
-				if (prev_level != Math.floor(loc.water * 10)){
+				if (prevLevel !== Math.min(Math.floor(loc.water * 10), MAX_WATER)){
 					mapDirt.push([loc.x + zones[currentZone].xOffset, loc.y + zones[currentZone].yOffset]);
 				}
 			});

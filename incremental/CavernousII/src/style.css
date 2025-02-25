@@ -725,6 +725,9 @@ h4#location-name {
 	padding: 2px;
 	color: #000000;
 	cursor: default;
+	overflow-y: scroll;
+	scrollbar-width: thin;
+	max-height: 100%;
 }
 
 .zone:hover > .routes {
@@ -733,6 +736,12 @@ h4#location-name {
 
 .routes h4 {
 	margin: 0;
+}
+
+.routes h4:first-of-type {
+	top: 0;
+	position: sticky;
+	background: #aacccc;
 }
 
 .routes div {

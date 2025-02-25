@@ -75,6 +75,7 @@ const classMapping = {
     "3": ["barrier", "Timelike Barrier"],
     "!": ["exit", "Exit"],
 };
+const MAX_WATER = 11;
 setTimeout(() => {
     Object.entries(classMapping).forEach(e => {
         try {
@@ -138,7 +139,7 @@ function drawNewMap() {
                     }
                     cellNode.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
                     if (zones[displayZone].mapLocations[y][x].water > 0.1) {
-                        cellNode.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), 11)}`);
+                        cellNode.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), MAX_WATER)}`);
                     }
                 }
                 else {
@@ -164,7 +165,7 @@ function drawCell(x, y) {
     let [className, descriptor, isStained, descriptorMod] = classMapping[zones[displayZone].map[y][x]];
     cell.className = className;
     if (location.water > 0.1) {
-        cell.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), 11)}`);
+        cell.classList.add(`watery-${Math.min(Math.floor(zones[displayZone].mapLocations[y][x].water * 10), MAX_WATER)}`);
     }
     cell.setAttribute("data-content", descriptorMod ? descriptorMod(descriptor, x, y) : descriptor);
 }
