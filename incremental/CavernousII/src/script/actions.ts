@@ -218,6 +218,16 @@ function completeCollectMana(loc: MapLocation) {
 	Route.updateBestRoute(loc, true);
 	zones[currentZone].mineComplete();
 	setMined(loc.x, loc.y, ".");
+	if (realms[currentRealm].name === "Long Realm") {
+		routes.forEach(r => {
+			if (r.zone !== loc.zone.index ||
+				r.realm === currentRealm ||
+				r.x !== loc.x ||
+				r.y !== loc.y
+			) return;
+			r.needsNewEstimate = true;
+		});
+	}
 	if (settings.autoRestart == AutoRestart.RestartDone && settings.grindMana) shouldReset = true;
 	getRealmComplete(realms[currentRealm]);
 }
