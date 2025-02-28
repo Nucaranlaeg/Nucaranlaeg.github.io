@@ -416,6 +416,7 @@ function moveToZone(zone, complete = true) {
         clearCursors();
     }
     currentZone = zone;
+    document.querySelector("#barrier-mult").style.display = "none";
     zones[zone].enterZone();
 }
 function recalculateMana() {

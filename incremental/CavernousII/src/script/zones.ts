@@ -426,6 +426,7 @@ function moveToZone(zone:string|number, complete = true) {
 		clearCursors();
 	}
 	currentZone = zone;
+	(<HTMLElement>document.querySelector("#barrier-mult")!).style.display = "none";
 	zones[zone].enterZone();
 }
 
