@@ -101,7 +101,6 @@ class MapLocation<basetypeName extends anyLocationTypeName = anyLocationTypeName
 	zoneTick(time:number) {
 		if (this.temporaryPresent?.name == "Pump") {
 			const pumpAmount = Math.log2(getStat("Runic Lore").current) / 25 * time / 1000;
-			if (this.water > 0.1) mapDirt.push([this.x, this.y]);
 			this.water = Math.max(0, this.water - pumpAmount);
 			// [tile, loc] is actually [mapChar, MapLocation] but ts doesn't provide a way to typehint that.  Or it's just bad at complex types.
 			zones[currentZone].getAdjLocations(this.x, this.y).forEach(([tile, loc]: any) => {

@@ -92,6 +92,7 @@ function resetLoop(noLoad = false, saveGame = true) {
         z.resetZone();
         (z.queues || []).forEach(q => q.reset());
     });
+    document.querySelector("#barrier-mult").style.display = "none";
     updateRunes();
     moveToZone(0, false);
     getStat("Mana").dirty = true;

@@ -264,6 +264,7 @@ svg {
 }
 
 #actions-spent,
+#current-barrier-mult,
 #time-spent-zone,
 #time-spent {
 	font-family: "Lucida Console", monospace;
@@ -271,6 +272,10 @@ svg {
 	display: inline-block;
 	text-align: right;
 	font-variant-numeric: tabular-nums;
+}
+
+#barrier-mult {
+	display: none;
 }
 
 #queues {
@@ -1188,6 +1193,10 @@ td.coal:before {
 td.barrier,
 td.zone {
 	background-color: #3939ff;
+}
+
+.barrier-related {
+	color: #3939ff;
 }
 
 td.zone:before {
