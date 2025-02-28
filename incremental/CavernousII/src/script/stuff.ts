@@ -11,6 +11,7 @@ class Stuff<stuffName extends string> {
 	description: string;
 	colour: string;
 	count: number;
+	index: number = -1;
 	node: HTMLElement | null;
 	countNode: HTMLElement | null;
 	min: number;
@@ -26,6 +27,10 @@ class Stuff<stuffName extends string> {
 		this.countNode = null;
 		this.min = 0;
 		this.effect = effect;
+
+		setTimeout(() => {
+			this.index = stuff.findIndex(s => s === this);
+		});
 	}
 
 	update(newCount = 0) {
@@ -71,6 +76,7 @@ class Stuff<stuffName extends string> {
 		this.node.querySelector(".description")!.innerHTML = this.description.replace("{}", "0");
 		this.node.style.color = setContrast(this.colour);
 		this.node.style.backgroundColor = this.colour;
+		this.node.style.order = this.index.toString();
 		document.querySelector("#stuff-inner")!.appendChild(this.node);
 		this.countNode = this.node.querySelector(".count")! as HTMLElement;
 	}
@@ -116,14 +122,14 @@ const stuff = [
 	new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
 	new Stuff("Salt", "⌂", "A pile of salt.  You're not hungry, so what's this good for?", "#ffffff", 0),
 	new Stuff("Iron Ore", "•", "A chunck of iron ore.  Not useful in its current form.", "#777777", 0),
+	new Stuff("Gem", "☼", "A gem, pulled from the ground.  Gives +2.5 (or +2.5%) to Magic.", "#90ee90", 0, getStatBonus("Magic", 2.5)),
+	new Stuff("Coal", "○", "A chunk of coal.  Burns hot.", "#222222", 0),
 	new Stuff("Iron Bar", "❚", "An iron rod.  Has a faint smell of bacon.", "#777777", 0),
 	new Stuff("Iron Bridge", "⎶", "A small iron bridge.", "#777777", 0),
 	new Stuff("Iron Sword", ")", "An iron sword.  Sharp! (+1 attack)  Max 1 weapon per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Iron Shield", "[", "An iron shield.  This should help you not die. (+1 defense)  Max 1 shield per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Iron Armour", "]", "An suit of iron armour.  This should help you take more hits. (+5 health)  Max 1 armour per clone.", "#777777", 0, calcCombatStats),
 	new Stuff("Steel Bar", "❚", "A steel rod.", "#333333", 0),
-	new Stuff("Gem", "☼", "A gem, pulled from the ground.  Gives +2.5 (or +2.5%) to Magic.", "#90ee90", 0, getStatBonus("Magic", 2.5)),
-	new Stuff("Coal", "○", "A chunk of coal.  Burns hot.", "#222222", 0),
 	new Stuff("Steel Bridge", "⎶", "A small steel bridge.", "#222222", 0),
 	new Stuff("Steel Sword", ")", "A steel sword.  Sharp! (+2 attack)  Max 1 weapon per clone.", "#222222", 0, calcCombatStats),
 	new Stuff("Steel Shield", "[", "A steel shield.  This should help you not die. (+2 defense)  Max 1 shield per clone.", "#222222", 0, calcCombatStats),
