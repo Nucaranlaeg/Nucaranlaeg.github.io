@@ -189,7 +189,6 @@ function completeCollectMana(loc) {
     if (realms[currentRealm].name === "Long Realm") {
         routes.forEach(r => {
             if (r.zone !== loc.zone.index ||
-                r.realm === currentRealm ||
                 r.x !== loc.x ||
                 r.y !== loc.y)
                 return;
