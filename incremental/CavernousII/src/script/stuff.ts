@@ -121,7 +121,7 @@ type anyStuffName = typeof stuff[number]['name'];
 const stuff = [
 	new Stuff("Gold Nugget", "•", "This is probably pretty valuable.  Shiny!", "#ffd700", 0),
 	new Stuff("Salt", "⌂", "A pile of salt.  You're not hungry, so what's this good for?", "#ffffff", 0),
-	new Stuff("Iron Ore", "•", "A chunck of iron ore.  Not useful in its current form.", "#777777", 0),
+	new Stuff("Iron Ore", "•", "A chunk of iron ore.  Not useful in its current form.", "#777777", 0),
 	new Stuff("Gem", "☼", "A gem, pulled from the ground.  Gives +2.5 (or +2.5%) to Magic.", "#90ee90", 0, getStatBonus("Magic", 2.5)),
 	new Stuff("Coal", "○", "A chunk of coal.  Burns hot.", "#222222", 0),
 	new Stuff("Iron Bar", "❚", "An iron rod.  Has a faint smell of bacon.", "#777777", 0),
