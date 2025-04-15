@@ -56,7 +56,10 @@ class LoopLog {
 
 	finalize(){
 		// Don't save 0 length logs.
-		if (Object.values(this.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) < 10) return;
+		if (Object.values(this.actions).reduce((a, c) => a + c.reduce((acc, cur) => acc + cur, 0), 0) < 10){
+			currentLoopLog = new LoopLog();
+			return;
+		}
 		stats.forEach((s, i) => {
 			this.stats[i].current = s.current - this.stats[i].current;
 			this.stats[i].base = s.base - this.stats[i].base;
