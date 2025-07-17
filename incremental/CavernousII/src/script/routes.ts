@@ -219,12 +219,21 @@ class Route {
 		return totalRockTime;
 	}
 
+	estimateMagicAfterVaporizing(gold:number) {
+		// Underestimate rather than overestimate, to avoid the UI giving a "mana left: 0.01" estimate
+		// for a rock that fails to complete.
+		const baseMagic = getStat("Magic").base;
+		const baseDuration = (realms[this.realm].name == "Long Realm" ? 3 : 1);
+		const highEstimate = baseMagic + gold * baseDuration * 10 / (100 + baseMagic);
+		return baseMagic + gold * baseDuration * 10 / (100 + highEstimate);
+	}
+
 	estimateRefineManaLeft(current = false, ignoreInvalidate = false, completed = false) {
 		if (!this.needsNewEstimate && this.cachedEstimate) return !ignoreInvalidate && this.invalidateCost ? this.cachedEstimate + 1e9 : this.cachedEstimate;
 		this.needsNewEstimate = false;
 		const totalRockTime = this.getTotalRockTime(current);
 
-		const magic = getStat("Magic").base + this.goldVaporized[0] / 10;
+		const magic = this.estimateMagicAfterVaporizing(this.goldVaporized[0]);
 		const finalMagic = magic + totalRockTime / 10;
 		const rockCost = this.getRefineCost(completed ? 1 : 0) / (((magic + finalMagic) / 2 + 100) / 100);
 
@@ -247,7 +256,7 @@ class Route {
 		let currentCost = this.getRefineCost(times);
 		const manaTotal = getBaseMana(this.zone, this.realm) + this.goldVaporized[1];
 		const totalRockTime = this.cloneArriveTimes.reduce((a, c) => a + (manaTotal - (c / 1000)), 0) / (1 + this.manaDrain / this.chronoMult);
-		const magic = getStat("Magic").base + this.goldVaporized[0] / 10;
+		const magic = this.estimateMagicAfterVaporizing(this.goldVaporized[0]);
 		const finalMagic = magic + totalRockTime / 10;
 		const magicMod = 1 + ((magic + finalMagic) / 200);
 		while (
