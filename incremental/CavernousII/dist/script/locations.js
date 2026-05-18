@@ -106,7 +106,7 @@ class MapLocation {
         }
         if (!this.water)
             return;
-        if (this.baseType.name == "Springshroom" && !this.entered) {
+        if ((this.baseType.name == "Springshroom" && !this.entered) || (this.baseType.name == "Chert" && currentRealm === 2 && !this.entered) ) {
             // Sporeshrooms add 0.2 water per second at 0 water, 0.05 at 1 water, and it drops off quadratically.
             this.water = this.water + time / 1000 * 0.2 / ((1 + this.water) ** 2);
         }
