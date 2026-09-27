@@ -587,6 +587,7 @@ const zones = [
 		],
 		() => {
 			getMessage("Further Realms").display();
+			realms[0].unlock();
 			realms[2].unlock();
 		}
 	),
@@ -648,6 +649,7 @@ const zones = [
 		],
 		() => {
 			getMessage("Compounding Realm").display();
+			realms[0].unlock();
 			realms[3].unlock();
 		}
 	),
