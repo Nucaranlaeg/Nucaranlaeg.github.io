@@ -565,6 +565,11 @@ function addActionToQueue(action) {
     zones[displayZone].queues.filter(q => q.selected).forEach(q => q.addAction(action));
     showFinalLocation();
     countMultipleActions();
+    // Turn off grinding, to prevent the changes being overwritten when auto-loading a different route
+    if (settings.grindStats)
+        toggleGrindStats();
+    if (settings.grindMana)
+        toggleGrindMana();
 }
 function addRuneAction(index) {
     if (index < runes.length && runes[index].canAddToQueue())
